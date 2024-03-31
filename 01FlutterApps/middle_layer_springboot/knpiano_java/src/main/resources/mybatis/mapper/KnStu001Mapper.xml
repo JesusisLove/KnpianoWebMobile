@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.KnStu001Mapper">
+    <select id= "getInfoList" resultType="com.liu.springboot04web.bean.KnStu001Bean">
+        select * from t_mst_student
+    </select>
+
+    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.KnStu001Bean">
+        select * from t_mst_student
+        where stu_id = #{stuId}
+    </select>
+
+    <update id="updateInfo">
+      update t_mst_student set
+            stu_id = #{stuId},
+            stu_name = #{stuName},
+            gender = #{gender},
+            birthday = #{birthday},
+            tel1 = #{tel1},
+            tel2 = #{tel2},
+            tel3 = #{tel3},
+            tel4 = #{tel4},
+            address = #{address},
+            post_code = #{postCode},
+            introducer = #{introducer},
+            del_flg = #{delFlg}
+        where stu_id = #{stuId}
+    </update>
+
+    <insert id="insertInfo" keyColumn="">
+        insert into t_mst_student (
+            stu_id,
+            stu_name,
+            gender,
+            birthday,
+            tel1,
+            tel2,
+            tel3,
+            tel4,
+            address,
+            post_code,
+            introducer,
+            del_flg
+         )
+        values (
+            #{stuId},
+            #{stuName},
+            #{gender},
+            #{birthday},
+            #{tel1},
+            #{tel2},
+            #{tel3},
+            #{tel4},
+            #{address},
+            #{postCode},
+            #{introducer},
+            #{delFlg}
+        )
+    </insert>
+
+    <delete id="deleteInfo">
+        delete from t_mst_student
+        where stu_id = #{stuId}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+          {
+              #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+          }
+    </select>
+</mapper>
