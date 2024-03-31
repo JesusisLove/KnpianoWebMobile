@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    #数据源基本配置
+    username: root
+    password: admin
+    # url: jdbc:mysql://127.0.0.1:3306/liuDB
+    # url: jdbc:mysql://127.0.0.1:3306/bezalDB
+    # url: jdbc:mysql://127.0.0.1:3306/bzlDev
+    url: jdbc:mysql://127.0.0.1:3306/liuDB_schema
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      #更新或者创建数据表结构（第一次启动，如果没有数据表就会创建，以后，如果实体类标注的数据表的结构有修改，就会自动更新数据库相应的表结构）
+      ddl-auto: update
+    #执行SQL语句的时候，可以在控制台显示SQL文
+    show-sql: true

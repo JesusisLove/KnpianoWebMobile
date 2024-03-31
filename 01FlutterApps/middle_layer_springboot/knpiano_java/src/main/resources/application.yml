@@ -1,0 +1,47 @@
+spring:
+  #数据源基本配置
+  datasource:
+    #访问本地MySQL数据库使用的用户名和密码
+    username: root
+    password: admin
+    # url: jdbc:mysql://127.0.0.1:3306/bzlDev
+    url: jdbc:mysql://127.0.0.1:3306/KNStudent
+
+    #访问NAS服务器上的MySQL数据库使用的用户名和密码
+    #username: root
+    #password: 7654321
+    #url: jdbc:mysql://192.168.3.8:49168/bzlDev
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    #数据源其他配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileInle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    #配置监控统计拦截的filters，去掉后监控姐妹sql无法统计，'wall'用于防火墙
+    filters: stat,wall.log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    usGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql-true;druid.stat.slowSqlMillis-500
+#  jpa:
+#    hibernate:
+#      #更新或者创建数据表结构（第一次启动，如果没有数据表就会创建，以后，如果实体类标注的数据表的结构有修改，就会自动更新数据库相应的表结构）
+#      ddl-auto: update
+#    #执行SQL语句的时候，可以在控制台显示SQL文
+#    show-sql: true
+mybatis:
+  # Location of MyBatis xml config file.
+  config-location: classpath:mybatis/mybatis-config.xml
+  # Locations of MyBatis mapper files.【 mybatis/mapper/*.xml这是一个全局配置，表示适用于mapper路径下的所有xml文件】
+  mapper-locations: classpath:mybatis/mapper/*.xml
+
+#  configuration:
+#    use-actual-param-name: true
