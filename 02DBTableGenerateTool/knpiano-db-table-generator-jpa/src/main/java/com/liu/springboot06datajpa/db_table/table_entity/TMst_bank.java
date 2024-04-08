@@ -6,7 +6,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Date;
+// import java.util.Date;
 
 /* 機能番号：KN_BNK_001 【学科基本情報マスタ】テーブルを生成する */
 @SuppressWarnings("JpaDataSourceORMInspection")

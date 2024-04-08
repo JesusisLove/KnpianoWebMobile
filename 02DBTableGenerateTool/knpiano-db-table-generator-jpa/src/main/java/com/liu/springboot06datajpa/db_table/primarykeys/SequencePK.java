@@ -7,27 +7,25 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Objects;
-/* 機能番号：CT_KEIYAKU_007 【口座管理】テーブルPKクラス */
+/* 機能番号：KN_SAIBAN_001 【採番管理テーブル】テーブルを生成する */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TMst_bankPK implements Serializable  {
+public class SequencePK implements Serializable {
 
     private static final long serialVersionUID = -2397232644712659215L;
-    @Column
-    private String bankId;
+    @Column  private String seqid;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TMst_bankPK modelKey = (TMst_bankPK) o;
-        return  Objects.equals(bankId, modelKey.bankId);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(bankId);
+        SequencePK modelKey = (SequencePK ) o;
+        return  Objects.equals(seqid, modelKey.seqid) ;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(seqid);
+    }
 }
