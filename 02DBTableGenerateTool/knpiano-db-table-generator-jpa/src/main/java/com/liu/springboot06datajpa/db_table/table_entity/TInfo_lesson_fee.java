@@ -20,15 +20,14 @@ import java.sql.Timestamp;
 @IdClass(value = TInfo_lesson_feePK.class)
 public class TInfo_lesson_fee {
 
-@Id @Column (name = "lsn_fee_id", length = 32, nullable = false)  protected String lsnFeeId;
-@Id @Column (name = "lesson_id", length = 32, nullable = false)  protected String lessonId;
-@Column (name = "subject_id", length = 32, nullable = false)  protected String subjectId;
-@Column (name = "pay_style")  protected Integer payStyle;
-@Column (name = "lsn_fee")  protected float lsnFee;
-@Column (name = "lsn_month", length = 7)  protected String lsnMonth;
-@Column (name = "own_flg")  protected Integer ownFlg;
-@Column (name = "del_flg")  protected Integer delFlg;
-@Column (name = "create_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp createDate;
-@Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp updateDate;
+    @Id @Column (name = "lsn_fee_id", length = 32, nullable = false)  protected String lsnFeeId;
+    @Id @Column (name = "lesson_id", length = 32, nullable = false)  protected String lessonId;
+    @Column (name = "pay_style")  protected Integer payStyle;
+    @Column (name = "lsn_fee")  protected float lsnFee;
+    @Column (name = "lsn_month", length = 7)  protected String lsnMonth;
+    @Column (name = "own_flg")  protected Integer ownFlg;
+    @Column (name = "del_flg", columnDefinition = "integer default 0")  protected Integer delFlg;
+    @Column (name = "create_date", columnDefinition = "TIMESTAMP  default CURRENT_TIMESTAMP")  protected Timestamp createDate;
+    @Column (name = "update_date", columnDefinition = "TIMESTAMP  default NULL")  protected Timestamp updateDate;
 
 }

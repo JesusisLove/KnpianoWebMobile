@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.KnBnk001Bean;
-import com.liu.springboot04web.constant.BzlSeqConstant;
+import com.liu.springboot04web.constant.KNSeqConstant;
 import com.liu.springboot04web.mapper.KnBnk001Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -21,6 +21,13 @@ public class KnBnk001Dao implements BzlFudousanDao {
         return knBnk001Mapper.getInfoList();
     }
 
+    /* 画面检索 检索功能追加  开始 */ 
+    // 获取所有符合查询条件的银行信息
+    public List<KnBnk001Bean> searchBanks(Map<String, Object> params) {
+        return knBnk001Mapper.searchBanks(params);
+    }
+    /* 画面检索 检索功能追加  结束 */ 
+
     // 根据ID获取银行信息
     public KnBnk001Bean getInfoById(String id) {
          KnBnk001Bean knBnk001Bean = knBnk001Mapper.getInfoById(id);
@@ -31,9 +38,10 @@ public class KnBnk001Dao implements BzlFudousanDao {
     public void save(KnBnk001Bean knBnk001Bean) {
         if (knBnk001Bean.getBankId() == null || knBnk001Bean.getBankId().isEmpty()) { 
             Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", BzlSeqConstant.CONSTANT_LIU_BNK_SEQ);
+            map.put("parm_in", KNSeqConstant.CONSTANT_KN_BNK_SEQ);
+
             knBnk001Mapper.getNextSequence(map);
-            knBnk001Bean.setBankId(BzlSeqConstant.CONSTANT_LIU_BNK_SEQ + (Integer)map.get("parm_out"));
+            knBnk001Bean.setBankId(KNSeqConstant.CONSTANT_KN_BNK_SEQ + (Integer)map.get("parm_out"));
             insert(knBnk001Bean);
         } else {
             update(knBnk001Bean);

@@ -1,6 +1,7 @@
 package com.liu.springboot04web.bean;
 
 import java.math.BigDecimal;
+import java.security.Timestamp;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,11 +11,10 @@ public class KnSub001Bean implements BzlFudousanBean{
     private String subjectName;
     private BigDecimal subjectPrice;
     private Integer delFlg;
-
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getSubjectId() {

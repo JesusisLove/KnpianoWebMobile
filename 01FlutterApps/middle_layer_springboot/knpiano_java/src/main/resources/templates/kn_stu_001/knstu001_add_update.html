@@ -54,8 +54,8 @@
                 <div class="form-group"><br>  <label>郵便番号</label> <input name="postCode"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.postCode}"></div>
                 <div class="form-group"><br>  <label>紹介者</label> <input name="introducer"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.introducer}"></div>
                 <div class="form-group"><br>  <label>削除フラグ</label> <input name="delFlg"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.delFlg}"></div>
-                <div class="form-group"><br>  <label>作成日</label> <input name="createDate"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.createDate}"></div>
-                <div class="form-group"><br>  <label>更新日</label> <input name="updateDate"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.updateDate}"></div>
+                <!-- <div class="form-group"><br>  <label>作成日</label> <input name="createDate"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.createDate}"></div>
+                <div class="form-group"><br>  <label>更新日</label> <input name="updateDate"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.updateDate}"></div> -->
 
                <button type="submit" class="btn btn-primary" th:text="保存"></button>
             </form>

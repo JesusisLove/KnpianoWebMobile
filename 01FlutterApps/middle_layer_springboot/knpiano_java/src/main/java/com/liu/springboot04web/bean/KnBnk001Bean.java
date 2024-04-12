@@ -8,10 +8,10 @@ public class KnBnk001Bean implements BzlFudousanBean {
     private String bankName;
     private Integer delFlg;
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getBankId() {

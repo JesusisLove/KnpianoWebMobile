@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# But not these files...
+!/.gitignore
+!/01FlutterApps/front_dart_flutter/lib/**
+!/01FlutterApps/front_dart_flutter/kn-config/**
+!/01FlutterApps/front_dart_flutter/middle_layer_springboot/knpiano_java/pom.xml
+!/01FlutterApps/front_dart_flutter/middle_layer_springboot/knpiano_java/src/**
+!/02DBTableGenerateTool/knpiano-db-table-generator-jpa/pom.xml
+!/02DBTableGenerateTool/knpiano-db-table-generator-jpa/src/**
