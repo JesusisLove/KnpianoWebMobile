@@ -4,7 +4,6 @@ import 'dart:convert';
 // import 'package:flutter/services.dart'; // 确保导入了这个库
 import 'config.dart'; // 导入Config类
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 初始化Flutter绑定
   await Config.load(); // 加载配置
