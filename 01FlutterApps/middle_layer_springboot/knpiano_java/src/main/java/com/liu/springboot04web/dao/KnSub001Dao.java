@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.KnSub001Bean;
-import com.liu.springboot04web.constant.BzlSeqConstant;
+import com.liu.springboot04web.constant.KNSeqConstant;
 import com.liu.springboot04web.mapper.KnSub001Mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,16 @@ public class KnSub001Dao implements BzlFudousanDao {
     @Autowired
     private KnSub001Mapper knSub001Mapper;
 
-    // 获取所有科目信息
+    // 画面初期化显示所科目信息
     public List<KnSub001Bean> getInfoList() {
         List<KnSub001Bean> list = knSub001Mapper.getInfoList();
         // System.out.println("select的KN_SUB_001数据：" + list.toString());
         return list;
+    }
+
+    // 获取所有符合查询条件的科目信息
+    public List<KnSub001Bean> searchSubjects(Map<String, Object> params) {
+        return knSub001Mapper.searchSubjects(params);
     }
 
     // 根据ID获取科目信息
@@ -35,10 +40,10 @@ public class KnSub001Dao implements BzlFudousanDao {
     public void save(KnSub001Bean knSub001Bean) {
         if (knSub001Bean.getSubjectId() == null || knSub001Bean.getSubjectId().isEmpty()) { 
             Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", BzlSeqConstant.CONSTANT_LIU_SUB_SEQ);
+            map.put("parm_in", KNSeqConstant.CONSTANT_KN_SUB_SEQ);
             // 科目ID的自动编号
             knSub001Mapper.getNextSequence(map);
-            knSub001Bean.setSubjectId(BzlSeqConstant.CONSTANT_LIU_SUB_SEQ + (Integer)map.get("parm_out"));
+            knSub001Bean.setSubjectId(KNSeqConstant.CONSTANT_KN_SUB_SEQ + (Integer)map.get("parm_out"));
             System.out.println(map.get("parm_out"));
             insert(knSub001Bean);
         } else {

@@ -18,10 +18,10 @@ public class KnStu001Bean implements BzlFudousanBean {
     protected String introducer;
     protected Integer delFlg;
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
 
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getStuId() {

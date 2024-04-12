@@ -6,6 +6,26 @@
         SELECT * FROM t_mst_subject
     </select>
 
+    <select id="searchSubjects" resultType="com.liu.springboot04web.bean.KnSub001Bean">
+        SELECT
+            subject_id,
+            subject_name,
+            subject_price,
+            del_flg,
+            create_date,
+            update_date
+        FROM
+            t_mst_subject
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} = #{value}
+                </if>
+            </foreach>
+        </where> 
+    </select> 
+
     <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.KnSub001Bean">
         SELECT * FROM t_mst_subject WHERE subject_id = #{id}
     </select>
@@ -13,13 +33,14 @@
     <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.KnSub001Bean">
         <!-- INSERT INTO t_mst_subject (subject_id, subject_name, subject_price, del_flg, create_date, update_date) 
         VALUES (#{subjectId}, #{subjectName}, #{subjectPrice}, #{delFlg}, #{createDate}, #{updateDate}) -->
-        INSERT INTO t_mst_subject (subject_id, subject_name, subject_price, del_flg ) 
+        INSERT INTO t_mst_subject (subject_id, subject_name, subject_price ) 
         VALUES (#{subjectId}, #{subjectName}, #{subjectPrice})
     </insert>
 
     <update id="updateInfo" parameterType="com.liu.springboot04web.bean.KnSub001Bean">
         UPDATE t_mst_subject 
-        SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}, update_date=#{updateDate} 
+        <!-- SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}, update_date=#{updateDate}  -->
+        SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}
         WHERE subject_id=#{subjectId}
     </update>
 

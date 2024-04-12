@@ -44,8 +44,8 @@
                 <div class="form-group"><br>  <label>科目名</label> <input name="subjectName" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectName}"></div>
                 <div class="form-group"><br>  <label>科目価格</label> <input name="subjectPrice" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectPrice}"></div>
                 <div class="form-group"><br>  <label>削除フラグ</label> <input name="delFlg" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.delFlg}"></div>
-                <div class="form-group"><br>  <label>作成日</label> <input name="createDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.createDate}"></div>
-                <div class="form-group"><br>  <label>更新日</label> <input name="updateDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.updateDate}"></div>
+                <!-- <div class="form-group"><br>  <label>作成日</label> <input name="createDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.createDate}"></div>
+                <div class="form-group"><br>  <label>更新日</label> <input name="updateDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.updateDate}"></div> -->
 
                <button type="submit" class="btn btn-primary">保存</button>
             </form>

@@ -1,12 +1,17 @@
 package com.liu.springboot04web.mapper;
 
 import com.liu.springboot04web.bean.KnBnk001Bean;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 
 public interface KnBnk001Mapper {
 
     List<KnBnk001Bean> getInfoList();
+
+    /* 画面检索 检索功能追加  开始 */ 
+    List<KnBnk001Bean> searchBanks(@Param("params") Map<String, Object> queryparams);
+    /* 画面检索 检索功能追加  开始 */ 
 
     KnBnk001Bean getInfoById(String id);
 

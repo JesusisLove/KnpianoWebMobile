@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+// import 'package:flutter/services.dart'; // 确保导入了这个库
+import 'config.dart'; // 导入Config类
 
-void main() => runApp(MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 初始化Flutter绑定
+  await Config.load(); // 加载配置
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -26,49 +33,46 @@ class StudentSearchWidget extends StatefulWidget {
 class _StudentSearchWidgetState extends State<StudentSearchWidget> {
   final TextEditingController _controller = TextEditingController();
   String _studentInfo = '';
-  String? response; // 假设 response 是一个字符串
+
   void _search() async {
+    final String apiUrl = '${Config.apiBaseUrl}/liu/student?stuid=${_controller.text}';// 修改：使用 Config 中的基础URL
     try {
-      final response = await http.get(
-        Uri.parse('http://192.168.3.5:8080/liu/student?name=${_controller.text}'),
-      );
+      final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        final student = json.decode(response.body);
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final student = json.decode(decodedBody);
         setState(() {
           _studentInfo = '学生番号: ${student['stuId']}, 名前: ${student['stuName']}, 誕生日: ${student['birthday']}';
         });
       } else {
-        // 当状态码不是 200 时处理错误
         setState(() {
           _studentInfo = '学生信息未找到';
         });
- //   _studentInfo= "wer werwe we werwer ";
       }
     } catch (e) {
-      // 处理网络请求异常
       setState(() {
         _studentInfo = '请求失败: $e';
       });
     }
   }
 
-    @override
-    Widget build(BuildContext context) {
-      return Column(
-        children: <Widget>[
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              labelText: '输入学号',
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            labelText: '输入学号',
           ),
-          ElevatedButton(
-            onPressed: _search,
-            child: Text('查询'),
-          ),
-          Text(_studentInfo),
-        ],
-      );
-    }
+        ),
+        ElevatedButton(
+          onPressed: _search,
+          child: Text('查询'),
+        ),
+        Text(_studentInfo),
+      ],
+    );
+  }
 }

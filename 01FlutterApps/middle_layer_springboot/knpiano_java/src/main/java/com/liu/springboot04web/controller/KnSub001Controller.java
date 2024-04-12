@@ -6,8 +6,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.KnSub001Bean;
 import com.liu.springboot04web.dao.KnSub001Dao;
+import com.liu.springboot04web.othercommon.CamelCaseToSnakeCase;
 
 import java.util.Collection;
+import java.util.Map;
 
 @Controller
 public class KnSub001Controller {
@@ -15,12 +17,25 @@ public class KnSub001Controller {
     @Autowired
     private KnSub001Dao knSub001Dao;
 
-    // 显示所有学习科目信息
+    // 画面初期化显示所有学习科目信息
     @GetMapping("/kn_sub_001_all")
     public String list(Model model) {
         Collection<KnSub001Bean> collection = knSub001Dao.getInfoList();
         model.addAttribute("subjectList", collection);
         return "kn_sub_001/knsub001_list";
+    }
+
+    @GetMapping("//kn_sub_001/search")
+    public String search(@RequestParam Map<String, Object> queryParams, Model model) {
+
+        // 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如:bankId该换成bank_id
+        // 目的是，这个Map要传递到KnBnk001Mapper.xml哪里做SQL的Where的查询条件
+        Map<String, Object> conditions = CamelCaseToSnakeCase.convertToSnakeCase(queryParams);
+
+        // 将queryParams传递给Service层或Mapper接口
+        Collection<KnSub001Bean> searchResults = knSub001Dao.searchSubjects(conditions);
+        model.addAttribute("subjectList", searchResults);
+        return "kn_sub_001/knsub001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
     // 跳转到添加科目的页面

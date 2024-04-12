@@ -6,8 +6,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.KnBnk001Bean;
 import com.liu.springboot04web.dao.KnBnk001Dao;
+import com.liu.springboot04web.othercommon.CamelCaseToSnakeCase;
 
 import java.util.Collection;
+import java.util.Map;
 
 @Controller
 public class KnBnk001Controller {
@@ -15,14 +17,28 @@ public class KnBnk001Controller {
     @Autowired
     private KnBnk001Dao knBnk001Dao;
 
-    // 显示所有银行信息
+    // 画面初期化显示所有银行信息
     @GetMapping("/kn_bnk_001_all")
     public String list(Model model) {
         Collection<KnBnk001Bean> collection = knBnk001Dao.getInfoList();
         model.addAttribute("bankList", collection);
         return "kn_bnk_001/knbnk001_list";
-        // return "kn_sub_001/knsub001_list";
     }
+
+    /* 画面检索 检索功能追加  开始 */ 
+    @GetMapping("//kn_bnk_001/search")
+    public String search(@RequestParam Map<String, Object> queryParams, Model model) {
+
+        // 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如:bankId该换成bank_id
+        // 目的是，这个Map要传递到KnBnk001Mapper.xml哪里做SQL的Where的查询条件
+        Map<String, Object> conditions = CamelCaseToSnakeCase.convertToSnakeCase(queryParams);
+
+        // 将queryParams传递给Service层或Mapper接口
+        Collection<KnBnk001Bean> searchResults = knBnk001Dao.searchBanks(conditions);
+        model.addAttribute("bankList", searchResults);
+        return "kn_bnk_001/knbnk001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
+    }
+    /* 画面检索 检索功能追加  结束 */ 
 
     // 跳转到添加银行信息的页面
     @GetMapping("/kn_bnk_001")

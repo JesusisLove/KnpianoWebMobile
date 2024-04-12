@@ -37,8 +37,30 @@
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_bnk_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <hr/>
-                    <h2><a class="btn btn-sm btn-success" th:href="@{/kn_bnk_001}">新規銀行情報登録</a></h2>
+                    <h2><a class="btn btn-sm btn-success" th:href="@{/kn_bnk_001}">銀行新規登録</a></h2>
                 <hr/>
+                <!-- 检索表单 -->
+                <form action="#" th:action="@{/kn_bnk_001/search}" th:object="${searchForm}" method="get">
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="bankId" name="bankId" placeholder="銀行ID">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="bankName" name="bankName" placeholder="銀行名">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="delFlg" name="delFlg" placeholder="削除フラグ">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <input type="date" class="form-control" id="createDate" name="createDate">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <input type="date" class="form-control" id="updateDate" name="updateDate">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </form> 
+
                 <div class="table-responsive">
                     <table class="table table-striped table-sm">
                         <thead>
@@ -56,8 +78,8 @@
                             <td th:text="${bank.bankId}"></td>
                             <td th:text="${bank.bankName}"></td>
                             <td th:text="${bank.delFlg}"></td>
-                            <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd')}"></td>
-                            <td th:text="${#dates.format(bank.updateDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" th:href="@{/kn_bnk_001/} + ${bank.bankId}" method="GET">編集</a>
                                 <button class="btn btn-sm btn-danger deleteBtn" th:attr="bank_del_uri=@{/kn_bnk_001/}+${bank.bankId}">削除</button>
@@ -74,20 +96,6 @@
             </form>
         </div>
     </div>
-    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script> -->
-    <!--Bootstrap core JavaScript-->
-    <!-- <script>
-        $(document).ready(function() {
-            $('.deleteBtn').on('click', function() {
-                if (confirm('本当に削除しますか？')) {
-                    let bankId = $(this).data('id');
-                    $('#deleteBankForm').attr('action', '/kn_bnk_001_delete/' + bankId).submit();
-                }
-            });
-        });
-    </script> -->
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>

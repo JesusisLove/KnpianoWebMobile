@@ -14,6 +14,21 @@ https://mybatis.org/mybatis-3/getting-started.html
         select * from t_mst_student
     </select>
 
+    <select id="searchStudents" resultType="com.liu.springboot04web.bean.KnStu001Bean">
+        SELECT
+            *
+        FROM
+            t_mst_student
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} = #{value}
+                </if>
+            </foreach>
+        </where> 
+    </select> 
+
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.KnStu001Bean">
         select * from t_mst_student
         where stu_id = #{stuId}
@@ -48,8 +63,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             tel4,
             address,
             post_code,
-            introducer,
-            del_flg
+            introducer
          )
         values (
             #{stuId},
@@ -62,8 +76,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             #{tel4},
             #{address},
             #{postCode},
-            #{introducer},
-            #{delFlg}
+            #{introducer}
         )
     </insert>
 
