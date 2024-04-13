@@ -6,7 +6,7 @@ class Config {
 
   static Future<void> load() async {
     // 加载pubspec.yaml文件里assets指定的路径
-    final jsonString = await rootBundle.loadString('knconfig/apiconfig.json');
+    final jsonString = await rootBundle.loadString('kn-config/apiconfig.json');
     final jsonResponse = json.decode(jsonString);
     apiBaseUrl = jsonResponse['apiBaseUrl'];
   }

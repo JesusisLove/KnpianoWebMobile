@@ -53,7 +53,7 @@ public class TMst_student {
     @Column (name = "introducer", length = 20)  
     protected String introducer;
     
-    @Column (name = "del_flg")  
+    @Column (name = "del_flg", columnDefinition = "integer default 0")
     protected Integer delFlg;
 
     @Column (name = "create_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  

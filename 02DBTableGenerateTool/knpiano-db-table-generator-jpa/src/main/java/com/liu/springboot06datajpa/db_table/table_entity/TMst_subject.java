@@ -22,7 +22,7 @@ public class TMst_subject {
     @Id @Column (name = "subject_id", length = 32, nullable = false)  protected String subjectId;
     @Column (name = "subject_name", length = 20, nullable = false)  protected String subjectName;
     @Column (name = "subject_price")  protected float subjectPrice;
-    @Column (name = "del_flg")  protected Integer delFlg;
+    @Column (name = "del_flg", columnDefinition = "integer default 0")  protected Integer delFlg;
     @Column (name = "create_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp createDate;
     @Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp updateDate;
 }

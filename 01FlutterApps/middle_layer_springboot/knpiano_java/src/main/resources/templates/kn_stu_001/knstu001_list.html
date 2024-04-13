@@ -40,44 +40,44 @@
             <hr/>
                 <h2><a class="btn btn-sm btn-success" th:href="@{/kn_stu_001}">学生新規登録</a></h2>
            <hr/>
-            <!-- 检索表单 -->
+            <!-- 検索部 -->
             <form action="#" th:action="@{/kn_stu_001/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="stuId" name="stuId" placeholder="学生番号">
+                        <input type="text" class="form-control" id="stuId" name="stuId" th:value="${studentMap != null ? studentMap['stuId'] : ''}" placeholder="学生番号">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="stuName" name="stuName" placeholder="学生名前">
+                        <input type="text" class="form-control" id="stuName" name="stuName" th:value="${studentMap != null ? studentMap['stuName'] : ''}" placeholder="学生名前">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="gender" name="gender" placeholder="性別">
+                        <input type="text" class="form-control" id="gender" name="gender" th:value="${studentMap != null ? studentMap['gender'] : ''}" placeholder="性別">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="birthday" name="birthday" placeholder="誕生日">
+                        <input type="text" class="form-control" id="birthday" name="birthday" th:value="${studentMap != null ? studentMap['birthday'] : ''}" placeholder="誕生日">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="tel1" name="tel1" placeholder="電話番号１">
+                        <input type="text" class="form-control" id="tel1" name="tel1" th:value="${studentMap != null ? studentMap['tel1'] : ''}" placeholder="電話番号１">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="tel2" name="tel2" placeholder="電話番号２">
+                        <input type="text" class="form-control" id="tel2" name="tel2" th:value="${studentMap != null ? studentMap['tel2'] : ''}" placeholder="電話番号２">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="tel3" name="tel3" placeholder="電話番号３">
+                        <input type="text" class="form-control" id="tel3" name="tel3" th:value="${studentMap != null ? studentMap['tel3'] : ''}" placeholder="電話番号３">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="tel4" name="tel4" placeholder="電話番号４">
+                        <input type="text" class="form-control" id="tel4" name="tel4" th:value="${studentMap != null ? studentMap['tel4'] : ''}" placeholder="電話番号４">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="address" name="address" placeholder="住所">
+                        <input type="text" class="form-control" id="address" name="address" th:value="${studentMap != null ? studentMap['address'] : ''}" placeholder="住所">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="postCode" name="postCode" placeholder="郵便番号">
+                        <input type="text" class="form-control" id="postCode" name="postCode" th:value="${studentMap != null ? studentMap['postCode'] : ''}" placeholder="郵便番号">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="introducer" name="introducer" placeholder="紹介者">
+                        <input type="text" class="form-control" id="introducer" name="introducer" th:value="${studentMap != null ? studentMap['introducer'] : ''}" placeholder="紹介者">
                     </div>
                     <div class="form-group col-md-1">
-                        <input type="text" class="form-control" id="delFlg" name="delFlg" placeholder="削除フラグ">
+                        <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${studentMap != null ? studentMap['delFlg'] : ''}" placeholder="削除フラグ">
                     </div>
                     <div class="form-group col-md-2">
                         <input type="date" class="form-control" id="createDate" name="createDate">
@@ -88,6 +88,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary">検索</button>
             </form> 
+            <!-- 明細部 -->
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
