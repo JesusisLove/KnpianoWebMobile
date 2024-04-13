@@ -40,20 +40,20 @@
                 <hr/>
                     <h2><a class="btn btn-sm btn-success" th:href="@{/kn_sub_001}">科目新規登録</a></h2>
                 <hr/>
-                <!-- 检索表单 -->
+                <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_sub_001/search}" th:object="${searchForm}" method="get">
                     <div class="form-row">
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankId" name="subjectId" placeholder="科目番号">
+                            <input type="text" class="form-control" id="bankId" name="subjectId" th:value="${subjectMap != null ? subjectMap['subjectId'] : ''}" placeholder="科目番号">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankName" name="subjectName" placeholder="科目名称">
+                            <input type="text" class="form-control" id="bankName" name="subjectName" th:value="${subjectMap != null ? subjectMap['subjectName'] : ''}" placeholder="科目名称">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankName" name="subjectPrice" placeholder="科目価格">
+                            <input type="text" class="form-control" id="bankName" name="subjectPrice" th:value="${subjectMap != null ? subjectMap['subjectPrice'] : ''}" placeholder="科目価格">
                         </div>
                         <div class="form-group col-md-1">
-                            <input type="text" class="form-control" id="delFlg" name="delFlg" placeholder="削除フラグ">
+                            <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${subjectMap != null ? subjectMap['delFlg'] : ''}" placeholder="削除フラグ">
                         </div>
                         <div class="form-group col-md-2">
                             <input type="date" class="form-control" id="createDate" name="createDate">
@@ -64,6 +64,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary">検索</button>
                 </form> 
+                <!-- 明細部 -->
                 <div class="table-responsive">
                     <table class="table table-striped table-sm">
                         <thead>
