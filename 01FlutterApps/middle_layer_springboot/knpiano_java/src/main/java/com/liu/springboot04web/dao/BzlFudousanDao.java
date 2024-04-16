@@ -9,6 +9,6 @@ public interface BzlFudousanDao {
     public List<?> getInfoList();
     public BzlFudousanBean getInfoById(String id);
 //    public void save (Class<?> cls);
-    public void delete(String id);
+    // public void delete(String id);
 
 }
