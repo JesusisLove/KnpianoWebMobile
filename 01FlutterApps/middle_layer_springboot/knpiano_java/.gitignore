@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 01FlutterApps/middle_layer_springboot ###
+/middle_layer_springboot/demo_study/
+/middle_layer_springboot/knpiano_java/target/
