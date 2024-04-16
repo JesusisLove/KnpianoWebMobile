@@ -14,9 +14,6 @@ public interface KnFixfLsn001Mapper {
     public List<KnFixfLsn001Bean> searchFixedLessons(@Param("params") Map<String, Object> queryparams);
 
     // 根据学生ID获取固定授業計画详细信息
-    public KnFixfLsn001Bean getInfoById(String id);
-
-    // 根据学生ID获取固定授業計画详细信息
     public KnFixfLsn001Bean getInfoById(@Param("stuId") String stuId, 
                                         @Param("subjectId") String subjectId, 
                                         @Param("fixedWeek") String fixedWeek);

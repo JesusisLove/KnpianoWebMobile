@@ -4,11 +4,11 @@ import com.liu.springboot04web.bean.BzlFudousanBean;
 
 import java.util.List;
 
-public interface BzlFudousanDao {
+public interface InterfaceKnPianoDao {
 
     public List<?> getInfoList();
     public BzlFudousanBean getInfoById(String id);
-//    public void save (Class<?> cls);
+    // public void save (Class<?> cls);
     // public void delete(String id);
 
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class KnStu001Dao implements BzlFudousanDao {
+public class KnStu001Dao implements InterfaceKnPianoDao {
 
     @Autowired
     private KnStu001Mapper knStu001Mapper;
