@@ -41,3 +41,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+### 01FlutterApps/front_dart_flutter ###
+*.metadata
+/front_dart_flutter/android/
+/front_dart_flutter/ios/
+/front_dart_flutter/macos/
+/front_dart_flutter/linux/
+/front_dart_flutter/test/
+/front_dart_flutter/web/
+/front_dart_flutter/windows/
