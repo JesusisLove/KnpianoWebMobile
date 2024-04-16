@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class KnFixfLsn001Dao implements BzlFudousanDao {
+public class KnFixfLsn001Dao implements InterfaceKnPianoDao {
 
     @Autowired
     private KnFixfLsn001Mapper knFixfLsn001Mapper;
@@ -22,15 +22,14 @@ public class KnFixfLsn001Dao implements BzlFudousanDao {
         return list;
     }
 
-    // 获取所有符合查询条件的学生信息
+    // 获取所有符合查询条件的学生固定排课信息
     public List<KnFixfLsn001Bean> searchFixedLessons(Map<String, Object> params) {
         return knFixfLsn001Mapper.searchFixedLessons(params);
     }
 
-    // 根据ID获取银行信息
+    // 根据ID获取信息(该方法不使用，为什么不删除？因为implements InterfaceKnPianoDao)
     public KnFixfLsn001Bean getInfoById(String id) {
-        KnFixfLsn001Bean knBnk001Bean = knFixfLsn001Mapper.getInfoById(id);
-        return knBnk001Bean;
+        return null;
    }
 
     // 根据ID获取特定的固定授業計画信息
