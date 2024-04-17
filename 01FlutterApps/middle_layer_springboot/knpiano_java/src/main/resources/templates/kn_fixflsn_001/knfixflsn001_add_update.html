@@ -17,16 +17,48 @@
             <form th:action="@{/kn_fixflsn_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedFixedLesson!=null}"/>
 
-                <div class="form-group"><br>  <label>学生ID</label> 
-                    <input name="stuId" type="text" class="form-control" placeholder="" 
-                           th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.stuId}"
-                           th:readonly="${selectedFixedLesson!=null}">
-                 </div>
-                <div class="form-group"><br>  <label>科目ID</label> 
-                    <input name="subjectId" type="text" class="form-control" placeholder="" 
-                           th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.subjectId}"
-                           th:readonly="${selectedFixedLesson!=null}">
+                <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
+                <div class="form-group" th:if="${selectedFixedLesson==null}">
+                    <label>学生姓名</label> 
+                    <select class="form-control" name="stuId"> 
+                        <option value="">请选择</option>
+                        <option th:each="element : ${stuMap}" 
+                                th:value="${element.key}" 
+                                th:utext="${element.value}" 
+                        ></option>
+                    </select>
                 </div>
+                
+                 <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
+                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                    <label>学生姓名</label> 
+                    <input name="stuName" type="text" class="form-control" 
+                           th:value="${selectedFixedLesson.stuName}" 
+                           readonly>
+                    <input name="stuId" type="hidden" class="form-control" th:value="${selectedFixedLesson.stuId}">
+                </div>
+                
+                <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
+                <div class="form-group" th:if="${selectedFixedLesson==null}">
+                    <label>科目名称</label> 
+                    <select class="form-control" name="subjectId"> 
+                        <option value="">请选择</option>
+                        <option th:each="element : ${subMap}" 
+                                th:value="${element.key}" 
+                                th:utext="${element.value}" 
+                        ></option>
+                    </select>
+                </div>
+
+                 <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
+                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                    <label>科目名称</label> 
+                    <input name="subjectName" type="text" class="form-control" 
+                           th:value="${selectedFixedLesson.subjectName}" 
+                           readonly>
+                    <input name="subjectId" type="hidden" th:value="${selectedFixedLesson.subjectId}">
+                </div>
+
                 <div class="form-group"><br>  <label>固定週</label> 
                     <input name="fixedWeek" type="text" class="form-control" placeholder=""  
                            th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.fixedWeek}"

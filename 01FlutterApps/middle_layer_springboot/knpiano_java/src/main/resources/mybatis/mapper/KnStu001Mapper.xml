@@ -23,7 +23,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
                     <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
-                    AND ${key} = #{value}
+                    AND ${key} like CONCAT('%', #{value}, '%')
                 </if>
             </foreach>
         </where> 

@@ -1,8 +1,5 @@
 package com.liu.springboot04web.bean;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import java.util.Date;
-
 /**
  * 固定授業計画管理（Fixed Lesson Plan Management）的数据模型，实现 BzlFudousanBean 接口。
  */
@@ -13,13 +10,10 @@ public class KnFixfLsn001Bean implements BzlFudousanBean {
     private Integer fixedHour;     // 固定的小时
     private Integer fixedMinute;   // 固定的分钟
 
-    // 创建日期和更新日期字段，假设这些信息是需要的
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date createDate;       // 创建日期
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date updateDate;       // 更新日期
+    private String stuName;
+    private String subjectName;
 
-    // Getter 和 Setter 方法
+ // Getter 和 Setter 方法
     public String getStuId() {
         return stuId;
     }
@@ -60,19 +54,19 @@ public class KnFixfLsn001Bean implements BzlFudousanBean {
         this.fixedMinute = fixedMinute;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public String getStuName() {
+        return stuName;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setStuName(String stuName) {
+        this.stuName = stuName;
     }
 
-    public Date getUpdateDate() {
-        return updateDate;
+    public String getSubjectName() {
+        return subjectName;
     }
 
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
     }
 }

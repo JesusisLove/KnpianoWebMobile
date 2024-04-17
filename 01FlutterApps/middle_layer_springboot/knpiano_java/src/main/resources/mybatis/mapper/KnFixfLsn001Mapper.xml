@@ -3,23 +3,23 @@
 <mapper namespace="com.liu.springboot04web.mapper.KnFixfLsn001Mapper">
 
     <select id="getInfoList" resultType="com.liu.springboot04web.bean.KnFixfLsn001Bean">
-        SELECT * FROM t_info_fixedlesson
+        SELECT * FROM v_info_fixedlesson
     </select>
 
     <select id="searchFixedLessons" resultType="com.liu.springboot04web.bean.KnFixfLsn001Bean">
         SELECT *
-        FROM t_info_fixedlesson
+        FROM v_info_fixedlesson
         <where>
             <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
-                    AND ${key} = #{value}
+                    AND ${key} like CONCAT('%', #{value}, '%')
                 </if>
             </foreach>
         </where>
     </select> 
 
     <select id="getInfoById" resultType="com.liu.springboot04web.bean.KnFixfLsn001Bean">
-        SELECT * FROM t_info_fixedlesson WHERE stu_id = #{stuId} 
+        SELECT * FROM v_info_fixedlesson WHERE stu_id = #{stuId} 
                                            AND subject_id = #{subjectId} 
                                            AND fixed_week = #{fixedWeek}
     </select>
