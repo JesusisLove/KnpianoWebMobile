@@ -38,25 +38,32 @@
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixflsn_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <hr/>
-                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_fixflsn_001}">新規固定授業計画登録</a></h2>
+                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_fixflsn_001}">固定授業新規登録</a></h2>
                 <hr/>
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_fixflsn_001/search}" th:object="${searchForm}" method="get">
                     <div class="form-row">
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="stuId" name="stuId" th:value="${fixedLessonMap != null ? fixedLessonMap['stuId'] : ''}" placeholder="学生ID">
+                            <input type="text" class="form-control" id="stuId" name="stuId" th:value="${fixedLessonMap != null ? fixedLessonMap['stuId'] : ''}" placeholder="学生番号">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${fixedLessonMap != null ? fixedLessonMap['subjectId'] : ''}" placeholder="科目ID">
+                            <input type="text" class="form-control" id="stuName" name="stuName" th:value="${fixedLessonMap != null ? fixedLessonMap['stuName'] : ''}" placeholder="学生姓名">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${fixedLessonMap != null ? fixedLessonMap['subjectId'] : ''}" placeholder="学生番号">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${fixedLessonMap != null ? fixedLessonMap['subjectName'] : ''}" placeholder="科目名称">
+
                         </div>
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="fixedWeek" name="fixedWeek" th:value="${fixedLessonMap != null ? fixedLessonMap['fixedWeek'] : ''}" placeholder="固定週">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="fixedHour" name="fixedHour" th:value="${fixedLessonMap != null ? fixedLessonMap['fixedHour'] : ''}" placeholder="固定時間">
+                            <input type="text" class="form-control" id="fixedHour" name="fixedHour" th:value="${fixedLessonMap != null ? fixedLessonMap['fixedHour'] : ''}" placeholder="固定時間:H">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="fixedMinute" name="fixedMinute" th:value="${fixedLessonMap != null ? fixedLessonMap['fixedMinute'] : ''}" placeholder="固定分">
+                            <input type="text" class="form-control" id="fixedMinute" name="fixedMinute" th:value="${fixedLessonMap != null ? fixedLessonMap['fixedMinute'] : ''}" placeholder="固定時間:M">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">検索</button>
@@ -68,9 +75,10 @@
                         <tr>
                             <th>学生ID</th>
                             <th>科目ID</th>
+                            <th>学生姓名</th>
+                            <th>科目名称</th>
                             <th>固定週</th>
-                            <th>固定時間</th>
-                            <th>固定分</th>
+                            <th>固定上课時間</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -78,9 +86,10 @@
                         <tr th:each="fixedlsn : ${fixedLessonList}">
                             <td>[[${fixedlsn.stuId}]]</td>
                             <td>[[${fixedlsn.subjectId}]]</td>
+                            <td>[[${fixedlsn.stuName}]]</td>
+                            <td>[[${fixedlsn.subjectName}]]</td>
                             <td>[[${fixedlsn.fixedWeek}]]</td>
-                            <td>[[${fixedlsn.fixedHour}]]</td>
-                            <td>[[${fixedlsn.fixedMinute}]]</td>
+                            <td>[[${fixedlsn.fixedHour}]]：[[${fixedlsn.fixedMinute}]]</td>
                             <td>
                                 <a class="btn btn-sm btn-primary" th:href="@{/kn_fixflsn_001/{stuId}/{subjectId}/{fixedWeek}
                                                                                                 (stuId=${fixedlsn.stuId}, 

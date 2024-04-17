@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.KnBnk001Bean;
 import com.liu.springboot04web.dao.KnBnk001Dao;
-import com.liu.springboot04web.othercommon.CamelCaseToSnakeCase;
+import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class KnBnk001Controller {
     }
 
     /** 画面检索 检索功能追加  开始 */ 
-    @GetMapping("//kn_bnk_001/search")
+    @GetMapping("/kn_bnk_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
         // 回传参数设置（画面检索部的查询参数）
@@ -37,7 +37,7 @@ public class KnBnk001Controller {
 
         /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如:bankId该换成bank_id
            目的是，这个Map要传递到KnXxx001Mapper.xml哪里做SQL的Where的查询条件 */
-        Map<String, Object> conditions = CamelCaseToSnakeCase.convertToSnakeCase(queryParams);
+        Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
         Collection<KnBnk001Bean> searchResults = knBnk001Dao.searchBanks(conditions);

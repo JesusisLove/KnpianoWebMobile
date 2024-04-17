@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.KnStu001Bean;
 import com.liu.springboot04web.dao.KnStu001Dao;
-import com.liu.springboot04web.othercommon.CamelCaseToSnakeCase;
+import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class KnStu001Controller{
 
         /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如:bankId该换成bank_id
            目的是，这个Map要传递到KnXxx001Mapper.xml哪里做SQL的Where的查询条件 */
-        Map<String, Object> conditions = CamelCaseToSnakeCase.convertToSnakeCase(queryParams);
+        Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
         Collection<KnStu001Bean> searchResults = knStu001Dao.searchStudents(conditions);
