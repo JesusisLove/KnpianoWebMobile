@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-public class KnSub001Bean implements BzlFudousanBean{
+public class KnSub001Bean implements KnPianoBean{
     private String subjectId;
     private String subjectName;
     private BigDecimal subjectPrice;

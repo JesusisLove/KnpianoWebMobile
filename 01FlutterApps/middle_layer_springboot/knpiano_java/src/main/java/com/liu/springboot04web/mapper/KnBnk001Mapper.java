@@ -22,8 +22,7 @@ public interface KnBnk001Mapper {
     void deleteInfo(String id);
 
     // 执行数据库存储过程
-    void callProcedure(Map<String, Object> map);
-
+    public void callProcedure(Map<String, Integer> map);
     // 获取下一个序列值
-    void getNextSequence(Map<String, Object> map);
+    public void getNextSequence(Map<String, Object> map);
 }
