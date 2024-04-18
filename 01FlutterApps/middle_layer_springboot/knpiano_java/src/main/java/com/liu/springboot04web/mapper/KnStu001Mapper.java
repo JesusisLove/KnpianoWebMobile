@@ -20,8 +20,8 @@ public interface KnStu001Mapper {
     public void deleteInfo(String id);
 
     // DBプロシージャを行う
-    public void callProcedure(Map map);
+    public void callProcedure(Map<String, Integer> map);
     // DB関数を行う
-    public void getNextSequence(Map map);
+    public void getNextSequence(Map<String, Object> map);
 
 }

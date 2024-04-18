@@ -20,8 +20,8 @@ public interface KnSub001Mapper {
 
     public void deleteInfo(String id);
 
-    // DBプロシージャを行う
-    public void callProcedure(Map map);
-    // DB関数を行う
-    public void getNextSequence(Map map);
+    // 执行数据库存储过程
+    public void callProcedure(Map<String, Integer> map);
+    // 获取下一个序列值
+    public void getNextSequence(Map<String, Object> map);
 }

@@ -3,7 +3,7 @@ package com.liu.springboot04web.bean;
 /**
  * 固定授業計画管理（Fixed Lesson Plan Management）的数据模型，实现 BzlFudousanBean 接口。
  */
-public class KnFixfLsn001Bean implements BzlFudousanBean {
+public class KnFixfLsn001Bean implements KnPianoBean {
     private String stuId;          // 学生ID
     private String subjectId;      // 科目ID
     private String fixedWeek;      // 固定的星期

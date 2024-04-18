@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-public class KnStu001Bean implements BzlFudousanBean {
+public class KnStu001Bean implements KnPianoBean {
     protected String stuId;
     protected String stuName;
     protected Integer gender;

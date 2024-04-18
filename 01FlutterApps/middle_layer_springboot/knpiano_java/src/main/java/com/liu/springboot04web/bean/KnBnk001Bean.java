@@ -3,7 +3,7 @@ package com.liu.springboot04web.bean;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
-public class KnBnk001Bean implements BzlFudousanBean {
+public class KnBnk001Bean implements KnPianoBean {
     private String bankId;
     private String bankName;
     private Integer delFlg;
