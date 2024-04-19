@@ -29,7 +29,7 @@ public class KnStu001Controller{
     }
 
     /** 画面检索 检索功能追加  开始 */ 
-    @GetMapping("//kn_stu_001/search")
+    @GetMapping("/kn_stu_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
         // 回传参数设置（画面检索部的查询参数）

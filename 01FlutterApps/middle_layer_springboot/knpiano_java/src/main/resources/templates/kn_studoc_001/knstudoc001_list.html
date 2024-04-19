@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>ダッシュボードテンプレート · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_studoc_001_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <hr/>
+                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_studoc_001}">学生档案新規登録</a></h2>
+                <hr/>
+                <!-- 検索部 -->
+                <form action="#" th:action="@{/kn_studoc_001/search}" th:object="${searchForm}" method="get">
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="stuId" name="stuId" th:value="${stuDocMap != null ? stuDocMap['stuId'] : ''}" placeholder="学生番号">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="stuName" name="stuName" th:value="${stuDocMap != null ? stuDocMap['stuName'] : ''}" placeholder="学生姓名">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${stuDocMap != null ? stuDocMap['subjectId'] : ''}" placeholder="科目番号">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${stuDocMap != null ? stuDocMap['subjectName'] : ''}" placeholder="科目名称">
+                        </div>
+                        <div class="form-group col-md-1.2">
+                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
+                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
+                            <input id="adjustedDate" name="adjustedDate" type="date" class="form-control" placeholder="调整日期" th:value="${selectedStuDoc!=null}?${#dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM-dd')}">
+                        </div>
+
+
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="payStyle" name="payStyle" th:value="${stuDocMap != null ? stuDocMap['payStyle'] : ''}" placeholder="课费支付种别">
+                        </div>
+
+
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="lessonFee" name="lessonFee" th:value="${stuDocMap != null ? stuDocMap['lessonFee'] : ''}" placeholder="標準価格">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="lessonFeeAdjusted" name="lessonFeeAdjusted" th:value="${stuDocMap != null ? stuDocMap['lessonFeeAdjusted'] : ''}" placeholder="調整価格">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${stuDocMap != null ? stuDocMap['delFlg'] : ''}" placeholder="削除フラグ">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="date" class="form-control" id="createDate" name="createDate" th:value="${stuDocMap != null ? stuDocMap['createDate'] : ''}" placeholder="作成日">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${stuDocMap != null ? stuDocMap['updateDate'] : ''}" placeholder="更新日">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </form> 
+                <!-- 明細部 -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>学生番号</th>
+                            <th>科目番号</th>
+                            <th>学生姓名</th>
+                            <th>科目名称</th>
+                            <th>調整日付</th>
+                            <th>支払区分</th>
+                            <th>標準価格</th>
+                            <th>調整価格</th>
+                            <th>削除フラグ</th>
+                            <th>作成日</th>
+                            <th>更新日</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="studoc : ${stuDocList}">
+                            <td>[[${studoc.stuId}]]</td>
+                            <td>[[${studoc.subjectId}]]</td>
+                            <td>[[${studoc.stuName}]]</td>
+                            <td>[[${studoc.subjectName}]]</td>
+                            <!-- <td>[[${studoc.adjustedDate}]]</td> -->
+                            <td th:text="${studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
+                            <td>[[${studoc.payStyle}]]</td>
+                            <td>[[${studoc.lessonFee}]]</td>
+                            <td>[[${studoc.lessonFeeAdjusted}]]</td>
+                            <td>[[${studoc.delFlg}]]</td>
+                            <td th:text="${studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
+                            <td th:text="${studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
+                            <td>
+                                <a class="btn btn-sm btn-primary" th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                                                                                (stuId=${studoc.stuId}, 
+                                                                                                subjectId=${studoc.subjectId}, 
+                                                                                                adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
+                                                                                                )
+                                                                            }" methods="GET">変更</a>
+                                                                                                
+                                <button class="btn btn-sm btn-danger deleteBtn" th:attr="subject_del_uri=@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                                                                                            (stuId=${studoc.stuId}, 
+                                                                                                            subjectId=${studoc.subjectId}, 
+                                                                                                            adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
+                                                                                                            )
+                                                                                                          }">削除</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+            <!-- 削除処理 -->
+            <form id="deleteSubjectForm" action="" method="post">
+                <input type="hidden" name="_method" value="Delete"/>
+            </form>
+        </div>
+    </div>
+    <!--Bootstrap core JavaScript-->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+    <script>
+        $(".deleteBtn").click(function() {
+            if (confirm('本当に削除しますか？')) {
+                let del_uri = $(this).attr("subject_del_uri");
+                $("#deleteSubjectForm").attr("action", del_uri).submit();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

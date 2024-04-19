@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * 在RestFulCRUD项目练习里，将@EnableWebMvc注释掉，使用SpringBoot的自动配置功能
  * */
 @Configuration
-public class BezalMvcConfig extends WebMvcConfigurerAdapter {
+public class KNPianoMvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
