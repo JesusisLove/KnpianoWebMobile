@@ -1,10 +1,9 @@
 package com.liu.springboot04web.bean;
 
 import java.math.BigDecimal;
-import java.security.Timestamp;
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
+// import org.springframework.format.annotation.DateTimeFormat;
 
 public class KnSub001Bean implements KnPianoBean{
     private String subjectId;

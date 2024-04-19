@@ -12,7 +12,7 @@
 <div th:replace="~{commons/bar::topbar}"></div><!-- ヘッダー部分 -->
 <div class="container-fluid">
     <div class="row">
-        <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixflsn1_001_link_active')}"></div><!-- サイドバー部分 -->
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixflsn_001_link_active')}"></div><!-- サイドバー部分 -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <form th:action="@{/kn_fixflsn_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedFixedLesson!=null}"/>
