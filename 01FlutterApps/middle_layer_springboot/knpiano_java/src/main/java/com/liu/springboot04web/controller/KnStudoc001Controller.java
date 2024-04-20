@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.liu.springboot04web.bean.KnSutdoc001Bean;
-import com.liu.springboot04web.dao.KnSutdoc001Dao;
+import com.liu.springboot04web.bean.KnStudoc001Bean;
+import com.liu.springboot04web.dao.KnStudoc001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
 import com.liu.springboot04web.bean.KnStu001Bean;
@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class KnSutdoc001Controller {
+public class KnStudoc001Controller {
 
     @Autowired
-    private KnSutdoc001Dao knSutdoc001Dao;
+    private KnStudoc001Dao knStudoc001Dao;
     @Autowired
     private KnStu001Dao knStu001Dao;
     @Autowired
@@ -33,7 +33,7 @@ public class KnSutdoc001Controller {
     @GetMapping("/kn_studoc_001_all")
     public String list(Model model) {
         // 学生固定排课一览取得
-        Collection<KnSutdoc001Bean> collection = knSutdoc001Dao.getInfoList();
+        Collection<KnStudoc001Bean> collection = knStudoc001Dao.getInfoList();
         model.addAttribute("stuDocList", collection);
         return "kn_studoc_001/knstudoc001_list";
     }
@@ -47,11 +47,11 @@ public class KnSutdoc001Controller {
         model.addAttribute("stuDocMap", backForwordMap);
 
         /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
-           目的是，这个Map要传递到KnSutdoc001Mapper.xml哪里做SQL的Where的查询条件 */
+           目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件 */
         Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
-        Collection<KnSutdoc001Bean> searchResults = knSutdoc001Dao.searchStuDoc(conditions);
+        Collection<KnStudoc001Bean> searchResults = knStudoc001Dao.searchStuDoc(conditions);
         model.addAttribute("stuDocList", searchResults);
         return "kn_studoc_001/knstudoc001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
@@ -71,9 +71,9 @@ public class KnSutdoc001Controller {
 
     // 保存新增的固定授業計画
     @PostMapping("/kn_studoc_001")
-    public String executeStuDocAdd(KnSutdoc001Bean knSutdoc001Bean) {
-        // System.out.println("新增固定授業計画: " + knSutdoc001Bean);
-        knSutdoc001Dao.save(knSutdoc001Bean);
+    public String executeStuDocAdd(KnStudoc001Bean knStudoc001Bean) {
+        // System.out.println("新增固定授業計画: " + knStudoc001Bean);
+        knStudoc001Dao.save(knStudoc001Bean);
         return "redirect:/kn_studoc_001_all";
     }
 
@@ -85,16 +85,16 @@ public class KnSutdoc001Controller {
                                     @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
                                     Date adjustedDate, 
                                     Model model) {
-        KnSutdoc001Bean knSutdoc001Bean = knSutdoc001Dao.getInfoByKey(stuId, subjectId, adjustedDate);
-        model.addAttribute("selectedStuDoc", knSutdoc001Bean);
+        KnStudoc001Bean knStudoc001Bean = knStudoc001Dao.getInfoByKey(stuId, subjectId, adjustedDate);
+        model.addAttribute("selectedStuDoc", knStudoc001Bean);
         return "kn_studoc_001/knstudoc001_add_update";
     }
 
     // 保存编辑后的固定授業計画
     @PutMapping("/kn_studoc_001")
-    public String executeStuDocEdit(KnSutdoc001Bean knSutdoc001Bean) {
-        System.out.println("编辑固定授業計画: " + knSutdoc001Bean);
-        knSutdoc001Dao.save(knSutdoc001Bean);
+    public String executeStuDocEdit(KnStudoc001Bean knStudoc001Bean) {
+        System.out.println("编辑固定授業計画: " + knStudoc001Bean);
+        knStudoc001Dao.save(knStudoc001Bean);
         return "redirect:/kn_studoc_001_all";
     }
 
@@ -106,7 +106,7 @@ public class KnSutdoc001Controller {
                                             @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
                                             Date adjustedDate, 
                                             Model model) {
-        knSutdoc001Dao.deleteByKeys(stuId, subjectId, adjustedDate);
+        knStudoc001Dao.deleteByKeys(stuId, subjectId, adjustedDate);
         return "redirect:/kn_studoc_001_all";
     }
 

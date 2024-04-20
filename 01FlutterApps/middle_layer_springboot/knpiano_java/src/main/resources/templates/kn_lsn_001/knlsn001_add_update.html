@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+          rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+<div class="container-fluid">
+    <div class="row">"
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <form th:action="@{/kn_lsn_001}" method="post">
+                <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/><br>
+
+                    <div class="form-group"><br>  <label>授業番号</label> 
+                        <input name="lessonId"type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly 
+                        th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
+                    </div><br>
+
+                    <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
+                    <div class="form-group" th:if="${selectedinfo==null}">
+                        <label>学生姓名</label> 
+                        <select class="form-control" name="stuId"> 
+                            <option value="">请选择</option>
+                            <option th:each="element : ${stuMap}" 
+                                    th:value="${element.key}" 
+                                    th:utext="${element.value}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
+                    <div class="form-group" th:unless="${selectedinfo==null}">
+                        <label>学生姓名</label> 
+                        <input name="stuName" type="text" class="form-control" 
+                            th:value="${selectedinfo.stuName}" 
+                            readonly>
+                        <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
+                    </div>
+                    <br>
+
+                    <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
+                    <div class="form-group" th:if="${selectedinfo==null}">
+                        <label>科目名称</label> 
+                        <select class="form-control" name="subjectId"> 
+                            <option value="">请选择</option>
+                            <option th:each="element : ${subMap}" 
+                                    th:value="${element.key}" 
+                                    th:utext="${element.value}" 
+                            ></option>
+                        </select>
+                    </div>
+
+                    <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
+                    <div class="form-group" th:unless="${selectedinfo==null}">
+                        <label>科目名称</label> 
+                        <input name="subjectName" type="text" class="form-control" 
+                            th:value="${selectedinfo.subjectName}" 
+                            readonly>
+                        <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
+                    </div>
+                    <br>
+
+                    <!-- 新规登陆，变更编辑 下拉列表框 选择学生上课时长 -->
+                    <div class="form-group"><label>上课时长</label>
+                        <select class="form-control" name="classDuration">
+                            <option value="">请选择上课时长 </option>
+                            <option th:selected="${selectedinfo!=null}?${selectedinfo.classDuration}==${element}"
+                                    th:each="element:${duration}" th:value="${element}" th:utext="${element}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Radio button -->
+                    <br><label>上课种别</label>
+                    <div class="card" style="padding: 20px; border-radius: 10px;">
+                        <div class="d-flex align-items-center gap-2" style="padding-left: 10px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="lessonType" id="option1" value="0"
+                                       th:checked="${selectedinfo != null ? selectedinfo.lessonType == 0 : true}">
+                                <label class="form-check-label" for="option1">计划课时（针对按月交费学生）</label>
+                            </div>
+                            <div class="form-check" style="padding-left: 50px;">
+                                <input class="form-check-input" type="radio" name="lessonType" id="option2" value="1"
+                                       th:checked="${selectedinfo != null ? selectedinfo.lessonType == 1 : false}">
+                                <label class="form-check-label" for="option2">追加课时（针对按月交费学生）</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group"><br>  <label>計画授業日付</label> 
+                        <input name="schedualDate"type="date" class="form-control"placeholder="yyyy-MM-dd"  
+                        th:value="${selectedinfo!=null}?${selectedinfo.schedualDate}">
+                    </div>
+                    <div class="form-group"><br>  <label>実績授業日付</label> 
+                        <input name="scanQRDate"type="date" class="form-control"placeholder="yyyy-MM-dd"  
+                        th:value="${selectedinfo!=null}?${selectedinfo.scanQRDate}">
+                    </div>
+                    <div class="form-group"><br>  <label>調整授業日付</label> 
+                        <input name="lsnAdjustedDate"type="date" class="form-control"placeholder="yyyy-MM-dd"  
+                        th:value="${selectedinfo!=null}?${selectedinfo.lsnAdjustedDate}">
+                    </div>
+                    <div class="form-group"><br>  <label>授業変換日付</label> 
+                        <input name="extraToDurDate"type="date" class="form-control"placeholder="yyyy-MM-dd"  
+                        th:value="${selectedinfo!=null}?${selectedinfo.extraToDurDate}">
+                    </div>
+              <button type="submit" class="btn btn-primary" th:text="保存"></button>
+            </form>
+        </main>
+    </div>
+</div>
+</body>
+</html>
