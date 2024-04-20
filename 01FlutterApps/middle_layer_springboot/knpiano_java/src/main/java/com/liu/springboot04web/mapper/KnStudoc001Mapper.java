@@ -1,24 +1,24 @@
 package com.liu.springboot04web.mapper;
 
-import com.liu.springboot04web.bean.KnSutdoc001Bean;
+import com.liu.springboot04web.bean.KnStudoc001Bean;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 import java.util.Date;
-public interface KnSutdoc001Mapper  {
+public interface KnStudoc001Mapper  {
 
-    public List<KnSutdoc001Bean> getInfoList();
+    public List<KnStudoc001Bean> getInfoList();
     
     // 根据特定条模糊检索学生档案信息
-    public List<KnSutdoc001Bean> searchStuDoc(@Param("params") Map<String, Object> queryparams);
+    public List<KnStudoc001Bean> searchStuDoc(@Param("params") Map<String, Object> queryparams);
 
-    public KnSutdoc001Bean getInfoByKey(@Param("stuId") String stuId, 
+    public KnStudoc001Bean getInfoByKey(@Param("stuId") String stuId, 
                                         @Param("subjectId") String subjectId, 
                                         @Param("adjustedDate") Date adjustedDate);
 
-    public void updateInfo(KnSutdoc001Bean bean);
+    public void updateInfo(KnStudoc001Bean bean);
 
-    public void insertInfo(KnSutdoc001Bean bean);
+    public void insertInfo(KnStudoc001Bean bean);
 
     public void deleteInfoByKeys(@Param("stuId") String stuId, 
                                   @Param("subjectId") String subjectId, 

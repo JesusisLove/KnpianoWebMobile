@@ -22,6 +22,7 @@ public class TInfo_student_document {
     @Id @Column (name = "subject_id", length = 32, nullable = false)  protected String subjectId;
     @Id @Column (name = "adjusted_date")  protected Date adjustedDate;
     @Column (name = "pay_style")  protected Integer payStyle;
+    @Column (name = "minutes_per_lsn")  protected Integer minutesPerLsn;
     @Column (name = "lesson_fee")  protected float lessonFee;
     @Column (name = "lesson_fee_adjusted")  protected float lessonFeeAdjusted;
     @Column (name = "del_flg", columnDefinition = "integer default 0")  protected Integer delFlg;
