@@ -1,6 +1,8 @@
 package com.liu.springboot04web.dao;
 
+import com.liu.springboot04web.bean.KnSub001Bean;
 import com.liu.springboot04web.bean.KnSutdoc001Bean;
+import com.liu.springboot04web.mapper.KnSub001Mapper;
 import com.liu.springboot04web.mapper.KnSutdoc001Mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ public class KnSutdoc001Dao implements InterfaceKnPianoDao {
     // 获取所有学生档案信息的信息列表
     public List<KnSutdoc001Bean> getInfoList() {
         List<KnSutdoc001Bean> list = knSutdoc001Mapper.getInfoList();
-        System.out.println("查询的学生档案信息管理数据：" + list.toString());
+        // System.out.println("查询的学生档案信息管理数据：" + list.toString());
         return list;
     }
 

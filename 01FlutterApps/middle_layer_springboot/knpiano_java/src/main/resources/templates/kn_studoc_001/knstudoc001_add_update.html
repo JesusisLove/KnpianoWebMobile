@@ -41,12 +41,13 @@
                 <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
                 <div class="form-group" th:if="${selectedStuDoc==null}">
                     <label>科目名称</label> 
-                    <select class="form-control" name="subjectId"> 
+                    <select class="form-control" id="subjectSelect" name="subjectId" onchange="getSubjectPrice()"> 
                         <option value="">请选择</option>
                         <option th:each="element : ${subMap}" 
                                 th:value="${element.key}" 
-                                th:utext="${element.value}" 
-                        ></option>
+                                th:text="${element.value.subjectName}"
+                                th:data-price="${element.value.subjectPrice}">
+                        </option>
                     </select>
                 </div>
 
@@ -67,6 +68,7 @@
                                  #dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM-dd') 
                                : #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
                 </div>
+
                 <!-- 変更編集S 模式下 调整日期用 日期控件显示 -->
                 <div class="form-group"  th:unless="${selectedStuDoc==null}"><br>  
                     <label>調整日付</label> 
@@ -76,7 +78,6 @@
                                : #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
                 </div>
                 
-
                 <!-- Radio button -->
                 <br>
                 <div class="form-group"><label>支払区分</label>
@@ -90,8 +91,16 @@
                     </div>
                 </div>
 
-                <div class="form-group"><br>  <label>標準価格</label> 
-                    <input name="lessonFee" type="text" class="form-control" placeholder="" th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
+                <!-- 新規登録 模式下 联动显示功能：通过切换科目名称，在标准价格文本框里同步显示该科目的标准价格 -->
+                <div class="form-group" th:if="${selectedStuDoc==null}">
+                    <label>標準価格</label>
+                    <input name="lessonFee" type="text" id="subjectPrice" class="form-control" placeholder="科目价格" readonly >
+                </div>
+
+                <!-- 変更編集 模式下 显示当前科目的标准价格 -->
+                <div class="form-group"th:unless="${selectedStuDoc==null}"><br>  
+                    <label>標準価格</label> 
+                    <input name="lessonFee" type="text" class="form-control" readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
                 </div>
 
                 <div class="form-group"><br>  <label>調整価格</label> 
@@ -103,5 +112,15 @@
         </main>
     </div>
 </div>
+<script>
+    // 联动显示功能：通过切换科目名称，在标准价格文本框里同步显示该科目的标准价格
+    function getSubjectPrice() {
+        var select = document.getElementById('subjectSelect');
+        var selectedOption = select.options[select.selectedIndex];
+        var price = selectedOption.getAttribute('data-price') || '';  // 如果未选或未找到价格则返回空字符串
+        document.getElementById('subjectPrice').value = price;
+    }
+</script>
+
 </body>
 </html>
