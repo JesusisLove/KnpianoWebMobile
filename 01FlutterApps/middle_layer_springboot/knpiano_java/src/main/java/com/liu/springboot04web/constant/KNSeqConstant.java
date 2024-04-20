@@ -8,5 +8,7 @@ public final class KNSeqConstant {
     public static final String CONSTANT_KN_SUB_SEQ = "kn-sub-";
     /* 銀行番号自動採番 */
     public static final String CONSTANT_KN_BNK_SEQ = "kn-bnk-";
+    /* 授業番号自動採番 */
+    public static final String CONSTANT_KN_LSN_SEQ = "kn-lsn-";
 
 }

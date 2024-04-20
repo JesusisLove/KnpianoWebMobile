@@ -56,17 +56,11 @@
                             <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${stuDocMap != null ? stuDocMap['subjectName'] : ''}" placeholder="科目名称">
                         </div>
                         <div class="form-group col-md-1.2">
-                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
-                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
-                            <input id="adjustedDate" name="adjustedDate" type="date" class="form-control" placeholder="调整日期" th:value="${selectedStuDoc!=null}?${#dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM-dd')}">
+                            <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期">
                         </div>
-
-
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="payStyle" name="payStyle" th:value="${stuDocMap != null ? stuDocMap['payStyle'] : ''}" placeholder="课费支付种别">
                         </div>
-
-
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lessonFee" name="lessonFee" th:value="${stuDocMap != null ? stuDocMap['lessonFee'] : ''}" placeholder="標準価格">
                         </div>

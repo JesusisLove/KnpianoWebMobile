@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 // import java.sql.Date;
 
-public class KnSutdoc001Bean implements KnPianoBean {
+public class KnStudoc001Bean implements KnPianoBean {
 
     protected String stuId;
     protected String subjectId;
@@ -14,7 +14,6 @@ public class KnSutdoc001Bean implements KnPianoBean {
     // @DateTimeFormat(pattern = "yyyy/MM/dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date adjustedDate;
-    // protected String adjustedDate;
     protected Integer payStyle;
     protected float lessonFee;
     protected float lessonFeeAdjusted;
@@ -101,7 +100,7 @@ public class KnSutdoc001Bean implements KnPianoBean {
 
     @Override
     public String toString() {
-        return "KnSutdoc001Bean{" +
+        return "KnStudoc001Bean{" +
                 "stuId='" + stuId + '\'' +
                 ", subjectId='" + subjectId + '\'' +
                 ", stuName='" + stuName + '\'' +
