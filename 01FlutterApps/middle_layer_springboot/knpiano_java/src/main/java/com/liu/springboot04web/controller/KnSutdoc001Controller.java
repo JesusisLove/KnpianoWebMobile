@@ -72,7 +72,7 @@ public class KnSutdoc001Controller {
     // 保存新增的固定授業計画
     @PostMapping("/kn_studoc_001")
     public String executeStuDocAdd(KnSutdoc001Bean knSutdoc001Bean) {
-        System.out.println("新增固定授業計画: " + knSutdoc001Bean);
+        // System.out.println("新增固定授業計画: " + knSutdoc001Bean);
         knSutdoc001Dao.save(knSutdoc001Bean);
         return "redirect:/kn_studoc_001_all";
     }
@@ -82,7 +82,8 @@ public class KnSutdoc001Controller {
     public String toStuDocEdit(@PathVariable("stuId") String stuId, 
                                     @PathVariable("subjectId") String subjectId, 
                                     @PathVariable ("adjustedDate") 
-                                    @DateTimeFormat(pattern = "yyyy-MM-dd") Date adjustedDate, 
+                                    @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
+                                    Date adjustedDate, 
                                     Model model) {
         KnSutdoc001Bean knSutdoc001Bean = knSutdoc001Dao.getInfoByKey(stuId, subjectId, adjustedDate);
         model.addAttribute("selectedStuDoc", knSutdoc001Bean);
@@ -101,7 +102,9 @@ public class KnSutdoc001Controller {
     @DeleteMapping("/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}")
     public String executeStuDocDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 
-                                            @PathVariable("adjustedDate") Date adjustedDate, 
+                                            @PathVariable("adjustedDate") 
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
+                                            Date adjustedDate, 
                                             Model model) {
         knSutdoc001Dao.deleteByKeys(stuId, subjectId, adjustedDate);
         return "redirect:/kn_studoc_001_all";
@@ -120,14 +123,13 @@ public class KnSutdoc001Controller {
     }
 
     // 科目下拉列表框初期化
-    private Map<String, String> getSubCodeValueMap() {
+    private Map<String, Object> getSubCodeValueMap() {
         Collection<KnSub001Bean> collection = knSub001Dao.getInfoList();
 
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         for (KnSub001Bean bean : collection) {
-            map.put(bean.getSubjectId(), bean.getSubjectName());
+            map.put(bean.getSubjectId(), bean);
         }
-
-        return map != null ? CommonProcess.sortMapByValues(map) : map;
+        return map;
     }
 }

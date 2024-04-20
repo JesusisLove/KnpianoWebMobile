@@ -119,19 +119,21 @@
                             <td th:text="${studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
                             <td th:text="${studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
                             <td>
-                                <a class="btn btn-sm btn-primary" th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
-                                                                                                (stuId=${studoc.stuId}, 
-                                                                                                subjectId=${studoc.subjectId}, 
-                                                                                                adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
-                                                                                                )
-                                                                            }" methods="GET">変更</a>
+                                <a class="btn btn-sm btn-primary" 
+                                th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                                            (stuId=${studoc.stuId}, 
+                                                            subjectId=${studoc.subjectId}, 
+                                                            adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
+                                                            )
+                                        }" methods="GET">変更</a>
                                                                                                 
-                                <button class="btn btn-sm btn-danger deleteBtn" th:attr="subject_del_uri=@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
-                                                                                                            (stuId=${studoc.stuId}, 
-                                                                                                            subjectId=${studoc.subjectId}, 
-                                                                                                            adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
-                                                                                                            )
-                                                                                                          }">削除</button>
+                                <button class="btn btn-sm btn-danger deleteBtn" 
+                                th:attr="subject_del_uri=@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                                            (stuId=${studoc.stuId}, 
+                                                            subjectId=${studoc.subjectId}, 
+                                                            adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
+                                                            )
+                                        }">削除</button>
                             </td>
                         </tr>
                         </tbody>
