@@ -3,19 +3,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-// import java.sql.Date;
 
-public class KnSutdoc001Bean implements KnPianoBean {
+public class KnStudoc001Bean implements KnPianoBean {
 
     protected String stuId;
     protected String subjectId;
     protected String stuName;
     protected String subjectName;
-    // @DateTimeFormat(pattern = "yyyy/MM/dd")
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date adjustedDate;
-    // protected String adjustedDate;
     protected Integer payStyle;
+    protected Integer minutesPerLsn;
     protected float lessonFee;
     protected float lessonFeeAdjusted;
     protected Integer delFlg;
@@ -46,25 +45,23 @@ public class KnSutdoc001Bean implements KnPianoBean {
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
     }
-
     public Date getAdjustedDate() {
         return adjustedDate;
     }
     public void setAdjustedDate(Date adjustedDate) {
         this.adjustedDate = adjustedDate;
     }
-    // public String getAdjustedDate() {
-    //     return adjustedDate;
-    // }
-    // public void setAdjustedDate(String adjustedDate) {
-    //     this.adjustedDate = adjustedDate;
-    // }
-
     public Integer getPayStyle() {
         return payStyle;
     }
     public void setPayStyle(Integer payStyle) {
         this.payStyle = payStyle;
+    }
+    public Integer getMinutesPerLsn() {
+        return minutesPerLsn;
+    }
+    public void setMinutesPerLsn(Integer minutesPerLsn) {
+        this.minutesPerLsn = minutesPerLsn;
     }
     public float getLessonFee() {
         return lessonFee;
@@ -101,7 +98,7 @@ public class KnSutdoc001Bean implements KnPianoBean {
 
     @Override
     public String toString() {
-        return "KnSutdoc001Bean{" +
+        return "KnStudoc001Bean{" +
                 "stuId='" + stuId + '\'' +
                 ", subjectId='" + subjectId + '\'' +
                 ", stuName='" + stuName + '\'' +

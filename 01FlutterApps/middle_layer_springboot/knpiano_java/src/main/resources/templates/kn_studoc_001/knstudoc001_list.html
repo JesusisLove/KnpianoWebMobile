@@ -56,17 +56,14 @@
                             <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${stuDocMap != null ? stuDocMap['subjectName'] : ''}" placeholder="科目名称">
                         </div>
                         <div class="form-group col-md-1.2">
-                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
-                            <!-- <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期"> -->
-                            <input id="adjustedDate" name="adjustedDate" type="date" class="form-control" placeholder="调整日期" th:value="${selectedStuDoc!=null}?${#dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM-dd')}">
+                            <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期">
                         </div>
-
-
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="payStyle" name="payStyle" th:value="${stuDocMap != null ? stuDocMap['payStyle'] : ''}" placeholder="课费支付种别">
                         </div>
-
-
+                        <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="minutesPerLsn" name="minutesPerLsn" th:value="${stuDocMap != null ? stuDocMap['minutesPerLsn'] : ''}" placeholder="课费时长">
+                        </div>
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lessonFee" name="lessonFee" th:value="${stuDocMap != null ? stuDocMap['lessonFee'] : ''}" placeholder="標準価格">
                         </div>
@@ -96,6 +93,7 @@
                             <th>科目名称</th>
                             <th>調整日付</th>
                             <th>支払区分</th>
+                            <th>授業時間長さ</th>
                             <th>標準価格</th>
                             <th>調整価格</th>
                             <th>削除フラグ</th>
@@ -106,18 +104,18 @@
                         </thead>
                         <tbody>
                         <tr th:each="studoc : ${stuDocList}">
-                            <td>[[${studoc.stuId}]]</td>
-                            <td>[[${studoc.subjectId}]]</td>
-                            <td>[[${studoc.stuName}]]</td>
-                            <td>[[${studoc.subjectName}]]</td>
-                            <!-- <td>[[${studoc.adjustedDate}]]</td> -->
+                            <td th:text="${studoc.stuId != null ? studoc.stuId : ''}"></td>
+                            <td th:text="${studoc.subjectId != null ? studoc.subjectId : ''}"></td>
+                            <td th:text="${studoc.stuName != null ? studoc.stuName : ''}"></td>
+                            <td th:text="${studoc.subjectName != null ? studoc.subjectName : ''}"></td>
                             <td th:text="${studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
-                            <td>[[${studoc.payStyle}]]</td>
-                            <td>[[${studoc.lessonFee}]]</td>
-                            <td>[[${studoc.lessonFeeAdjusted}]]</td>
-                            <td>[[${studoc.delFlg}]]</td>
-                            <td th:text="${studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
-                            <td th:text="${studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd hh:mm:ss') : ''}"></td>
+                            <td th:text="${studoc.payStyle != null ? studoc.payStyle : ''}"></td>
+                            <td th:text="${info != null && info.minutesPerLsn != null ? info.minutesPerLsn : ''}"></td>
+                            <td th:text="${studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
+                            <td th:text="${studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>
+                            <td th:text="${studoc.delFlg != null ? studoc.delFlg : ''}"></td>
+                            <td th:text="${studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+                            <td th:text="${studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" 
                                 th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
