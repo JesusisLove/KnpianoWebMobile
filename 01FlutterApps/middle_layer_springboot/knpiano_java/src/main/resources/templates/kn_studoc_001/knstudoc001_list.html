@@ -62,6 +62,9 @@
                             <input type="text" class="form-control" id="payStyle" name="payStyle" th:value="${stuDocMap != null ? stuDocMap['payStyle'] : ''}" placeholder="课费支付种别">
                         </div>
                         <div class="form-group col-md-2">
+                            <input type="text" class="form-control" id="minutesPerLsn" name="minutesPerLsn" th:value="${stuDocMap != null ? stuDocMap['minutesPerLsn'] : ''}" placeholder="上课时长">
+                        </div>
+                        <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lessonFee" name="lessonFee" th:value="${stuDocMap != null ? stuDocMap['lessonFee'] : ''}" placeholder="標準価格">
                         </div>
                         <div class="form-group col-md-2">
@@ -101,18 +104,18 @@
                         </thead>
                         <tbody>
                         <tr th:each="studoc : ${stuDocList}">
-                            <td th:text="${studoc.stuId != null ? studoc.stuId : ''}"></td>
-                            <td th:text="${studoc.subjectId != null ? studoc.subjectId : ''}"></td>
-                            <td th:text="${studoc.stuName != null ? studoc.stuName : ''}"></td>
-                            <td th:text="${studoc.subjectName != null ? studoc.subjectName : ''}"></td>
-                            <td th:text="${studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
-                            <td th:text="${studoc.payStyle != null ? studoc.payStyle : ''}"></td>
-                            <td th:text="${info != null && info.minutesPerLsn != null ? info.minutesPerLsn : ''}"></td>
-                            <td th:text="${studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
-                            <td th:text="${studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>
-                            <td th:text="${studoc.delFlg != null ? studoc.delFlg : ''}"></td>
-                            <td th:text="${studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
-                            <td th:text="${studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+                            <td th:text="${studoc != null && studoc.stuId != null ? studoc.stuId : ''}"></td>
+                            <td th:text="${studoc != null && studoc.subjectId != null ? studoc.subjectId : ''}"></td>
+                            <td th:text="${studoc != null && studoc.stuName != null ? studoc.stuName : ''}"></td>
+                            <td th:text="${studoc != null && studoc.subjectName != null ? studoc.subjectName : ''}"></td>
+                            <td th:text="${studoc != null && studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
+                            <td th:text="${studoc != null && studoc.payStyle != null ? studoc.payStyle : ''}"></td>
+                            <td th:text="${studoc != null && studoc.minutesPerLsn != null ? studoc.minutesPerLsn : ''}"></td>
+                            <td th:text="${studoc != null && studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
+                            <td th:text="${studoc != null && studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>
+                            <td th:text="${studoc != null && studoc.delFlg != null ? studoc.delFlg : ''}"></td>
+                            <td th:text="${studoc != null && studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+                            <td th:text="${studoc != null && studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" 
                                 th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
