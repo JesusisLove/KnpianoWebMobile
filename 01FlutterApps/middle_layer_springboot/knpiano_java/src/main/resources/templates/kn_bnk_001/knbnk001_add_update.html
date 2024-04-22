@@ -16,7 +16,7 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <form th:action="@{/kn_bnk_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedBank!=null}"/>
-
+                <br>
                 <div class="form-group"><br>  
                     <label>銀行ID</label> 
                     <input name="bankId" type="text" class="form-control" placeholder="システム自動採番、入力不可" 

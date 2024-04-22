@@ -39,7 +39,7 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <form th:action="@{/kn_sub_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedSubject!=null}"/>
-
+                <br>
                 <div class="form-group"><br>  <label>科目ID</label> <input name="subjectId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly th:value="${selectedSubject!=null}?${selectedSubject.subjectId}"></div>
                 <div class="form-group"><br>  <label>科目名</label> <input name="subjectName" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectName}"></div>
                 <div class="form-group"><br>  <label>科目価格</label> <input name="subjectPrice" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectPrice}"></div>

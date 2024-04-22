@@ -15,8 +15,8 @@
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_studoc_001_link_active')}"></div><!-- サイドバー部分 -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <form th:action="@{/kn_studoc_001}" method="post">
-                <input type="hidden" name="_method" value="put" th:if="${selectedStuDoc!=null}"/><br>
-
+                <input type="hidden" name="_method" value="put" th:if="${selectedStuDoc!=null}"/>
+                <br>
                 <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
                 <div class="form-group" th:if="${selectedStuDoc==null}">
                     <label>学生姓名</label> 
@@ -69,7 +69,7 @@
                                : #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
                 </div>
 
-                <!-- 変更編集S 模式下 调整日期用 日期控件显示 -->
+                <!-- 変更編集 模式下 调整日期用 日期控件显示 -->
                 <div class="form-group"  th:unless="${selectedStuDoc==null}"><br>  
                     <label>調整日付</label> 
                     <input id="adjustedDate" name="adjustedDate" type="text" class="form-control" readonly
