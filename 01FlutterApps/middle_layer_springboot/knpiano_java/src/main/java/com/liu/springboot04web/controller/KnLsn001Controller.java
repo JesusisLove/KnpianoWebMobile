@@ -13,7 +13,7 @@ import com.liu.springboot04web.dao.KnLsn001Dao;
 import com.liu.springboot04web.dao.KnStu001Dao;
 import com.liu.springboot04web.dao.KnSub001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
-import com.liu.springboot04web.service.LsnDurationService;
+import com.liu.springboot04web.service.ComboListInfoService;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Controller
 @Service
 public class KnLsn001Controller{
-    private final LsnDurationService durationService;
+    private final ComboListInfoService combListInfo;
 
     @Autowired
     private KnLsn001Dao knLsn001Dao;
@@ -32,9 +32,9 @@ public class KnLsn001Controller{
     @Autowired
     private KnSub001Dao knSub001Dao;
     
-    // 通过构造器注入方式接收DurationService的一个实例，获得application.properties里配置的上课时长数组
-    public KnLsn001Controller(LsnDurationService durationService) {
-        this.durationService = durationService;
+    // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
+    public KnLsn001Controller(ComboListInfoService combListInfo) {
+        this.combListInfo = combListInfo;
     }
 
     // 【学生授業情報管理】ボタンをクリックして，全ての情報を表示すること
@@ -74,7 +74,7 @@ public class KnLsn001Controller{
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的下拉列表框
         model.addAttribute("subMap", getSubCodeValueMap());
 
-        final List<String> durations = durationService.getDurations();
+        final List<String> durations = combListInfo.getDurations();
         model.addAttribute("duration",durations );
         return "kn_lsn_001/knlsn001_add_update";
     }
@@ -92,7 +92,7 @@ public class KnLsn001Controller{
   
         KnLsn001Bean knLsn001Bean = knLsn001Dao.getInfoById(id);
         model.addAttribute("selectedinfo", knLsn001Bean);
-        final List<String> durations = durationService.getDurations();
+        final List<String> durations = combListInfo.getDurations();
         model.addAttribute("duration", durations);
         return "kn_lsn_001/knlsn001_add_update";
     }

@@ -2,12 +2,13 @@ package com.liu.springboot04web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.KnFixfLsn001Bean;
 import com.liu.springboot04web.dao.KnFixfLsn001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
-
+import com.liu.springboot04web.service.ComboListInfoService;
 import com.liu.springboot04web.bean.KnStu001Bean;
 import com.liu.springboot04web.dao.KnStu001Dao;
 import com.liu.springboot04web.bean.KnSub001Bean;
@@ -16,10 +17,13 @@ import com.liu.springboot04web.dao.KnSub001Dao;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
+@Service
 public class KnFixfLsn001Controller {
+    private ComboListInfoService combListInfo;
 
     @Autowired
     private KnFixfLsn001Dao knFixfLsn001Dao;
@@ -27,6 +31,10 @@ public class KnFixfLsn001Controller {
     private KnStu001Dao knStu001Dao;
     @Autowired
     private KnSub001Dao knSub001Dao;
+    
+    public KnFixfLsn001Controller(ComboListInfoService combListInfo) {
+        this.combListInfo = combListInfo;
+    }
 
     // 初始化显示所有固定授業計画信息
     @GetMapping("/kn_fixflsn_001_all")
@@ -65,6 +73,13 @@ public class KnFixfLsn001Controller {
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
         model.addAttribute("subMap", getSubCodeValueMap());
 
+        final List<String> regularWeek = combListInfo.getRegularWeek();
+        model.addAttribute("regularweek",regularWeek );
+        final List<String> regularHour = combListInfo.getRegularHour();
+        model.addAttribute("regularhour",regularHour );
+        final List<String> regularMinute = combListInfo.getRegularMinute();
+        model.addAttribute("regularminute",regularMinute );
+
         return "kn_fixflsn_001/knfixflsn001_add_update";
     }
 
@@ -84,6 +99,14 @@ public class KnFixfLsn001Controller {
                                     Model model) {
         KnFixfLsn001Bean knFixfLsn001Bean = knFixfLsn001Dao.getInfoByKey(stuId, subjectId, fixedWeek);
         model.addAttribute("selectedFixedLesson", knFixfLsn001Bean);
+
+        final List<String> regularWeek = combListInfo.getRegularWeek();
+        model.addAttribute("regularweek",regularWeek );
+        final List<String> regularHour = combListInfo.getRegularHour();
+        model.addAttribute("regularhour",regularHour );
+        final List<String> regularMinute = combListInfo.getRegularMinute();
+        model.addAttribute("regularminute",regularMinute );
+
         return "kn_fixflsn_001/knfixflsn001_add_update";
     }
 

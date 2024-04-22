@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.KnStudoc001Bean;
 import com.liu.springboot04web.dao.KnStudoc001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
-import com.liu.springboot04web.service.LsnDurationService;
+import com.liu.springboot04web.service.ComboListInfoService;
 import com.liu.springboot04web.bean.KnStu001Bean;
 import com.liu.springboot04web.dao.KnStu001Dao;
 import com.liu.springboot04web.bean.KnSub001Bean;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Controller
 @Service
 public class KnStudoc001Controller {
-    private LsnDurationService durationService;
+    private ComboListInfoService combListInfo;
 
     @Autowired
     private KnStudoc001Dao knStudoc001Dao;
@@ -33,9 +33,9 @@ public class KnStudoc001Controller {
     @Autowired
     private KnSub001Dao knSub001Dao;
 
-    // 通过构造器注入方式接收DurationService的一个实例，获得application.properties里配置的上课时长数组
-    public KnStudoc001Controller(LsnDurationService durationService) {
-        this.durationService = durationService;
+    // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
+    public KnStudoc001Controller(ComboListInfoService combListInfo) {
+        this.combListInfo = combListInfo;
     }
 
     // 初始化显示所有固定授業計画信息
@@ -75,7 +75,7 @@ public class KnStudoc001Controller {
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
         model.addAttribute("subMap", getSubCodeValueMap());
 
-        final List<String> durations = durationService.getMinutesPerLsn();
+        final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
 
         return "kn_studoc_001/knstudoc001_add_update";
@@ -99,7 +99,7 @@ public class KnStudoc001Controller {
                                     Model model) {
         KnStudoc001Bean knStudoc001Bean = knStudoc001Dao.getInfoByKey(stuId, subjectId, adjustedDate);
         model.addAttribute("selectedStuDoc", knStudoc001Bean);
-        final List<String> durations = durationService.getMinutesPerLsn();
+        final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
         return "kn_studoc_001/knstudoc001_add_update";
     }
