@@ -5,8 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.liu.springboot04web.bean.KnFixfLsn001Bean;
-import com.liu.springboot04web.dao.KnFixfLsn001Dao;
+import com.liu.springboot04web.bean.KnFixLsn001Bean;
+import com.liu.springboot04web.dao.KnFixLsn001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 import com.liu.springboot04web.bean.KnStu001Bean;
@@ -18,35 +18,42 @@ import com.liu.springboot04web.dao.KnSub001Dao;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 @Controller
 @Service
-public class KnFixfLsn001Controller {
+public class KnFixLsn001Controller {
     private ComboListInfoService combListInfo;
+    private String activeDay;
 
     @Autowired
-    private KnFixfLsn001Dao knFixfLsn001Dao;
+    private KnFixLsn001Dao knFixLsn001Dao;
     @Autowired
     private KnStu001Dao knStu001Dao;
     @Autowired
     private KnSub001Dao knSub001Dao;
     
-    public KnFixfLsn001Controller(ComboListInfoService combListInfo) {
+    public KnFixLsn001Controller(ComboListInfoService combListInfo) {
         this.combListInfo = combListInfo;
     }
 
     // 初始化显示所有固定授業計画信息
-    @GetMapping("/kn_fixflsn_001_all")
+    @GetMapping("/kn_fixlsn_001_all")
     public String list(Model model) {
         // 学生固定排课一览取得
-        Collection<KnFixfLsn001Bean> collection = knFixfLsn001Dao.getInfoList();
-        model.addAttribute("fixedLessonList", collection);
-        return "kn_fixflsn_001/knfixflsn001_list";
+        Collection<KnFixLsn001Bean> searchResults = knFixLsn001Dao.getInfoList();
+        model.addAttribute("fixedLessonList", searchResults);
+
+        List<String> resultsDays = CommonProcess.sortWeekdays(getResultsDays(searchResults));
+        model.addAttribute("resultsDays", resultsDays);
+        model.addAttribute("activeDay", (this.activeDay!=null)? this.activeDay : "Mon");
+
+        return "kn_fixlsn_001/knfixlsn001_list";
     }
 
     /** 画面检索 模糊检索功能追加  开始 */ 
-    @GetMapping("/kn_fixflsn_001/search")
+    @GetMapping("/kn_fixlsn_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）
         Map<String, Object> backForwordMap = new HashMap<>();
@@ -54,18 +61,24 @@ public class KnFixfLsn001Controller {
         model.addAttribute("fixedLessonMap", backForwordMap);
 
         /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
-           目的是，这个Map要传递到KnFixfLsn001Mapper.xml哪里做SQL的Where的查询条件 */
+           目的是，这个Map要传递到KnFixLsn001Mapper.xml哪里做SQL的Where的查询条件 */
         Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
-        Collection<KnFixfLsn001Bean> searchResults = knFixfLsn001Dao.searchFixedLessons(conditions);
+        Collection<KnFixLsn001Bean> searchResults = knFixLsn001Dao.searchFixedLessons(conditions);
         model.addAttribute("fixedLessonList", searchResults);
-        return "kn_fixflsn_001/knfixflsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
+
+        List<String> resultsDays = CommonProcess.sortWeekdays(getResultsDays(searchResults));
+        model.addAttribute("resultsDays", resultsDays);
+        // 学生一周有复数天的排课，则默认显示第一个卡片（从Mon到Sun）
+        model.addAttribute("activeDay", resultsDays.get(0));
+
+        return "kn_fixlsn_001/knfixlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
     /** 画面检索 检索功能追加  结束 */ 
 
     // 「固定授業新規登録」ボタンをクリックして、跳转到新增固定授業計画的页面
-    @GetMapping("/kn_fixflsn_001")
+    @GetMapping("/kn_fixlsn_001")
     public String toFixedLessonAdd(Model model) {
 
         // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的学生下拉列表框
@@ -80,52 +93,59 @@ public class KnFixfLsn001Controller {
         final List<String> regularMinute = combListInfo.getRegularMinute();
         model.addAttribute("regularminute",regularMinute );
 
-        return "kn_fixflsn_001/knfixflsn001_add_update";
+        return "kn_fixlsn_001/knfixlsn001_add_update";
     }
 
     // 保存新增的固定授業計画
-    @PostMapping("/kn_fixflsn_001")
-    public String executeFixedLessonAdd(KnFixfLsn001Bean knFixfLsn001Bean) {
-        System.out.println("新增固定授業計画: " + knFixfLsn001Bean);
-        knFixfLsn001Dao.save(knFixfLsn001Bean);
-        return "redirect:/kn_fixflsn_001_all";
+    @PostMapping("/kn_fixlsn_001")
+    public String executeFixedLessonAdd(KnFixLsn001Bean knFixLsn001Bean, Model model) {
+        System.out.println("新增固定授業計画: " + knFixLsn001Bean);
+        knFixLsn001Dao.save(knFixLsn001Bean);
+        this.activeDay = knFixLsn001Bean.getFixedWeek();
+        return "redirect:/kn_fixlsn_001_all";
     }
 
     // 「変更」ボタンをクリックして、跳转到编辑固定授業計画的页面
-    @GetMapping("/kn_fixflsn_001/{stuId}/{subjectId}/{fixedWeek}")
+    @GetMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String toFixedLessonEdit(@PathVariable("stuId") String stuId, 
                                     @PathVariable("subjectId") String subjectId, 
                                     @PathVariable("fixedWeek") String fixedWeek, 
                                     Model model) {
-        KnFixfLsn001Bean knFixfLsn001Bean = knFixfLsn001Dao.getInfoByKey(stuId, subjectId, fixedWeek);
-        model.addAttribute("selectedFixedLesson", knFixfLsn001Bean);
+        KnFixLsn001Bean knFixLsn001Bean = knFixLsn001Dao.getInfoByKey(stuId, subjectId, fixedWeek);
+        model.addAttribute("selectedFixedLesson", knFixLsn001Bean);
 
         final List<String> regularWeek = combListInfo.getRegularWeek();
         model.addAttribute("regularweek",regularWeek );
+
         final List<String> regularHour = combListInfo.getRegularHour();
         model.addAttribute("regularhour",regularHour );
+
         final List<String> regularMinute = combListInfo.getRegularMinute();
         model.addAttribute("regularminute",regularMinute );
+        model.addAttribute("activeDay",knFixLsn001Bean.getFixedWeek() );
 
-        return "kn_fixflsn_001/knfixflsn001_add_update";
+        return "kn_fixlsn_001/knfixlsn001_add_update";
     }
 
     // 保存编辑后的固定授業計画
-    @PutMapping("/kn_fixflsn_001")
-    public String executeFixedLessonEdit(KnFixfLsn001Bean knFixfLsn001Bean) {
-        System.out.println("编辑固定授業計画: " + knFixfLsn001Bean);
-        knFixfLsn001Dao.save(knFixfLsn001Bean);
-        return "redirect:/kn_fixflsn_001_all";
+    @PutMapping("/kn_fixlsn_001")
+    public String executeFixedLessonEdit(KnFixLsn001Bean knFixLsn001Bean, Model model) {
+        System.out.println("编辑固定授業計画: " + knFixLsn001Bean);
+        knFixLsn001Dao.save(knFixLsn001Bean);
+        this.activeDay = knFixLsn001Bean.getFixedWeek();
+
+        return "redirect:/kn_fixlsn_001_all";
     }
 
     // 删除固定授業計画
-    @DeleteMapping("/kn_fixflsn_001/{stuId}/{subjectId}/{fixedWeek}")
+    @DeleteMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String executeFixedLessonDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 
                                             @PathVariable("fixedWeek") String fixedWeek, 
                                             Model model) {
-        knFixfLsn001Dao.deleteByKeys(stuId, subjectId, fixedWeek);
-        return "redirect:/kn_fixflsn_001_all";
+        knFixLsn001Dao.deleteByKeys(stuId, subjectId, fixedWeek);
+        this.activeDay = fixedWeek;
+        return "redirect:/kn_fixlsn_001_all";
     }
 
     // 学生下拉列表框初期化
@@ -150,5 +170,14 @@ public class KnFixfLsn001Controller {
         }
 
         return map != null ? CommonProcess.sortMapByValues(map) : map;
+    }
+
+    private List<String> getResultsDays(Collection<KnFixLsn001Bean> collection) {
+
+        List<String> activeDaysList = new ArrayList<>();
+        for (KnFixLsn001Bean bean : collection) {
+            activeDaysList.add(bean.getFixedWeek());
+        }
+        return CommonProcess.removeDuplicates(activeDaysList) ;
     }
 }

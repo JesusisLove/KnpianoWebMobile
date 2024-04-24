@@ -12,9 +12,9 @@
 <div th:replace="~{commons/bar::topbar}"></div><!-- ヘッダー部分 -->
 <div class="container-fluid">
     <div class="row">
-        <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixflsn_001_link_active')}"></div><!-- サイドバー部分 -->
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixlsn_001_link_active')}"></div><!-- サイドバー部分 -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <form th:action="@{/kn_fixflsn_001}" method="post">
+            <form th:action="@{/kn_fixlsn_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedFixedLesson!=null}"/>
                 <br>
                 <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
@@ -59,9 +59,11 @@
                            readonly>
                     <input name="subjectId" type="hidden" th:value="${selectedFixedLesson.subjectId}">
                 </div>
+                <br>
 
-                <!-- 新规登陆，变更编辑 下拉列表框 固定上课在星期几 -->
-                <div class="form-group"><label>固定星期几？</label>
+                <!-- 新规登陆，下拉列表框 固定上课在星期几 -->
+                <div class="form-group" th:if="${selectedFixedLesson==null}">
+                    <label>固定星期几？</label>
                     <select class="form-control" name="fixedWeek">
                         <option value="">请选择上课时长 </option>
                         <option th:selected="${selectedFixedLesson!=null}?${selectedFixedLesson.fixedWeek}==${element}"
@@ -69,6 +71,15 @@
                         </option>
                     </select>
                 </div>
+
+                <!-- 变更编辑，下拉列表框 固定上课在星期几 -->
+                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                    <label>科目名称</label> 
+                    <input name="fixedWeek" type="text" class="form-control" 
+                           th:value="${selectedFixedLesson.fixedWeek}" 
+                           readonly>
+                </div>
+                <br>
 
                 <!-- 新规登陆，变更编辑 下拉列表框 固定上课在几点 -->
                 <div class="form-group"><label>固定在几点？</label>
@@ -79,6 +90,7 @@
                         </option>
                     </select>
                 </div>
+                <br>
 
                 <!-- 新规登陆，变更编辑 下拉列表框  固定上课在几分-->
                 <div class="form-group"><label>固定在几分？</label>
@@ -89,21 +101,6 @@
                         </option>
                     </select>
                 </div>
-
-                <!-- <div class="form-group"><br>  <label>固定週</label> 
-                    <input name="fixedWeek" type="text" class="form-control" placeholder=""  
-                           th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.fixedWeek}"
-                           th:readonly="${selectedFixedLesson!=null}">
-                </div>
-                <div class="form-group"><br>  <label>固定時間</label> 
-                    <input name="fixedHour" type="text" class="form-control" placeholder=""  
-                           th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.fixedHour}">
-                </div>
-                <div class="form-group"><br>  <label>固定分</label> 
-                    <input name="fixedMinute" type="text" class="form-control" placeholder=""  
-                           th:value="${selectedFixedLesson!=null}?${selectedFixedLesson.fixedMinute}">
-                </div> -->
-
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </main>
