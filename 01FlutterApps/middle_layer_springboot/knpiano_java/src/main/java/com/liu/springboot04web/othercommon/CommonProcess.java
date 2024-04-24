@@ -1,12 +1,21 @@
 package com.liu.springboot04web.othercommon;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import java.util.List;
+import java.util.Locale;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
+
 
 
 public class CommonProcess {
@@ -51,4 +60,29 @@ public class CommonProcess {
         return sortedMap;
     }
 
+    /* 使用HashSet去除List<String>数组里的重复项 */ 
+    public static List<String> removeDuplicates(List<String> inputList) {
+        // 使用HashSet去除重复项
+        Set<String> uniqueElements = new HashSet<>(inputList);
+        
+        // 将Set转换回List
+        return new ArrayList<>(uniqueElements);
+    }
+
+    /* 把没有顺序的WeekDay，pai cheng */ 
+    public static List<String> sortWeekdays(List<String> unsortedDays) {
+        Locale locale = Locale.US;  // 设定Locale，这决定了星期名称的本地化表达
+
+        // 创建一个映射，将星期简称映射到DayOfWeek枚举
+        final var dayMap = Arrays.stream(DayOfWeek.values())
+                .collect(Collectors.toMap(
+                        day -> day.getDisplayName(TextStyle.SHORT, locale),
+                        day -> day
+                ));
+
+        // 对列表进行排序，根据DayOfWeek的自然顺序
+        return unsortedDays.stream()
+                .sorted(Comparator.comparing(dayMap::get))
+                .collect(Collectors.toList());
+    }
 }

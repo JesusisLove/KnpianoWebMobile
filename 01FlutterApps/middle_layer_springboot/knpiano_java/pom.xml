@@ -22,7 +22,8 @@
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
         <!-- 支持thymeleaf 布局的支持程序  -->
         <thymeleaf-layout-dialect.version>2.4.1</thymeleaf-layout-dialect.version>
-        <java.version>1.8</java.version>
+        <!-- <java.version>1.8</java.version> -->
+        <java.version>10</java.version>
     </properties>
 
     <dependencies>
