@@ -18,7 +18,7 @@ public class KnSub001Controller {
     @Autowired
     private KnSub001Dao knSub001Dao;
 
-    // 画面初期化显示所有学习科目信息
+    // 【KNPiano后台维护 科目信息】ボタンをクリック
     @GetMapping("/kn_sub_001_all")
     public String list(Model model) {
         Collection<KnSub001Bean> collection = knSub001Dao.getInfoList();
@@ -26,7 +26,7 @@ public class KnSub001Controller {
         return "kn_sub_001/knsub001_list";
     }
 
-    /** 画面检索 检索功能追加  开始 */ 
+    // 【検索一覧】検索ボタンを押下
     @GetMapping("/kn_sub_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
@@ -44,15 +44,14 @@ public class KnSub001Controller {
         model.addAttribute("subjectList", searchResults);
         return "kn_sub_001/knsub001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
-    /** 画面检索 检索功能追加  结束 */ 
 
-    // 跳转到添加科目的页面
+    // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_sub_001")
     public String toSubjectAdd(Model model) {
         return "kn_sub_001/knsub001_add_update";
     }
 
-    // 保存新增科目
+    // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_sub_001")
     public String executeSubjectAdd(KnSub001Bean knSub001Bean) {
         System.out.println("新增科目: " + knSub001Bean);
@@ -60,7 +59,7 @@ public class KnSub001Controller {
         return "redirect:/kn_sub_001_all";
     }
 
-    // 跳转到编辑科目的页面
+    // 【検索一覧】編集ボタンを押下
     @GetMapping("/kn_sub_001/{id}")
     public String toSubjectEdit(@PathVariable("id") String id, Model model) {
         KnSub001Bean knSub001Bean = knSub001Dao.getInfoById(id);
@@ -68,7 +67,7 @@ public class KnSub001Controller {
         return "kn_sub_001/knsub001_add_update";
     }
 
-    // 保存编辑后的科目
+    // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_sub_001")
     public String executeSubjectEdit(KnSub001Bean knSub001Bean) {
         System.out.println("编辑科目: " + knSub001Bean);
@@ -76,7 +75,7 @@ public class KnSub001Controller {
         return "redirect:/kn_sub_001_all";
     }
 
-    // 删除科目
+    // 【検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_sub_001/{id}")
     public String executeSubjectDelete(@PathVariable("id") String id) {
         knSub001Dao.delete(id);

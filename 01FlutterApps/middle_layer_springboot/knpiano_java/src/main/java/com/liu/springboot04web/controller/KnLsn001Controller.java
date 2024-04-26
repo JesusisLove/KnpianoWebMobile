@@ -37,7 +37,7 @@ public class KnLsn001Controller{
         this.combListInfo = combListInfo;
     }
 
-    // 【学生授業情報管理】ボタンをクリックして，全ての情報を表示すること
+    // 【KNPiano后台维护 课程信息管理】ボタンをクリック
     @GetMapping("/kn_lsn_001_all")
     public String list(Model model) {
         Collection<KnLsn001Bean> collection = knLsn001Dao.getInfoList();
@@ -45,7 +45,7 @@ public class KnLsn001Controller{
         return "kn_lsn_001/knlsn001_list";
     }
 
-    /** 画面检索 检索功能追加  开始 */ 
+    // 【検索一覧】検索ボタンを押下
     @GetMapping("/kn_lsn_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
@@ -63,9 +63,8 @@ public class KnLsn001Controller{
         model.addAttribute("infoList", searchResults);
         return "kn_lsn_001/knlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
-    /** 画面检索 检索功能追加  结束 */ 
 
-    // 【学生授業情報管理】新規ボタンを押下して、【学生授業情報管理】新規画面へ遷移すること
+    // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_lsn_001")
     public String toInfoAdd(Model model) {
 
@@ -79,32 +78,33 @@ public class KnLsn001Controller{
         return "kn_lsn_001/knlsn001_add_update";
     }
 
-    // 【学生授業情報管理】新規画面にて、【保存】ボタンを押下して、新規情報を保存すること
+    // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_lsn_001")
     public String excuteInfoAdd(KnLsn001Bean knLsn001Bean) {
         knLsn001Dao.save(knLsn001Bean);
         return "redirect:/kn_lsn_001_all";
     }
 
-    // 【学生授業情報管理】編集ボタンを押下して、【学生授業情報管理】編集画面へ遷移すること
+    // 【検索一覧】編集ボタンを押下
     @GetMapping("/kn_lsn_001/{id}")
     public String toInfoEdit(@PathVariable("id") String id, Model model) {
   
         KnLsn001Bean knLsn001Bean = knLsn001Dao.getInfoById(id);
         model.addAttribute("selectedinfo", knLsn001Bean);
+        
         final List<String> durations = combListInfo.getDurations();
         model.addAttribute("duration", durations);
         return "kn_lsn_001/knlsn001_add_update";
     }
 
-    // 【学生授業情報管理】編集画面にて、【保存】ボタンを押下して、変更した情報を保存すること
+    // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_lsn_001")
     public String excuteInfoEdit(@ModelAttribute KnLsn001Bean knLsn001Bean) {
         knLsn001Dao.save(knLsn001Bean);
         return "redirect:/kn_lsn_001_all";
     }
 
-    // 【学生授業情報管理】削除ボタンを押下して、当該情報を削除すること
+    // 【検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_lsn_001/{id}")
     public String excuteInfoDelete(@PathVariable("id") String id) {
         knLsn001Dao.delete(id);

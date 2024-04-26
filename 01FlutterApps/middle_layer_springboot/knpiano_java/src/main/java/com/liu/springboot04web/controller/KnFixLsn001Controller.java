@@ -38,7 +38,7 @@ public class KnFixLsn001Controller {
         this.combListInfo = combListInfo;
     }
 
-    // 初始化显示所有固定授業計画信息
+    // 【KNPiano后台维护 固定课时信息】ボタンをクリック
     @GetMapping("/kn_fixlsn_001_all")
     public String list(Model model) {
         // 学生固定排课一览取得
@@ -52,7 +52,7 @@ public class KnFixLsn001Controller {
         return "kn_fixlsn_001/knfixlsn001_list";
     }
 
-    /** 画面检索 模糊检索功能追加  开始 */ 
+    // 【検索一覧】検索ボタンを押下
     @GetMapping("/kn_fixlsn_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）
@@ -75,9 +75,8 @@ public class KnFixLsn001Controller {
 
         return "kn_fixlsn_001/knfixlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
-    /** 画面检索 检索功能追加  结束 */ 
 
-    // 「固定授業新規登録」ボタンをクリックして、跳转到新增固定授業計画的页面
+    // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_fixlsn_001")
     public String toFixedLessonAdd(Model model) {
 
@@ -96,7 +95,7 @@ public class KnFixLsn001Controller {
         return "kn_fixlsn_001/knfixlsn001_add_update";
     }
 
-    // 保存新增的固定授業計画
+    // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_fixlsn_001")
     public String executeFixedLessonAdd(KnFixLsn001Bean knFixLsn001Bean, Model model) {
         System.out.println("新增固定授業計画: " + knFixLsn001Bean);
@@ -105,7 +104,7 @@ public class KnFixLsn001Controller {
         return "redirect:/kn_fixlsn_001_all";
     }
 
-    // 「変更」ボタンをクリックして、跳转到编辑固定授業計画的页面
+    // 【検索一覧】編集ボタンを押下
     @GetMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String toFixedLessonEdit(@PathVariable("stuId") String stuId, 
                                     @PathVariable("subjectId") String subjectId, 
@@ -127,7 +126,7 @@ public class KnFixLsn001Controller {
         return "kn_fixlsn_001/knfixlsn001_add_update";
     }
 
-    // 保存编辑后的固定授業計画
+    // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_fixlsn_001")
     public String executeFixedLessonEdit(KnFixLsn001Bean knFixLsn001Bean, Model model) {
         System.out.println("编辑固定授業計画: " + knFixLsn001Bean);
@@ -137,7 +136,7 @@ public class KnFixLsn001Controller {
         return "redirect:/kn_fixlsn_001_all";
     }
 
-    // 删除固定授業計画
+    // 【検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String executeFixedLessonDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 
