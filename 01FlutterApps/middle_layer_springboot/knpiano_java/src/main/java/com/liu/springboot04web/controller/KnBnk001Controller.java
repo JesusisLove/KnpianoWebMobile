@@ -18,7 +18,7 @@ public class KnBnk001Controller {
     @Autowired
     private KnBnk001Dao knBnk001Dao;
 
-    // 画面初期化显示所有银行信息
+    // 【KNPiano后台维护 银行账户信息】ボタンをクリック
     @GetMapping("/kn_bnk_001_all")
     public String list(Model model) {
         Collection<KnBnk001Bean> collection = knBnk001Dao.getInfoList();
@@ -26,7 +26,7 @@ public class KnBnk001Controller {
         return "kn_bnk_001/knbnk001_list";
     }
 
-    /** 画面检索 检索功能追加  开始 */ 
+    // 【検索一覧】検索ボタンを押下
     @GetMapping("/kn_bnk_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
@@ -44,22 +44,21 @@ public class KnBnk001Controller {
         model.addAttribute("bankList", searchResults);
         return "kn_bnk_001/knbnk001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
-    /** 画面检索 检索功能追加  结束 */ 
 
-    // 跳转到添加银行信息的页面
+    // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_bnk_001")
     public String toBankAdd(Model model) {
         return "kn_bnk_001/knbnk001_add_update";
     }
 
-    // 保存新增银行信息
+    // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_bnk_001")
     public String executeBankAdd(KnBnk001Bean knBnk001Bean) {
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }
 
-    // 跳转到编辑银行信息的页面
+    // 【検索一覧】編集ボタンを押下
     @GetMapping("/kn_bnk_001/{id}")
     public String toBankEdit(@PathVariable("id") String id, Model model) {
         KnBnk001Bean knBnk001Bean = knBnk001Dao.getInfoById(id);
@@ -67,14 +66,14 @@ public class KnBnk001Controller {
         return "kn_bnk_001/knbnk001_add_update";
     }
 
-    // 保存编辑后的银行信息
+    // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_bnk_001")
     public String executeBankEdit(KnBnk001Bean knBnk001Bean) {
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }
 
-    // 删除银行信息
+    // 【検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_bnk_001/{id}")
     public String executeBankDelete(@PathVariable("id") String id) {
         knBnk001Dao.delete(id);
