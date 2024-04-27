@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.liu.springboot04web.bean.KnStu001Bean;
@@ -20,12 +22,19 @@ public class KnStu001MobileController {
     //@CrossOrigin(origins = "https://example.com") // 生产环境下使用，一定要指定某个具体的url
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/student")
-
- 
     public ResponseEntity<KnStu001Bean> getStudentByName(@RequestParam String stuid) {
         // 学生番号より、学生情報を検索する。
         KnStu001Bean knStu001Bean = knStu001Dao.getInfoById(stuid);
         return ResponseEntity.ok(knStu001Bean);
+    }
+
+
+    // 【新規登録】画面にて、【保存】ボタンを押下
+    @CrossOrigin(origins = "*") 
+    @PostMapping("/kn_stu_001_add")
+    public String excuteInfoAdd(@RequestBody KnStu001Bean knStu001Bean) {
+        knStu001Dao.save(knStu001Bean);
+        return "Success";
     }
 }
 

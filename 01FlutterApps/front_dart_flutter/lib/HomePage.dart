@@ -1,8 +1,9 @@
 // HomePage.dart
 import 'package:flutter/material.dart';
-import 'package:my_first_app/StudentInfoScreen.dart';  // 确保导入路径正确
-
+import 'package:my_first_app/%2001LessonMangement/1StudentRegister/StudentInfoScreen.dart';  // 确保导入路径正确
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -28,18 +29,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("主页面"),
+        title: const Text("主页面"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              child: Text("学生入学"),
+              child: const Text("学生入学"),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => StudentInfoScreen()),
+                  MaterialPageRoute(builder: (context) => const StudentInfoScreen()),
                 );
               },
             ),
