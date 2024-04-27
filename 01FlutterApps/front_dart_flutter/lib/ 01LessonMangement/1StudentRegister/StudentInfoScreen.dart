@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // 引入 intl 包来格式化日期
-import 'package:my_first_app/ConfigAPI/KnConfig.dart';// API配置文件
+import 'package:my_first_app/ApiConfig/KnApiConfig.dart';// API配置文件
 
 class StudentInfoScreen extends StatefulWidget {
   const StudentInfoScreen({super.key});
@@ -144,7 +144,7 @@ class _StudentInfoScreenState extends State<StudentInfoScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      final String apiUrl = '${KnConfig.apiBaseUrl}/liu/kn_stu_001_add';
+      final String apiUrl = '${KnConfig.apiBaseUrl}/liu/mb_kn_stu_001_add';
     
         var response = await http.post(
           Uri.parse(apiUrl),

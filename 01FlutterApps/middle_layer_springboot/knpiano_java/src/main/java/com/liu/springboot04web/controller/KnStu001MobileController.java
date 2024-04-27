@@ -31,7 +31,7 @@ public class KnStu001MobileController {
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
-    @PostMapping("/kn_stu_001_add")
+    @PostMapping("/mb_kn_stu_001_add")
     public String excuteInfoAdd(@RequestBody KnStu001Bean knStu001Bean) {
         knStu001Dao.save(knStu001Bean);
         return "Success";

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_first_app/ApiConfig/KnApiConfig.dart';
 import 'dart:convert';
-import 'ConfigAPI/config.dart'; // 导入Config类
+import 'package:my_first_app/ApiConfig/KnApiConfig.dart'; // 导入Config类
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 初始化Flutter绑定
-  await Config.load(); // 加载配置
+  await KnConfig.load(); // 加载配置
   runApp(MyApp());
 }
 
@@ -37,7 +38,7 @@ class _StudentSearchWidgetState extends State<StudentSearchWidget> {
   String _studentInfo = '';
 
   void _search() async {
-    final String apiUrl = '${Config.apiBaseUrl}/liu/student?stuid=${_controller.text}';// 修改：使用 Config 中的基础URL
+    final String apiUrl = '${KnConfig.apiBaseUrl}/liu/student?stuid=${_controller.text}';// 修改：使用 Config 中的基础URL
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
