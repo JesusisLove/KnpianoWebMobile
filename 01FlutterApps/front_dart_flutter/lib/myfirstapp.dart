@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:flutter/services.dart'; // 确保导入了这个库
-import 'config.dart'; // 导入Config类
+import 'ConfigAPI/config.dart'; // 导入Config类
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 初始化Flutter绑定
@@ -11,20 +10,24 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('学生信息查询'),
+          title: const Text('学生信息查询'),
         ),
-        body: StudentSearchWidget(),
+        body: const StudentSearchWidget(),
       ),
     );
   }
 }
 
 class StudentSearchWidget extends StatefulWidget {
+  const StudentSearchWidget({super.key});
+
   @override
   _StudentSearchWidgetState createState() => _StudentSearchWidgetState();
 }
@@ -62,13 +65,13 @@ class _StudentSearchWidgetState extends State<StudentSearchWidget> {
       children: <Widget>[
         TextField(
           controller: _controller,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: '输入学号',
           ),
         ),
         ElevatedButton(
           onPressed: _search,
-          child: Text('查询'),
+          child: const Text('查询'),
         ),
         Text(_studentInfo),
       ],

@@ -2,8 +2,6 @@ package com.liu.springboot04web.bean;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 public class KnStu001Bean implements KnPianoBean {
     protected String stuId;
     protected String stuName;
@@ -18,10 +16,8 @@ public class KnStu001Bean implements KnPianoBean {
     protected String introducer;
     protected Integer delFlg;
 
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
 
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getStuId() {
