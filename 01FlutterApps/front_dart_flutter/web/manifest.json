@@ -1,6 +1,6 @@
 {
-    "name": "my_first_app",
-    "short_name": "my_first_app",
+    "name": "kn_piano",
+    "short_name": "kn_piano",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
