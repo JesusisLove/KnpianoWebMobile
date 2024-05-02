@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "my_first_app" "\0"
+            VALUE "CompanyName", "com.liu" "\0"
+            VALUE "FileDescription", "kn_piano" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "my_first_app" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "my_first_app.exe" "\0"
-            VALUE "ProductName", "my_first_app" "\0"
+            VALUE "InternalName", "kn_piano" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.liu. All rights reserved." "\0"
+            VALUE "OriginalFilename", "kn_piano.exe" "\0"
+            VALUE "ProductName", "kn_piano" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
