@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:my_first_app/ApiConfig/KnApiConfig.dart';
+import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'dart:convert';
-import 'package:my_first_app/ApiConfig/KnApiConfig.dart'; // 导入Config类
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 初始化Flutter绑定
