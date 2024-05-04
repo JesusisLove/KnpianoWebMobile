@@ -77,6 +77,11 @@ class StuEditListState extends State<StuEditList> {
   Widget _buildStudentItem(KnStu001Bean student) {
     return Card(
       child: ListTile(
+        leading: const CircleAvatar(
+        // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
+        // 如果没有图像URL，可以使用一个本地的占位符图像
+        backgroundImage: AssetImage('images/student-placeholder.png'),
+      ),
         title: Text(student.stuName),
         subtitle: Text(
           "学生番号: ${student.stuId}"
