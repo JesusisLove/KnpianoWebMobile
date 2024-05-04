@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kn_piano/01LessonMangement/1StudentRegister/StudentInfoScreen.dart';  // 确保导入路径正确
+import 'package:kn_piano/02StuDocMangement/1StudentBasicInfo/StuInfoAdd.dart';  // 确保导入路径正确
+import 'package:kn_piano/02StuDocMangement/2studentInfoEdit/StuInfoView.dart';
 import 'package:kn_piano/04SettingMangement/4FixedLesson/FixLessonSetting.dart';  // 确保导入路径正确
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
 
@@ -45,7 +46,9 @@ class HomePageState extends State<HomePage> {
           setButton(iconData: Icons.school , text: "学生入学管理", onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentInfoScreen()));}, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.edit, text: "学生档案编辑", onPressed: () {}, bgcolor:consts.Constants.stuDocThemeColor,),
+          setButton(iconData: Icons.edit, text: "学生档案编辑", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => StuEditList()));
+          }, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.event_busy, text: "学生旷课管理", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

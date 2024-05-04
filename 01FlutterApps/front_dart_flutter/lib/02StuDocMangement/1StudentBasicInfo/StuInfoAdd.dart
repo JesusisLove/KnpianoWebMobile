@@ -1,5 +1,4 @@
-// StudentInfo.dart
-// ignore_for_file: file_names
+/// 学生入学管理 
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -50,9 +49,6 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
   @override
   void initState() {
     super.initState();
-
-    // 加载Api
-    initConfig();
 
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
@@ -276,7 +272,7 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // 向数据库发送保存学生信息请求的Api常量
+      // 学生档案菜单画面，点击“保存”按钮的url请求
       final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.studentInfoAdd}';
     
         var response = await http.post(
