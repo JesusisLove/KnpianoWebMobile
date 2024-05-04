@@ -3,15 +3,15 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-// constants.dart
-// const String appTitle = 'My Awesome App';
-// const int timeoutSeconds = 30;
+/// 注释规范，为了今后维护方便
+/// url请求常量的注释内容，必须与窗体里按钮响应事件的注释内容一致
+/// 
+/// 
 
-// 主题相关的常量
-// const double defaultPadding = 16.0;
-
-// 向数据库发送保存学生信息请求的Api常量
+// 学生档案菜单画面，点击“保存”按钮的url请求
 static const String studentInfoAdd = '/liu/mb_kn_stu_001_add';
+// 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
+static const String studentInfoView = '/liu/mb_kn_stu_001_all';
 
 
 

@@ -2,6 +2,8 @@ package com.liu.springboot04web.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +15,19 @@ import com.liu.springboot04web.bean.KnStu001Bean;
 import com.liu.springboot04web.dao.KnStu001Dao;
 
 @RestController
-public class KnStu001MobileController {
+public class KnStu001Controller4Mobile {
 
     @Autowired
     KnStu001Dao knStu001Dao;
+
+    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    @GetMapping("/mb_kn_stu_001_all")
+    public ResponseEntity<Collection<KnStu001Bean>> getStudentList() {
+        // 获取当前正在上课的所有学生信息
+        Collection<KnStu001Bean> collection = knStu001Dao.getInfoList();
+        return ResponseEntity.ok(collection);
+    }
+
 
     // Chrome浏览器模式下，origins 属性指定了允许发起跨域请求的来源
     //@CrossOrigin(origins = "https://example.com") // 生产环境下使用，一定要指定某个具体的url
