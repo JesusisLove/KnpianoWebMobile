@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kn_piano/02StuDocMangement/1StudentBasicInfo/StuInfoAdd.dart';  // 确保导入路径正确
 import 'package:kn_piano/02StuDocMangement/2studentInfoEdit/StuInfoView.dart';
-import 'package:kn_piano/04SettingMangement/4FixedLesson/FixLessonSetting.dart';  // 确保导入路径正确
+import 'package:kn_piano/04SettingMangement/4FixedLesson/FixLsnInfoView.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
 
 class HomePage extends StatefulWidget {
@@ -21,8 +21,8 @@ class HomePageState extends State<HomePage> {
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.check_circle, text: "今日上课签到", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          // setButton(iconData: Icons.check_circle, text: "今日上课签到", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.pie_chart, text: "课时统计查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
@@ -47,7 +47,7 @@ class HomePageState extends State<HomePage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentInfoScreen()));}, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.edit, text: "学生档案编辑", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => StuEditList()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const StuEditList()));
           }, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.event_busy, text: "学生旷课管理", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
@@ -57,11 +57,11 @@ class HomePageState extends State<HomePage> {
       case 3:
         // 综合管理页面（假设暂无特定按钮）
         return [
-          setButton(iconData: Icons.calendar_today, text: "年度报表", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          setButton(iconData: Icons.calendar_today, text: "年度课程汇报", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.person_off, text: "学生休学", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          setButton(iconData: Icons.person_off, text: "学生休学退学", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.settings, text: "账单明细", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          setButton(iconData: Icons.settings, text: "年度账单明细", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
         ];
       case 4:
         // 设置管理页面
@@ -71,7 +71,8 @@ class HomePageState extends State<HomePage> {
           setButton(iconData: Icons.language, text: "多国语言切换", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.settings, text: "固定排课设置", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleForm()));
+            // 
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const ClassSchedulePage()));
           }, bgcolor: consts.Constants.settngThemeColor,),
         ];
       default:

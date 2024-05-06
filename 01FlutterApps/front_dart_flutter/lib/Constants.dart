@@ -15,6 +15,11 @@ static const String studentInfoView = '/liu/mb_kn_stu_001_all';
 
 
 
+// 设置管理菜单画面，点击“固定排课设置”按钮的url请求
+static const String fixedLsnInfoView = '/liu/mb_kn_fixlsn_001_all';
+
+
+
 // 主页面button按钮尺寸
 static const double homePageButtonWidth = 240.0;
 static const double homePageButtonHeight = 60.0;

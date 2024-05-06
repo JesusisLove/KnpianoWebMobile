@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // 引入 intl 包来格式化日期
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';// API配置文件
+import 'package:kn_piano/CommonProcess/FormFields.dart';// 共通控件作成（所有窗体控件统一标准）
 import 'package:kn_piano/Constants.dart'; // 引入包含全局常量的文件
 
 
@@ -78,11 +79,6 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
     });
   }
 
-  // 一次性加载配置信息
-  void initConfig() async {
-    await KnConfig.load();
-  }
-
   @override
   void dispose() {
     // 释放控制器资源
@@ -130,17 +126,20 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              createTextFormField(
+              FormFields.createTextFormField(
                 inputFocusNode: _stuNameFocusNode,
                 inputLabelText: '学生姓名',
                 inputLabelColor: _stuNameColor,
+                themeColor: Constants.stuDocThemeColor, 
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 onSave: (value) => stuName = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '请输入学生姓名';
                   }
                   return null;
-                },
+                }, 
               ),
               
               DropdownButtonFormField<String>(
@@ -176,39 +175,54 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
                 validator: (String? value) => value == null ? '请选择性别' : null,
               ),
 
-              createTextFormField(
+              FormFields.createTextFormField(
                 inputFocusNode: _birthdayFocusNode,
                 inputController: _birthdayController, // 使用控制器
                 inputLabelText: '出生日',
                 inputLabelColor: _birthdayColor,
+                themeColor: Constants.stuDocThemeColor, 
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 blnReadOnly: true, // 设置为只读
                 onTap: () => _selectDate(context), // 点击时调用日期选择器
                 onSave: (value) => birthday = value,
               ),
 
-              ...List.generate(4, (index) => createTextFormField(
+              ...List.generate(4, (index) => FormFields.createTextFormField(
                   inputFocusNode: _telephonesNode[index]!,
                   inputLabelText: '联系电话${index + 1}',
                   inputLabelColor: _telephonesColor[index],
+                  themeColor: Constants.stuDocThemeColor, 
+                  enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                  focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                   onSave: (value) => telephones[index] = value,
                 )
               ),
 
-              createTextFormField(
+              FormFields.createTextFormField(
                 inputFocusNode: _postCodeFocusNode,
                 inputLabelText: '邮政编号',
                 inputLabelColor: _postCodeColor,
+                themeColor: Constants.stuDocThemeColor, 
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 onSave: (value) => postCode = value,
               ),
 
-              createTextFormField(
+              FormFields.createTextFormField(
                 inputFocusNode: _addressFocusNode,
                 inputLabelText: '家庭住址',
                 inputLabelColor: _addressColor,
+                themeColor: Constants.stuDocThemeColor, 
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 onSave: (value) => address = value,
               ),
 
-              createTextFormField(
+              FormFields.createTextFormField(
+                themeColor: Constants.stuDocThemeColor, 
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 inputFocusNode: _introducerFocusNode,
                 inputLabelText: '介绍人',
                 inputLabelColor: _introducerColor,
@@ -226,44 +240,6 @@ class StudentInfoScreenState extends State<StudentInfoScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  // 生产画面文本控件的共通函数 
-  TextFormField createTextFormField({
-    required FocusNode inputFocusNode,
-    required String inputLabelText,
-    required Color inputLabelColor,
-    required Function(String?) onSave,
-    String? initialValue,
-    TextEditingController? inputController,
-    String? Function(String?)? validator,  // 确保类型正确
-    VoidCallback? onTap,
-    bool blnReadOnly = false,
-  }) {
-    return TextFormField(
-      focusNode: inputFocusNode,
-      controller: inputController,
-      decoration: InputDecoration(
-        labelText: inputLabelText,
-        labelStyle: TextStyle(color: inputLabelColor),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Constants.stuDocThemeColor,
-            width: Constants.enabledBorderSideWidth,
-          ),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Constants.stuDocThemeColor,
-            width: Constants.focusedBorderSideWidth,
-          ),
-        ),
-      ),
-      readOnly: blnReadOnly,
-      onTap: onTap,
-      onSaved: (value) => onSave(value),
-      validator: validator,
     );
   }
 

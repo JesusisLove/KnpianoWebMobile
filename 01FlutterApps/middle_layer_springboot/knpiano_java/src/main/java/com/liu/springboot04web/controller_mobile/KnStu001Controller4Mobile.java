@@ -1,4 +1,4 @@
-package com.liu.springboot04web.controller;
+package com.liu.springboot04web.controller_mobile;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
