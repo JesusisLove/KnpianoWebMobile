@@ -25,7 +25,11 @@
                         <td>[[${fixedlsn.stuName}]]</td>
                         <td>[[${fixedlsn.subjectName}]]</td>
                         <td>[[${fixedlsn.fixedWeek}]]</td>
-                        <td>[[${fixedlsn.fixedHour}]]：[[${fixedlsn.fixedMinute}]]</td>
+                        <td>
+                            <span th:text="${fixedlsn.fixedHour lt 10 ? '0' + fixedlsn.fixedHour : fixedlsn.fixedHour}"></span>：
+                            <span th:text="${fixedlsn.fixedMinute lt 10 ? '0' + fixedlsn.fixedMinute : fixedlsn.fixedMinute}"></span>
+                        </td>
+                        
                         <td>
                             <a class="btn btn-sm btn-primary" th:href="@{/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}
                                                                                                 (stuId=${fixedlsn.stuId}, 
