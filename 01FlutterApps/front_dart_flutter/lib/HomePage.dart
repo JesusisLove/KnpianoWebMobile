@@ -71,7 +71,6 @@ class HomePageState extends State<HomePage> {
           setButton(iconData: Icons.language, text: "多国语言切换", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.settings, text: "固定排课设置", onPressed: () {
-            // 
             Navigator.push(context, MaterialPageRoute(builder: (context) => const ClassSchedulePage()));
           }, bgcolor: consts.Constants.settngThemeColor,),
         ];

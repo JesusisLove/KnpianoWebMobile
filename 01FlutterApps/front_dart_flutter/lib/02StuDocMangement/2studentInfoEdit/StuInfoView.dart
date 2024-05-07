@@ -1,6 +1,6 @@
 // 学生档案编辑
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 import '../../Constants.dart';
 import 'student.dart'; // 导入Student模型
 import 'package:http/http.dart' as http;
@@ -24,8 +24,8 @@ class StuEditListState extends State<StuEditList> {
     futureStudents = fetchStudents();
   }
 
-  var logger = Logger();
-  
+  // var logger = Logger();
+  // 画面初期化：取得所有学生信息
   Future<List<KnStu001Bean>> fetchStudents() async {
     // 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.studentInfoView}';
@@ -85,15 +85,6 @@ class StuEditListState extends State<StuEditList> {
         title: Text(student.stuName),
         subtitle: Text(
           "学生番号: ${student.stuId}"
-          // "性别: ${student.gender}\n"
-          // "出生日: ${student.birthday}\n"
-          // "电话1: ${student.tel1}\n"
-          // "电话2: ${student.tel2}\n"
-          // "电话3: ${student.tel3}\n"
-          // "电话4: ${student.tel4}\n"
-          // "住址: ${student.address}\n"
-          // "邮政编号: ${student.postCode}\n"
-          // "介绍人: ${student.introducer}"
         ),
       ),
     );

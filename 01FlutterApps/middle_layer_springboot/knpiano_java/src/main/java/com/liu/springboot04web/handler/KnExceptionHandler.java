@@ -9,15 +9,15 @@ package com.liu.springboot04web.handler;
 import com.liu.springboot04web.exception.UserNotExistException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+// import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
+// import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice  // 👈在SpringMVC中，要成为异常处理器，它（本class）得是一个ControllerAdvice
-public class BezalExceptionHandler {
+public class KnExceptionHandler {
 
 //    @ResponseBody
 //    @ExceptionHandler(UserNotExistException.class)
