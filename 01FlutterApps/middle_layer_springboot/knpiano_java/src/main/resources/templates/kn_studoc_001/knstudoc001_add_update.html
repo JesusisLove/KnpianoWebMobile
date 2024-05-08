@@ -58,6 +58,7 @@
                            th:value="${selectedStuDoc.subjectName}" 
                            readonly>
                     <input name="subjectId" type="hidden" th:value="${selectedStuDoc.subjectId}">
+                    <input name="delFlg" type="hidden" th:value="${selectedStuDoc.delFlg}">
                 </div>
                 <br>
                 <!-- 新規登録 模式下 调整日期用 日期控件显示 -->
@@ -122,6 +123,8 @@
                 <div class="form-group">  <label>調整価格</label> 
                     <input name="lessonFeeAdjusted" type="text" class="form-control" placeholder="" th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFeeAdjusted}:'0.00'">
                 </div>
+
+
 
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
