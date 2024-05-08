@@ -9,11 +9,6 @@ import com.liu.springboot04web.bean.KnFixLsn001Bean;
 import com.liu.springboot04web.dao.KnFixLsn001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
-import com.liu.springboot04web.bean.KnStu001Bean;
-import com.liu.springboot04web.dao.KnStu001Dao;
-import com.liu.springboot04web.bean.KnSub001Bean;
-import com.liu.springboot04web.dao.KnSub001Dao;
-
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,10 +24,6 @@ public class KnFixLsn001Controller {
 
     @Autowired
     private KnFixLsn001Dao knFixLsn001Dao;
-    @Autowired
-    private KnStu001Dao knStu001Dao;
-    @Autowired
-    private KnSub001Dao knSub001Dao;
     
     public KnFixLsn001Controller(ComboListInfoService combListInfo) {
         this.combListInfo = combListInfo;
@@ -80,15 +71,18 @@ public class KnFixLsn001Controller {
     @GetMapping("/kn_fixlsn_001")
     public String toFixedLessonAdd(Model model) {
 
-        // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的学生下拉列表框
-        model.addAttribute("stuMap", getStuCodeValueMap());
-        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
-        model.addAttribute("subMap", getSubCodeValueMap());
+        // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来，初期化新规/变更画面的科目下拉列表框
+        model.addAttribute("stuSubList", getStuSubList());
 
+        // 初期化星期下拉列表框
         final List<String> regularWeek = combListInfo.getRegularWeek();
         model.addAttribute("regularweek",regularWeek );
+
+        // 初期化固定上课时间几点的下拉列表框
         final List<String> regularHour = combListInfo.getRegularHour();
         model.addAttribute("regularhour",regularHour );
+        
+        // 初期化固定上课时间几分的下拉列表框
         final List<String> regularMinute = combListInfo.getRegularMinute();
         model.addAttribute("regularminute",regularMinute );
 
@@ -98,7 +92,6 @@ public class KnFixLsn001Controller {
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_fixlsn_001")
     public String executeFixedLessonAdd(KnFixLsn001Bean knFixLsn001Bean, Model model) {
-        System.out.println("新增固定授業計画: " + knFixLsn001Bean);
         knFixLsn001Dao.save(knFixLsn001Bean);
         this.activeDay = knFixLsn001Bean.getFixedWeek();
         return "redirect:/kn_fixlsn_001_all";
@@ -147,28 +140,10 @@ public class KnFixLsn001Controller {
         return "redirect:/kn_fixlsn_001_all";
     }
 
-    // 学生下拉列表框初期化
-    private Map<String, String> getStuCodeValueMap() {
-        Collection<KnStu001Bean> collection = knStu001Dao.getInfoList();
-
-        Map<String, String> map = new HashMap<>();
-        for (KnStu001Bean bean : collection) {
-            map.put(bean.getStuId(), bean.getStuName());
-        }
-
-        return map != null ? CommonProcess.sortMapByValues(map) : map;
-    }
-
-    // 科目下拉列表框初期化
-    private Map<String, String> getSubCodeValueMap() {
-        Collection<KnSub001Bean> collection = knSub001Dao.getInfoList();
-
-        Map<String, String> map = new HashMap<>();
-        for (KnSub001Bean bean : collection) {
-            map.put(bean.getSubjectId(), bean.getSubjectName());
-        }
-
-        return map != null ? CommonProcess.sortMapByValues(map) : map;
+    // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
+    private List<KnFixLsn001Bean> getStuSubList() {
+        List<KnFixLsn001Bean> list = knFixLsn001Dao.getLatestSubjectList();
+        return list;
     }
 
     private List<String> getResultsDays(Collection<KnFixLsn001Bean> collection) {

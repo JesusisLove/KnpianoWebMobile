@@ -10,6 +10,9 @@ public interface KnFixLsn001Mapper {
     // 获取所有固定授業計画的列表
     public List<KnFixLsn001Bean> getInfoList();
 
+    // 获取所有学生最新正在上课的科目信息
+    public List<KnFixLsn001Bean> getLatestSubjectList();
+
     // 根据特定条件搜索固定授業計画
     public List<KnFixLsn001Bean> searchFixedLessons(@Param("params") Map<String, Object> queryparams);
 

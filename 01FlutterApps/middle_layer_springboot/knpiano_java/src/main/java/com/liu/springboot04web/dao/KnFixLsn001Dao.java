@@ -22,6 +22,12 @@ public class KnFixLsn001Dao implements InterfaceKnPianoDao {
         return list;
     }
 
+    // 获取所有学生最新正在上课的科目信息
+    public List<KnFixLsn001Bean> getLatestSubjectList() {
+        List<KnFixLsn001Bean> list = knFixLsn001Mapper.getLatestSubjectList();
+        return list;
+    }
+
     // 获取所有符合查询条件的学生固定排课信息
     public List<KnFixLsn001Bean> searchFixedLessons(Map<String, Object> params) {
         return knFixLsn001Mapper.searchFixedLessons(params);
