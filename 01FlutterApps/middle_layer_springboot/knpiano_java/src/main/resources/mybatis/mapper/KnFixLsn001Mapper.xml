@@ -6,6 +6,10 @@
         SELECT * FROM v_info_fixedlesson order by fixed_hour, fixed_minute
     </select>
 
+    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.KnFixLsn001Bean">
+        SELECT * FROM v_letest_subject_info_from_student_document order by stu_name
+    </select>
+
     <select id="searchFixedLessons" resultType="com.liu.springboot04web.bean.KnFixLsn001Bean">
         SELECT *
         FROM v_info_fixedlesson

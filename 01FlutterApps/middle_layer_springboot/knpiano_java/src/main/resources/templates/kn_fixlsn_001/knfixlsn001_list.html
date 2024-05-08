@@ -6,6 +6,14 @@
     <title>ダッシュボードテンプレート · Bootstrap</title>
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+    <style>
+        .highlight {
+            color: blue;
+            text-align: left;
+            text-decoration: underline;
+            font-size: larger;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{commons/bar::topbar}"></div>
@@ -13,6 +21,9 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixlsn_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="highlight">
+                    <p>※只有记录在档案表里的学生才可以进行固定排课操作，如果没有显示该学生，请先到学生档案表里确认该生否已经登记在案。</p>
+                </div>
                 <h2><a class="btn btn-sm btn-success" th:href="@{/kn_fixlsn_001}">固定授業新規登録</a></h2>
                 <hr/>
                 <!-- 検索部 -->
