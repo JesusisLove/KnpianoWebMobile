@@ -8,11 +8,14 @@ class Constants {
 /// 
 /// 
 // ******* 档案管理模块 *******//
+// 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
+static const String studentInfoView = '/liu/mb_kn_stu_001_all';
+
 // 学生档案菜单画面，点击“保存”按钮的url请求
 static const String studentInfoAdd = '/liu/mb_kn_stu_001_add';
 
-// 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
-static const String studentInfoView = '/liu/mb_kn_stu_001_all';
+// 学生档案编辑画面，点击“保存”按钮的url请求
+static const String studentInfoEdit = '/liu/mb_kn_stu_001_edit';
 
 
 // ******* 设置管理模块 *******//
