@@ -156,7 +156,6 @@
         if (confirm('本当に削除しますか？')) {
             //thisが削除ボタンである
             let del_uri = $(this).attr("student_del_uri");
-            alert("-------delete-------" + del_uri);
             //対象フォームのsubmitを実行する
             $("#deleteStudentForm").attr("action",del_uri).submit();
             return false;
