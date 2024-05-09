@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../Constants.dart';
-import 'student.dart'; // 导入Student模型
+import 'StuInfoEdit.dart';
+import 'KnStu001Bean.dart'; // 导入Student模型
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 // 确保Student模型已经导入
@@ -80,11 +81,54 @@ class StuEditListState extends State<StuEditList> {
         leading: const CircleAvatar(
         // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
         // 如果没有图像URL，可以使用一个本地的占位符图像
-        backgroundImage: AssetImage('images/student-placeholder.png'),
-      ),
+          backgroundImage: AssetImage('images/student-placeholder.png'),
+        ),
         title: Text(student.stuName),
-        subtitle: Text(
-          "学生番号: ${student.stuId}"
+        subtitle: Row(
+          children: <Widget>[
+            // 为学生编号设置像素的左间距
+            const SizedBox(width: 78 ), 
+            Expanded(
+              child: Text(
+                student.stuId,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+            // const Spacer(), // 先不要删除，留着学习：这会填充所有可用空间
+            Container(
+              // 为固定时间设置像素的右间距
+              padding: const EdgeInsets.only(right: 60), 
+              child: Text(
+                student.gender == 1 ? '男' : '女',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min, // Row的宽度只足够包含子控件
+          children: <Widget>[
+            // 编辑按钮的事件处理函数
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              onPressed: () {
+                Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StudentInfoEdit(student: student),
+                  ),
+                ).then((value) {
+                  // 检查返回值，如果为true，则重新加载数据
+                  if (value == true) {
+                    setState(() {
+                      futureStudents = fetchStudents();
+                    });
+                  }
+                });
+              },
+            ),
+          ]
         ),
       ),
     );
