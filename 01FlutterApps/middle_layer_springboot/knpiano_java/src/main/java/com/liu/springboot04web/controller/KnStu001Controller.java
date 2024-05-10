@@ -1,9 +1,11 @@
 package com.liu.springboot04web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.liu.springboot04web.bean.KnStu001Bean;
 import com.liu.springboot04web.dao.KnStu001Dao;
@@ -78,8 +80,14 @@ public class KnStu001Controller{
 
     // 【検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_stu_001/{id}")
-    public String excuteInfoDelete(@PathVariable("id") String id) {
-        knStu001Dao.delete(id);
-        return "redirect:/kn_stu_001_all";
+    public String executeInfoDelete(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        try {
+            knStu001Dao.delete(id);
+            return "redirect:/kn_stu_001_all";
+        } catch (DataIntegrityViolationException e) {
+            // 添加异常消息到重定向属性
+            redirectAttributes.addFlashAttribute("errorMessage", "該当データ【"+id+"】が使用中です。削除できません。");
+            return "redirect:/kn_stu_001_all"; // 重定向到列表页面
+        }
     }
 }

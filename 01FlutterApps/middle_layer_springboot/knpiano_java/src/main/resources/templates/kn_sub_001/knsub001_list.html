@@ -63,6 +63,10 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">検索</button>
+                 <!-- 显示错误消息 -->
+                <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                    <p th:text="${errorMessage}"></p>
+                </div>
                 </form> 
                 <!-- 明細部 -->
                 <div class="table-responsive">
