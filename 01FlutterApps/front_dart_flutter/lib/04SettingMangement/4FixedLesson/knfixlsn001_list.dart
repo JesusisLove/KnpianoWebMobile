@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'dart:convert';
 import '../../Constants.dart';
-import 'FixLsnInfoAdd.dart';
-import 'FixLsnInfoEdit.dart';
-import 'FixLesson.dart';
+import 'knfixlsn001_add.dart';
+import 'knfixlsn001_edit.dart';
+import 'KnFixLsn001Bean.dart';
 
 class ClassSchedulePage extends StatefulWidget {
   const ClassSchedulePage({super.key});

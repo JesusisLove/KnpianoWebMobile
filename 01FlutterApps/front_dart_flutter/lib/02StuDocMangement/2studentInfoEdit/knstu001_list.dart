@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../Constants.dart';
-import 'StudentEdit.dart';
+import 'knstu001_edit.dart';
 import 'KnStu001Bean.dart'; // 导入Student模型
 import 'package:http/http.dart' as http;
 import 'dart:convert';
