@@ -1,6 +1,5 @@
 package com.liu.springboot04web.bean;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 public class KnBnk001Bean implements KnPianoBean {
@@ -8,10 +7,7 @@ public class KnBnk001Bean implements KnPianoBean {
     private String bankName;
     private Integer delFlg;
 
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
-
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getBankId() {

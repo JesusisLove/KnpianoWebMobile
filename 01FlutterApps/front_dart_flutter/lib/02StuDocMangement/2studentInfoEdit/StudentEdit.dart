@@ -1,7 +1,7 @@
 /// 学生入学管理 
 
 import 'dart:convert';
-import 'dart:ffi';
+// import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // 引入 intl 包来格式化日期
@@ -12,15 +12,15 @@ import 'package:kn_piano/Constants.dart';
 import 'KnStu001Bean.dart'; // 引入包含全局常量的文件
 
 
-class StudentInfoEdit extends StatefulWidget {
-  const StudentInfoEdit({super.key, this.student});
+class StudentEdit extends StatefulWidget {
+  const StudentEdit({super.key, this.student});
   final KnStu001Bean? student;
 
   @override
-  StudentInfoEditState createState() => StudentInfoEditState();
+  StudentEditState createState() => StudentEditState();
 }
 
-class StudentInfoEditState extends State<StudentInfoEdit> {
+class StudentEditState extends State<StudentEdit> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入
@@ -32,6 +32,7 @@ class StudentInfoEditState extends State<StudentInfoEdit> {
   String? address;
   String? postCode;
   String? introducer;
+  int? delFlg;
 
   final FocusNode _stuNameFocusNode = FocusNode();
   final FocusNode _genderFocusNode = FocusNode();
@@ -66,6 +67,7 @@ class StudentInfoEditState extends State<StudentInfoEdit> {
       address = widget.student!.address;
       postCode = widget.student!.postCode;
       introducer = widget.student!.introducer;
+      delFlg = widget.student!.delFlg;
 
     }
 
@@ -292,6 +294,7 @@ class StudentInfoEditState extends State<StudentInfoEdit> {
             'address'    : address,
             'postCode'   : postCode,
             'introducer' : introducer,
+            'delFlg'     :delFlg,
           }),
         );
     
