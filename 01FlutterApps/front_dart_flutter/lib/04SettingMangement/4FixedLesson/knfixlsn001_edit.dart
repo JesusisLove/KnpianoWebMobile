@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../Constants.dart';
-import 'FixLesson.dart';
+import 'KnFixLsn001Bean.dart';
 
 class ScheduleFormEdit extends StatefulWidget {
   final KnFixLsn001Bean? lesson;
