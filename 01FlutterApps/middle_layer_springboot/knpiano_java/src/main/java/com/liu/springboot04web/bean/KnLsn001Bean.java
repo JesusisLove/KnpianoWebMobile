@@ -1,6 +1,5 @@
 package com.liu.springboot04web.bean;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;

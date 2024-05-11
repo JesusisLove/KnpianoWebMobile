@@ -6,7 +6,18 @@ class Constants {
 /// 注释规范，为了今后维护方便
 /// url请求常量的注释内容，必须与窗体里按钮响应事件的注释内容一致
 /// 
-/// 
+
+// ******* 上课管理模块 *******//
+// 学生学科一览画面，画面初期化的url请求
+static const String subjectView = '/liu/mb_kn_sub_001_all';
+
+// 学生学科新规画面，点击“保存”按钮的url请求
+static const String subjectInfoAdd = '/liu/mb_kn_sub_001';
+
+// 学生学科编辑画面，点击“保存”按钮的url请求
+static const String subjectInfoEdit = '/liu/mb_kn_sub_001';
+
+
 // ******* 档案管理模块 *******//
 // 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
 static const String studentInfoView = '/liu/mb_kn_stu_001_all';

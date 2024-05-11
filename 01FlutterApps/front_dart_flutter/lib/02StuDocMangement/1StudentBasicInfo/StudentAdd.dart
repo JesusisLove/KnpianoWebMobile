@@ -9,14 +9,14 @@ import 'package:kn_piano/CommonProcess/FormFields.dart';// 共通控件作成（
 import 'package:kn_piano/Constants.dart'; // 引入包含全局常量的文件
 
 
-class StudentInfoScreen extends StatefulWidget {
-  const StudentInfoScreen({super.key});
+class StudentAdd extends StatefulWidget {
+  const StudentAdd({super.key});
 
   @override
-  StudentInfoScreenState createState() => StudentInfoScreenState();
+  StudentAddState createState() => StudentAddState();
 }
 
-class StudentInfoScreenState extends State<StudentInfoScreen> {
+class StudentAddState extends State<StudentAdd> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入

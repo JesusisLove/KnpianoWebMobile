@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../Constants.dart';
-import 'StuInfoEdit.dart';
+import 'StudentEdit.dart';
 import 'KnStu001Bean.dart'; // 导入Student模型
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -116,7 +116,7 @@ class StuEditListState extends State<StuEditList> {
                 Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StudentInfoEdit(student: student),
+                    builder: (context) => StudentEdit(student: student),
                   ),
                 ).then((value) {
                   // 检查返回值，如果为true，则重新加载数据

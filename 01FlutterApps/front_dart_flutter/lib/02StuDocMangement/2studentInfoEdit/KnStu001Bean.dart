@@ -11,6 +11,7 @@ class KnStu001Bean {
   final String address;
   final String postCode;
   final String introducer;
+  final int delFlg;
 
   KnStu001Bean({
     required this.stuId,
@@ -24,6 +25,7 @@ class KnStu001Bean {
     required this.address,
     required this.postCode,
     required this.introducer,
+    required this.delFlg,
   });
 
 // 从后台拿到的json数据转化为KnStu001Bean对象
@@ -40,6 +42,7 @@ class KnStu001Bean {
       address: json['address'] ?? '',
       postCode: json['postCode'] ?? '',
       introducer: json['introducer'] ?? '',
+      delFlg: json['delFlg'] ?? 0,
     );
   }
 }
