@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kn_piano/02StuDocMangement/1StudentBasicInfo/StuInfoAdd.dart';  // 确保导入路径正确
-import 'package:kn_piano/02StuDocMangement/2studentInfoEdit/StuInfoView.dart';
-import 'package:kn_piano/04SettingMangement/4FixedLesson/FixLsnInfoView.dart';
+import 'package:kn_piano/02StuDocMangement/1StudentBasicInfo/StudentAdd.dart';  // 确保导入路径正确
+import 'package:kn_piano/02StuDocMangement/2studentInfoEdit/knstu001_list.dart';
+import 'package:kn_piano/01LessonMangement/2SubjectManagement/knsub001_list.dart';
+import 'package:kn_piano/04SettingMangement/4FixedLesson/knfixlsn001_list.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
 
 class HomePage extends StatefulWidget {
@@ -21,13 +22,13 @@ class HomePageState extends State<HomePage> {
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          // setButton(iconData: Icons.check_circle, text: "今日上课签到", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
-          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          setButton(iconData: Icons.book, text: "学生学科管理", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const SubjectViewPage()));
+          }, bgcolor: consts.Constants.lessonThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.pie_chart, text: "课时统计查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.pie_chart, text: "课时季度查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
         ];
       case 1:
         // 学费管理页面
@@ -44,7 +45,7 @@ class HomePageState extends State<HomePage> {
         // 档案管理页面
         return [
           setButton(iconData: Icons.school , text: "学生入学管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentInfoScreen()));}, bgcolor:consts.Constants.stuDocThemeColor,),
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentAdd()));}, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.edit, text: "学生档案编辑", onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const StuEditList()));

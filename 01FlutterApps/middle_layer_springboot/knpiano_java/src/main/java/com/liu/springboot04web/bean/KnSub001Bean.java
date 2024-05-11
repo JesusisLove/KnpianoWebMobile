@@ -3,17 +3,12 @@ package com.liu.springboot04web.bean;
 import java.math.BigDecimal;
 import java.util.Date;
 
-// import org.springframework.format.annotation.DateTimeFormat;
-
 public class KnSub001Bean implements KnPianoBean{
     private String subjectId;
     private String subjectName;
     private BigDecimal subjectPrice;
     private Integer delFlg;
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date createDate;
-
-    //@DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date updateDate;
 
     public String getSubjectId() {
