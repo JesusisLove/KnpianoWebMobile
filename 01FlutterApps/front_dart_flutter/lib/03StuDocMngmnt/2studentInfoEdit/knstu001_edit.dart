@@ -23,7 +23,7 @@ class StudentEdit extends StatefulWidget {
 class StudentEditState extends State<StudentEdit> {
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入
+  // 往后端提交新数据的退避变量
   String? stuId;
   String? stuName;
   int? gender;
@@ -33,6 +33,15 @@ class StudentEditState extends State<StudentEdit> {
   String? postCode;
   String? introducer;
   int? delFlg;
+
+// 用上一级传过来的List对象，初期化画面的项目数据
+  final TextEditingController _stuNameController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入
+  final List<TextEditingController> _telsController = List.generate(4, (_) => TextEditingController());
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _postCodeController = TextEditingController();
+  final TextEditingController _introducerController = TextEditingController();
 
   final FocusNode _stuNameFocusNode = FocusNode();
   final FocusNode _genderFocusNode = FocusNode();
@@ -45,9 +54,7 @@ class StudentEditState extends State<StudentEdit> {
   Color _stuNameColor = Colors.black;
   Color _genderColor = Colors.black;
   Color _birthdayColor = Colors.black;
-
   final List<Color> _telephonesColor = List.generate(4, (_) => Colors.black);
-
   Color _addressColor = Colors.black;
   Color _postCodeColor = Colors.black;
   Color _introducerColor = Colors.black;
@@ -56,21 +63,20 @@ class StudentEditState extends State<StudentEdit> {
   void initState() {
     super.initState();
     if (widget.student != null) {
+      // 单纯地把变量映射给后端javaBean对应的项目
       stuId = widget.student!.stuId;
-      stuName = widget.student!.stuName;
-      gender = widget.student!.gender;
-      birthday = widget.student!.birthday;
-      telephones[0]=widget.student!.tel1;
-      telephones[1]=widget.student!.tel2;
-      telephones[2]=widget.student!.tel3;
-      telephones[3]=widget.student!.tel4;
-      address = widget.student!.address;
-      postCode = widget.student!.postCode;
-      introducer = widget.student!.introducer;
       delFlg = widget.student!.delFlg;
 
+      // 把上一级画面传过来的student，赋值给TextFormField
+      _stuNameController.text = widget.student!.stuName;
+      _telsController[0].text=widget.student!.tel1;
+      _telsController[1].text=widget.student!.tel2;
+      _telsController[2].text=widget.student!.tel3;
+      _telsController[3].text=widget.student!.tel4;
+      _addressController.text = widget.student!.address;
+      _postCodeController.text = widget.student!.postCode;
+      _introducerController.text = widget.student!.introducer;
     }
-
 
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
@@ -100,14 +106,24 @@ class StudentEditState extends State<StudentEdit> {
     });
   }
 
+  // 释放控制器资源
   @override
   void dispose() {
-    // 释放控制器资源
+    // 释放TextFormField资源
+    _stuNameController.dispose();
+    _genderController.dispose();
     _birthdayController.dispose(); 
+    for (final controller in _telsController) {
+      controller.dispose();
+    }
+    _addressController.dispose();
+    _postCodeController.dispose();
+    _introducerController.dispose();
+
+    // 释放TextFormField资源
     _stuNameFocusNode.dispose();
     _genderFocusNode.dispose();
     _birthdayFocusNode.dispose();
-
     for (var node in _telephonesNode) {
       node!.removeListener(() {});
       node.dispose();
@@ -115,6 +131,7 @@ class StudentEditState extends State<StudentEdit> {
     _addressFocusNode.dispose();
     _postCodeFocusNode.dispose();
     _introducerFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -122,7 +139,9 @@ class StudentEditState extends State<StudentEdit> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: birthday != null ? DateFormat('yyyy/MM/dd').parse(birthday!) : DateTime.now(),
+      initialDate: widget.student?.birthday !=null ? 
+                    DateFormat('yyyy/MM/dd').parse(widget.student!.birthday) : 
+                    DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -150,7 +169,7 @@ class StudentEditState extends State<StudentEdit> {
               FormFields.createTextFormField(
                 inputFocusNode: _stuNameFocusNode,
                 inputLabelText: '学生姓名',
-                initialValue: stuName,
+                inputController: _stuNameController, // 让控件在公共方法里定义
                 inputLabelColor: _stuNameColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -166,7 +185,7 @@ class StudentEditState extends State<StudentEdit> {
               
               DropdownButtonFormField<int>(
                 focusNode: _genderFocusNode,
-                value: gender,
+                value: widget.student!.gender,
                 decoration: InputDecoration(
                   labelText: '学生性别',
                   labelStyle: TextStyle(color: _genderColor),
@@ -202,6 +221,7 @@ class StudentEditState extends State<StudentEdit> {
                 inputLabelText: '出生日',
                 initialValue: birthday,
                 inputLabelColor: _birthdayColor,
+                inputController: null, 
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
                 focusedBorderSideWidth: Constants.focusedBorderSideWidth,
@@ -213,7 +233,7 @@ class StudentEditState extends State<StudentEdit> {
               ...List.generate(4, (index) => FormFields.createTextFormField(
                   inputFocusNode: _telephonesNode[index]!,
                   inputLabelText: '联系电话${index + 1}',
-                  initialValue: telephones[index],
+                  inputController: _telsController[index], 
                   inputLabelColor: _telephonesColor[index],
                   themeColor: Constants.stuDocThemeColor, 
                   enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -225,7 +245,7 @@ class StudentEditState extends State<StudentEdit> {
               FormFields.createTextFormField(
                 inputFocusNode: _postCodeFocusNode,
                 inputLabelText: '邮政编号',
-                initialValue: postCode,
+                inputController: _addressController, 
                 inputLabelColor: _postCodeColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -236,7 +256,7 @@ class StudentEditState extends State<StudentEdit> {
               FormFields.createTextFormField(
                 inputFocusNode: _addressFocusNode,
                 inputLabelText: '家庭住址',
-                initialValue: address,
+                inputController: _postCodeController, 
                 inputLabelColor: _addressColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -245,13 +265,13 @@ class StudentEditState extends State<StudentEdit> {
               ),
 
               FormFields.createTextFormField(
+                inputFocusNode: _introducerFocusNode,
+                inputLabelText: '介绍人',
+                inputController: _introducerController, 
+                inputLabelColor: _introducerColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
                 focusedBorderSideWidth: Constants.focusedBorderSideWidth,
-                inputFocusNode: _introducerFocusNode,
-                inputLabelText: '介绍人',
-                initialValue: introducer,
-                inputLabelColor: _introducerColor,
                 onSave: (value) => introducer = value,
               ),
 
@@ -283,7 +303,7 @@ class StudentEditState extends State<StudentEdit> {
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, dynamic>{
-            'stuId'    : stuId,
+            'stuId'      : stuId,
             'stuName'    : stuName,
             'gender'     : gender,
             'birthday'   : birthday,
@@ -294,7 +314,7 @@ class StudentEditState extends State<StudentEdit> {
             'address'    : address,
             'postCode'   : postCode,
             'introducer' : introducer,
-            'delFlg'     :delFlg,
+            'delFlg'     : delFlg,
           }),
         );
     
