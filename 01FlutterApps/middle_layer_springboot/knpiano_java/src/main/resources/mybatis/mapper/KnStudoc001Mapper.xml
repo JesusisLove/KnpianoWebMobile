@@ -32,7 +32,9 @@
             pay_style,
             minutes_per_lsn,
             lesson_fee,
-            lesson_fee_adjusted
+            lesson_fee_adjusted,
+            exam_date,
+            exam_score
             )
         values (
             #{stuId},
@@ -42,6 +44,8 @@
             #{minutesPerLsn},
             #{lessonFee},
             #{lessonFeeAdjusted}
+            #{examDate},
+            #{examDcore}
         )
     </insert>
 
@@ -54,6 +58,8 @@
                 minutes_per_lsn = #{minutesPerLsn},
                 lesson_fee = #{lessonFee},
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
+                exam_date = #{examDate},
+                exam_score = #{examDcore},
                 del_flg = #{delFlg}
             WHERE stu_id = #{stuId}
               AND subject_id = #{subjectId}

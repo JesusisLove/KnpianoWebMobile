@@ -17,6 +17,9 @@ public class KnStudoc001Bean implements KnPianoBean {
     protected Integer minutesPerLsn;
     protected float lessonFee;
     protected float lessonFeeAdjusted;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    protected Date examDate;
+    protected float examDcore;
     protected Integer delFlg;
     protected Date createDate;
     protected Date updateDate;
@@ -74,6 +77,18 @@ public class KnStudoc001Bean implements KnPianoBean {
     }
     public void setLessonFeeAdjusted(float lessonFeeAdjusted) {
         this.lessonFeeAdjusted = lessonFeeAdjusted;
+    }
+    public Date getExamDate() {
+        return examDate;
+    }
+    public void setExamDate(Date examDate) {
+        this.examDate = examDate;
+    }
+    public float getExamDcore() {
+        return examDcore;
+    }
+    public void setExamDcore(float examDcore) {
+        this.examDcore = examDcore;
     }
     public Integer getDelFlg() {
         return delFlg;
