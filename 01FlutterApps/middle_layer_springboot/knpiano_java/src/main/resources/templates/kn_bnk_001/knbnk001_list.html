@@ -79,7 +79,7 @@
                             <td th:text="${bank.bankName}"></td>
                             <td th:text="${bank.delFlg}"></td>
                             <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
-                            <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td th:text="${#dates.format(bank.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" th:href="@{/kn_bnk_001/} + ${bank.bankId}" method="GET">編集</a>
                                 <button class="btn btn-sm btn-danger deleteBtn" th:attr="bank_del_uri=@{/kn_bnk_001/}+${bank.bankId}">削除</button>

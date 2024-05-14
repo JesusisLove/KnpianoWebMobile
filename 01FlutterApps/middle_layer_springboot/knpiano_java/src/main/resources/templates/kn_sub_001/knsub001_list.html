@@ -89,7 +89,7 @@
                             <td>[[${subject.subjectPrice}]]</td>
                             <td>[[${subject.delFlg}]]</td>
                             <td th:text="${#dates.format(subject.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
-                            <td th:text="${#dates.format(subject.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td th:text="${#dates.format(subject.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" th:href="@{/kn_sub_001/}+${subject.subjectId}" methods="GET">変更</a> 
                                 <button class="btn btn-sm btn-danger deleteBtn" th:attr="subject_del_uri=@{/kn_sub_001/}+${subject.subjectId}">削除</button>
