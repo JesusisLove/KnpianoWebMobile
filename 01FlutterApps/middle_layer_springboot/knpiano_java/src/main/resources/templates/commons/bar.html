@@ -127,8 +127,38 @@
                     KNPiano后台维护  课程信息管理
                 </a>
             </li>
-        </ul>
 
+            <li class="nav-item">
+                <a class="nav-link" href="#" th:href="@{/kn_lsn_fee_001_all}"
+                   th:class="${activeUri}=='kn_lsn_fee_001_link_active'?'nav-link active':'nav-link'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-users">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    KNPiano后台维护  课程费用管理
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#" th:href="@{/kn_lsn_pay_001_all}"
+                   th:class="${activeUri}=='kn_lsn_pay_001_link_active'?'nav-link active':'nav-link'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-users">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    KNPiano后台维护  课费支付管理
+                </a>
+            </li>
+        </ul>
+<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>KNPiano系统 后台管理</span>
             <a class="d-flex align-items-center text-muted" href="#" aria-label="Add a new report">

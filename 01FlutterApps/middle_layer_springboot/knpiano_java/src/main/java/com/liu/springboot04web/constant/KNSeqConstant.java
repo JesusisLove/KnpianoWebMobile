@@ -10,5 +10,9 @@ public final class KNSeqConstant {
     public static final String CONSTANT_KN_BNK_SEQ = "kn-bnk-";
     /* 授業番号自動採番 */
     public static final String CONSTANT_KN_LSN_SEQ = "kn-lsn-";
+    /* 授業課費番号自動採番 */
+    public static final String CONSTANT_KN_LSN_FEE_SEQ = "kn-lsn-fee-";
+    /* 授業支払番号自動採番 */
+    public static final String CONSTANT_KN_LSN_PAY_SEQ = "kn-lsn-pay-";
 
 }
