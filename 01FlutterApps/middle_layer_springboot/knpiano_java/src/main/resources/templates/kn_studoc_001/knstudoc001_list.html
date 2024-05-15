@@ -92,7 +92,7 @@
                             <th>学生姓名</th>
                             <th>科目名称</th>
                             <th>調整日付</th>
-                            <th>支払区分</th>
+                            <th>科目支払区分</th>
                             <th>授業時間長さ</th>
                             <th>標準価格</th>
                             <th>調整価格</th>
@@ -109,7 +109,7 @@
                             <td th:text="${studoc != null && studoc.stuName != null ? studoc.stuName : ''}"></td>
                             <td th:text="${studoc != null && studoc.subjectName != null ? studoc.subjectName : ''}"></td>
                             <td th:text="${studoc != null && studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
-                            <td th:text="${studoc != null && studoc.payStyle != null ? studoc.payStyle : ''}"></td>
+                            <td th:text="${studoc != null && studoc.payStyle != null ? (studoc.payStyle == 1 ? '按月付费' :'按课时付费') :'' }"></td>
                             <td th:text="${studoc != null && studoc.minutesPerLsn != null ? studoc.minutesPerLsn : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>

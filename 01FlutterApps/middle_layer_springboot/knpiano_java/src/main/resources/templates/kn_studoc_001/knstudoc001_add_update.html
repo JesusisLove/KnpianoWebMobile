@@ -81,13 +81,13 @@
                 
                 <!-- Radio button -->
                 <br>
-                <label>支払区分</label>
+                <label>科目支払区分</label>
                 <div class="card" style="padding: 20px; border-radius: 10px;">
                     <div class="d-flex align-items-center gap-2" style="padding-left: 10px;">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payStyle" value="1" 
                             th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==1 : true">
-                            <label class="form-check-label">按月交费</label>
+                            <label class="form-check-label">按月付费</label>
                         </div>
                         <div class="form-check" style="padding-left: 50px;"s>
                             <input class="form-check-input" type="radio" name="payStyle" value="2" 
