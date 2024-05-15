@@ -49,13 +49,11 @@
                     <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
                     <div class="form-group" th:if="${selectedinfo==null}">
                         <label>学生姓名</label> 
-                        <select class="form-control" name="stuId"> 
+                        <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
-                            <option th:each="element : ${stuMap}" 
-                                    th:value="${element.key}" 
-                                    th:utext="${element.value}">
-                            </option>
+                            <!-- 动态内容将被插入 -->
                         </select>
+
                     </div>
 
                     <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
@@ -71,12 +69,8 @@
                     <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
                     <div class="form-group" th:if="${selectedinfo==null}">
                         <label>科目名称</label> 
-                        <select class="form-control" name="subjectId"> 
+                        <select class="form-control" id="subjectSelect" name="subjectId">
                             <option value="">请选择</option>
-                            <option th:each="element : ${subMap}" 
-                                    th:value="${element.key}" 
-                                    th:utext="${element.value}" 
-                            ></option>
                         </select>
                     </div>
 
@@ -140,5 +134,44 @@
         </main>
     </div>
 </div>
+<script th:inline="javascript">
+    // 从后端传递的stuSubList数据
+    var jsonStuSubList = [[${stuSubList}]];
+    // console.log(jsonStuSubList);
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        var studentSelect = document.getElementById('studentSelect');
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                studentSelect.add(option);
+            }
+        });
+    
+        // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
+        studentSelect.onchange = function() {
+            updateSubjectSelect(this.value);
+        };
+    };
+    
+    // 根据选中的学生ID更新科目下拉列表
+    function updateSubjectSelect(stuId) {
+        var subjectSelect = document.getElementById('subjectSelect');
+        subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
+    
+        // 添加与选中学生ID相关的科目到科目下拉列表
+        jsonStuSubList.forEach(function(item) {
+            if (item.stuId === stuId) {
+                var option = new Option(item.subjectName, item.subjectId);
+                subjectSelect.add(option);
+            }
+        });
+    }
+</script>
 </body>
 </html>

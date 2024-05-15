@@ -1,6 +1,7 @@
 package com.liu.springboot04web.mapper;
 
 import com.liu.springboot04web.bean.KnLsn001Bean;
+
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,9 @@ import org.apache.ibatis.annotations.Param;
 public interface KnLsn001Mapper  {
 
     public List<KnLsn001Bean> getInfoList();
+
+    // 获取所有学生最新正在上课的科目信息
+    public List<KnLsn001Bean>  getLatestSubjectList();
 
     public KnLsn001Bean getInfoById(String id);
 
