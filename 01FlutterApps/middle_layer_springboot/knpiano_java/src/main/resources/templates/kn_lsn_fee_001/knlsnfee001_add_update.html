@@ -42,7 +42,7 @@
                 <div class="form-group"><br>  <label>授業課費番号</label> <input name="lsnFeeId"type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly th:value="${selectedinfo!=null}?${selectedinfo.lsnFeeId}"></div>
                 <div class="form-group"><br>  <label>授業番号</label> <input name="lessonId"type="text" class="form-control"placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.lessonId}"></div>
                 <div class="form-group"><br>  <label>授業料金</label> <input name="lsnFee"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.lsnFee}"></div>
-                <div class="form-group"><br>  <label>授業料金月別</label> <input name="lsnMonth"type="text" class="form-control"placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.lsnMonth}"></div>
+                <div class="form-group"><br>  <label>授業料金月別</label> <input name="lsnMonth"type="month" class="form-control"placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.lsnMonth}" required></div>
                 <div class="form-group"><br>  <label>支払済区分</label> <input name="ownFlg"type="text" class="form-control"placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.ownFlg}"></div>
                 <div class="form-group"><br>  <label>削除フラグ</label> <input name="delFlg"type="text" class="form-control"placeholder="" readonly th:value="${selectedinfo!=null}?${selectedinfo.delFlg}"></div>
                 <button type="submit" class="btn btn-primary" th:text="保存"></button>
