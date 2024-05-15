@@ -7,11 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.KnLsn001Bean;
-import com.liu.springboot04web.bean.KnStu001Bean;
-import com.liu.springboot04web.bean.KnSub001Bean;
 import com.liu.springboot04web.dao.KnLsn001Dao;
-import com.liu.springboot04web.dao.KnStu001Dao;
-import com.liu.springboot04web.dao.KnSub001Dao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -27,10 +23,7 @@ public class KnLsn001Controller{
 
     @Autowired
     private KnLsn001Dao knLsn001Dao;
-    @Autowired
-    private KnStu001Dao knStu001Dao;
-    @Autowired
-    private KnSub001Dao knSub001Dao;
+
     
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public KnLsn001Controller(ComboListInfoService combListInfo) {
@@ -68,10 +61,8 @@ public class KnLsn001Controller{
     @GetMapping("/kn_lsn_001")
     public String toInfoAdd(Model model) {
 
-        // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的下拉列表框
-        model.addAttribute("stuMap", getStuCodeValueMap());
-        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的下拉列表框
-        model.addAttribute("subMap", getSubCodeValueMap());
+        // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来，初期化新规/变更画面的科目下拉列表框
+        model.addAttribute("stuSubList", getStuSubList());
 
         final List<String> durations = combListInfo.getDurations();
         model.addAttribute("duration",durations );
@@ -111,28 +102,9 @@ public class KnLsn001Controller{
         return "redirect:/kn_lsn_001_all";
     }
 
-    // 学生下拉列表框初期化
-    private Map<String, String> getStuCodeValueMap() {
-        Collection<KnStu001Bean> collection = knStu001Dao.getInfoList();
-
-        Map<String, String> map = new HashMap<>();
-        for (KnStu001Bean bean : collection) {
-            map.put(bean.getStuId(), bean.getStuName());
-        }
-
-        return map != null ? CommonProcess.sortMapByValues(map) : map;
+    // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
+    private List<KnLsn001Bean> getStuSubList() {
+        List<KnLsn001Bean> list = knLsn001Dao.getLatestSubjectList();
+        return list;
     }
-
-    // 科目下拉列表框初期化
-    private Map<String, String> getSubCodeValueMap() {
-        Collection<KnSub001Bean> collection = knSub001Dao.getInfoList();
-
-        Map<String, String> map = new HashMap<>();
-        for (KnSub001Bean bean : collection) {
-            map.put(bean.getSubjectId(), bean.getSubjectName());
-        }
-
-        return map != null ? CommonProcess.sortMapByValues(map) : map;
-    }
-
 }
