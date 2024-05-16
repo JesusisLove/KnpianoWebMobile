@@ -60,7 +60,7 @@
                         <input id="classDuration" name="classDuration" type="text" class="form-control"  th:value="${lsnMap != null ? lsnMap['classDuration'] : ''}" placeholder="授業時間">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="课费支付种别">
+                        <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="授業種別">
                     </div>
                     <div class="form-group col-md-1.2">
                         <input id="schedualDate" name="schedualDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['schedualDate'] : ''}" placeholder="計画授業日付">
@@ -100,9 +100,9 @@
                         <th>授業時間</th>
                         <th>授業種別</th>
                         <th>計画授業日付</th>
-                        <th>実績授業日付</th>
                         <th>調整授業日付</th>
                         <th>授業変換日付</th>
+                        <th>実績授業日付</th>
                         <th>削除フラグ</th>
                         <th>作成日</th>
                         <th>更新日</th>
@@ -119,9 +119,9 @@
                         <td>[[${info.classDuration}]]</td>
                         <td th:text="${info.lessonType == 0 ? '计划课时' : info.lessonType == 1 ? '追加课时' : ''}"></td>
                         <td>[[${#dates.format(info.schedualDate,'yyyy/MM/dd')}]]</td>
-                        <td>[[${#dates.format(info.scanQRDate,'yyyy/MM/dd')}]]</td>
                         <td>[[${#dates.format(info.lsnAdjustedDate,'yyyy/MM/dd')}]]</td>
                         <td>[[${#dates.format(info.extraToDurDate,'yyyy/MM/dd')}]]</td>
+                        <td>[[${#dates.format(info.scanQRDate,'yyyy/MM/dd')}]]</td>
                         <td>[[${info.delFlg}]]</td>
                         <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
