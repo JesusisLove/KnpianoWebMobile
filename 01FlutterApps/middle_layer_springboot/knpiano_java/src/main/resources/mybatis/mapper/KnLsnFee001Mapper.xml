@@ -20,6 +20,11 @@ https://mybatis.org/mybatis-3/getting-started.html
           and lesson_id = #{lessonId}
     </select>
 
+        <!-- 从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.KnFixLsn001Bean">
+        SELECT * FROM v_info_lesson order by stu_name
+    </select>
+
     <update id="updateInfo">
         update t_info_lesson_fee set
             lsn_fee_id = #{lsnFeeId},

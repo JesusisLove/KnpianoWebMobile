@@ -13,13 +13,13 @@ public class KnLsn001Bean implements KnPianoBean {
     protected String stuName;
     protected Integer classDuration;
     protected Integer lessonType;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date schedualDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date scanQRDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date lsnAdjustedDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date extraToDurDate;
     protected Integer delFlg;
     protected Date createDate;

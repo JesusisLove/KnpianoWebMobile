@@ -88,6 +88,13 @@ public class KnLsn001Controller{
         return "kn_lsn_001/knlsn001_add_update";
     }
 
+        // 【検索一覧】签到ボタンを押下
+        @GetMapping("/kn_lsn_001_lsn_checkin/{id}")
+        public String lessonCheckIn(@PathVariable("id") String id, Model model) {
+      
+            return "";
+        }
+
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_lsn_001")
     public String excuteInfoEdit(@ModelAttribute KnLsn001Bean knLsn001Bean) {
