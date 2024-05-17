@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn02F001BnkMapper">
+
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+        SELECT * FROM t_mst_bank
+    </select>
+    
+    <!-- 画面检索 检索功能追加  开始-->
+     <select id="searchBanks" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+        SELECT
+            bank_id,
+            bank_name,
+            del_flg,
+            create_date,
+            update_date
+        FROM
+            t_mst_bank
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where> 
+    </select> 
+    <!-- 画面检索 检索功能追加  开始-->
+    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+        SELECT * FROM t_mst_bank WHERE bank_id = #{id}
+    </select>
+
+    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+        INSERT INTO t_mst_bank (bank_id, bank_name) 
+        VALUES (#{bankId}, #{bankName})
+    </insert>
+
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+        UPDATE t_mst_bank
+        SET bank_name=#{bankName}, del_flg=#{delFlg}
+        WHERE bank_id=#{bankId}
+    </update>
+
+    <delete id="deleteInfo" parameterType="String">
+        DELETE FROM t_mst_bank WHERE bank_id = #{id}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+        {
+            #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+        }
+    </select>
+</mapper>

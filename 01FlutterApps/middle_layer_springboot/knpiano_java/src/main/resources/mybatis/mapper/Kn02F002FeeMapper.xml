@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn02F002FeeMapper">
+    <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        select * from t_info_lesson_fee
+    </select>
+
+    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        select * from t_info_lesson_fee
+        where lsn_fee_id = #{lsnFeeId}
+          and lesson_id = #{lessonId}
+    </select>
+
+        <!-- 从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        SELECT * FROM v_info_lesson order by stu_name
+    </select>
+
+    <update id="updateInfo">
+        update t_info_lesson_fee set
+            lsn_fee_id = #{lsnFeeId},
+            lesson_id = #{lessonId},
+            lsn_fee = #{lsnFee},
+            lsn_month = #{lsnMonth},
+            own_flg = #{ownFlg},
+            del_flg = #{delFlg}
+        where lsn_fee_id = #{lsnFeeId}
+            and lesson_id = #{lessonId}
+    </update>
+
+    <insert id="insertInfo" keyColumn="lesson_id">
+        insert into t_info_lesson_fee (
+            lsn_fee_id,
+            lesson_id,
+            lsn_fee,
+            lsn_month,
+            own_flg
+            ) values (
+            #{lsnFeeId},
+            #{lessonId},
+            #{lsnFee},
+            #{lsnMonth},
+            #{ownFlg}
+        )
+    </insert>
+
+    <delete id="deleteInfo">
+        delete from t_info_lesson_fee where lsn_fee_id = #{lsnFeeId}
+                                        and lesson_id = #{lessonId}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+          {
+              #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+          }
+    </select>
+</mapper>

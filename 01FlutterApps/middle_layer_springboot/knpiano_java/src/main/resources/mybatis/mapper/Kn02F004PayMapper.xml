@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn02F004PayMapper">
+    <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        select * from t_info_lesson_pay
+    </select>
+
+    <select id="searchLsnPay" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        SELECT
+            subject_id,
+            subject_name,
+            subject_price,
+            del_flg,
+            create_date,
+            update_date
+        FROM
+            t_mst_subject
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where> 
+    </select> 
+
+    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        select * from t_info_lesson_pay
+        where lsn_pay_id = #{lsnPayId}
+          and lsn_fee_id = #{lsnFeeId}
+    </select>
+
+    <update id="updateInfo">
+        update t_info_lesson_pay set
+            lsn_pay_id = #{lsnPayId},
+            lsn_fee_id = #{lsnFeeId},
+            lsn_pay = #{lsnPay},
+            pay_month = #{payMonth},
+            bank_id = #{bankId},
+            del_flg = #{delFlg}
+        where lsn_pay_id = #{lsnPayId}
+          and lsn_fee_id = #{lsnFeeId}
+
+    </update>
+
+    <insert id="insertInfo" keyColumn="lsn_fee_id">
+        insert into t_info_lesson_pay (
+            lsn_pay_id,
+            lsn_fee_id,
+            lsn_pay,
+            pay_month,
+            bank_id
+            )
+        values (
+            #{lsnPayId},
+            #{lsnFeeId},
+            #{lsnPay},
+            #{payMonth},
+            #{bankId}
+        )
+    </insert>
+
+    <delete id="deleteInfo">
+        delete from t_info_lesson_pay where lsn_pay_id = #{lsnPayId}
+                                        and lsn_fee_id = #{lsnFeeId}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+          {
+              #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+          }
+    </select>
+</mapper>
