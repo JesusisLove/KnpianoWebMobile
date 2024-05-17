@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01L001SubMapper">
+
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+        SELECT * FROM t_mst_subject
+    </select>
+
+    <select id="searchSubjects" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+        SELECT
+            subject_id,
+            subject_name,
+            subject_price,
+            del_flg,
+            create_date,
+            update_date
+        FROM
+            t_mst_subject
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where> 
+    </select> 
+
+    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+        SELECT * FROM t_mst_subject WHERE subject_id = #{id}
+    </select>
+
+    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01L001SubBean">
+        <!-- INSERT INTO t_mst_subject (subject_id, subject_name, subject_price, del_flg, create_date, update_date) 
+        VALUES (#{subjectId}, #{subjectName}, #{subjectPrice}, #{delFlg}, #{createDate}, #{updateDate}) -->
+        INSERT INTO t_mst_subject (subject_id, subject_name, subject_price ) 
+        VALUES (#{subjectId}, #{subjectName}, #{subjectPrice})
+    </insert>
+
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01L001SubBean">
+        UPDATE t_mst_subject 
+        <!-- SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}, update_date=#{updateDate}  -->
+        SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}
+        WHERE subject_id=#{subjectId}
+    </update>
+
+    <delete id="deleteInfo" parameterType="String">
+        DELETE FROM t_mst_subject WHERE subject_id = #{id}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+        {
+            #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+        }
+    </select>
+
+</mapper>
