@@ -12,6 +12,11 @@
 
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
           rel="stylesheet">
+    <!-- 引入 Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- 引入 Bootstrap DateTime Picker CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -111,29 +116,75 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-group"><br>  <label>計画授業日付（学生最初被安排的上课时间）</label> 
-                        <input name="schedualDate"type="date" class="form-control"
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd')}">
-
+                    <br>
+                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br> 
+                        <label>计划上课日期：</label> <br>
+                        <input id="datetimepickerInput" name="schedualDate" type="text" class="form-control datetimepicker-input"
+                               th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                               data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm"/>
+                        <div class="input-group-append" data-target="#datetimepickerContainer" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
                     </div>
+                    <br>
+                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"> 
+                        <label>课程调整日期：</label> <br> 
+                        <input name="lsnAdjustedDate"type="text" class="form-control datetimepicker-input"
+                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
+                        data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm"/>
+                        <div class="input-group-append" data-target="#datetimepickerContainer" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group"><br> 
+                         <label>授業変換日付（学生用额外追加的课顶替来周或来月哪天的计划课程）</label> 
+                        <input name="extraToDurDate"type="date" class="form-control" 
+                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
+                    </div>
+                    
                     <div class="form-group"><br>  <label>実績授業日付（学生实际来上课的时间）</label> 
                         <input name="scanQRDate"type="date" class="form-control" 
                         th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQRDate, 'yyyy-MM-dd')}">
-                    </div>
-                    <div class="form-group"><br>  <label>調整授業日付（学生因计划日不能来上课，改天安排的上课时间）</label> 
-                        <input name="lsnAdjustedDate"type="date" class="form-control"
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd')}">
-                    </div>
-                    <div class="form-group"><br>  <label>授業変換日付（学生用额外追加的课顶替来周或来月哪天的计划课程）</label> 
-                        <input name="extraToDurDate"type="date" class="form-control" 
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
                     </div>
               <button type="submit" class="btn btn-primary" th:text="保存"></button>
             </form>
         </main>
     </div>
 </div>
+
+<!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 开始 -->
+<!-- 引入 Bootstrap JavaScript 和 jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script>
+    // 初始化 DateTime Picker
+    $(document).ready(function () {
+        // alert("1");
+        $('#datetimepickerInput').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm',
+            locale: moment.locale('zh-cn') ,  // 设置地区为中国
+            icons: {
+                time: 'fa fa-clock-o',
+                date: 'fa fa-calendar',
+                up: 'fa fa-chevron-up',
+                down: 'fa fa-chevron-down',
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-trash',
+                close: 'fa fa-times'
+            }
+            
+        });
+        // alert("2");
+    });
+</script>
+
 <script th:inline="javascript">
     // 从后端传递的stuSubList数据
     var jsonStuSubList = [[${stuSubList}]];
@@ -172,6 +223,14 @@
             }
         });
     }
+
 </script>
+<style>
+    /* 调整控件最右侧按钮的宽度 */
+    .input-group-append .input-group-text {
+        min-width: 60px; /* 设置按钮的最小宽度 */
+    }
+</style>
+<!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 结束 -->
 </body>
 </html>
