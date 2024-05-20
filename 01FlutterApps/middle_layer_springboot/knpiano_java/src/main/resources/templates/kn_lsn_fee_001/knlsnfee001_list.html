@@ -94,12 +94,14 @@
 <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
 <script>
     $(".deleteBtn").click(function() {
-        //thisが削除ボタンである
-        let del_uri = $(this).attr("liu_del_uri");
-        alert("-------delete-------" + del_uri);
-        //対象フォームのsubmitを実行する
-        $("#deleteEmpForm").attr("action",del_uri).submit();
-        return false;
+        if (confirm('本当に削除しますか？')) {
+            //thisが削除ボタンである
+            let del_uri = $(this).attr("liu_del_uri");
+
+            //対象フォームのsubmitを実行する
+            $("#deleteEmpForm").attr("action",del_uri).submit();
+            return false;
+        }
     });
 </script>
 </body>
