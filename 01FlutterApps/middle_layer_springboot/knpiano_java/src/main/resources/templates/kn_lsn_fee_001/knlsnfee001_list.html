@@ -38,15 +38,51 @@
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_fee_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <hr/>
-<h2><a class="btn btn-sm btn-success" th:href="@{/kn_lsn_fee_001}">課費情報管理新規</a></h2>
+<!-- <h2><a class="btn btn-sm btn-success" th:href="@{/kn_lsn_fee_001}">課費情報管理新規</a></h2> -->
             <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_lsn_fee_001/search}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="lsnFeeId" name="lsnFeeId" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnFeeId'] : ''}" placeholder="课费番号">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="lessonId" name="lessonId" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lessonId'] : ''}" placeholder="课程番号">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lessonType'] : ''}" placeholder="课程种别">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="lsnMonth" name="lsnMonth" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnMonth'] : ''}" placeholder="课费月份">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="ownFlg" name="ownFlg" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['ownFlg'] : ''}" placeholder="支付种别（已支付/未支付）">
+                    </div>
+                    <!-- <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['delFlg'] : ''}" placeholder="削除フラグ">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="date" class="form-control" id="createDate" name="createDate" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['createDate'] : ''}" placeholder="作成日">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['updateDate'] : ''}" placeholder="更新日">
+                    </div> -->
+                </div>
+                <button type="submit" class="btn btn-primary">検索</button>
+            </form> 
+            <!-- 明細部 -->
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr>
+                        <th>学生姓名</th>
                         <th>授業課費番号</th>
                         <th>授業番号</th>
+                        <th>学科名称</th>
+                        <th>授業種別</th>
+                        <th>上课节数</th>
                         <th>授業料金</th>
+                        <th>支払種別</th>
                         <th>授業料金月別</th>
                         <th>支払済区分</th>
                         <th>削除フラグ</th>
@@ -56,9 +92,15 @@
                     </thead>
                     <tbody>
                     <tr th:each="info:${infoList}">
+                        <td>[[${info.stuName}]]</td>
                         <td>[[${info.lsnFeeId}]]</td>
                         <td>[[${info.lessonId}]]</td>
+                        <td>[[${info.subjectName}]]</td>
+                        <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
+                        <td>[[${info.lsnCount}]]</td>
                         <td>[[${info.lsnFee}]]</td>
+                        <td>[[${info.payStyle}]]</td>
+                        <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
                         <td>[[${info.lsnMonth}]]</td>
                         <td>[[${info.ownFlg}]]</td>
                         <td>[[${info.delFlg}]]</td>

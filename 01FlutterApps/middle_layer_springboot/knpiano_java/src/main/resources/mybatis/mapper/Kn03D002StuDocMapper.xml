@@ -43,7 +43,7 @@
             #{payStyle},
             #{minutesPerLsn},
             #{lessonFee},
-            #{lessonFeeAdjusted}
+            #{lessonFeeAdjusted},
             #{examDate},
             #{examDcore}
         )
@@ -77,4 +77,14 @@
             #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
         }
     </select>
+
+    <select id="getLsnPrice" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
+        SELECT pay_style, adjusted_date, minutes_per_lsn, lesson_fee, lesson_fee_adjusted
+        FROM KNStudent.t_info_student_document 
+        WHERE stu_id = #{stuId} 
+            AND subject_id = #{subjectId} 
+        ORDER BY adjusted_date DESC
+        LIMIT 1;
+    </select>
+
 </mapper>

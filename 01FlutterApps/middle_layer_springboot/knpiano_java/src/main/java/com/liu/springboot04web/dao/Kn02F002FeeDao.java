@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.constant.KNConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -36,14 +36,11 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
         return knLsnFee001Bean;
     }
 
+    // 保存
     public void save(Kn02F002FeeBean knLsnFee001Bean) {
         if (knLsnFee001Bean.getLsnFeeId() == null || knLsnFee001Bean.getLsnFeeId().isEmpty()) { 
-            Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", KNSeqConstant.CONSTANT_KN_LSN_FEE_SEQ);
-            // 授業番号の自動採番
-            knLsnFee001Mapper.getNextSequence(map);
-            knLsnFee001Bean.setLsnFeeId(KNSeqConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out"));
-            System.out.println(map.get("parm_out"));
+            // 按月计算科目，按月第五周科目以及按课时计算的 课费计算整理
+            knLsnFee001Bean = processFeeLsn(knLsnFee001Bean);
             insert(knLsnFee001Bean);
         } else {
             update(knLsnFee001Bean);
@@ -63,6 +60,46 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
     // 削除
     public void delete(String lsnFeeId, String lessonId) {
         knLsnFee001Mapper.deleteInfo(lsnFeeId, lessonId); 
+    }
+
+    /* 根据该当科目是按月交费，还是按课时交费 
+        * 只限按月交费的课程（加课除外）：一个月内的所有按计划的上课编号（授業番号）对应一个授業課費採番，是一对多的关系 
+        * 另外如果按月交费的科目该月已经上完了4节课的话，第五周的第5节课不能收钱。
+        * 如果是课时缴费和按月计费的加课的话：lsn_fee_id和lesson_id是一对一的关系
+    */
+    private Kn02F002FeeBean processFeeLsn(Kn02F002FeeBean knLsnFee001Bean) {
+        // 按月结算课程且是计划课的场合，lsn_fee_id和lesson_id是一对多的处理
+        if (knLsnFee001Bean.getLessonType() == KNConstant.CONSTANT_LESSON_TYPE_MONTHLY_SCHEDUAL) {
+            List<Kn02F002FeeBean> feeList = 
+                  knLsnFee001Mapper.checkScheLsnCurrentMonth(knLsnFee001Bean.getStuId(),
+                                                             knLsnFee001Bean.getSubjectId(), 
+                                                             knLsnFee001Bean.getLessonType(),
+                                                             knLsnFee001Bean.getLsnMonth());
+            // 按月交费的课费结算，同一个月的计划课使用同一个lsn_fee_id
+            if (feeList != null) {
+                knLsnFee001Bean.setLsnFeeId(feeList.get(0).getLsnFeeId());
+            } else {
+                Map<String, Object> map = new HashMap<>();
+                map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);
+                // 课程费用的自動採番
+                knLsnFee001Mapper.getNextSequence(map);
+                knLsnFee001Bean.setLsnFeeId(KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out"));
+            }
+
+            // 因为是按月收费，一个月4节课，如果该月有第五周，第5节课不收钱
+            if (feeList.size() >= 4) {
+                knLsnFee001Bean.setLsnFee(0);
+            }
+
+        } else {
+            Map<String, Object> map = new HashMap<>();
+                map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);
+                // 课程费用的自動採番
+                knLsnFee001Mapper.getNextSequence(map);
+                knLsnFee001Bean.setLsnFeeId(KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out"));
+        }
+
+        return knLsnFee001Bean;
     }
 
     @Override

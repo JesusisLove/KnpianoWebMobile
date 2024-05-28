@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
+import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
@@ -23,27 +24,43 @@ public class Kn01L002LsnController{
 
     @Autowired
     private Kn01L002LsnDao knLsn001Dao;
+    // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
+    Map<String, Object> backForwordMap; 
 
     
-    // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn01L002LsnController(ComboListInfoService combListInfo) {
+        // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
         this.combListInfo = combListInfo;
+
+        // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
+        backForwordMap = new HashMap<>();
     }
 
     // 【KNPiano后台维护 课程信息管理】ボタンをクリック
     @GetMapping("/kn_lsn_001_all")
     public String list(Model model) {
-        Collection<Kn01L002LsnBean> collection = knLsn001Dao.getInfoList();
+        // 画面检索条件保持变量初始化前端检索部
+        model.addAttribute("lsnMap", backForwordMap);
+
+        /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如:bankId该换成bank_id
+           目的是，这个Map要传递到KnXxx001Mapper.xml哪里做SQL的Where的查询条件 */
+        Map<String, Object> conditions = CommonProcess.convertToSnakeCase(this.backForwordMap);
+
+        // 用保持变量里的检索条件从DB里抽取数据
+        Collection<Kn01L002LsnBean> collection = knLsn001Dao.searchLessons(conditions);
+        for (Kn01L002LsnBean bean:collection) {
+            setButtonUsable(bean);
+        }
         model.addAttribute("infoList",collection);
         return "kn_lsn_001/knlsn001_list";
     }
 
-    // 【検索一覧】検索ボタンを押下
+    // 【一覧画面検索部】検索ボタンを押下
     @GetMapping("/kn_lsn_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
         // 回传参数设置（画面检索部的查询参数）
-        Map<String, Object> backForwordMap = new HashMap<>();
+        // Map<String, Object> backForwordMap = new HashMap<>();
         backForwordMap.putAll(queryParams);
         model.addAttribute("lsnMap", backForwordMap);
 
@@ -53,11 +70,14 @@ public class Kn01L002LsnController{
 
         // 将queryParams传递给Service层或Mapper接口
         Collection<Kn01L002LsnBean> searchResults = knLsn001Dao.searchLessons(conditions);
+        for (Kn01L002LsnBean bean:searchResults) {
+            setButtonUsable(bean);
+        }
         model.addAttribute("infoList", searchResults);
         return "kn_lsn_001/knlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
-    // 【検索一覧】新規登録ボタンを押下
+    // 【一覧画面】新規登録ボタンを押下
     @GetMapping("/kn_lsn_001")
     public String toInfoAdd(Model model) {
 
@@ -69,14 +89,7 @@ public class Kn01L002LsnController{
         return "kn_lsn_001/knlsn001_add_update";
     }
 
-    // 【新規登録】画面にて、【保存】ボタンを押下
-    @PostMapping("/kn_lsn_001")
-    public String excuteInfoAdd(Kn01L002LsnBean knLsn001Bean) {
-        knLsn001Dao.save(knLsn001Bean);
-        return "redirect:/kn_lsn_001_all";
-    }
-
-    // 【検索一覧】編集ボタンを押下
+    // 【一覧画面明细部】編集ボタンを押下
     @GetMapping("/kn_lsn_001/{id}")
     public String toInfoEdit(@PathVariable("id") String id, Model model) {
   
@@ -88,12 +101,39 @@ public class Kn01L002LsnController{
         return "kn_lsn_001/knlsn001_add_update";
     }
 
-        // 【検索一覧】签到ボタンを押下
-        @GetMapping("/kn_lsn_001_lsn_checkin/{id}")
-        public String lessonCheckIn(@PathVariable("id") String id, Model model) {
-      
-            return "";
-        }
+    // 【一覧画面明细部】削除ボタンを押下
+    @DeleteMapping("/kn_lsn_001/{id}")
+    public String excuteInfoDelete(@PathVariable("id") String id) {
+        knLsn001Dao.delete(id);
+        return "redirect:/kn_lsn_001_all";
+    }
+
+    // 【一覧画面明细部】签到ボタンを押下
+    @GetMapping("/kn_lsn_001_lsn_sign/{id}")
+    public String lessonSign(@PathVariable("id") String id, Model model) {
+        // 拿到该课程信息
+        Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
+        knLsn001Dao.excuteSign(knLsn001Bean);
+        return "redirect:/kn_lsn_001_all";
+    }
+
+    // 【一覧画面明细部】撤销ボタンを押下
+    @GetMapping("/kn_lsn_001_lsn_undo/{id}")
+    public String lessonUndo(@PathVariable("id") String id, Model model) {
+    
+        // 拿到该课程信息
+        Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
+        // 撤销签到登记
+        knLsn001Dao.excuteUndo(knLsn001Bean);
+        return "redirect:/kn_lsn_001_all";
+    }
+
+    // 【新規登録】画面にて、【保存】ボタンを押下
+    @PostMapping("/kn_lsn_001")
+    public String excuteInfoAdd(Kn01L002LsnBean knLsn001Bean) {
+        knLsn001Dao.save(knLsn001Bean);
+        return "redirect:/kn_lsn_001_all";
+    }
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_lsn_001")
@@ -102,16 +142,70 @@ public class Kn01L002LsnController{
         return "redirect:/kn_lsn_001_all";
     }
 
-    // 【検索一覧】削除ボタンを押下
-    @DeleteMapping("/kn_lsn_001/{id}")
-    public String excuteInfoDelete(@PathVariable("id") String id) {
-        knLsn001Dao.delete(id);
-        return "redirect:/kn_lsn_001_all";
-    }
-
     // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
     private List<Kn01L002LsnBean> getStuSubList() {
         List<Kn01L002LsnBean> list = knLsn001Dao.getLatestSubjectList();
         return list;
+    }
+
+    // 给后台页面上课一览明细部的按钮设置活性非活性状态
+     public Kn01L002LsnBean setButtonUsable(Kn01L002LsnBean bean) {
+        int lessonType = bean.getLessonType();
+        boolean hasPlannedDate = bean.getSchedualDate() != null;
+        boolean hasActualDate = bean.getScanQRDate() != null;
+        boolean hasAdditionalToPlannedDate = bean.getExtraToDurDate() != null;
+
+        // 初始化按钮状态
+        bean.setUsableEdit(false);
+        bean.setUsableDelete(false);
+        bean.setUsableSign(false);
+        bean.setUsableCancel(false);
+
+        if (lessonType == KNConstant.CONSTANT_LESSON_TYPE_MONTHLY_SCHEDUAL 
+            || lessonType == KNConstant.CONSTANT_LESSON_TYPE_TIAMLY) { // 计划课
+            if (!hasActualDate) {
+                // #1 未开始上课
+                bean.setUsableEdit(true);
+                bean.setUsableDelete(true);
+                bean.setUsableSign(true);
+                bean.setUsableCancel(false);
+            } else if (hasPlannedDate && hasActualDate) {
+                // 按照调课后的日期上课完了
+                bean.setUsableEdit(false);
+                bean.setUsableDelete(false);
+                bean.setUsableSign(false);
+                if (bean.isToday(bean.getScanQRDate())){
+                    // 当日撤销可
+                    bean.setUsableCancel(true);
+                } else {
+                    // 次日以后撤销不可
+                    bean.setUsableCancel(false);
+                }
+            } 
+        } else if (lessonType == KNConstant.CONSTANT_LESSON_TYPE_MONTHLY_ADDITIONAL) { // 追加课
+            if (!hasActualDate && !hasAdditionalToPlannedDate) {
+                bean.setUsableEdit(true);
+                bean.setUsableDelete(true);
+                bean.setUsableSign(true);
+                bean.setUsableCancel(false);
+            } else if (hasPlannedDate && hasActualDate && !hasAdditionalToPlannedDate) {
+                bean.setUsableEdit(true);
+                bean.setUsableDelete(false);
+                bean.setUsableSign(false);
+                if (bean.isToday(bean.getScanQRDate())){
+                    // 当日撤销可
+                    bean.setUsableCancel(true);
+                } else {
+                    // 次日以后撤销不可
+                    bean.setUsableCancel(false);
+                }
+            } else if (hasPlannedDate  && hasActualDate && hasAdditionalToPlannedDate) {
+                bean.setUsableEdit(true);
+                bean.setUsableDelete(false);
+                bean.setUsableSign(false);
+                bean.setUsableCancel(false);
+            } 
+        }
+        return bean;
     }
 }

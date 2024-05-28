@@ -1,12 +1,16 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.bean.Kn02F002FeeBean;
+import com.liu.springboot04web.bean.Kn03D002StuDocBean;
+import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L002LsnMapper;
-
+import com.liu.springboot04web.othercommon.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;@Repository
@@ -15,6 +19,10 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
 
     @Autowired
     private Kn01L002LsnMapper knLsn001Mapper;
+    @Autowired
+    private Kn03D002StuDocDao knStuDoc001Dao;
+    @Autowired
+    private Kn02F002FeeDao    kn02F002FeeDao;
 
     public List<Kn01L002LsnBean> getInfoList() {
     List<Kn01L002LsnBean> list =knLsn001Mapper.getInfoList();
@@ -43,10 +51,10 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         || knLsn001Bean.getLessonId().isEmpty()) { 
 
             Map<String, Object> map = new HashMap<String, Object> ();
-                map.put("parm_in", KNSeqConstant.CONSTANT_KN_LSN_SEQ);
+                map.put("parm_in", KNConstant.CONSTANT_KN_LSN_SEQ);
                 // 授業自動採番
                 knLsn001Mapper.getNextSequence(map);
-                knLsn001Bean.setLessonId(KNSeqConstant.CONSTANT_KN_LSN_SEQ+(Integer)map.get("parm_out"));
+                knLsn001Bean.setLessonId(KNConstant.CONSTANT_KN_LSN_SEQ + (Integer)map.get("parm_out"));
 
             // 授業番号の自動採番
             knLsn001Mapper.getNextSequence(map);
@@ -69,5 +77,60 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     // 削除
     public void delete(String id) { 
         knLsn001Mapper.deleteInfo(id); 
+    }
+
+    // 签到
+    @Transactional
+    public void excuteSign(Kn01L002LsnBean knLsn001Bean) {
+        // 进行签到登记：对knLsn001Bean里的上课日期执行数据库表的更新操作
+        knLsn001Bean.setScanQRDate(new Date());
+        save(knLsn001Bean);
+
+        // 对签到的课程执行课费计算 
+        addNewLsnFee(knLsn001Bean);
+    }
+
+    // 撤销
+    @Transactional
+    public void excuteUndo(Kn01L002LsnBean knLsn001Bean) {
+        // 将签到日期撤销
+        knLsn001Bean.setScanQRDate(null);
+        save(knLsn001Bean);
+
+        // 课费撤销
+        undoNewLsnFee(knLsn001Bean);
+    }
+
+    // 签到时，对课费管理表登录该科目的课费
+    private void addNewLsnFee(Kn01L002LsnBean knLsn001Bean) {
+        // 计算该科目最新的费用
+        Kn03D002StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        Kn02F002FeeBean kn02F002FeeBean = new Kn02F002FeeBean();
+        kn02F002FeeBean.setStuId(knLsn001Bean.getStuId());
+        kn02F002FeeBean.setLessonId(knLsn001Bean.getLessonId());
+        kn02F002FeeBean.setLsnFee(stuDocBean.getLessonFee());
+        kn02F002FeeBean.setLsnMonth(DateUtils.getCurrentDateYearMonth(knLsn001Bean.getSchedualDate()));
+
+        // 课程类型lessonType 0:按课时结算的课程  1:按月结算的课程（计划课）  2:按月结算的课程（加时课）
+        kn02F002FeeBean.setLessonType(knLsn001Bean.getLessonType());
+        kn02F002FeeBean.setSubjectId(knLsn001Bean.getSubjectId());
+        kn02F002FeeBean.setPayStyle(stuDocBean.getPayStyle());
+
+        // 新规课程费用信息，保存到课费信息表里
+        kn02F002FeeDao.save(kn02F002FeeBean);
+    }
+
+    // 撤销时，对课费管理表登录的该科目的课费执行删除操作
+    private void undoNewLsnFee(Kn01L002LsnBean knLsn001Bean) {
+        // 从课费管理表取得该课的lsn_fee_id
+        Map<String, Object> condition = new HashMap<>();
+        condition.put("lesson_id", knLsn001Bean.getLessonId());
+
+        // 此处虽然用的是Kn02F002FeeMapper的模糊查询，因为lesson_id在课费管理表里也是唯一值，所以不会出现多条记录的现象，所以使用该函数没有问题。
+        List<Kn02F002FeeBean> searchResults = kn02F002FeeDao.searchLsnFee(condition);
+        Kn02F002FeeBean feeBean = searchResults.get(0);
+
+        // 删除当日的课费计算记录
+        kn02F002FeeDao.delete(feeBean.getLsnFeeId(), feeBean.getLessonId());
     }
 }
