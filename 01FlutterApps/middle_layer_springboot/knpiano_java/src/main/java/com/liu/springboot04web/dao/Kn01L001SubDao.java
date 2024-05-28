@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn01L001SubBean;
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L001SubMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,10 @@ public class Kn01L001SubDao implements InterfaceKnPianoDao {
     public void save(Kn01L001SubBean knSub001Bean) {
         if (knSub001Bean.getSubjectId() == null || knSub001Bean.getSubjectId().isEmpty()) { 
             Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", KNSeqConstant.CONSTANT_KN_SUB_SEQ);
+            map.put("parm_in", KNConstant.CONSTANT_KN_SUB_SEQ);
             // 科目ID的自动编号
             knSub001Mapper.getNextSequence(map);
-            knSub001Bean.setSubjectId(KNSeqConstant.CONSTANT_KN_SUB_SEQ + (Integer)map.get("parm_out"));
+            knSub001Bean.setSubjectId(KNConstant.CONSTANT_KN_SUB_SEQ + (Integer)map.get("parm_out"));
             System.out.println(map.get("parm_out"));
             insert(knSub001Bean);
         } else {

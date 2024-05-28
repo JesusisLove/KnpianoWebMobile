@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn03D001StuBean;
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn03D001StuMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,10 @@ public class Kn03D001StuDao implements InterfaceKnPianoDao {
         || knStu001Bean.getStuId().isEmpty()) { 
 
             Map<String, Object> map = new HashMap<String, Object> ();
-            map.put("parm_in", KNSeqConstant.CONSTANT_KN_STU_SEQ);
+            map.put("parm_in", KNConstant.CONSTANT_KN_STU_SEQ);
             // 学生の名前の自動採番
             knStu001Mapper.getNextSequence(map);
-            knStu001Bean.setStuId(KNSeqConstant.CONSTANT_KN_STU_SEQ+(Integer)map.get("parm_out"));
+            knStu001Bean.setStuId(KNConstant.CONSTANT_KN_STU_SEQ+(Integer)map.get("parm_out"));
             System.out.println(map.get("parm_out"));
             insert(knStu001Bean);
         } else {
