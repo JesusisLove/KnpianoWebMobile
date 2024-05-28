@@ -1,6 +1,6 @@
 package com.liu.springboot04web.dao;
 
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.constant.KNConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -43,10 +43,10 @@ public class Kn02F004PayDao implements InterfaceKnPianoDao {
         if (knLsnPay001Bean.getLsnPayId() == null || knLsnPay001Bean.getLsnPayId().isEmpty()) { 
         
             Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", KNSeqConstant.CONSTANT_KN_LSN_PAY_SEQ);
+            map.put("parm_in", KNConstant.CONSTANT_KN_LSN_PAY_SEQ);
             // 授業課費番号の自動採番
             knLsnPay001Mapper.getNextSequence(map);
-            knLsnPay001Bean.setLsnPayId(KNSeqConstant.CONSTANT_KN_LSN_PAY_SEQ + (Integer)map.get("parm_out"));
+            knLsnPay001Bean.setLsnPayId(KNConstant.CONSTANT_KN_LSN_PAY_SEQ + (Integer)map.get("parm_out"));
 
             insert(knLsnPay001Bean);
         } else {

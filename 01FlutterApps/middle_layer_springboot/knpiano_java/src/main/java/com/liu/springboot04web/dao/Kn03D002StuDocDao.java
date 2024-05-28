@@ -19,7 +19,6 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     // 获取所有学生档案信息的信息列表
     public List<Kn03D002StuDocBean> getInfoList() {
         List<Kn03D002StuDocBean> list = knStudoc001Mapper.getInfoList();
-        // System.out.println("查询的学生档案信息管理数据：" + list.toString());
         return list;
     }
 
@@ -36,7 +35,6 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     // 根据ID获取特定的学生档案信息信息
     public Kn03D002StuDocBean getInfoByKey(String stuId, String subjectId, Date adjustedDate) {
         Kn03D002StuDocBean knStudoc001Bean = knStudoc001Mapper.getInfoByKey(stuId, subjectId, adjustedDate);
-        // System.out.println("查询的学生档案信息管理详细数据：" + knStudoc001Bean.toString());
         return knStudoc001Bean;
     }
 
@@ -58,13 +56,17 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
 
     // 新增学生档案信息信息
     private void insert(Kn03D002StuDocBean knStudoc001Bean) {
-        // System.out.println("插入的学生档案信息管理数据：" + knStudoc001Bean.toString());
         knStudoc001Mapper.insertInfo(knStudoc001Bean);
     }
 
     // 更新学生档案信息信息
     private void update(Kn03D002StuDocBean knStudoc001Bean) {
-        // System.out.println("更新的学生档案信息管理数据：" + knStudoc001Bean.toString());
         knStudoc001Mapper.updateInfo(knStudoc001Bean);
+    }
+
+    // 从学生档案表里，取得该生当前科目最新的价格信息
+    public Kn03D002StuDocBean getLsnPrice(String stuId, 
+                                          String subjectId) {
+        return knStudoc001Mapper.getLsnPrice(stuId, subjectId);
     }
 }

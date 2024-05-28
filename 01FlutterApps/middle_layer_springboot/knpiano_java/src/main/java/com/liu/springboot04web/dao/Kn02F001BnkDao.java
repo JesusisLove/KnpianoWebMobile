@@ -1,7 +1,7 @@
 package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn02F001BnkBean;
-import com.liu.springboot04web.constant.KNSeqConstant;
+import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn02F001BnkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -38,10 +38,10 @@ public class Kn02F001BnkDao implements InterfaceKnPianoDao {
     public void save(Kn02F001BnkBean knBnk001Bean) {
         if (knBnk001Bean.getBankId() == null || knBnk001Bean.getBankId().isEmpty()) { 
             Map<String, Object> map = new HashMap<>();
-            map.put("parm_in", KNSeqConstant.CONSTANT_KN_BNK_SEQ);
+            map.put("parm_in", KNConstant.CONSTANT_KN_BNK_SEQ);
 
             knBnk001Mapper.getNextSequence(map);
-            knBnk001Bean.setBankId(KNSeqConstant.CONSTANT_KN_BNK_SEQ + (Integer)map.get("parm_out"));
+            knBnk001Bean.setBankId(KNConstant.CONSTANT_KN_BNK_SEQ + (Integer)map.get("parm_out"));
             insert(knBnk001Bean);
         } else {
             update(knBnk001Bean);
