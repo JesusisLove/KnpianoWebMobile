@@ -11,19 +11,41 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F002FeeMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from t_info_lesson_fee
+        select * from v_info_lesson_fee order by stu_name,lsn_month
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from t_info_lesson_fee
+        select * from v_info_lesson_fee
         where lsn_fee_id = #{lsnFeeId}
           and lesson_id = #{lessonId}
     </select>
 
-        <!-- 从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <!-- 按月结算课程且是计划课的场合，lsn_fee_id和lesson_id是一对多的处理,通过科目和月份取得计划课时用的lsn_fee_id -->
+    <select id= "checkScheLsnCurrentMonth" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        select * from v_info_lesson_fee
+        where stu_id = #{stuId}
+          and subject_id = #{subjectId}
+          and lesson_type = #{lessonType}
+          and lsn_month = #{lsnMonth}
+        <!-- limit 1 -->
+    </select>
+
+    <!-- 从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
     <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         SELECT * FROM v_info_lesson order by stu_name
     </select>
+
+    <select id="searchLsnFee" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        SELECT *
+        FROM v_info_lesson_fee
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where>
+    </select> 
 
     <update id="updateInfo">
         update t_info_lesson_fee set
@@ -42,14 +64,12 @@ https://mybatis.org/mybatis-3/getting-started.html
             lsn_fee_id,
             lesson_id,
             lsn_fee,
-            lsn_month,
-            own_flg
+            lsn_month
             ) values (
             #{lsnFeeId},
             #{lessonId},
             #{lsnFee},
-            #{lsnMonth},
-            #{ownFlg}
+            #{lsnMonth}
         )
     </insert>
 

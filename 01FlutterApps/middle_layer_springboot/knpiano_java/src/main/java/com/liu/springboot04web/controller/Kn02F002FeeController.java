@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.dao.Kn02F002FeeDao;
+import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 @Controller
 public class Kn02F002FeeController{
 
@@ -21,6 +24,24 @@ public class Kn02F002FeeController{
         Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList();
         model.addAttribute("infoList",collection);
         return "kn_lsn_fee_001/knlsnfee001_list";
+    }
+
+    // 【検索一覧】検索ボタンを押下
+    @GetMapping("/kn_lsn_fee_001/search")
+    public String search(@RequestParam Map<String, Object> queryParams, Model model) {
+        // 回传参数设置（画面检索部的查询参数）
+        Map<String, Object> backForwordMap = new HashMap<>();
+        backForwordMap.putAll(queryParams);
+        model.addAttribute("stuLsnFeeMap", backForwordMap);
+
+        /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
+           目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件 */
+        Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
+
+        // 将queryParams传递给Service层或Mapper接口
+        Collection<Kn02F002FeeBean> searchResults = knLsnFee001Dao.searchLsnFee(conditions);
+        model.addAttribute("infoList", searchResults);
+        return "kn_lsn_fee_001/knlsnfee001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
     // 【課費情報管理】新規ボタンを押下して、【課費情報管理】新規画面へ遷移すること

@@ -10,7 +10,11 @@ public interface Kn02F002FeeMapper  {
 
     public List<Kn02F002FeeBean> getInfoList();
     public List<Kn02F002FeeBean> searchLsnFee(@Param("params") Map<String, Object> queryparams);
-    public Kn02F002FeeBean getInfoById(String lsnFeeId, String lessonId);
+    public Kn02F002FeeBean       getInfoById(String lsnFeeId, String lessonId);
+    public List<Kn02F002FeeBean> checkScheLsnCurrentMonth(@Param("stuId")      String  stuId,
+                                                          @Param("subjectId")  String  subjectId, 
+                                                          @Param("lessonType") Integer lessonType,
+                                                          @Param("lsnMonth")   String  lsnMonth);
     public void updateInfo(Kn02F002FeeBean bean);
     public void insertInfo(Kn02F002FeeBean bean);
     public void deleteInfo(String lsnFeeId, String lessonId);

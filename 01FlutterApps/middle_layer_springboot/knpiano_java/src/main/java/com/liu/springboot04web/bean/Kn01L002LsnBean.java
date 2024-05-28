@@ -1,5 +1,7 @@
 package com.liu.springboot04web.bean;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +17,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected Integer lessonType;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date schedualDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date scanQRDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date lsnAdjustedDate;
@@ -24,6 +26,13 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected Integer delFlg;
     protected Date createDate;
     protected Date updateDate;
+// 变更，删除，签到，撤销，四个按钮在画面上活性/非活性的状态设置
+    protected boolean usableEdit;
+    protected boolean usableDelete;
+    protected boolean usableSign;
+    protected boolean usableCancel;
+    protected boolean isToday;
+
     public String getLessonId() {
         return lessonId;
     }
@@ -108,5 +117,38 @@ public class Kn01L002LsnBean implements KnPianoBean {
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
     }
-
+// 变更，删除，签到，撤销，四个按钮在画面上活性/非活性的状态设置
+    public void setUsableEdit(boolean usableEdit) {
+        this.usableEdit = usableEdit;
+    }
+    public void setUsableDelete(boolean usableDelete) {
+        this.usableDelete = usableDelete;
+    }
+    public void setUsableSign(boolean usableSign) {
+        this.usableSign = usableSign;
+    }
+    public void setUsableCancel(boolean usableCancel) {
+        this.usableCancel = usableCancel;
+    }
+    public boolean isUsableEdit() {
+        return usableEdit;
+    }
+    public boolean isUsableDelete() {
+        return usableDelete;
+    }
+    public boolean isUsableSign() {
+        return usableSign;
+    }
+    public boolean isUsableCancel() {
+        return usableCancel;
+    }
+    public boolean isToday(Date schedualDate) {
+        // 获取当前日期
+        LocalDate today = LocalDate.now();
+        // 将传入的 Date 对象转换为 LocalDate 对象
+        LocalDate schedualLocalDate = schedualDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        
+        // 比较两个 LocalDate 是否相等
+        return schedualLocalDate.equals(today);
+    } 
 }

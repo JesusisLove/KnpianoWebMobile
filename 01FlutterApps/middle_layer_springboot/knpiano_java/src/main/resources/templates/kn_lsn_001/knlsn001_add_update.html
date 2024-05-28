@@ -32,6 +32,10 @@
                 font-size: 3.5rem;
             }
         }
+        .radio-group .form-check {
+            display: block;
+            margin-bottom: 10px;
+        }
     </style>
 
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -102,18 +106,21 @@
 
                     <!-- Radio button -->
                     <br><label>上课种别</label>
-                    <div class="card" style="padding: 20px; border-radius: 10px;">
-                        <div class="d-flex align-items-center gap-2" style="padding-left: 10px;">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="lessonType" id="option1" value="0"
-                                       th:checked="${selectedinfo != null ? selectedinfo.lessonType == 0 : true}">
-                                <label class="form-check-label" for="option1">计划课时（针对按月交费学生）</label>
-                            </div>
-                            <div class="form-check" style="padding-left: 50px;">
-                                <input class="form-check-input" type="radio" name="lessonType" id="option2" value="1"
-                                       th:checked="${selectedinfo != null ? selectedinfo.lessonType == 1 : false}">
-                                <label class="form-check-label" for="option2">追加课时（针对按月交费学生）</label>
-                            </div>
+                    <div class="radio-group" style="padding-left: 30px;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0"
+                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 0 : true}" th:readonly>
+                            <label class="form-check-label" for="option1">按课时交费科目</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option1" value="1"
+                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 1 : true}">
+                            <label class="form-check-label" for="option1">计划课时（针对按月交费学生）</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option2" value="2"
+                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 2 : false}">
+                            <label class="form-check-label" for="option2">追加课时（针对按月交费学生）</label>
                         </div>
                     </div>
                     <br>
@@ -164,7 +171,6 @@
 <script>
     // 初始化 DateTime Picker
     $(document).ready(function () {
-        // alert("1");
         $('#datetimepickerInput').datetimepicker({
             format: 'YYYY-MM-DD HH:mm',
             locale: moment.locale('zh-cn') ,  // 设置地区为中国
@@ -181,7 +187,6 @@
             }
             
         });
-        // alert("2");
     });
 </script>
 

@@ -7,6 +7,13 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
     <title>Dashboard Template · Bootstrap</title>
+    <script src="knScriptfunctions.js"></script>
+    <!-- src
+        └── main
+            └── resources
+                └── static
+                    └── knScriptfunctions.js 
+        -->
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
@@ -110,32 +117,46 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="info:${infoList}">
-                        <td>[[${info.lessonId}]]</td>
-                        <td>[[${info.subjectId}]]</td>
-                        <td>[[${info.stuId}]]</td>
-                        <td>[[${info.subjectName}]]</td>
-                        <td>[[${info.stuName}]]</td>
-                        <td>[[${info.classDuration}]]</td>
-                        <td th:text="${info.lessonType == 0 ? '计划课时' : info.lessonType == 1 ? '追加课时' : ''}"></td>
-                        <td>[[${#dates.format(info.schedualDate,'yyyy/MM/dd HH:mm')}]]</td>
-                        <td>[[${#dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm')}]]</td>
-                        <td>[[${#dates.format(info.extraToDurDate,'yyyy/MM/dd HH:mm')}]]</td>
-                        <td>[[${#dates.format(info.scanQRDate,'yyyy/MM/dd HH:mm')}]]</td>
-                        <td>[[${info.delFlg}]]</td>
-                        <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>
-                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}" methods="GET">変更</a> 
-                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}">削除</button>
+                        <tr th:each="info : ${infoList}">
+                            <td>[[${info.lessonId}]]</td>
+                            <td>[[${info.subjectId}]]</td>
+                            <td>[[${info.stuId}]]</td>
+                            <td>[[${info.subjectName}]]</td>
+                            <td>[[${info.stuName}]]</td>
+                            <td>[[${info.classDuration}]]</td>
+                            <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
+                            <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                            <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                            <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
+                            <td>[[${info.scanQRDate != null ? #dates.format(info.scanQRDate,'yyyy/MM/dd') : ''}]]</td>
+                            <td>[[${info.delFlg}]]</td>
+                            <td>[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                            <td>[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                            <td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" 
+                                       th:href="@{/kn_lsn_001/}+${info.lessonId}" 
+                                       th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" 
+                                       methods="GET">変更</a> 
 
-                            <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001/}+${info.lessonId}" th:if="${info.scanQRDate == null}" methods="GET">签到</a>
-                            <a class="btn btn-sm btn-success disabled" th:if="${info.scanQRDate != null}">签到</a>
+                                    <!-- 如果 info.isUsableDelete 为 true，那么 button 将会有 disabled 属性，否则没有这个属性 -->
+                                    <button type="button"   class="btn btn-sm btn-danger deleteBtn" 
+                                            th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}" 
+                                            th:classappend="${info.isUsableDelete ? ''  : 'disabled'}" 
+                                            th:disabled="${!info.isUsableDelete}" >削除</button>
 
-                            <a class="btn btn-sm btn-danger disabled" th:if="${info.scanQRDate == null}" >撤销</a>
-                            <a class="btn btn-sm btn-danger" th:href="@{/kn_lsn_001/}+${info.lessonId}" th:if="${info.scanQRDate != null}" methods="GET">撤销</a>
-                        </td>
-                     </tr>
+                                    <a class="btn btn-sm btn-success" 
+                                       th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}" 
+                                       th:classappend="${info.isUsableSign ? ''  : 'disabled'}" 
+                                       methods="GET">签到</a>
+
+                                    <a class="btn btn-sm btn-danger" 
+                                        th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}" 
+                                        th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
+                                        th:method="GET">[[${btnUsable != null ? btnUsable.cancel : ''}]]撤销</a>
+                                </td>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -157,12 +178,13 @@
 <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
 <script>
     $(".deleteBtn").click(function() {
-        //thisが削除ボタンである
-        let del_uri = $(this).attr("liu_del_uri");
-        alert("-------delete-------" + del_uri);
-        //対象フォームのsubmitを実行する
-        $("#deleteEmpForm").attr("action",del_uri).submit();
-        return false;
+        if (confirm('本当に削除しますか？')) {
+            //thisが削除ボタンである
+            let del_uri = $(this).attr("liu_del_uri");
+            //対象フォームのsubmitを実行する
+            $("#deleteEmpForm").attr("action",del_uri).submit();
+            return false;
+        }
     });
 </script>
 </body>
