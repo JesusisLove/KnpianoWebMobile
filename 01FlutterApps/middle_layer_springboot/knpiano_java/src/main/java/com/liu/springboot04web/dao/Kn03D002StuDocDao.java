@@ -1,5 +1,6 @@
 package com.liu.springboot04web.dao;
 
+import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.mapper.Kn03D002StuDocMapper;
 
@@ -68,5 +69,11 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     public Kn03D002StuDocBean getLsnPrice(String stuId, 
                                           String subjectId) {
         return knStudoc001Mapper.getLsnPrice(stuId, subjectId);
+    }
+
+    // 获取所有学生最新正在上课的科目信息
+    public List<Kn03D002StuDocBean> getLatestSubjectList() {
+        List<Kn03D002StuDocBean> list = knStudoc001Mapper.getLatestSubjectList();
+        return list;
     }
 }

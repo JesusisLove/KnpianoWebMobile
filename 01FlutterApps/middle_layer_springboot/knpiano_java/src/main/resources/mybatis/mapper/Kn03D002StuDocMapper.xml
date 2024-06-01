@@ -23,6 +23,11 @@
                                            AND subject_id = #{subjectId} 
                                            AND adjusted_date = #{adjustedDate}
     </select>
+
+    <!-- 从学生档案表视图中取得在课学生正在上的科目，在新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
+        SELECT * FROM v_latest_subject_info_from_student_document order by stu_name
+    </select>
     
     <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
         insert into t_info_student_document (
