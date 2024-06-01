@@ -7,10 +7,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
+import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
+import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
-import com.liu.springboot04web.service.ComboListInfoService;
+import com.liu.springboot04web.service.ComboListInfoService; 
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,6 +26,9 @@ public class Kn01L002LsnController{
 
     @Autowired
     private Kn01L002LsnDao knLsn001Dao;
+    @Autowired
+    private Kn03D002StuDocDao kn03D002StuDocDao;
+
     // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
     Map<String, Object> backForwordMap; 
 
@@ -143,8 +148,8 @@ public class Kn01L002LsnController{
     }
 
     // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
-    private List<Kn01L002LsnBean> getStuSubList() {
-        List<Kn01L002LsnBean> list = knLsn001Dao.getLatestSubjectList();
+    private List<Kn03D002StuDocBean> getStuSubList() {
+        List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return list;
     }
 
@@ -152,7 +157,7 @@ public class Kn01L002LsnController{
      public Kn01L002LsnBean setButtonUsable(Kn01L002LsnBean bean) {
         int lessonType = bean.getLessonType();
         boolean hasPlannedDate = bean.getSchedualDate() != null;
-        boolean hasActualDate = bean.getScanQRDate() != null;
+        boolean hasActualDate = bean.getScanQrDate() != null;
         boolean hasAdditionalToPlannedDate = bean.getExtraToDurDate() != null;
 
         // 初始化按钮状态
@@ -174,7 +179,7 @@ public class Kn01L002LsnController{
                 bean.setUsableEdit(false);
                 bean.setUsableDelete(false);
                 bean.setUsableSign(false);
-                if (bean.isToday(bean.getScanQRDate())){
+                if (bean.isToday(bean.getScanQrDate())){
                     // 当日撤销可
                     bean.setUsableCancel(true);
                 } else {
@@ -192,7 +197,7 @@ public class Kn01L002LsnController{
                 bean.setUsableEdit(true);
                 bean.setUsableDelete(false);
                 bean.setUsableSign(false);
-                if (bean.isToday(bean.getScanQRDate())){
+                if (bean.isToday(bean.getScanQrDate())){
                     // 当日撤销可
                     bean.setUsableCancel(true);
                 } else {
