@@ -5,7 +5,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.bean.Kn05S001LsnFixBean;
+import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.dao.Kn05S001LsnFixDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
@@ -24,6 +27,8 @@ public class Kn05S001LsnFixController {
 
     @Autowired
     private Kn05S001LsnFixDao knFixLsn001Dao;
+    @Autowired
+    private Kn03D002StuDocDao kn03D002StuDocDao;
     
     public Kn05S001LsnFixController(ComboListInfoService combListInfo) {
         this.combListInfo = combListInfo;
@@ -141,8 +146,8 @@ public class Kn05S001LsnFixController {
     }
 
     // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
-    private List<Kn05S001LsnFixBean> getStuSubList() {
-        List<Kn05S001LsnFixBean> list = knFixLsn001Dao.getLatestSubjectList();
+    private List<Kn03D002StuDocBean> getStuSubList() {
+        List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return list;
     }
 

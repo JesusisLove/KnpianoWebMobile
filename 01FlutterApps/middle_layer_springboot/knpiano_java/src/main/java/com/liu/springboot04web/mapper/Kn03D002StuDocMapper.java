@@ -16,6 +16,8 @@ public interface Kn03D002StuDocMapper  {
                                            @Param("subjectId") String subjectId, 
                                            @Param("adjustedDate") Date adjustedDate);
 
+    public List<Kn03D002StuDocBean> getLatestSubjectList();
+
     public void updateInfo(Kn03D002StuDocBean bean);
 
     public void insertInfo(Kn03D002StuDocBean bean);

@@ -6,11 +6,6 @@
         SELECT * FROM v_info_fixedlesson order by fixed_hour, fixed_minute
     </select>
 
-    <!-- 从学生档案表视图中取得在课学生正在上的科目，在新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
-    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn05S001LsnFixBean">
-        SELECT * FROM v_letest_subject_info_from_student_document order by stu_name
-    </select>
-
     <select id="searchFixedLessons" resultType="com.liu.springboot04web.bean.Kn05S001LsnFixBean">
         SELECT *
         FROM v_info_fixedlesson

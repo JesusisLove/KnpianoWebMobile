@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.bean.Kn05S001LsnFixBean;
+import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.dao.Kn05S001LsnFixDao;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +23,8 @@ public class Kn05S001LsnFixController4Mobile {
 
     @Autowired
     Kn05S001LsnFixDao knFixLsn001Dao;
+    @Autowired
+    private Kn03D002StuDocDao kn03D002StuDocDao;
 
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_fixlsn_001_all")
@@ -32,8 +37,8 @@ public class Kn05S001LsnFixController4Mobile {
     // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_fixlsn_stusub_get")
-    private ResponseEntity<Collection<Kn05S001LsnFixBean>> getStuSubList() {
-        List<Kn05S001LsnFixBean> list = knFixLsn001Dao.getLatestSubjectList();
+    private ResponseEntity<Collection<Kn03D002StuDocBean>> getStuSubList() {
+        List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return ResponseEntity.ok(list);
     }
 
