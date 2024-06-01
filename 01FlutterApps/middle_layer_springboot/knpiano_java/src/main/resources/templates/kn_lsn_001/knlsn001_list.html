@@ -73,7 +73,7 @@
                         <input id="schedualDate" name="schedualDate" type="date" class="form-control"  th:value="${lsnMap != null ? #dates.format(['schedualDate'], 'yyyy-MM-dd HH:mm') : ''}" placeholder="計画授業日付">
                     </div>
                     <div class="form-group col-md-1.2">
-                        <input id="scanQRDate" name="scanQRDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['scanQRDate'] : ''}" placeholder="計画授業日付">
+                        <input id="scanQrDate" name="scanQrDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['scanQrDate'] : ''}" placeholder="計画授業日付">
                     </div>
                     <div class="form-group col-md-1.2">
                         <input id="lsnAdjustedDate" name="lsnAdjustedDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['lsnAdjustedDate'] : ''}" placeholder="計画授業日付">
@@ -124,11 +124,11 @@
                             <td>[[${info.subjectName}]]</td>
                             <td>[[${info.stuName}]]</td>
                             <td>[[${info.classDuration}]]</td>
-                            <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
+                            <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
                             <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
                             <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
                             <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
-                            <td>[[${info.scanQRDate != null ? #dates.format(info.scanQRDate,'yyyy/MM/dd') : ''}]]</td>
+                            <td>[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
                             <td>[[${info.delFlg}]]</td>
                             <td>[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                             <td>[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>

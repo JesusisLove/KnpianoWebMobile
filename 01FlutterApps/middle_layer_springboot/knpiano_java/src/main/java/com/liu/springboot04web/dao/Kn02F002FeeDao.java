@@ -76,7 +76,7 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
                                                              knLsnFee001Bean.getLessonType(),
                                                              knLsnFee001Bean.getLsnMonth());
             // 按月交费的课费结算，同一个月的计划课使用同一个lsn_fee_id
-            if (feeList != null) {
+            if (feeList != null && feeList.size() > 0) {
                 knLsnFee001Bean.setLsnFeeId(feeList.get(0).getLsnFeeId());
             } else {
                 Map<String, Object> map = new HashMap<>();

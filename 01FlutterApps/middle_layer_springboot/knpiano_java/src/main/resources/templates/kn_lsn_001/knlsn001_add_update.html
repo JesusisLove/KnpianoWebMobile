@@ -37,7 +37,6 @@
             margin-bottom: 10px;
         }
     </style>
-
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
 <body>
@@ -62,7 +61,6 @@
                             <option value="">请选择</option>
                             <!-- 动态内容将被插入 -->
                         </select>
-
                     </div>
 
                     <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
@@ -92,6 +90,32 @@
                         <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
                         <input name="delFlg" type="hidden" th:value="${selectedinfo.delFlg}">
                     </div>
+
+                    <!-- 新規登録 模式下的上课种别 使用 Radio button -->
+                    <br><label>上课种别</label>
+                    <div class="radio-group" th:if="${selectedinfo==null}" style="padding-left: 30px;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0">
+                            <label class="form-check-label" for="option0">课结算（科目按课时结算的学生）</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option1" value="1">
+                            <label class="form-check-label" for="option1">月计划（科目按月交费学生）</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option2" value="2">
+                            <label class="form-check-label" for="option2">月加课（科目对按月交费学生）</label>
+                        </div>
+                    </div>
+
+                    <!-- 变更编辑 模式下的上课种别 使用 文本框 -->
+                    <div class="form-group" th:unless="${selectedinfo==null}">
+                         <!-- 显示用的文本框，用户无法编辑 -->
+                        <input type="text" class="form-control" 
+                        th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}" readonly>
+                        <!-- 隐藏的实际提交值的输入框 -->
+                        <input name="lessonType" type="hidden" th:value="${selectedinfo.lessonType}">
+                    </div>
                     <br>
 
                     <!-- 新规登陆，变更编辑 下拉列表框 选择学生上课时长 -->
@@ -102,26 +126,6 @@
                                     th:each="element:${duration}" th:value="${element}" th:utext="${element}">
                             </option>
                         </select>
-                    </div>
-
-                    <!-- Radio button -->
-                    <br><label>上课种别</label>
-                    <div class="radio-group" style="padding-left: 30px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0"
-                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 0 : true}" th:readonly>
-                            <label class="form-check-label" for="option1">按课时交费科目</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option1" value="1"
-                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 1 : true}">
-                            <label class="form-check-label" for="option1">计划课时（针对按月交费学生）</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option2" value="2"
-                                   th:checked="${selectedinfo != null ? selectedinfo.lessonType == 2 : false}">
-                            <label class="form-check-label" for="option2">追加课时（针对按月交费学生）</label>
-                        </div>
                     </div>
                     <br>
                     <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br> 
@@ -151,8 +155,8 @@
                     </div>
                     
                     <div class="form-group"><br>  <label>実績授業日付（学生实际来上课的时间）</label> 
-                        <input name="scanQRDate"type="date" class="form-control" 
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQRDate, 'yyyy-MM-dd')}">
+                        <input name="scanQrDate"type="date" class="form-control" 
+                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}">
                     </div>
               <button type="submit" class="btn btn-primary" th:text="保存"></button>
             </form>
@@ -185,49 +189,82 @@
                 clear: 'fa fa-trash',
                 close: 'fa fa-times'
             }
-            
         });
     });
 </script>
 
 <script th:inline="javascript">
-    // 从后端传递的stuSubList数据
-    var jsonStuSubList = [[${stuSubList}]];
-    // console.log(jsonStuSubList);
-    
-    // 页面加载完成后，初始化学生下拉列表
-    window.onload = function() {
-        var studentSelect = document.getElementById('studentSelect');
-        var uniqueStudentIds = new Set(); // 使用集合来避免重复
-    
-        // 从stuSubList添加学生姓名到下拉列表，确保不重复
-        jsonStuSubList.forEach(function(item) {
-            if (!uniqueStudentIds.has(item.stuId)) {
-                uniqueStudentIds.add(item.stuId);
-                var option = new Option(item.stuName, item.stuId);
-                studentSelect.add(option);
-            }
-        });
-    
-        // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
-        studentSelect.onchange = function() {
-            updateSubjectSelect(this.value);
-        };
+// 从后端传递的 stuSubList 数据
+var jsonStuSubList = [[${stuSubList}]];
+
+// 页面加载完成后，初始化学生下拉列表
+window.onload = function() {
+    var studentSelect = document.getElementById('studentSelect');
+    var uniqueStudentIds = new Set(); // 使用集合来避免重复
+
+    // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
+    jsonStuSubList.forEach(function(item) {
+        if (!uniqueStudentIds.has(item.stuId)) {
+            uniqueStudentIds.add(item.stuId);
+            var option = new Option(item.stuName, item.stuId);
+            studentSelect.add(option);
+        }
+    });
+
+    // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
+    studentSelect.onchange = function() {
+        updateSubjectSelect(this.value);
     };
-    
-    // 根据选中的学生ID更新科目下拉列表
-    function updateSubjectSelect(stuId) {
-        var subjectSelect = document.getElementById('subjectSelect');
-        subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
-    
-        // 添加与选中学生ID相关的科目到科目下拉列表
-        jsonStuSubList.forEach(function(item) {
-            if (item.stuId === stuId) {
-                var option = new Option(item.subjectName, item.subjectId);
-                subjectSelect.add(option);
-            }
-        });
+    document.getElementById("option0").disabled = true;
+    document.getElementById("option1").disabled = true;
+    document.getElementById("option2").disabled = true;
+};
+
+// 根据选中的学生 ID 更新科目下拉列表
+function updateSubjectSelect(stuId) {
+    var subjectSelect = document.getElementById('subjectSelect');
+    subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
+
+    // 添加与选中学生 ID 相关的科目到科目下拉列表
+    jsonStuSubList.forEach(function(item) {
+        if (item.stuId === stuId) {
+            var option = new Option(item.subjectName, item.subjectId);
+            subjectSelect.add(option);
+        }
+    });
+
+    // 监听科目下拉列表的变化，并更新上课种别的 radio button
+    subjectSelect.onchange = function() {
+        updateLessonType(stuId, this.value);
+    };
+}
+
+// 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button
+function updateLessonType(stuId, subjectId) {
+
+    var selectedItem = jsonStuSubList.find(function(item) {
+        return item.stuId === stuId && item.subjectId === subjectId;
+    });
+
+    if (selectedItem) {
+        var payStyle = selectedItem.payStyle;
+        if (payStyle === 0) {
+            document.getElementById("option0").checked = true;
+            document.getElementById("option0").disabled = false;
+
+            document.getElementById("option1").disabled = true;
+            document.getElementById("option2").disabled = true;
+        } else if (payStyle === 1) {
+            document.getElementById("option0").disabled = true;
+
+            document.getElementById("option1").checked = true;
+            document.getElementById("option1").disabled = false;
+
+            document.getElementById("option2").disabled = false;
+        }
     }
+}
+
 
 </script>
 <style>

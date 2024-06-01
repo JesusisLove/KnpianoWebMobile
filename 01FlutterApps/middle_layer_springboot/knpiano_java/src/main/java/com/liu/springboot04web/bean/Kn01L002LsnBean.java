@@ -18,7 +18,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date schedualDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    protected Date scanQRDate;
+    protected Date scanQrDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date lsnAdjustedDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -32,6 +32,8 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected boolean usableSign;
     protected boolean usableCancel;
     protected boolean isToday;
+// 其他
+    protected Integer payStyle;
 
     public String getLessonId() {
         return lessonId;
@@ -80,12 +82,6 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setSchedualDate(Date schedualDate) {
         this.schedualDate = schedualDate;
-    }
-    public Date getScanQRDate() {
-        return scanQRDate;
-    }
-    public void setScanQRDate(Date scanQRDate) {
-        this.scanQRDate = scanQRDate;
     }
     public Date getLsnAdjustedDate() {
         return lsnAdjustedDate;
@@ -150,5 +146,24 @@ public class Kn01L002LsnBean implements KnPianoBean {
         
         // 比较两个 LocalDate 是否相等
         return schedualLocalDate.equals(today);
+    }
+    public Date getScanQrDate() {
+        return scanQrDate;
+    }
+    public void setScanQrDate(Date scanQrDate) {
+        this.scanQrDate = scanQrDate;
+    }
+    public boolean isToday() {
+        return isToday;
+    }
+    public void setToday(boolean isToday) {
+        this.isToday = isToday;
+    }
+    public Integer getPayStyle() {
+        return payStyle;
+    }
+    public void setPayStyle(Integer payStyle) {
+        this.payStyle = payStyle;
     } 
+    
 }
