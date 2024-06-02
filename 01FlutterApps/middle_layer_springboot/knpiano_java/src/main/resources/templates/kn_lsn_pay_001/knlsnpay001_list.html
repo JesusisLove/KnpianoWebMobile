@@ -7,11 +7,14 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
     <title>Dashboard Template · Bootstrap</title>
-
+    <script src="knScriptfunctions.js"></script>
+    <!-- src
+    └── main
+        └── resources
+            └── static
+                └── knScriptfunctions.js 
+    -->
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
-
-    <!-- Bootstrap core CSS -->
-    <!--<link href="../assets/dist/css/bootstrap.css" rel="stylesheet">-->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
     <style>
         .bd-placeholder-img {
@@ -40,41 +43,144 @@
             <hr/>
             <h2><a class="btn btn-sm btn-success" th:href="@{/kn_lsn_pay_001}">課費支払管理新規</a></h2>
             <hr/>
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>授業支払番号</th>
-                        <th>授業課費番号</th>
-                        <th>支払金額</th>
-                        <th>支払日付</th>
-                        <th>銀行番号</th>
-                        <th>削除フラグ</th>
-                        <th>作成日</th>
-                        <th>更新日</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="info:${infoList}">
-                        <td>[[${info.lsnPayId}]]</td>
-                        <td>[[${info.lsnFeeId}]]</td>
-                        <td>[[${info.lsnPay}]]</td>
-                        <td>[[${info.payMonth}]]</td>
-                        <td>[[${info.bankId}]]</td>
-                        <td>[[${info.delFlg}]]</td>
-                        <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>
-                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
-                                                                                                (lsnPayId=${info.lsnPayId}, 
-                                                                                                lsnFeeId=${info.lsnFeeId})}" methods="GET">変更</a>
-                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
-                                                                                                (lsnPayId=${info.lsnPayId}, 
-                                                                                                lsnFeeId=${info.lsnFeeId})}">削除</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_lsn_pay_001/search}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (payMap!= null ? payMap['selectedyear'] : '')}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>月份</label>
+                        <select class="form-control" id="monthSelect" name="selectedmonth">
+                            <!-- 默认选项由JavaScript动态生成 -->
+                            <option th:each="month : ${knmonthlist}" 
+                                    th:value="${month}" 
+                                    th:text="${month}" 
+                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : '')}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" th:if="${selectedinfo==null}" style="margin-left: 20px;">
+                        <label>学生姓名</label> 
+                        <select class="form-control" id="studentSelect" name="stuId">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">検 索</button><hr/>
+            </form> 
+            <!-- Tab账单明细 -->
+            <!-- 导航选项卡 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="unpaid-tab" data-toggle="tab" href="#unpaid" role="tab" aria-controls="unpaid" aria-selected="true">未支付明细</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="paid-tab" data-toggle="tab" href="#paid" role="tab" aria-controls="paid" aria-selected="false">已支付明细</a>
+                </li>
+            </ul>
+            <!-- 选项卡内容 -->
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+                    <!-- 未支付明细内容 -->
+                    <div>
+                        <h4>未支付明细</h4>
+                        <p>这里是未支付明细的内容。</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>授業課費番号</th>
+                                    <th>学生编号</th>
+                                    <th>学生姓名</th>
+                                    <th>科目番号</th>
+                                    <th>科目名称</th>
+                                    <th>课数</th>
+                                    <th>上课种别</th>
+                                    <th>上课月份</th>
+                                    <th>未払い金額</th>
+                                    <th>支付种别</th>
+                                    <th>支払日付</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="info:${infoList}">
+                                    <td>[[${info.lsnFeeId}]]</td>
+                                    <td>[[${info.stuId}]]</td>
+                                    <td>[[${info.stuName}]]</td>
+                                    <td>[[${info.subjectId}]]</td>
+                                    <td>[[${info.subjectName}]]</td>
+                                    <td>[[${info.lsnCount}]]</td>
+                                    <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                                    <td>[[${info.lsnMonth}]]</td>
+                                    <td>[[${info.lsnFee}]]</td>
+                                    <td th:text="${info.payStyle == 0 ? '课支付' :  '月支付'}"></td>
+                                    <td>[[${info.payMonth}]]</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_pay_001/{lsnFeeId} (
+                                                                                                            lsnFeeId=${info.lsnFeeId})}" methods="GET">支付学费</a>
+                                        <!-- <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
+                                                                                                            (lsnPayId=${info.lsnPayId}, 
+                                                                                                            lsnFeeId=${info.lsnFeeId})}">削除</button> -->
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div> 
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="paid" role="tabpanel" aria-labelledby="paid-tab">
+                    <!-- 已支付明细内容 -->
+                    <div>
+                        <h4>已支付明细</h4>
+                        <p>【注意⚠️】手机应用端的撤销操作只限于当前日，次日以后撤销操作不可。但是，后台维护可以执行撤销操作。</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>授業支払番号</th>
+                                    <th>授業課費番号</th>
+                                    <th>学生姓名</th>
+                                    <th>支払金額</th>
+                                    <th>支払日付</th>
+                                    <th>銀行番号</th>
+                                    <th>削除フラグ</th>
+                                    <th>作成日</th>
+                                    <th>更新日</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="info:${infoList}">
+                                    <td>[[${info.lsnPayId}]]</td>
+                                    <td>[[${info.lsnFeeId}]]</td>
+                                    <td>[[${info.stuName}]]</td>
+                                    <td>[[${info.lsnPay}]]</td>
+                                    <td>[[${info.payMonth}]]</td>
+                                    <td>[[${info.bankId}]]</td>
+                                    <td>[[${info.delFlg}]]</td>
+                                    <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                                    <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
+                                                                                                            (lsnPayId=${info.lsnPayId}, 
+                                                                                                            lsnFeeId=${info.lsnFeeId})}" methods="GET">修改</a>
+                                        <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
+                                                                                                            (lsnPayId=${info.lsnPayId}, 
+                                                                                                            lsnFeeId=${info.lsnFeeId})}">撤销</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
         <!-- 削除処理-->
@@ -102,6 +208,31 @@
             return false;
         }
     });
+</script>
+<script th:inline="javascript">
+    // 从后端传递的要付费的学生数据
+    var jsonStuSubList = [[${lsnfeestuList}]];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        // 初期化结算课程的学生
+        var studentSelect = document.getElementById('studentSelect');
+        var selectedStuId = [[${payMap != null ? payMap['stuId'] : ''}]];
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                // 问ChatGPT，此处用stuId特定stuName赋值给下拉列表框
+                if (item.stuId == selectedStuId) {
+                    option.selected = true;
+                }
+                studentSelect.add(option);
+            }
+        });
+    };
 </script>
 </body>
 </html>

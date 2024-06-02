@@ -35,5 +35,11 @@ public class ComboListInfoService {
     private List<String> regularMinute;
     public List<String> getRegularMinute() {
         return regularMinute;
-    }   
+    }
+
+    @Value("${kn_month}")// 月份
+    private List<String> months;
+    public List<String> getMonths() {
+        return months;
+    }  
 }

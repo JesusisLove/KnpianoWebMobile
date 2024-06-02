@@ -58,15 +58,7 @@
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="ownFlg" name="ownFlg" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['ownFlg'] : ''}" placeholder="支付种别（已支付/未支付）">
                     </div>
-                    <!-- <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['delFlg'] : ''}" placeholder="削除フラグ">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="date" class="form-control" id="createDate" name="createDate" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['createDate'] : ''}" placeholder="作成日">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['updateDate'] : ''}" placeholder="更新日">
-                    </div> -->
+
                 </div>
                 <button type="submit" class="btn btn-primary">検索</button>
             </form> 
@@ -83,7 +75,7 @@
                         <th>上课节数</th>
                         <th>授業料金</th>
                         <th>支払種別</th>
-                        <th>授業料金月別</th>
+                        <th>授業料金月</th>
                         <th>支払済区分</th>
                         <th>削除フラグ</th>
                         <th>作成日</th>
@@ -96,13 +88,12 @@
                         <td>[[${info.lsnFeeId}]]</td>
                         <td>[[${info.lessonId}]]</td>
                         <td>[[${info.subjectName}]]</td>
-                        <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
+                        <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
                         <td>[[${info.lsnCount}]]</td>
                         <td>[[${info.lsnFee}]]</td>
-                        <td>[[${info.payStyle}]]</td>
-                        <td th:text="${info.lessonType == 0 ? '课时结算课' : info.lessonType == 1 ? '按月计划课' : '按月加时课'}"></td>
+                        <td th:text="${info.payStyle == 0 ? '课支付' : '月支付'}"></td>
                         <td>[[${info.lsnMonth}]]</td>
-                        <td>[[${info.ownFlg}]]</td>
+                        <td th:text="${info.ownFlg == 0 ? '未支付' : info.lessonType == 1 ? '已支付' : ''}"></td>
                         <td>[[${info.delFlg}]]</td>
                         <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>

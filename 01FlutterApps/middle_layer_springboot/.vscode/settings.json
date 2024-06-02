@@ -1,4 +1,16 @@
 {
     "java.compile.nullAnalysis.mode": "disabled",
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+
+    //在JavaScript代码中嵌入Thymeleaf语法时。为了消除这些不该出的错误提示，可以通过以下几种方法来配置VSCode：
+    "files.associations": {
+        "*.html": "html"
+    },
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html"
+    ]
 }
