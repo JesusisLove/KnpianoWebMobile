@@ -9,7 +9,9 @@ import com.liu.springboot04web.bean.Kn02F004PayBean;
 public interface Kn02F004PayMapper  {
 
     public List<Kn02F004PayBean> getInfoList();
+    public List<Kn02F004PayBean> searchLsnUnpay(@Param("params") Map<String, Object> params);
     public List<Kn02F004PayBean> searchLsnPay(@Param("params") Map<String, Object> params);
+    public Kn02F004PayBean gethLsnUnpayByID(@Param("lsnFeeId") String lsnFeeId);
     public Kn02F004PayBean getInfoById(String lsnPayId, String lsnFeeId);
     public void updateInfo(Kn02F004PayBean bean);
     public void insertInfo(Kn02F004PayBean bean);

@@ -18,11 +18,82 @@
         <where>
             <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
-                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
                     AND ${key} like CONCAT('%', #{value}, '%')
                 </if>
             </foreach>
         </where> 
+    </select> 
+
+    <!-- 点击未支付明细的【学费支付】按钮， 根据学费编号（lsn_fee_id) 抽出未支付的学费信息 初期化【学费支付】画面 -->
+    <select id="gethLsnUnpayByID" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        select lsnfee.lsn_fee_id
+                ,lsnfee.stu_id
+                ,lsnfee.stu_name
+                ,lsnfee.subject_id
+                ,lsnfee.subject_name
+                ,lesson.lesson_type
+                ,lsnfee.pay_style
+                ,lsnfee.lsn_month
+                ,sum(lsnfee.lsn_count) as lsn_count
+                ,sum(lsnfee.lsn_fee) as lsn_fee
+            from (
+                KNStudent.v_info_lesson_fee lsnfee
+                inner join 
+                KNStudent.v_info_lesson lesson
+                on lsnfee.lesson_id = lesson.lesson_id
+                <!--未结算的课费 -->
+                and lsnfee.own_flg = 0 
+            )
+            where lsn_fee_id = #{lsnFeeId}          
+            group by lsnfee.lsn_fee_id
+                    ,lsnfee.stu_id
+                    ,lsnfee.stu_name
+                    ,lsnfee.subject_id
+                    ,lsnfee.subject_name
+                    ,lesson.lesson_type
+                    ,lsnfee.pay_style
+                    ,lsnfee.lsn_month
+            order by stu_name,lsn_month
+    </select> 
+
+    <!-- 根据相应条件抽出未支付的学费信息 -->
+    <select id="searchLsnUnpay" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        select lsnfee.lsn_fee_id
+              ,lsnfee.stu_id
+              ,lsnfee.stu_name
+              ,lsnfee.subject_id
+              ,lsnfee.subject_name
+              ,lesson.lesson_type
+              ,lsnfee.pay_style
+              ,lsnfee.lsn_month
+              ,sum(lsnfee.lsn_count) as lsn_count
+              ,sum(lsnfee.lsn_fee) as lsn_fee
+            from (
+                KNStudent.v_info_lesson_fee lsnfee
+                inner join 
+                KNStudent.v_info_lesson lesson
+                on lsnfee.lesson_id = lesson.lesson_id
+                <!--未结算的课费 -->
+                and lsnfee.own_flg = 0 
+            )
+            <where>
+                <foreach item="value" index="key" collection="params">
+                    <if test="value != null and value != ''">
+                        <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
+                        AND ${key} like CONCAT('%', #{value}, '%')
+                    </if>
+                </foreach>
+            </where>             
+            group by lsnfee.lsn_fee_id
+                    ,lsnfee.stu_id
+                    ,lsnfee.stu_name
+                    ,lsnfee.subject_id
+                    ,lsnfee.subject_name
+                    ,lesson.lesson_type
+                    ,lsnfee.pay_style
+                    ,lsnfee.lsn_month
+          order by stu_name,lsn_month
     </select> 
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">

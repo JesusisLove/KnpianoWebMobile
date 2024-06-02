@@ -51,6 +51,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         update t_info_lesson_fee set
             lsn_fee_id = #{lsnFeeId},
             lesson_id = #{lessonId},
+            pay_style = #{payStyle},
             lsn_fee = #{lsnFee},
             lsn_month = #{lsnMonth},
             own_flg = #{ownFlg},
@@ -63,11 +64,13 @@ https://mybatis.org/mybatis-3/getting-started.html
         insert into t_info_lesson_fee (
             lsn_fee_id,
             lesson_id,
+            pay_style,
             lsn_fee,
             lsn_month
             ) values (
             #{lsnFeeId},
             #{lessonId},
+            #{payStyle},
             #{lsnFee},
             #{lsnMonth}
         )

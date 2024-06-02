@@ -3,7 +3,10 @@ package com.liu.springboot04web.othercommon;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class DateUtils {
 
@@ -36,6 +39,22 @@ public class DateUtils {
         
         // 格式化日期
         return formatter.format(date);
+    }
+
+    /**
+     * 将 Date 对象转换为 "yyyy/MM" 形式的字符串
+     *
+     * @return 年度数组
+     */
+    public static List<String> getYearList() {
+    // 获取当前年份
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        // 创建年份列表，从2018年开始到当前年份
+        List<String> yearList = new ArrayList<>();
+        for (int year = currentYear; year >= 2018; year--) {
+            yearList.add(String.valueOf(year));
+        }
+        return yearList;
     }
 }
 

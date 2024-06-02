@@ -24,10 +24,16 @@ public class Kn02F004PayDao implements InterfaceKnPianoDao {
     }
 
     // 获取所有符合查询条件的支付信息
-    public List<Kn02F004PayBean> searchLsnPay(Map<String, Object> params) {
-        return knLsnPay001Mapper.searchLsnPay(params);
+    public List<Kn02F004PayBean> searchLsnUnpay(Map<String, Object> params) {
+        return knLsnPay001Mapper.searchLsnUnpay(params);
     }
 
+    // 根据课费编号（lsn_fee_id)取得当个未支付信息
+    public Kn02F004PayBean gethLsnUnpayByID(String lsnFeeId) {
+        Kn02F004PayBean knLsnPay001Bean = knLsnPay001Mapper.gethLsnUnpayByID(lsnFeeId);
+        return knLsnPay001Bean;
+    }
+    
     // 根据ID获取课费支付信息
     public Kn02F004PayBean getInfoById(String id) {
         return null;

@@ -35,12 +35,6 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         return knLsn001Mapper.searchLessons(params);
     }
 
-    // 获取所有学生最新正在上课的科目信息
-    public List<Kn01L002LsnBean> getLatestSubjectList() {
-        List<Kn01L002LsnBean> list = knLsn001Mapper.getLatestSubjectList();
-        return list;
-    }
-
     public Kn01L002LsnBean getInfoById(String id) {
         Kn01L002LsnBean knLsn001Bean = knLsn001Mapper.getInfoById(id);
         return knLsn001Bean;
@@ -82,33 +76,53 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     // 签到
     @Transactional
     public void excuteSign(Kn01L002LsnBean knLsn001Bean) {
-        // 进行签到登记：对knLsn001Bean里的上课日期执行数据库表的更新操作
-        knLsn001Bean.setScanQRDate(new Date());
-        save(knLsn001Bean);
+        // 检查该课程是否是有效的课程
+        if (checkThisLsn(knLsn001Bean)) {
+            // 进行签到登记：对knLsn001Bean里的上课日期执行数据库表的更新操作
+            knLsn001Bean.setScanQrDate(new Date());
+            save(knLsn001Bean);
 
-        // 对签到的课程执行课费计算 
-        addNewLsnFee(knLsn001Bean);
+            // 对签到的课程执行课费计算 
+            addNewLsnFee(knLsn001Bean);
+        }
     }
 
     // 撤销
     @Transactional
     public void excuteUndo(Kn01L002LsnBean knLsn001Bean) {
         // 将签到日期撤销
-        knLsn001Bean.setScanQRDate(null);
+        knLsn001Bean.setScanQrDate(null);
         save(knLsn001Bean);
 
         // 课费撤销
         undoNewLsnFee(knLsn001Bean);
     }
 
+    /**
+     *  过期的科目，签到不可（比如1月上钢琴3级，现在是5月份都已經上4级的钢琴课，3级的课已经不再上了
+     *  这个时候，把1月份为签到的课，在5月份执行签到的时候，这个3级的课就是过期的科目），不予执行签到。
+     * @param knLsn001Bean
+     * @return
+     */
+    private boolean checkThisLsn(Kn01L002LsnBean knLsn001Bean) {
+        // 计算该科目最新的费用
+        // Kn03D002StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        // TODO
+
+        return true;
+    }
     // 签到时，对课费管理表登录该科目的课费
     private void addNewLsnFee(Kn01L002LsnBean knLsn001Bean) {
         // 计算该科目最新的费用
         Kn03D002StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+
         Kn02F002FeeBean kn02F002FeeBean = new Kn02F002FeeBean();
         kn02F002FeeBean.setStuId(knLsn001Bean.getStuId());
         kn02F002FeeBean.setLessonId(knLsn001Bean.getLessonId());
-        kn02F002FeeBean.setLsnFee(stuDocBean.getLessonFee());
+        // 有调整价格的使用调整价格
+        kn02F002FeeBean.setLsnFee(stuDocBean.getLessonFeeAdjusted() > 0 ? 
+                                  stuDocBean.getLessonFeeAdjusted() : stuDocBean.getLessonFee());
+        // 利用计划课取得产生课费的月份
         kn02F002FeeBean.setLsnMonth(DateUtils.getCurrentDateYearMonth(knLsn001Bean.getSchedualDate()));
 
         // 课程类型lessonType 0:按课时结算的课程  1:按月结算的课程（计划课）  2:按月结算的课程（加时课）
