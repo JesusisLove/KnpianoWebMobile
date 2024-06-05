@@ -29,5 +29,5 @@ public class TInfo_lesson {
     @Column (name = "extra_to_dur_date")  protected Date extraToDurDate;
     @Column (name = "del_flg", columnDefinition = "integer default 0")  protected Integer delFlg;
     @Column (name = "create_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp createDate;
-    @Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  protected Timestamp updateDate;
+    @Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT NULL")  protected Timestamp updateDate;
 }
