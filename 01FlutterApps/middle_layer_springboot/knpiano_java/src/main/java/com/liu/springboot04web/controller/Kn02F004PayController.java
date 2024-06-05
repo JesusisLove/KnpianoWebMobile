@@ -96,7 +96,7 @@ public class Kn02F004PayController{
         return "kn_lsn_pay_001/knlsnpay001_add_update";
     }
 
-    // 【課費支払管理】新規画面にて、【保存】ボタンを押下して、新規情報を保存すること3e
+    // 【課費支払管理】新規画面にて、【保存】ボタンを押下して、新規情報を保存すること
     @PostMapping("/kn_lsn_pay_001")
     public String excuteInfoAdd(Kn02F004PayBean knLsnPay001Bean) {
         knLsnPay001Dao.save(knLsnPay001Bean);

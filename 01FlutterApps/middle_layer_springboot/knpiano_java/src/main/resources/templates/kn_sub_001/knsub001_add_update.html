@@ -37,20 +37,63 @@
     <div class="row">
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_sub_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <form th:action="@{/kn_sub_001}" method="post">
+            <form th:action="@{/kn_sub_001}" method="post" id="form1">
                 <input type="hidden" name="_method" value="put" th:if="${selectedSubject!=null}"/>
                 <br>
                 <div class="form-group"><br>  <label>科目ID</label> <input name="subjectId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly th:value="${selectedSubject!=null}?${selectedSubject.subjectId}"></div>
                 <div class="form-group"><br>  <label>科目名</label> <input name="subjectName" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectName}"></div>
-                <div class="form-group"><br>  <label>科目価格（*输入1节课的单价）</label> <input name="subjectPrice" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectPrice}"></div>
-                <div class="form-group"><br>  <label>削除フラグ</label> <input name="delFlg" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.delFlg}"></div>
-                <!-- <div class="form-group"><br>  <label>作成日</label> <input name="createDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.createDate}"></div>
-                <div class="form-group"><br>  <label>更新日</label> <input name="updateDate" type="text" class="form-control" placeholder="" readonly  th:value="${selectedSubject!=null}?${selectedSubject.updateDate}"></div> -->
-
                <button type="submit" class="btn btn-primary">保存</button>
             </form>
+            <br>
+            <div id="form2" style="display:none;">
+                <button class="btn btn-primary" onclick="showForm3()">新規</button>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>科目枝番</th>
+                            <th>枝番名称</th>
+                            <th>価格</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="subjectEdaban : ${subjectEdabanList}">
+                            <td th:text="${subjectEdaban.subjectSubId}">科目枝番</td>
+                            <td th:text="${subjectEdaban.subjectSubName}">枝番名称</td>
+                            <td th:text="${subjectEdaban.subjectPrice}">価格</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <div id="form3" style="display:none;">
+                <form th:action="@{/kn_sub_001_edaban}" method="post">
+                    <div class="form-group"><br>  
+                        <label>科目枝番</label> 
+                        <input name="subjectSubId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly>
+                    </div>
+                    <div class="form-group"><br>  
+                        <label>枝番名称</label> 
+                        <input name="subjectSubName" type="text" class="form-control" placeholder="">
+                    </div>
+                    <div class="form-group"><br>  
+                        <label>価格</label> 
+                        <input name="subjectPrice" type="text" class="form-control" placeholder="">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </form>
+            </div>
         </main>
     </div>
 </div>
+<script>
+    function closeForm() {
+        window.close();
+    }
+
+    function showForm3() {
+        document.getElementById('form3').style.display = 'block';
+    }
+</script>
 </body>
 </html>

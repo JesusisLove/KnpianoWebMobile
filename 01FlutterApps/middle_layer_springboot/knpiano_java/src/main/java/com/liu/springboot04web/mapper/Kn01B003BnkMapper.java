@@ -1,23 +1,23 @@
 package com.liu.springboot04web.mapper;
 
-import com.liu.springboot04web.bean.Kn02F001BnkBean;
+import com.liu.springboot04web.bean.Kn01B003BnkBean;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 
-public interface Kn02F001BnkMapper {
+public interface Kn01B003BnkMapper {
 
-    List<Kn02F001BnkBean> getInfoList();
+    List<Kn01B003BnkBean> getInfoList();
 
     /* 画面检索 检索功能追加  开始 */ 
-    List<Kn02F001BnkBean> searchBanks(@Param("params") Map<String, Object> queryparams);
+    List<Kn01B003BnkBean> searchBanks(@Param("params") Map<String, Object> queryparams);
     /* 画面检索 检索功能追加  开始 */ 
 
-    Kn02F001BnkBean getInfoById(String id);
+    Kn01B003BnkBean getInfoById(String id);
 
-    void insertInfo(Kn02F001BnkBean bean);
+    void insertInfo(Kn01B003BnkBean bean);
 
-    void updateInfo(Kn02F001BnkBean bean);
+    void updateInfo(Kn01B003BnkBean bean);
 
     void deleteInfo(String id);
 

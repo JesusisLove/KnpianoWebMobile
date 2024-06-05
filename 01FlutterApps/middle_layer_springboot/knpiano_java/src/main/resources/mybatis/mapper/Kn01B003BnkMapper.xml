@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.liu.springboot04web.mapper.Kn02F001BnkMapper">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01B003BnkMapper">
 
-    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn01B003BnkBean">
         SELECT * FROM t_mst_bank
     </select>
     
     <!-- 画面检索 检索功能追加  开始-->
-     <select id="searchBanks" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+     <select id="searchBanks" resultType="com.liu.springboot04web.bean.Kn01B003BnkBean">
         SELECT
             bank_id,
             bank_name,
@@ -26,16 +26,16 @@
         </where> 
     </select> 
     <!-- 画面检索 检索功能追加  开始-->
-    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn01B003BnkBean">
         SELECT * FROM t_mst_bank WHERE bank_id = #{id}
     </select>
 
-    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01B003BnkBean">
         INSERT INTO t_mst_bank (bank_id, bank_name) 
         VALUES (#{bankId}, #{bankName})
     </insert>
 
-    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn02F001BnkBean">
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01B003BnkBean">
         UPDATE t_mst_bank
         SET bank_name=#{bankName}, del_flg=#{delFlg}
         WHERE bank_id=#{bankId}

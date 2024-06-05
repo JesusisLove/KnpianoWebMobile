@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn05S002StubnkMapper">
+    <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
+        select * from t_info_student_bank
+    </select>
+
+    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
+        select * from t_info_student_bank
+        where stu_id = #{stuId}
+          and bank_id = #{bankId}
+    </select>
+
+    <update id="updateInfo">
+      update t_info_student_bank set
+        stu_id = #{stuId},
+        bank_id = #{bankId},
+        del_flg = #{delFlg},
+        create_date = #{createDate},
+        update_date = #{updateDate},
+        where stu_id = #{stuId}
+          and bank_id = #{bankId}
+    </update>
+
+    <insert id="insertInfo" keyColumn="bank_id">
+        insert into t_info_student_bank (
+            stu_id,
+            bank_id,
+            del_flg,
+            create_date,
+            update_date
+             )values (
+            #{stuId},
+            #{bankId},
+            #{delFlg},
+            #{createDate},
+            #{updateDate},
+        )
+    </insert>
+
+    <delete id="deleteInfo">
+        delete from t_info_student_bank
+        where stu_id = #{stuId}
+          and bank_id = #{bankId}
+
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+          {
+              #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+          }
+    </select>
+</mapper>

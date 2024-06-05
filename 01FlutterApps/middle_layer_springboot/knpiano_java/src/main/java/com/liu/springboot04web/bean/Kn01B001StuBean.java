@@ -2,7 +2,7 @@ package com.liu.springboot04web.bean;
 
 import java.util.Date;
 
-public class Kn03D001StuBean implements KnPianoBean {
+public class Kn01B001StuBean implements KnPianoBean {
     protected String stuId;
     protected String stuName;
     protected Integer gender;

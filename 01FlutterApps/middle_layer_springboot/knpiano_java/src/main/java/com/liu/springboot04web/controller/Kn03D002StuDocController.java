@@ -9,10 +9,10 @@ import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
-import com.liu.springboot04web.bean.Kn03D001StuBean;
-import com.liu.springboot04web.dao.Kn03D001StuDao;
-import com.liu.springboot04web.bean.Kn01L001SubBean;
-import com.liu.springboot04web.dao.Kn01L001SubDao;
+import com.liu.springboot04web.bean.Kn01B001StuBean;
+import com.liu.springboot04web.dao.Kn01B001StuDao;
+import com.liu.springboot04web.bean.Kn01B002SubBean;
+import com.liu.springboot04web.dao.Kn01B002SubDao;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
@@ -29,9 +29,9 @@ public class Kn03D002StuDocController {
     @Autowired
     private Kn03D002StuDocDao knStudoc001Dao;
     @Autowired
-    private Kn03D001StuDao knStu001Dao;
+    private Kn01B001StuDao knStu001Dao;
     @Autowired
-    private Kn01L001SubDao knSub001Dao;
+    private Kn01B002SubDao knSub001Dao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn03D002StuDocController(ComboListInfoService combListInfo) {
@@ -124,10 +124,10 @@ public class Kn03D002StuDocController {
 
     // 学生下拉列表框初期化
     private Map<String, String> getStuCodeValueMap() {
-        Collection<Kn03D001StuBean> collection = knStu001Dao.getInfoList();
+        Collection<Kn01B001StuBean> collection = knStu001Dao.getInfoList();
 
         Map<String, String> map = new HashMap<>();
-        for (Kn03D001StuBean bean : collection) {
+        for (Kn01B001StuBean bean : collection) {
             map.put(bean.getStuId(), bean.getStuName());
         }
 
@@ -136,10 +136,10 @@ public class Kn03D002StuDocController {
 
     // 科目下拉列表框初期化
     private Map<String, Object> getSubCodeValueMap() {
-        Collection<Kn01L001SubBean> collection = knSub001Dao.getInfoList();
+        Collection<Kn01B002SubBean> collection = knSub001Dao.getInfoList();
 
         Map<String, Object> map = new HashMap<>();
-        for (Kn01L001SubBean bean : collection) {
+        for (Kn01B002SubBean bean : collection) {
             map.put(bean.getSubjectId(), bean);
         }
         return map;
