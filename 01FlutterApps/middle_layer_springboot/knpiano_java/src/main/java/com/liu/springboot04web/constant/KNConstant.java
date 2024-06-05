@@ -6,6 +6,9 @@ public final class KNConstant {
     public static final String CONSTANT_KN_STU_SEQ = "kn-stu-";
     /* 科目番号自動採番 */
     public static final String CONSTANT_KN_SUB_SEQ = "kn-sub-";
+    /* 科目枝番自動採番 */
+    public static final String CONSTANT_KN_SUB_EDA_SEQ = "kn-sub-eda-";
+
     /* 銀行番号自動採番 */
     public static final String CONSTANT_KN_BNK_SEQ = "kn-bnk-";
     /* 授業番号自動採番 */

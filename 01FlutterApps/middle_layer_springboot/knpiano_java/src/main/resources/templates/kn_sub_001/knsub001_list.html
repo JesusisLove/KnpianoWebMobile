@@ -82,7 +82,6 @@
                         <tr th:each="subject:${subjectList}">
                             <td>[[${subject.subjectId}]]</td>
                             <td>[[${subject.subjectName}]]</td>
-                            <td>[[${subject.subjectPrice}]]</td>
                             <td>[[${subject.delFlg}]]</td>
                             <td th:text="${#dates.format(subject.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                             <td th:text="${#dates.format(subject.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
