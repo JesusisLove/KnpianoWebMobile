@@ -14,20 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
-import com.liu.springboot04web.bean.Kn01L001SubBean;
-import com.liu.springboot04web.dao.Kn01L001SubDao;
+import com.liu.springboot04web.bean.Kn01B002SubBean;
+import com.liu.springboot04web.dao.Kn01B002SubDao;
 
 @RestController
 public class Kn01L001SubController4Mobile {
 
     @Autowired
-    Kn01L001SubDao knSub001Dao;
+    Kn01B002SubDao knSub001Dao;
 
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_sub_001_all")
-    public ResponseEntity<Collection<Kn01L001SubBean>> getSubdentList() {
+    public ResponseEntity<Collection<Kn01B002SubBean>> getSubdentList() {
         // 获取目前所有科目信息显示在画面一览上
-        Collection<Kn01L001SubBean> collection = knSub001Dao.getInfoList();
+        Collection<Kn01B002SubBean> collection = knSub001Dao.getInfoList();
         return ResponseEntity.ok(collection);
     }
 
@@ -35,7 +35,7 @@ public class Kn01L001SubController4Mobile {
     // 【新規/编辑】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_sub_001")
-    public void excuteInfoAdd(@RequestBody Kn01L001SubBean knSub001Bean) {
+    public void excuteInfoAdd(@RequestBody Kn01B002SubBean knSub001Bean) {
         knSub001Dao.save(knSub001Bean);
     }
 

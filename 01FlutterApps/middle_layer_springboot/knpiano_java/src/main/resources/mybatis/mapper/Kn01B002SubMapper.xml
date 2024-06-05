@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.liu.springboot04web.mapper.Kn01L001SubMapper">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01B002SubMapper">
 
-    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn01B002SubBean">
         SELECT * FROM t_mst_subject
     </select>
 
-    <select id="searchSubjects" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+    <select id="searchSubjects" resultType="com.liu.springboot04web.bean.Kn01B002SubBean">
         SELECT
             subject_id,
             subject_name,
@@ -26,20 +26,19 @@
         </where> 
     </select> 
 
-    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn01L001SubBean">
+    <select id="getInfoById" parameterType="String" resultType="com.liu.springboot04web.bean.Kn01B002SubBean">
         SELECT * FROM t_mst_subject WHERE subject_id = #{id}
     </select>
 
-    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01L001SubBean">
-        <!-- INSERT INTO t_mst_subject (subject_id, subject_name, subject_price, del_flg, create_date, update_date) 
-        VALUES (#{subjectId}, #{subjectName}, #{subjectPrice}, #{delFlg}, #{createDate}, #{updateDate}) -->
-        INSERT INTO t_mst_subject (subject_id, subject_name, subject_price ) 
-        VALUES (#{subjectId}, #{subjectName}, #{subjectPrice})
+    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01B002SubBean">
+        <!-- INSERT INTO t_mst_subject (subject_id, subject_name, subject_price )  -->
+        <!-- VALUES (#{subjectId}, #{subjectName}, #{subjectPrice}) -->
+        INSERT INTO t_mst_subject (subject_id, subject_name ) 
+        VALUES (#{subjectId}, #{subjectName})
     </insert>
 
-    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01L001SubBean">
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01B002SubBean">
         UPDATE t_mst_subject 
-        <!-- SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}, update_date=#{updateDate}  -->
         SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}
         WHERE subject_id=#{subjectId}
     </update>

@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.liu.springboot04web.bean.Kn02F001BnkBean;
-import com.liu.springboot04web.dao.Kn02F001BnkDao;
+import com.liu.springboot04web.bean.Kn01B003BnkBean;
+import com.liu.springboot04web.dao.Kn01B003BnkDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.Collection;
@@ -13,15 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class Kn02F001BnkController {
+public class Kn01F003BnkController {
 
     @Autowired
-    private Kn02F001BnkDao knBnk001Dao;
+    private Kn01B003BnkDao knBnk001Dao;
 
     // 【KNPiano后台维护 银行账户信息】ボタンをクリック
     @GetMapping("/kn_bnk_001_all")
     public String list(Model model) {
-        Collection<Kn02F001BnkBean> collection = knBnk001Dao.getInfoList();
+        Collection<Kn01B003BnkBean> collection = knBnk001Dao.getInfoList();
         model.addAttribute("bankList", collection);
         return "kn_bnk_001/knbnk001_list";
     }
@@ -40,7 +40,7 @@ public class Kn02F001BnkController {
         Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
-        Collection<Kn02F001BnkBean> searchResults = knBnk001Dao.searchBanks(conditions);
+        Collection<Kn01B003BnkBean> searchResults = knBnk001Dao.searchBanks(conditions);
         model.addAttribute("bankList", searchResults);
         return "kn_bnk_001/knbnk001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
@@ -53,7 +53,7 @@ public class Kn02F001BnkController {
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_bnk_001")
-    public String executeBankAdd(Kn02F001BnkBean knBnk001Bean) {
+    public String executeBankAdd(Kn01B003BnkBean knBnk001Bean) {
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }
@@ -61,14 +61,14 @@ public class Kn02F001BnkController {
     // 【検索一覧】編集ボタンを押下
     @GetMapping("/kn_bnk_001/{id}")
     public String toBankEdit(@PathVariable("id") String id, Model model) {
-        Kn02F001BnkBean knBnk001Bean = knBnk001Dao.getInfoById(id);
+        Kn01B003BnkBean knBnk001Bean = knBnk001Dao.getInfoById(id);
         model.addAttribute("selectedBank", knBnk001Bean);
         return "kn_bnk_001/knbnk001_add_update";
     }
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_bnk_001")
-    public String executeBankEdit(Kn02F001BnkBean knBnk001Bean) {
+    public String executeBankEdit(Kn01B003BnkBean knBnk001Bean) {
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }

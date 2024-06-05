@@ -3,7 +3,7 @@ package com.liu.springboot04web.bean;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class Kn01L001SubBean implements KnPianoBean{
+public class Kn01B002SubBean implements KnPianoBean{
     private String subjectId;
     private String subjectName;
     private BigDecimal subjectPrice;

@@ -44,13 +44,10 @@
                 <form action="#" th:action="@{/kn_sub_001/search}" th:object="${searchForm}" method="get">
                     <div class="form-row">
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankId" name="subjectId" th:value="${subjectMap != null ? subjectMap['subjectId'] : ''}" placeholder="科目番号">
+                            <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${subjectMap != null ? subjectMap['subjectId'] : ''}" placeholder="科目番号">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankName" name="subjectName" th:value="${subjectMap != null ? subjectMap['subjectName'] : ''}" placeholder="科目名称">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankName" name="subjectPrice" th:value="${subjectMap != null ? subjectMap['subjectPrice'] : ''}" placeholder="科目価格">
+                            <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${subjectMap != null ? subjectMap['subjectName'] : ''}" placeholder="科目名称">
                         </div>
                         <div class="form-group col-md-1">
                             <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${subjectMap != null ? subjectMap['delFlg'] : ''}" placeholder="削除フラグ">
@@ -74,8 +71,7 @@
                         <thead>
                         <tr>
                             <th>科目ID</th>
-                            <th>科目名</th>
-                            <th>科目価格</th>
+                            <th>科目名称</th>
                             <th>削除フラグ</th>
                             <th>作成日</th>
                             <th>更新日</th>

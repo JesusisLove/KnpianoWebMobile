@@ -14,20 +14,20 @@ import java.util.Objects;
 public class TMst_subjectPK implements Serializable  {
 
     private static final long serialVersionUID = -2397232644712659215L;
-    @Column
-    private String subjectId;
+    @Column  private String subjectId;
+    @Column  private String subjectSubId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TMst_subjectPK modelKey = (TMst_subjectPK) o;
-        return  Objects.equals(subjectId, modelKey.subjectId);
+        TMst_subjectPK modelKey = (TMst_subjectPK ) o;
+        return  Objects.equals(subjectId, modelKey.subjectId)  &&   Objects.equals(subjectSubId, modelKey.subjectSubId);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(subjectId);
+        return Objects.hash(subjectId ,subjectSubId);
     }
 
 }
