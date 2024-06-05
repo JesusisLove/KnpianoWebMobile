@@ -18,6 +18,7 @@ public class TInfo_student_documentPK implements Serializable {
 
     @Column  private String stuId;
     @Column  private String subjectId;
+    @Column  private String subjectSubId;
     @Column  private Date adjustedDate;
 
 @Override
@@ -27,11 +28,12 @@ public class TInfo_student_documentPK implements Serializable {
         TInfo_student_documentPK modelKey = (TInfo_student_documentPK ) o;
         return  Objects.equals(stuId, modelKey.stuId)  
                     &&  Objects.equals(subjectId, modelKey.subjectId) 
+                    &&  Objects.equals(subjectId, modelKey.subjectSubId) 
                     &&  Objects.equals(adjustedDate, modelKey.adjustedDate);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(stuId ,subjectId ,adjustedDate);
+        return Objects.hash(stuId, subjectId, subjectSubId, adjustedDate);
     }
 }
 

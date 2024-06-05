@@ -59,6 +59,6 @@ public class TMst_student {
     @Column (name = "create_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  
     protected Timestamp createDate;
     
-    @Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")  
+    @Column (name = "update_date", columnDefinition = "TIMESTAMP DEFAULT NULL")  
     protected Timestamp updateDate;
 }
