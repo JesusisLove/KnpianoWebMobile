@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.Kn03D002StuDocBean;
+import com.liu.springboot04web.bean.Kn05S003SubjectEdabnBean;
 import com.liu.springboot04web.dao.Kn03D002StuDocDao;
+import com.liu.springboot04web.dao.Kn05S003SubjectEdabnDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 import com.liu.springboot04web.bean.Kn01B001StuBean;
@@ -32,6 +34,8 @@ public class Kn03D002StuDocController {
     private Kn01B001StuDao knStu001Dao;
     @Autowired
     private Kn01B002SubDao knSub001Dao;
+    @Autowired
+    Kn05S003SubjectEdabnDao kn05S003SubjectEdabnDao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn03D002StuDocController(ComboListInfoService combListInfo) {
@@ -72,7 +76,9 @@ public class Kn03D002StuDocController {
         // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的学生下拉列表框
         model.addAttribute("stuMap", getStuCodeValueMap());
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
-        model.addAttribute("subMap", getSubCodeValueMap());
+        model.addAttribute("subjects", getSubCodeValueMap());
+        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目枝番下拉列表框
+        model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
 
         final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
@@ -88,14 +94,16 @@ public class Kn03D002StuDocController {
     }
 
     // 【検索一覧】編集ボタンを押下
-    @GetMapping("/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}")
+    @GetMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public String toStuDocEdit(@PathVariable("stuId") String stuId, 
-                                    @PathVariable("subjectId") String subjectId, 
-                                    @PathVariable ("adjustedDate") 
-                                    @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
-                                    Date adjustedDate, 
-                                    Model model) {
-        Kn03D002StuDocBean knStudoc001Bean = knStudoc001Dao.getInfoByKey(stuId, subjectId, adjustedDate);
+                               @PathVariable("subjectId") String subjectId, 
+                               @PathVariable("subjectSubId") String subjectSubId, 
+                               @PathVariable ("adjustedDate") 
+                               @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
+                                Date adjustedDate, 
+                                Model model) {
+        System.out.println("Parameters from 変数: " + stuId + ", " + subjectId + ", " + subjectSubId + ", " + adjustedDate);
+        Kn03D002StuDocBean knStudoc001Bean = knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate);
         model.addAttribute("selectedStuDoc", knStudoc001Bean);
         final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
@@ -105,20 +113,21 @@ public class Kn03D002StuDocController {
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_studoc_001")
     public String executeStuDocEdit(Kn03D002StuDocBean knStudoc001Bean) {
-        System.out.println("编辑固定授業計画: " + knStudoc001Bean);
         knStudoc001Dao.save(knStudoc001Bean);
         return "redirect:/kn_studoc_001_all";
     }
 
     // 【検索一覧】削除ボタンを押下
-    @DeleteMapping("/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}")
+    @DeleteMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public String executeStuDocDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 
+                                            @PathVariable("subjectSubId") String subjectSubId, 
                                             @PathVariable("adjustedDate") 
                                             @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
                                             Date adjustedDate, 
                                             Model model) {
-        knStudoc001Dao.deleteByKeys(stuId, subjectId, adjustedDate);
+
+        knStudoc001Dao.deleteByKeys(stuId, subjectId, subjectSubId, adjustedDate);
         return "redirect:/kn_studoc_001_all";
     }
 
@@ -135,13 +144,14 @@ public class Kn03D002StuDocController {
     }
 
     // 科目下拉列表框初期化
-    private Map<String, Object> getSubCodeValueMap() {
-        Collection<Kn01B002SubBean> collection = knSub001Dao.getInfoList();
+    private List<Kn01B002SubBean> getSubCodeValueMap() {
+        List<Kn01B002SubBean> collection = knSub001Dao.getInfoList();
+        return collection;
+    }
 
-        Map<String, Object> map = new HashMap<>();
-        for (Kn01B002SubBean bean : collection) {
-            map.put(bean.getSubjectId(), bean);
-        }
-        return map;
+    // 科目枝番下拉列表框初期化
+    private List<Kn05S003SubjectEdabnBean> getEdaBanCodeValueMap() {
+        List<Kn05S003SubjectEdabnBean> collection = kn05S003SubjectEdabnDao.getInfoList();
+        return collection;
     }
 }

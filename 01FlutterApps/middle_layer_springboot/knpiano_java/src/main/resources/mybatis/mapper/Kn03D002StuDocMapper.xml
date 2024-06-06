@@ -19,9 +19,12 @@
     </select> 
 
     <select id="getInfoByKey" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
+        <!-- 绑定变量并格式化日期 -->
+        <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
         SELECT * FROM v_info_student_document WHERE stu_id = #{stuId} 
                                            AND subject_id = #{subjectId} 
-                                           AND adjusted_date = #{adjustedDate}
+                                           AND subject_sub_id = #{subjectSubId} 
+                                           AND adjusted_date = #{formattedAdjustedDate}
     </select>
 
     <!-- 从学生档案表视图中取得在课学生正在上的科目，在新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
@@ -33,6 +36,7 @@
         insert into t_info_student_document (
             stu_id,
             subject_id,
+            subject_sub_id,
             adjusted_date,
             pay_style,
             minutes_per_lsn,
@@ -44,6 +48,7 @@
         values (
             #{stuId},
             #{subjectId},
+            #{subjectSubId},
             #{adjustedDate},
             #{payStyle},
             #{minutesPerLsn},
@@ -55,11 +60,10 @@
     </insert>
 
     <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
+         <!-- 绑定变量并格式化日期 -->
+    <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
+
             update t_info_student_document set
-                stu_id = #{stuId},
-                subject_id = #{subjectId},
-                adjusted_date = #{adjustedDate},
-                pay_style = #{payStyle},
                 minutes_per_lsn = #{minutesPerLsn},
                 lesson_fee = #{lessonFee},
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
@@ -68,12 +72,14 @@
                 del_flg = #{delFlg}
             WHERE stu_id = #{stuId}
               AND subject_id = #{subjectId}
-              AND adjusted_date = #{adjustedDate}
+              AND subject_sub_id = #{subjectSubId} 
+              AND adjusted_date = #{formattedAdjustedDate}
     </update>
 
     <delete id="deleteInfoByKeys">
         DELETE FROM t_info_student_document WHERE stu_id = #{stuId} 
                                          AND subject_id = #{subjectId} 
+                                         AND subject_sub_id = #{subjectSubId} 
                                          AND adjusted_date = #{adjustedDate}
     </delete>
 
@@ -85,10 +91,11 @@
 
     <select id="getLsnPrice" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
         SELECT pay_style, adjusted_date, minutes_per_lsn, lesson_fee, lesson_fee_adjusted
-        FROM KNStudent.t_info_student_document 
-        WHERE stu_id = #{stuId} 
-            AND subject_id = #{subjectId} 
-        ORDER BY adjusted_date DESC
+          FROM KNStudent.t_info_student_document 
+         WHERE stu_id = #{stuId} 
+           AND subject_id = #{subjectId} 
+           AND subject_sub_id = #{subjectSubId}
+         ORDER BY adjusted_date DESC
         LIMIT 1;
     </select>
 

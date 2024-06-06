@@ -1,6 +1,5 @@
 package com.liu.springboot04web.dao;
 
-import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.mapper.Kn03D002StuDocMapper;
 
@@ -34,16 +33,22 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
    }
 
     // 根据ID获取特定的学生档案信息信息
-    public Kn03D002StuDocBean getInfoByKey(String stuId, String subjectId, Date adjustedDate) {
-        Kn03D002StuDocBean knStudoc001Bean = knStudoc001Mapper.getInfoByKey(stuId, subjectId, adjustedDate);
+    public Kn03D002StuDocBean getInfoByKey(String stuId, String subjectId, String subjectSubId, Date adjustedDate) {
+        
+        Kn03D002StuDocBean knStudoc001Bean = knStudoc001Mapper.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate);
         return knStudoc001Bean;
     }
 
     // 保存或更新学生档案信息信息
     public void save(Kn03D002StuDocBean knStudoc001Bean) {
 
+        System.out.println("Parameters from knStudoc001Bean: " + knStudoc001Bean.getStuId() + ", " + knStudoc001Bean.getSubjectId() + ", " + knStudoc001Bean.getSubjectSubId() + ", " + knStudoc001Bean.getAdjustedDate());
+        String stuId = knStudoc001Bean.getStuId();
+        String subjectSubId = knStudoc001Bean.getSubjectSubId();
+        String subjectId = knStudoc001Bean.getSubjectId();
+        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
         // 确认表里有没有记录，没有就insert，有记录就update
-        if (getInfoByKey(knStudoc001Bean.getStuId(), knStudoc001Bean.getSubjectId(), knStudoc001Bean.getAdjustedDate()) == null) {
+        if (getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null) {
             insert(knStudoc001Bean);
         } else {
             update(knStudoc001Bean);
@@ -51,8 +56,8 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     } 
 
     // 删除学生档案信息信息
-    public void deleteByKeys(String stuId, String subjectId, Date adjustedDate) {
-        knStudoc001Mapper.deleteInfoByKeys(stuId, subjectId, adjustedDate);
+    public void deleteByKeys(String stuId, String subjectId, String subjectSubId, Date adjustedDate) {
+        knStudoc001Mapper.deleteInfoByKeys(stuId, subjectId, subjectSubId, adjustedDate);
     }
 
     // 新增学生档案信息信息

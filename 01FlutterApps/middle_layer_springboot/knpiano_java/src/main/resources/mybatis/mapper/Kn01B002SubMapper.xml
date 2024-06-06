@@ -10,7 +10,6 @@
         SELECT
             subject_id,
             subject_name,
-            subject_price,
             del_flg,
             create_date,
             update_date
@@ -31,8 +30,6 @@
     </select>
 
     <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01B002SubBean">
-        <!-- INSERT INTO t_mst_subject (subject_id, subject_name, subject_price )  -->
-        <!-- VALUES (#{subjectId}, #{subjectName}, #{subjectPrice}) -->
         INSERT INTO t_mst_subject (subject_id, subject_name ) 
         VALUES (#{subjectId}, #{subjectName})
     </insert>

@@ -8,8 +8,10 @@ public class Kn03D002StuDocBean implements KnPianoBean {
 
     protected String stuId;
     protected String subjectId;
+    protected String subjectSubId; // 枝番番号
     protected String stuName;
     protected String subjectName;
+    protected String subjectSubName;// 枝番名称
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date adjustedDate;
@@ -108,7 +110,21 @@ public class Kn03D002StuDocBean implements KnPianoBean {
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
     }
-    
+     public String getSubjectSubId() {
+        return subjectSubId;
+    }
+    public void setSubjectSubId(String subjectSubId) {
+        this.subjectSubId = subjectSubId;
+    }
+    public String getSubjectSubName() {
+        return subjectSubName;
+    }
+    public void setSubjectSubName(String subjectSubName) {
+        this.subjectSubName = subjectSubName;
+    }
+    public static SimpleDateFormat getDateformat() {
+        return dateFormat;
+    }   
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override

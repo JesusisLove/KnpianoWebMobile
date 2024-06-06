@@ -12,6 +12,7 @@ public class Kn05S003SubjectEdabnBean implements KnPianoBean {
     protected Integer delFlg;
     protected Date createDate;
     protected Date updateDate;
+    
     public String getSubjectSubId() {
         return subjectSubId;
     }
