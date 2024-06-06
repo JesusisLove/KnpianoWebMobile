@@ -11,22 +11,21 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn05S002StubnkMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
-        select * from t_info_student_bank
+        select * from v_info_student_bank
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
         select * from t_info_student_bank
-        where stu_id = #{stuId}
-          and bank_id = #{bankId}
+         where stu_id = #{stuId}
+           and bank_id = #{bankId}
     </select>
 
     <update id="updateInfo">
-      update t_info_student_bank set
-        stu_id = #{stuId},
-        bank_id = #{bankId},
-        del_flg = #{delFlg},
-        create_date = #{createDate},
-        update_date = #{updateDate},
+        update t_info_student_bank set
+                stu_id = #{stuId},
+                bank_id = #{bankId},
+                <!-- del_flg = #{delFlg} -->
+                del_flg = 0
         where stu_id = #{stuId}
           and bank_id = #{bankId}
     </update>
@@ -34,24 +33,17 @@ https://mybatis.org/mybatis-3/getting-started.html
     <insert id="insertInfo" keyColumn="bank_id">
         insert into t_info_student_bank (
             stu_id,
-            bank_id,
-            del_flg,
-            create_date,
-            update_date
-             )values (
+            bank_id
+            ) values (
             #{stuId},
-            #{bankId},
-            #{delFlg},
-            #{createDate},
-            #{updateDate},
+            #{bankId}
         )
     </insert>
 
     <delete id="deleteInfo">
         delete from t_info_student_bank
-        where stu_id = #{stuId}
-          and bank_id = #{bankId}
-
+         where stu_id = #{stuId}
+           and bank_id = #{bankId}
     </delete>
 
     <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
