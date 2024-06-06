@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.security.auth.Subject;
-
 @Controller
 public class Kn01B002SubController {
 
@@ -52,36 +50,16 @@ public class Kn01B002SubController {
 
     // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_sub_001")
-    public String showForm1(Model model) {
-        // 初期状态显示form1
-        model.addAttribute("selectedSubject", new Kn01B002SubBean());
-        return "subjectForm";
+    public String toSubjectAdd(Model model) {
+        return "kn_sub_001/knsub001_add_update";
     }
-
-
-
-
-
-
-    // public String toSubjectAdd(Model model) {
-    //     return "kn_sub_001/knsub001_add_update";
-    // }
-
-
-
-
-
-
-
-
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_sub_001")
     public String executeSubjectAdd(Kn01B002SubBean knSub001Bean) {
         System.out.println("新增科目: " + knSub001Bean);
         knSub001Dao.save(knSub001Bean);
-        // return "redirect:/kn_sub_001_all";
-        return "redirect:/kn_sub_001";
+        return "redirect:/kn_sub_001_all";
     }
 
     // 【検索一覧】編集ボタンを押下

@@ -14,6 +14,7 @@ public interface Kn03D002StuDocMapper  {
 
     public Kn03D002StuDocBean getInfoByKey(@Param("stuId") String stuId, 
                                            @Param("subjectId") String subjectId, 
+                                           @Param("subjectSubId") String subjectSubId,
                                            @Param("adjustedDate") Date adjustedDate);
 
     public List<Kn03D002StuDocBean> getLatestSubjectList();
@@ -24,6 +25,7 @@ public interface Kn03D002StuDocMapper  {
 
     public void deleteInfoByKeys(@Param("stuId") String stuId, 
                                  @Param("subjectId") String subjectId, 
+                                 @Param("subjectSubId") String subjectSubId,
                                  @Param("adjustedDate") Date adjustedDate);
 
     // 执行数据库存储过程

@@ -89,8 +89,10 @@
                         <tr>
                             <th>学生番号</th>
                             <th>科目番号</th>
+                            <th>科目级别编号</th>
                             <th>学生姓名</th>
                             <th>科目名称</th>
+                            <th>科目级别名称</th>
                             <th>調整日付</th>
                             <th>科目支払種別</th>
                             <th>授業時間長さ</th>
@@ -106,8 +108,10 @@
                         <tr th:each="studoc : ${stuDocList}">
                             <td th:text="${studoc != null && studoc.stuId != null ? studoc.stuId : ''}"></td>
                             <td th:text="${studoc != null && studoc.subjectId != null ? studoc.subjectId : ''}"></td>
+                            <td th:text="${studoc != null && studoc.subjectSubId != null ? studoc.subjectSubId : ''}"></td>
                             <td th:text="${studoc != null && studoc.stuName != null ? studoc.stuName : ''}"></td>
                             <td th:text="${studoc != null && studoc.subjectName != null ? studoc.subjectName : ''}"></td>
+                            <td th:text="${studoc != null && studoc.subjectSubName != null ? studoc.subjectSubName : ''}"></td>
                             <td th:text="${studoc != null && studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
                             <td th:text="${studoc != null && studoc.payStyle != null ? (studoc.payStyle == 1 ? '按月付费' :'按课时付费') :'' }"></td>
                             <td th:text="${studoc != null && studoc.minutesPerLsn != null ? studoc.minutesPerLsn : ''}"></td>
@@ -118,17 +122,19 @@
                             <td th:text="${studoc != null && studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary" 
-                                th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                th:href="@{/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}
                                                             (stuId=${studoc.stuId}, 
                                                             subjectId=${studoc.subjectId}, 
+                                                            subjectSubId=${studoc.subjectSubId}, 
                                                             adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
                                                             )
                                         }" methods="GET">変更</a>
                                                                                                 
                                 <button class="btn btn-sm btn-danger deleteBtn" 
-                                th:attr="subject_del_uri=@{/kn_studoc_001/{stuId}/{subjectId}/{adjustedDate}
+                                th:attr="subject_del_uri=@{/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}
                                                             (stuId=${studoc.stuId}, 
                                                             subjectId=${studoc.subjectId}, 
+                                                            subjectSubId=${studoc.subjectSubId}, 
                                                             adjustedDate=${#dates.format(studoc.adjustedDate, 'yyyy-MM-dd')}
                                                             )
                                         }">削除</button>

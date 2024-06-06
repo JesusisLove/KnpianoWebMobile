@@ -1,12 +1,10 @@
 package com.liu.springboot04web.bean;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class Kn01B002SubBean implements KnPianoBean{
     private String subjectId;
     private String subjectName;
-    private BigDecimal subjectPrice;
     private Integer delFlg;
     private Date createDate;
     private Date updateDate;
@@ -22,12 +20,6 @@ public class Kn01B002SubBean implements KnPianoBean{
     }
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
-    }
-    public BigDecimal getSubjectPrice() {
-        return subjectPrice;
-    }
-    public void setSubjectPrice(BigDecimal subjectPrice) {
-        this.subjectPrice = subjectPrice;
     }
     public Integer getDelFlg() {
         return delFlg;
