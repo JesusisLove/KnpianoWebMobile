@@ -10,8 +10,9 @@ import com.liu.springboot04web.bean.Kn05S002StubnkBean;
 public interface Kn05S002StubnkMapper {
 
     public List<Kn05S002StubnkBean> getInfoList();
-    public Kn05S002StubnkBean getInfoById(@Param("id")String id);
-    public Kn05S002StubnkBean getInfoById(@Param("stuId")String stuId, @Param("bankId")String bankId);
+    public List<Kn05S002StubnkBean> getInfoByStuId(@Param("stuId")String stuId);
+    public Kn05S002StubnkBean getInfoByStuIdBnkId(@Param("stuId")String stuId, @Param("bankId")String bankId);
+    public List<Kn05S002StubnkBean> searchStuBank(@Param("params") Map<String, Object> queryparams);
     public void updateInfo(Kn05S002StubnkBean bean);
     public void insertInfo(Kn05S002StubnkBean bean);
     public void deleteInfo(@Param("id")String id);

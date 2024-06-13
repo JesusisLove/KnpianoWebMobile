@@ -72,8 +72,9 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
 
     // 从学生档案表里，取得该生当前科目最新的价格信息
     public Kn03D002StuDocBean getLsnPrice(String stuId, 
-                                          String subjectId) {
-        return knStudoc001Mapper.getLsnPrice(stuId, subjectId);
+                                          String subjectId,
+                                          String subjectSubId) {
+        return knStudoc001Mapper.getLsnPrice(stuId, subjectId, subjectSubId);
     }
 
     // 获取所有学生最新正在上课的科目信息

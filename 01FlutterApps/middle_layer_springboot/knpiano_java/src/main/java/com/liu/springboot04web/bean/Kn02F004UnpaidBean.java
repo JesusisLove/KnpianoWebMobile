@@ -2,7 +2,7 @@ package com.liu.springboot04web.bean;
 
 import java.util.Date;
 
-public class Kn02F004PayBean implements KnPianoBean {
+public class Kn02F004UnpaidBean implements KnPianoBean {
 
     protected String lsnPayId;
     protected String lsnFeeId;
@@ -21,11 +21,13 @@ public class Kn02F004PayBean implements KnPianoBean {
     protected String    stuName;
     protected String    subjectName;
     protected String    subjectSubName;
-    protected String    bankName;
     protected String    lsnMonth;
     protected Integer   payStyle;
     protected Integer   lsnCount;
     protected float     lsnFee;
+    protected Integer   ownFlg;
+    // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
+    protected float     subjectPrice;
 
     public String getLsnPayId() {
         return lsnPayId;
@@ -141,11 +143,17 @@ public class Kn02F004PayBean implements KnPianoBean {
     public void setSubjectSubName(String subjectSubName) {
         this.subjectSubName = subjectSubName;
     }
-    public String getBankName() {
-        return bankName;
+    public Integer getOwnFlg() {
+        return ownFlg;
     }
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
+    public void setOwnFlg(Integer ownFlg) {
+        this.ownFlg = ownFlg;
     }
-    
+    public float getSubjectPrice() {
+        return subjectPrice;
+    }
+    public void setSubjectPrice(float subjectPrice) {
+        this.subjectPrice = subjectPrice;
+    }
+
 }

@@ -38,6 +38,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         update t_info_lesson set
             lesson_id = #{lessonId},
             subject_id = #{subjectId},
+            subject_sub_id = #{subjectSubId},
             stu_id = #{stuId},
             class_duration = #{classDuration},
             lesson_type = #{lessonType},
@@ -53,6 +54,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         insert into t_info_lesson (
             lesson_id,
             subject_id,
+            subject_sub_id,
             stu_id,
             class_duration,
             lesson_type,
@@ -64,6 +66,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             values (
             #{lessonId},
             #{subjectId},
+            #{subjectSubId},
             #{stuId},
             #{classDuration},
             #{lessonType},

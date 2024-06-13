@@ -8,22 +8,23 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public class Kn05S002StubnkDao implements InterfaceKnPianoDao {
+public class Kn05S002StubnkDao {
 
     @Autowired
     private Kn05S002StubnkMapper kn05S002StubnkMapper;
 
     public List<Kn05S002StubnkBean> getInfoList() {
-        List<Kn05S002StubnkBean> list =kn05S002StubnkMapper.getInfoList();
+        List<Kn05S002StubnkBean> list = kn05S002StubnkMapper.getInfoList();
         return list;
     }
 
-    public Kn05S002StubnkBean getInfoById(String id) {
-        return null;
+    public List<Kn05S002StubnkBean> getInfoById(String stuId) {
+        List<Kn05S002StubnkBean> list = kn05S002StubnkMapper.getInfoByStuId(stuId);
+        return list;
     }
 
     public Kn05S002StubnkBean getInfoById(String stuId, String bankId) {
-        Kn05S002StubnkBean kn05S002StubnkBean = kn05S002StubnkMapper.getInfoById(stuId, bankId);
+        Kn05S002StubnkBean kn05S002StubnkBean = kn05S002StubnkMapper.getInfoByStuIdBnkId(stuId, bankId);
         return kn05S002StubnkBean;
     }
 

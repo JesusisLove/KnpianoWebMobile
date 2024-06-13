@@ -50,14 +50,15 @@ public class Kn05S002StubnkController{
         return "redirect:/kn_05s002_stubnk_all";
     }
 
-    // 【学生銀行番号管理】編集ボタンを押下して、【学生銀行番号管理】編集画面へ遷移すること
-    @GetMapping("/kn_05s002_stubnk/{id}")
-    public String toInfoEdit(@PathVariable("id") String id, Model model) {
-        Kn05S002StubnkBean Kn05S002StubnkBean = Kn05S002StubnkDao.getInfoById(id);
-        model.addAttribute("selectedinfo", Kn05S002StubnkBean);
-        return "kn_05s002_stubnk/Kn05S002stubnk_add_update";
-    }
+    // // 【学生銀行番号管理】編集ボタンを押下して、【学生銀行番号管理】編集画面へ遷移すること
+    // @GetMapping("/kn_05s002_stubnk/{id}")
+    // public String toInfoEdit(@PathVariable("id") String id, Model model) {
+    //     Kn05S002StubnkBean Kn05S002StubnkBean = Kn05S002StubnkDao.getInfoById(id);
+    //     model.addAttribute("selectedinfo", Kn05S002StubnkBean);
+    //     return "kn_05s002_stubnk/Kn05S002stubnk_add_update";
+    // }
 
+    
     // 【学生銀行番号管理】編集画面にて、【保存】ボタンを押下して、変更した情報を保存すること
     @PutMapping("/kn_05s002_stubnk")
     public String excuteInfoEdit(@ModelAttribute Kn05S002StubnkBean Kn05S002StubnkBean) {

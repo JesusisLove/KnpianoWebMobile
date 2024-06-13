@@ -91,18 +91,21 @@
                         <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${lsnMap != null ? lsnMap['updateDate'] : ''}" placeholder="更新日">
                     </div>
                 </div>
+                
                 <button type="submit" class="btn btn-primary">検索</button>
             </form> 
-
-           <!-- 明細部 -->
+            <!-- <a href="datetime-picker">Go to DateTime Picker Page</a> -->
+            <!-- 明細部 -->
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr>
                         <th>授業番号</th>
                         <th>科目番号</th>
+                        <th>科目枝番</th>
                         <th>学生番号</th>
                         <th>科目名称</th>
+                        <th>科目级别</th>
                         <th>学生姓名</th>
                         <th>授業時間</th>
                         <th>授業種別</th>
@@ -120,8 +123,10 @@
                         <tr th:each="info : ${infoList}">
                             <td>[[${info.lessonId}]]</td>
                             <td>[[${info.subjectId}]]</td>
+                            <td>[[${info.subjectSubId}]]</td>
                             <td>[[${info.stuId}]]</td>
                             <td>[[${info.subjectName}]]</td>
+                            <td>[[${info.subjectSubName}]]</td>
                             <td>[[${info.stuName}]]</td>
                             <td>[[${info.classDuration}]]</td>
                             <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>

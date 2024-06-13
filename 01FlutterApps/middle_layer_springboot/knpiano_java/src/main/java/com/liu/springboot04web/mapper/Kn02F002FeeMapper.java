@@ -16,6 +16,8 @@ public interface Kn02F002FeeMapper  {
                                                           @Param("lessonType") Integer lessonType,
                                                           @Param("lsnMonth")   String  lsnMonth);
     public void updateInfo(Kn02F002FeeBean bean);
+    // 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理
+    public void updateOwnFlg(Kn02F002FeeBean bean);
     public void insertInfo(Kn02F002FeeBean bean);
     public void deleteInfo(String lsnFeeId, String lessonId);
 

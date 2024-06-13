@@ -36,6 +36,7 @@ public interface Kn03D002StuDocMapper  {
 
     // 从学生档案表里，取得该生当前科目最新的价格信息
     public Kn03D002StuDocBean getLsnPrice(@Param("stuId") String stuId, 
-                                          @Param("subjectId") String subjectId);
+                                          @Param("subjectId") String subjectId,
+                                          @Param("subjectSubId") String subjectSubId);
 
 }

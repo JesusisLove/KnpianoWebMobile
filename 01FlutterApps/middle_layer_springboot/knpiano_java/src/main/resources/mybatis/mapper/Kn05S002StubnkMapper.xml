@@ -11,14 +11,35 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn05S002StubnkMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
-        select * from v_info_student_bank
+        select * from v_info_student_bank order by stu_id
     </select>
 
-    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
-        select * from t_info_student_bank
+    <select id= "getInfoByStuId" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
+        select * from v_info_student_bank
+         where stu_id = #{stuId}
+
+    </select>
+
+    <select id= "getInfoByStuIdBnkId" resultType="com.liu.springboot04web.bean.Kn05S002StubnkBean">
+        select * from v_info_student_bank
          where stu_id = #{stuId}
            and bank_id = #{bankId}
     </select>
+
+    <select id="searchStuBank" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        SELECT
+            *
+        FROM
+            v_info_student_bank
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where> 
+    </select> 
 
     <update id="updateInfo">
         update t_info_student_bank set
