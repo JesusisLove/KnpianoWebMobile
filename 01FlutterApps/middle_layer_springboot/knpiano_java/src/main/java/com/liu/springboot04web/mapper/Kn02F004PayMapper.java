@@ -9,15 +9,13 @@ import com.liu.springboot04web.bean.Kn02F004PayBean;
 public interface Kn02F004PayMapper  {
 
     public List<Kn02F004PayBean> getInfoList();
-    public List<Kn02F004PayBean> searchLsnUnpay(@Param("params") Map<String, Object> params);
     public List<Kn02F004PayBean> searchLsnPay(@Param("params") Map<String, Object> params);
-    public Kn02F004PayBean gethLsnUnpayByID(@Param("lsnFeeId") String lsnFeeId);
-    public Kn02F004PayBean getInfoById(String lsnPayId, String lsnFeeId);
-    public void updateInfo(Kn02F004PayBean bean);
-    public void insertInfo(Kn02F004PayBean bean);
     public void deleteInfo(@Param("lsnPayId") String lsnPayId, 
                            @Param("lsnFeeId") String LsnFeeId);
 
+    public List<Kn02F004PayBean> isHasMonthlyPaid(@Param("stuId")     String stuId,
+                                                  @Param("subjectId") String subjectId,
+                                                  @Param("payMonth")  String payMonth);
     // 执行数据库存储过程
     public void callProcedure(Map<String, Integer> map);
     // 获取下一个序列值

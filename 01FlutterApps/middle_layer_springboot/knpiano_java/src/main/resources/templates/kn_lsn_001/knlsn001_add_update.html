@@ -74,11 +74,17 @@
                     <br>
 
                     <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
-                    <div class="form-group" th:if="${selectedinfo==null}">
+                    <div class="form-group" th:if="${selectedinfo==null}" >
                         <label>科目名称</label> 
                         <select class="form-control" id="subjectSelect" name="subjectId">
                             <option value="">请选择</option>
                         </select>
+                    </div>
+                    <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
+                    <div class="form-group" th:if="${selectedinfo==null}">
+                        <label>科目级别名称</label> 
+                        <input id="subjectSubName" name="subjectSubName" type="text" th:attr="disabled='true'">
+                        <input id="subjectSubId" name="subjectSubId" type="hidden">
                     </div>
 
                     <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
@@ -86,9 +92,17 @@
                         <label>科目名称</label> 
                         <input name="subjectName" type="text" class="form-control" 
                             th:value="${selectedinfo.subjectName}" 
-                            readonly>
+                            th:disabled="true">
                         <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
                         <input name="delFlg" type="hidden" th:value="${selectedinfo.delFlg}">
+                    </div>
+
+                    <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
+                    <div class="form-group" th:unless="${selectedinfo==null}">
+                        <label>科目级别名称</label> 
+                        <!-- <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" th:disabled="true"> -->
+                        <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" th:attr="disabled='true'">
+                        <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
                     </div>
 
                     <!-- 新規登録 模式下的上课种别 使用 Radio button -->
@@ -120,10 +134,13 @@
 
                     <!-- 新规登陆，变更编辑 下拉列表框 选择学生上课时长 -->
                     <div class="form-group"><label>上课时长</label>
-                        <select class="form-control" name="classDuration">
+                        <select class="form-control" name="classDuration" id="lsnduration">
                             <option value="">请选择上课时长 </option>
                             <option th:selected="${selectedinfo!=null}?${selectedinfo.classDuration}==${element}"
-                                    th:each="element:${duration}" th:value="${element}" th:utext="${element}">
+                                    th:each="element:${duration}" 
+                                    th:value="${element}" 
+                                    th:utext="${element}">
+                            </option>
                             </option>
                         </select>
                     </div>
@@ -215,6 +232,8 @@ window.onload = function() {
     studentSelect.onchange = function() {
         updateSubjectSelect(this.value);
     };
+
+    // 全部还原为不可用
     document.getElementById("option0").disabled = true;
     document.getElementById("option1").disabled = true;
     document.getElementById("option2").disabled = true;
@@ -233,21 +252,28 @@ function updateSubjectSelect(stuId) {
         }
     });
 
-    // 监听科目下拉列表的变化，并更新上课种别的 radio button
+    // 监听科目下拉列表的变化，并更新上课种别的 radio button和《学生档案》表里设置的上课时长
     subjectSelect.onchange = function() {
         updateLessonType(stuId, this.value);
     };
 }
 
-// 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button
+// 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button和《学生档案》表里设置的上课时长
 function updateLessonType(stuId, subjectId) {
+    // 上课时长
+    var minutesPerLsn;
 
+    // item是从v_latest_subject_info_from_student_document视图里抽出来的结果集
     var selectedItem = jsonStuSubList.find(function(item) {
         return item.stuId === stuId && item.subjectId === subjectId;
     });
 
+    // 遍历item，找到了对象记录
     if (selectedItem) {
+        // 课费支付种别
         var payStyle = selectedItem.payStyle;
+
+        // 根据课费支付种别来更新上课种别的 radio button
         if (payStyle === 0) {
             document.getElementById("option0").checked = true;
             document.getElementById("option0").disabled = false;
@@ -262,10 +288,28 @@ function updateLessonType(stuId, subjectId) {
 
             document.getElementById("option2").disabled = false;
         }
+        // 将该学生的该科目在《学生档案》表里设定的上课时长取出来
+        minutesPerLsn = selectedItem.minutesPerLsn;
+
+        // 拿到上课时长下拉列表框控件
+        var select = document.getElementById('lsnduration');
+        var subjectname = document.getElementById('subjectSubName');
+        var subjectid = document.getElementById('subjectSubId');
+
+         // 创建一个新的选项元素
+         var option = document.createElement('option');
+         option.value = minutesPerLsn;
+         option.text = minutesPerLsn;
+
+         // 设置下拉列表的选定值为 minutesPerLsn
+         select.value = minutesPerLsn;
+         // 新规模式下
+         subjectname.value = selectedItem.subjectSubName;
+         subjectid.value = selectedItem.subjectSubId;
+
+
     }
 }
-
-
 </script>
 <style>
     /* 调整控件最右侧按钮的宽度 */

@@ -57,6 +57,11 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
         knLsnFee001Mapper.updateInfo(knLsnFee001Bean);
     }
 
+    // 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理
+    public void updateOwnFlg(Kn02F002FeeBean knLsnFee001Bean) {
+        knLsnFee001Mapper.updateOwnFlg(knLsnFee001Bean);
+    }
+    
     // 削除
     public void delete(String lsnFeeId, String lessonId) {
         knLsnFee001Mapper.deleteInfo(lsnFeeId, lessonId); 

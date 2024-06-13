@@ -11,18 +11,18 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F002FeeMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee order by stu_name,lsn_month
+        select * from v_info_lesson_fee_connect_lsn order by stu_name,lsn_month
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee
+        select * from v_info_lesson_fee_connect_lsn
         where lsn_fee_id = #{lsnFeeId}
           and lesson_id = #{lessonId}
     </select>
 
     <!-- 按月结算课程且是计划课的场合，lsn_fee_id和lesson_id是一对多的处理,通过科目和月份取得计划课时用的lsn_fee_id -->
     <select id= "checkScheLsnCurrentMonth" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee
+        select * from v_info_lesson_fee_connect_lsn
         where stu_id = #{stuId}
           and subject_id = #{subjectId}
           and lesson_type = #{lessonType}
@@ -37,7 +37,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <select id="searchLsnFee" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         SELECT *
-        FROM v_info_lesson_fee
+        FROM v_info_lesson_fee_connect_lsn
         <where>
             <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
@@ -60,19 +60,28 @@ https://mybatis.org/mybatis-3/getting-started.html
             and lesson_id = #{lessonId}
     </update>
 
+    <!-- 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理-->
+    <update id="updateOwnFlg">
+        update t_info_lesson_fee set
+            own_flg = #{ownFlg}
+        where lsn_fee_id = #{lsnFeeId}
+    </update>
+
     <insert id="insertInfo" keyColumn="lesson_id">
         insert into t_info_lesson_fee (
             lsn_fee_id,
             lesson_id,
             pay_style,
             lsn_fee,
-            lsn_month
+            lsn_month,
+            own_flg
             ) values (
             #{lsnFeeId},
             #{lessonId},
             #{payStyle},
             #{lsnFee},
-            #{lsnMonth}
+            #{lsnMonth},
+            #{ownFlg}
         )
     </insert>
 

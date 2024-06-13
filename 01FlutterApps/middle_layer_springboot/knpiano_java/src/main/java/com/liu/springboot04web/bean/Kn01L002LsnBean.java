@@ -10,7 +10,9 @@ public class Kn01L002LsnBean implements KnPianoBean {
 
     protected String lessonId;
     protected String subjectId;
+    protected String subjectSubId;
     protected String subjectName;
+    protected String subjectSubName;
     protected String stuId;
     protected String stuName;
     protected Integer classDuration;
@@ -164,6 +166,18 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setPayStyle(Integer payStyle) {
         this.payStyle = payStyle;
+    }
+    public String getSubjectSubId() {
+        return subjectSubId;
+    }
+    public void setSubjectSubId(String subjectSubId) {
+        this.subjectSubId = subjectSubId;
+    }
+    public String getSubjectSubName() {
+        return subjectSubName;
+    }
+    public void setSubjectSubName(String subjectSubName) {
+        this.subjectSubName = subjectSubName;
     } 
     
 }
