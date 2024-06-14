@@ -76,9 +76,6 @@
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="introducer" name="introducer" th:value="${studentMap != null ? studentMap['introducer'] : ''}" placeholder="紹介者">
                     </div>
-                    <div class="form-group col-md-1">
-                        <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${studentMap != null ? studentMap['delFlg'] : ''}" placeholder="削除フラグ">
-                    </div>
                     <div class="form-group col-md-2">
                         <input type="date" class="form-control" id="createDate" name="createDate">
                     </div>
@@ -108,7 +105,6 @@
                         <th>住所</th>
                         <th>郵便番号</th>
                         <th>紹介者</th>
-                        <th>削除フラグ</th>
                         <th>作成日</th>
                         <th>更新日</th>
                     </tr>
@@ -126,7 +122,6 @@
                         <td>[[${info.address}]]</td>
                         <td>[[${info.postCode}]]</td>
                         <td>[[${info.introducer}]]</td>
-                        <td>[[${info.delFlg}]]</td>
                         <td th:text="${#dates.format(info.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                         <td th:text="${#dates.format(info.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
                         <td>

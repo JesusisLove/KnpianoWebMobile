@@ -69,7 +69,7 @@ public class CommonProcess {
         return new ArrayList<>(uniqueElements);
     }
 
-    /* 把没有顺序的WeekDay，pai cheng */ 
+    /* 把没有顺序的WeekDay，按照周一到周日的顺序排列 */ 
     public static List<String> sortWeekdays(List<String> unsortedDays) {
         Locale locale = Locale.US;  // 设定Locale，这决定了星期名称的本地化表达
 
