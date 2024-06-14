@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F004PayBean;
-import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 import com.liu.springboot04web.dao.Kn02F004PayDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.othercommon.DateUtils;

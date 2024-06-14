@@ -1,6 +1,5 @@
 package com.liu.springboot04web.dao;
 
-import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.bean.Kn05S001LsnFixBean;
 import com.liu.springboot04web.mapper.Kn05S001LsnFixMapper;
 
@@ -16,18 +15,11 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
     @Autowired
     private Kn05S001LsnFixMapper knFixLsn001Mapper;
     @Autowired
-    private Kn03D002StuDocDao kn03D002StuDocDao;
     
     // 获取所有固定授業計画的信息列表
     public List<Kn05S001LsnFixBean> getInfoList() {
         List<Kn05S001LsnFixBean> list = knFixLsn001Mapper.getInfoList();
         // System.out.println("查询的固定授業計画管理数据：" + list.toString());
-        return list;
-    }
-
-    // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
-    private List<Kn03D002StuDocBean> getStuSubList() {
-        List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return list;
     }
 
