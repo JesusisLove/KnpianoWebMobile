@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 import com.liu.springboot04web.bean.Kn05S002StubnkBean;
 import com.liu.springboot04web.dao.Kn02F004UnpaidDao;
