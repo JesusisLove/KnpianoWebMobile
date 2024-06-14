@@ -11,7 +11,9 @@ import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 @Controller
 public class Kn02F002FeeController{
 
@@ -23,6 +25,11 @@ public class Kn02F002FeeController{
     public String list(Model model) {
         Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList();
         model.addAttribute("infoList",collection);
+
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+
         return "kn_lsn_fee_001/knlsnfee001_list";
     }
 
@@ -41,6 +48,11 @@ public class Kn02F002FeeController{
         // 将queryParams传递给Service层或Mapper接口
         Collection<Kn02F002FeeBean> searchResults = knLsnFee001Dao.searchLsnFee(conditions);
         model.addAttribute("infoList", searchResults);
+
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(searchResults);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+        
         return "kn_lsn_fee_001/knlsnfee001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
@@ -81,5 +93,22 @@ public class Kn02F002FeeController{
                                    @PathVariable("lessonId") String lessonId) {
         knLsnFee001Dao.delete(lsnFeeId, lessonId);
         return "redirect:/kn_lsn_fee_001_all";
+    }
+
+    // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+    private Map<String, String> getResultsTabStus(Collection<Kn02F002FeeBean> collection) {
+
+        Map<String, String> activeStudentsMap = new HashMap<>();
+        Set<String> seenStuIds = new HashSet<>();
+
+        for (Kn02F002FeeBean bean : collection) {
+            String stuId = bean.getStuId();
+            if (!seenStuIds.contains(stuId)) {
+                activeStudentsMap.put(stuId, bean.getStuName());
+                seenStuIds.add(stuId);
+            }
+        }
+
+        return activeStudentsMap;
     }
 }

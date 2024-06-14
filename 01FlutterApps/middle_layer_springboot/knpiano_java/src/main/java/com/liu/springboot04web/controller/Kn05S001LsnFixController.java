@@ -41,8 +41,8 @@ public class Kn05S001LsnFixController {
         Collection<Kn05S001LsnFixBean> searchResults = knFixLsn001Dao.getInfoList();
         model.addAttribute("fixedLessonList", searchResults);
 
-        List<String> resultsDays = CommonProcess.sortWeekdays(getResultsDays(searchResults));
-        model.addAttribute("resultsDays", resultsDays);
+        List<String> resultsTabDays = CommonProcess.sortWeekdays(getResultsTabDays(searchResults));
+        model.addAttribute("resultsTabDays", resultsTabDays);
         model.addAttribute("activeDay", (this.activeDay!=null)? this.activeDay : "Mon");
 
         return "kn_fixlsn_001/knfixlsn001_list";
@@ -64,10 +64,10 @@ public class Kn05S001LsnFixController {
         Collection<Kn05S001LsnFixBean> searchResults = knFixLsn001Dao.searchFixedLessons(conditions);
         model.addAttribute("fixedLessonList", searchResults);
 
-        List<String> resultsDays = CommonProcess.sortWeekdays(getResultsDays(searchResults));
-        model.addAttribute("resultsDays", resultsDays);
+        List<String> resultsTabDays = CommonProcess.sortWeekdays(getResultsTabDays(searchResults));
+        model.addAttribute("resultsTabDays", resultsTabDays);
         // 学生一周有复数天的排课，则默认显示第一个卡片（从Mon到Sun）
-        model.addAttribute("activeDay", resultsDays.get(0));
+        model.addAttribute("activeDay", resultsTabDays.get(0));
 
         return "kn_fixlsn_001/knfixlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
@@ -151,7 +151,8 @@ public class Kn05S001LsnFixController {
         return list;
     }
 
-    private List<String> getResultsDays(Collection<Kn05S001LsnFixBean> collection) {
+    // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+    private List<String> getResultsTabDays(Collection<Kn05S001LsnFixBean> collection) {
 
         List<String> activeDaysList = new ArrayList<>();
         for (Kn05S001LsnFixBean bean : collection) {

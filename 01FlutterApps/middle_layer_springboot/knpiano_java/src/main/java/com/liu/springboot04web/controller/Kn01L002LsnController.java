@@ -12,12 +12,14 @@ import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
-import com.liu.springboot04web.service.ComboListInfoService; 
+import com.liu.springboot04web.service.ComboListInfoService;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 @Service
@@ -57,6 +59,11 @@ public class Kn01L002LsnController{
             setButtonUsable(bean);
         }
         model.addAttribute("infoList",collection);
+
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+
         return "kn_lsn_001/knlsn001_list";
     }
 
@@ -79,6 +86,10 @@ public class Kn01L002LsnController{
             setButtonUsable(bean);
         }
         model.addAttribute("infoList", searchResults);
+
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(searchResults);
+        model.addAttribute("resultsTabStus", resultsTabStus);
         return "kn_lsn_001/knlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
@@ -151,6 +162,23 @@ public class Kn01L002LsnController{
     private List<Kn03D002StuDocBean> getStuSubList() {
         List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return list;
+    }
+
+    // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+    private Map<String, String> getResultsTabStus(Collection<Kn01L002LsnBean> collection) {
+
+        Map<String, String> activeStudentsMap = new HashMap<>();
+        Set<String> seenStuIds = new HashSet<>();
+
+        for (Kn01L002LsnBean bean : collection) {
+            String stuId = bean.getStuId();
+            if (!seenStuIds.contains(stuId)) {
+                activeStudentsMap.put(stuId, bean.getStuName());
+                seenStuIds.add(stuId);
+            }
+        }
+
+        return activeStudentsMap;
     }
 
     // 给后台页面上课一览明细部的按钮设置活性非活性状态

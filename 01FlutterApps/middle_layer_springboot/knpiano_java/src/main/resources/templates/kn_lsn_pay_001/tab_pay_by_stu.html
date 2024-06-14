@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+    <div th:fragment="paidFeeTable(stuid, stuName)">
+        <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>精算番号</th>
+                        <th>課費番号</th>
+                        <th>学生番号</th>
+                        <th>学生姓名</th>
+                        <th>科目番号</th>
+                        <th>科目名称</th>
+                        <th>科目枝番</th>
+                        <th>科目級別</th>
+                        <th>本月课程数</th>
+                        <th>課費金額</th>
+                        <th>精算金額</th>
+                        <th>精算種別</th>
+                        <th>銀行番号</th>
+                        <th>銀行名称</th>
+                        <th>精算日付</th>
+                        <th>作成日</th>
+                        <th>更新日</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="info:${infoList}" th:if="${info.stuName == stuName}">
+                        <td>[[${info.lsnPayId}]]</td>
+                        <td>[[${info.lsnFeeId}]]</td>
+                        <td>[[${info.stuId}]]</td>
+                        <td>[[${info.stuName}]]</td>
+                        <td>[[${info.subjectId}]]</td>
+                        <td>[[${info.subjectName}]]</td>
+                        <td>[[${info.subjectSubId}]]</td>
+                        <td>[[${info.subjectSubName}]]</td>
+                        <td>[[${info.lsnCount}]]</td>
+                        <td>[[${info.lsnFee}]]</td>
+                        <td>[[${info.lsnPay}]]</td>
+                        <td th:text="${info.payStyle == 0 ? '课支付' :  '月支付'}"></td>
+                        <td>[[${info.bankId}]]</td>
+                        <td>[[${info.bankName}]]</td>
+                        <td>[[${info.payMonth}]]</td>
+                        <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                        <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
+                                                                                                (lsnPayId=${info.lsnPayId}, 
+                                                                                                lsnFeeId=${info.lsnFeeId})}">撤销</button>
+                        </td>
+                    </tr>
+                    </tbody>
+            </table>
+        </div>
+        <!-- 削除処理的表单提交 -->
+        <form id="deleteSubjectForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</body>
+</html>

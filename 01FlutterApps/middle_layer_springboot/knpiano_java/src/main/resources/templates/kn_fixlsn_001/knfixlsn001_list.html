@@ -59,7 +59,7 @@
                 <hr/>
                 <!-- Tab 周一到周日 Tab导航 -->
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li th:each="day : ${resultsDays}" class="nav-item">
+                    <li th:each="day : ${resultsTabDays}" class="nav-item">
                         <a th:classappend="${activeDay == day} ? 'nav-link active' : 'nav-link'"
                            th:id="${day + '-tab'}" data-toggle="tab" th:href="'#' + ${day}"
                            role="tab" th:aria-controls="${day}"
@@ -68,7 +68,7 @@
                 </ul>
                 <!-- Tab 卡片项里显示 每周一到周日的固定排课一览  -->
                 <div class="tab-content" id="myTabContent">
-                    <div th:each="day : ${resultsDays}" th:id="${day}" class="tab-pane fade"
+                    <div th:each="day : ${resultsTabDays}" th:id="${day}" class="tab-pane fade"
                          th:classappend="${activeDay == day} ? 'show active' : ''"
                          role="tabpanel" th:aria-labelledby="${day + '-tab'}">
                         <div th:replace="kn_fixlsn_001/fixlist_info_by_week :: lessonTable(${day}, ${day})"></div>

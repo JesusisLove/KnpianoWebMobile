@@ -40,8 +40,7 @@
     <div class="row">
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_pay_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <hr/>
-            <h2><a class="btn btn-sm btn-success" th:href="@{/kn_lsn_pay_001}">課費支払管理新規</a></h2>
+
             <hr/>
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_pay_001/search}" th:object="${searchForm}" method="get">
@@ -77,56 +76,23 @@
                 <button type="submit" class="btn btn-primary">検 索</button><hr/>
             </form> 
             <!-- 选项卡内容 -->
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>精算番号</th>
-                        <th>課費番号</th>
-                        <th>学生番号</th>
-                        <th>学生姓名</th>
-                        <th>科目番号</th>
-                        <th>科目名称</th>
-                        <th>科目枝番</th>
-                        <th>科目級別</th>
-                        <th>本月课程数</th>
-                        <th>課費金額</th>
-                        <th>精算金額</th>
-                        <th>精算種別</th>
-                        <th>銀行番号</th>
-                        <th>銀行名称</th>
-                        <th>精算日付</th>
-                        <th>作成日</th>
-                        <th>更新日</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="info:${infoList}">
-                        <td>[[${info.lsnPayId}]]</td>
-                        <td>[[${info.lsnFeeId}]]</td>
-                        <td>[[${info.stuId}]]</td>
-                        <td>[[${info.stuName}]]</td>
-                        <td>[[${info.subjectId}]]</td>
-                        <td>[[${info.subjectName}]]</td>
-                        <td>[[${info.subjectSubId}]]</td>
-                        <td>[[${info.subjectSubName}]]</td>
-                        <td>[[${info.lsnCount}]]</td>
-                        <td>[[${info.lsnFee}]]</td>
-                        <td>[[${info.lsnPay}]]</td>
-                        <td th:text="${info.payStyle == 0 ? '课支付' :  '月支付'}"></td>
-                        <td>[[${info.bankId}]]</td>
-                        <td>[[${info.bankName}]]</td>
-                        <td>[[${info.payMonth}]]</td>
-                        <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
-                                                                                                (lsnPayId=${info.lsnPayId}, 
-                                                                                                lsnFeeId=${info.lsnFeeId})}">撤销</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <hr/>
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}" 
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="kn_lsn_pay_001/tab_pay_by_stu :: paidFeeTable(${entry.key}, ${entry.value})"></div>
+                </div>
             </div>
         </main>
         <!-- 削除処理-->
