@@ -71,9 +71,6 @@
                             <input type="text" class="form-control" id="lessonFeeAdjusted" name="lessonFeeAdjusted" th:value="${stuDocMap != null ? stuDocMap['lessonFeeAdjusted'] : ''}" placeholder="調整価格">
                         </div>
                         <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${stuDocMap != null ? stuDocMap['delFlg'] : ''}" placeholder="削除フラグ">
-                        </div>
-                        <div class="form-group col-md-2">
                             <input type="date" class="form-control" id="createDate" name="createDate" th:value="${stuDocMap != null ? stuDocMap['createDate'] : ''}" placeholder="作成日">
                         </div>
                         <div class="form-group col-md-2">
@@ -98,7 +95,6 @@
                             <th>授業時間長さ</th>
                             <th>標準価格</th>
                             <th>調整価格</th>
-                            <th>削除フラグ</th>
                             <th>作成日</th>
                             <th>更新日</th>
                             <th>操作</th>
@@ -117,7 +113,6 @@
                             <td th:text="${studoc != null && studoc.minutesPerLsn != null ? studoc.minutesPerLsn : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>
-                            <td th:text="${studoc != null && studoc.delFlg != null ? studoc.delFlg : ''}"></td>
                             <td th:text="${studoc != null && studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
                             <td th:text="${studoc != null && studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
                             <td>
