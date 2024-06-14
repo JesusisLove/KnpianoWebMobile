@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F004PayBean;
+import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 import com.liu.springboot04web.dao.Kn02F004PayDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.othercommon.DateUtils;
@@ -16,8 +17,10 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 @Controller
 public class Kn02F004PayController{
     final List<String> knYear; 
@@ -56,6 +59,10 @@ public class Kn02F004PayController{
         model.addAttribute("knyearlist", knYear);
         model.addAttribute("knmonthlist", knMonth);
 
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(paiedCollection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+
         return "kn_lsn_pay_001/knlsnpay001_list";
     }
 
@@ -66,8 +73,9 @@ public class Kn02F004PayController{
         String lsnMonth = (String) queryParams.get("selectedmonth");
         int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
         lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
-        params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
-        params.put("lsnfee.stu_id", queryParams.get("stuId"));
+        params.put("pay_month", queryParams.get("selectedyear") + "-" + lsnMonth);
+        // params.put("lsnfee.stu_id", queryParams.get("stuId"));
+        params.put("stu_id", queryParams.get("stuId"));
 
         // 精算済一览
         Map<String, Object> collectionparams = CommonProcess.convertToSnakeCase(params);
@@ -88,6 +96,10 @@ public class Kn02F004PayController{
         model.addAttribute("currentmonth", currentMonth);
         model.addAttribute("knmonthlist", knMonth);
 
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(paiedCollection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+       
         return "kn_lsn_pay_001/knlsnpay001_list";
     }
 
@@ -96,5 +108,21 @@ public class Kn02F004PayController{
     public String undoLsnPay(@PathVariable("lsnPayId") String lsnPayId, @PathVariable("lsnFeeId") String lsnFeeId) {
         knLsnPay001Dao.excuteUndoLsnPay(lsnPayId, lsnFeeId);
         return "redirect:/kn_lsn_pay_001_all";
+    }
+
+        // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+    private Map<String, String> getResultsTabStus(Collection<Kn02F004PayBean> collection) {
+
+        Map<String, String> activeStudentsMap = new HashMap<>();
+        Set<String> seenStuIds = new HashSet<>();
+
+        for (Kn02F004PayBean bean : collection) {
+            String stuId = bean.getStuId();
+            if (!seenStuIds.contains(stuId)) {
+                activeStudentsMap.put(stuId, bean.getStuName());
+                seenStuIds.add(stuId);
+            }
+        }
+        return activeStudentsMap;
     }
 }

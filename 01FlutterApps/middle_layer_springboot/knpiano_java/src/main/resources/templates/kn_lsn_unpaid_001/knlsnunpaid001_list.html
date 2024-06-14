@@ -77,46 +77,23 @@
             </form> 
             <!-- Tab账单明细 -->
             <!-- 未支付明细内容 -->
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>課費番号</th>
-                        <th>学生编号</th>
-                        <th>学生姓名</th>
-                        <th>科目番号</th>
-                        <th>科目名称</th>
-                        <th>课数</th>
-                        <th>上课种别</th>
-                        <th>上课月份</th>
-                        <th>未精算金額</th>
-                        <th>精算状態</th>
-                        <th>精算種別</th>
-                        <th>精算月</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="info:${infoList}">
-                        <td>[[${info.lsnFeeId}]]</td>
-                        <td>[[${info.stuId}]]</td>
-                        <td>[[${info.stuName}]]</td>
-                        <td>[[${info.subjectId}]]</td>
-                        <td>[[${info.subjectName}]] （[[${info.subjectSubName}]]）</td>
-                        <td>[[${info.lsnCount}]]</td>
-                        <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
-                        <td>[[${info.lsnMonth}]]</td>
-                        <td>[[${info.lsnFee}]]</td>
-                        <td th:text="${info.ownFlg == 0 ? '未精算' :  '精算済'}"></td>
-                        <td th:text="${info.payStyle == 0 ? '课支付' :  '月支付'}"></td>
-                        <td>[[${info.lsnMonth}]]</td>
-                        <td>
-                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_unpaid_001/{lsnFeeId} (
-                                lsnFeeId=${info.lsnFeeId})}" methods="GET">学费精算</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div> 
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}"
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="kn_lsn_unpaid_001/tab_unpaid_by_stu :: unPaidFeeTable(${entry.key}, ${entry.value})"></div>
+                </div>
+            </div>
         </main>
         <!-- 削除処理-->
         <form id="deleteEmpForm" action="" method="post">

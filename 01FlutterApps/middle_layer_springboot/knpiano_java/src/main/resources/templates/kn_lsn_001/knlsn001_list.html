@@ -82,9 +82,6 @@
                         <input id="extraToDurDate" name="extraToDurDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['extraToDurDate'] : ''}" placeholder="計画授業日付">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="delFlg" name="delFlg" th:value="${lsnMap != null ? lsnMap['delFlg'] : ''}" placeholder="削除フラグ">
-                    </div>
-                    <div class="form-group col-md-2">
                         <input type="date" class="form-control" id="createDate" name="createDate" th:value="${lsnMap != null ? lsnMap['createDate'] : ''}" placeholder="作成日">
                     </div>
                     <div class="form-group col-md-2">
@@ -94,76 +91,23 @@
                 
                 <button type="submit" class="btn btn-primary">検索</button>
             </form> 
-            <!-- <a href="datetime-picker">Go to DateTime Picker Page</a> -->
-            <!-- 明細部 -->
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>授業番号</th>
-                        <th>科目番号</th>
-                        <th>科目枝番</th>
-                        <th>学生番号</th>
-                        <th>科目名称</th>
-                        <th>科目级别</th>
-                        <th>学生姓名</th>
-                        <th>授業時間</th>
-                        <th>授業種別</th>
-                        <th>計画授業日付</th>
-                        <th>調整授業日付</th>
-                        <th>授業変換日付</th>
-                        <th>実績授業日付</th>
-                        <th>削除フラグ</th>
-                        <th>作成日</th>
-                        <th>更新日</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="info : ${infoList}">
-                            <td>[[${info.lessonId}]]</td>
-                            <td>[[${info.subjectId}]]</td>
-                            <td>[[${info.subjectSubId}]]</td>
-                            <td>[[${info.stuId}]]</td>
-                            <td>[[${info.subjectName}]]</td>
-                            <td>[[${info.subjectSubName}]]</td>
-                            <td>[[${info.stuName}]]</td>
-                            <td>[[${info.classDuration}]]</td>
-                            <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
-                            <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                            <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                            <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
-                            <td>[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
-                            <td>[[${info.delFlg}]]</td>
-                            <td>[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
-                            <td>[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
-                            <td>
-                                <td>
-                                    <a class="btn btn-sm btn-primary" 
-                                       th:href="@{/kn_lsn_001/}+${info.lessonId}" 
-                                       th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" 
-                                       methods="GET">変更</a> 
-
-                                    <!-- 如果 info.isUsableDelete 为 true，那么 button 将会有 disabled 属性，否则没有这个属性 -->
-                                    <button type="button"   class="btn btn-sm btn-danger deleteBtn" 
-                                            th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}" 
-                                            th:classappend="${info.isUsableDelete ? ''  : 'disabled'}" 
-                                            th:disabled="${!info.isUsableDelete}" >削除</button>
-
-                                    <a class="btn btn-sm btn-success" 
-                                       th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}" 
-                                       th:classappend="${info.isUsableSign ? ''  : 'disabled'}" 
-                                       methods="GET">签到</a>
-
-                                    <a class="btn btn-sm btn-danger" 
-                                        th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}" 
-                                        th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
-                                        th:method="GET">[[${btnUsable != null ? btnUsable.cancel : ''}]]撤销</a>
-                                </td>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <hr/>
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}"
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="kn_lsn_001/tab_lsn_by_stu :: lessonTable(${entry.key}, ${entry.value})"></div>
+                </div>
             </div>
         </main>
         <!-- 削除処理-->
@@ -192,5 +136,11 @@
         }
     });
 </script>
+<style>
+    .nav-tabs .nav-link.active {
+        background-color: #28a745; /* 绿色背景 */
+        color: white; /* 白色文字 */
+    }
+</style>
 </body>
 </html>
