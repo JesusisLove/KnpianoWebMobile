@@ -52,19 +52,15 @@ public class Kn01B001StuDao implements InterfaceKnPianoDao {
     // 新規
     private void insert(Kn01B001StuBean knStu001Bean) {
         knStu001Mapper.insertInfo(knStu001Bean);
-
     }
-
 
     // 変更
     private void update(Kn01B001StuBean knStu001Bean) {
         knStu001Mapper.updateInfo(knStu001Bean);
     }
 
-
     // 削除
     public void delete(String id) { 
-        System.out.println("deleteのKN_STU_001データ：学生番号 = " + id);
         knStu001Mapper.deleteInfo(id); 
     }
 }

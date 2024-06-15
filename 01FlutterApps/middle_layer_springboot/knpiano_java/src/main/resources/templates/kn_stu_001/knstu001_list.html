@@ -113,7 +113,7 @@
                     <tr th:each="info:${infoList}">
                         <td>[[${info.stuId}]]</td>
                         <td>[[${info.stuName}]]</td>
-                        <td>[[${info.gender}]]</td>
+                        <td th:text="${info.gender == 1 ? '男' : '女'}"></td>
                         <td>[[${info.birthday}]]</td>
                         <td>[[${info.tel1}]]</td>
                         <td>[[${info.tel2}]]</td>

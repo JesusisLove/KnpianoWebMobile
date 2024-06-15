@@ -66,7 +66,8 @@
                         </option>
                     </select>
                 </div>
-                <div class="form-group" th:unless="${selectedinfo==null}">
+                <!-- 变更修改 模式下 科目名称用 下拉列表框显示 -->
+                <div class="form-group" th:unless="${selectedinfo==null || errorMessageList != null}">
                     <label>科目名称</label> 
                     <input name="subjectName" type="text" class="form-control" disabled="true" th:value="${selectedinfo!=null} ? ${selectedinfo.subjectName}">
                 </div>
