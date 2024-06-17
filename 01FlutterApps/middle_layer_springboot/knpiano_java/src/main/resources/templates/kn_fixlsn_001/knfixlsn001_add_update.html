@@ -14,11 +14,18 @@
     <div class="row">
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_fixlsn_001_link_active')}"></div><!-- サイドバー部分 -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
             <form th:action="@{/kn_fixlsn_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedFixedLesson!=null}"/>
                 <br>
                 <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
-                <div class="form-group" th:if="${selectedFixedLesson==null}"><br>
+                <div class="form-group" th:if="${isAddNewMode}">
+                    <br>
                     <label>学生姓名</label>
                     <select class="form-control" id="studentSelect" name="stuId">
                         <option value="">请选择</option>
@@ -27,7 +34,7 @@
                 </div>
 
                  <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
-                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                <div class="form-group"  th:if="${!isAddNewMode}">
                     <label>学生姓名</label> 
                     <input name="stuName" type="text" class="form-control" 
                            th:value="${selectedFixedLesson.stuName}" 
@@ -37,7 +44,7 @@
                 <br>
 
                 <!-- 新規登録 模式下 该学生正在学习的科目 下拉列表框显示 -->
-                <div class="form-group" th:if="${selectedFixedLesson==null}">
+                <div class="form-group"  th:if="${isAddNewMode}">
                     <label>科目名称</label>
                     <select class="form-control" id="subjectSelect" name="subjectId">
                         <option value="">请选择</option>
@@ -45,7 +52,7 @@
                 </div>
 
                  <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                <div class="form-group" th:if="${!isAddNewMode}">
                     <label>科目名称</label> 
                     <input name="subjectName" type="text" class="form-control" 
                            th:value="${selectedFixedLesson.subjectName}" 
@@ -55,7 +62,7 @@
                 <br>
 
                 <!-- 新规登陆，下拉列表框 固定上课在星期几 -->
-                <div class="form-group" th:if="${selectedFixedLesson==null}">
+                <div class="form-group"  th:if="${isAddNewMode}">
                     <label>固定星期几？</label>
                     <select class="form-control" name="fixedWeek">
                         <option value="">请选择 </option>
@@ -66,7 +73,7 @@
                 </div>
 
                 <!-- 变更编辑，下拉列表框 固定上课在星期几 -->
-                <div class="form-group" th:unless="${selectedFixedLesson==null}">
+                <div class="form-group" th:if="${!isAddNewMode}">
                     <label>科目名称</label> 
                     <input name="fixedWeek" type="text" class="form-control" 
                            th:value="${selectedFixedLesson.fixedWeek}" 
@@ -102,12 +109,17 @@
 
 <script th:inline="javascript">
     // 从后端传递的stuSubList数据
-    var jsonStuSubList = [[${stuSubList}]];
-    // console.log(jsonStuSubList);
-    
-    // 页面加载完成后，初始化学生下拉列表
+    var jsonStuSubList = /*[[${stuSubList}]]*/[];
+    var selectedStuId = /*[[${selectedFixedLesson != null ? selectedFixedLesson.stuId : ''}]]*/'';
+    var selectedSubjectId = /*[[${selectedFixedLesson != null ? selectedFixedLesson.subjectId : ''}]]*/'';
+    var selectedFixedWeek = /*[[${selectedFixedLesson != null ? selectedFixedLesson.fixedWeek : ''}]]*/'';
+    var selectedFixedHour = /*[[${selectedFixedLesson != null ? selectedFixedLesson.fixedHour : ''}]]*/'';
+    var selectedFixedMinute = /*[[${selectedFixedLesson != null ? selectedFixedLesson.fixedMinute : ''}]]*/'';
+
+    // 页面加载完成后，初始化下拉列表
     window.onload = function() {
         var studentSelect = document.getElementById('studentSelect');
+        var subjectSelect = document.getElementById('subjectSelect');
         var uniqueStudentIds = new Set(); // 使用集合来避免重复
     
         // 从stuSubList添加学生姓名到下拉列表，确保不重复
@@ -118,15 +130,32 @@
                 studentSelect.add(option);
             }
         });
+
+        // 如果页面加载时有选中的学生，初始化科目下拉列表
+        if (selectedStuId) {
+            studentSelect.value = selectedStuId;
+            updateSubjectSelect(selectedStuId, selectedSubjectId);
+        }
     
         // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
         studentSelect.onchange = function() {
-            updateSubjectSelect(this.value);
+            updateSubjectSelect(this.value, '');
         };
+
+        // 设置固定上课时间的初始值
+        if (selectedFixedWeek) {
+            document.getElementById('fixedWeekSelect').value = selectedFixedWeek;
+        }
+        if (selectedFixedHour) {
+            document.getElementById('fixedHourSelect').value = selectedFixedHour;
+        }
+        if (selectedFixedMinute) {
+            document.getElementById('fixedMinuteSelect').value = selectedFixedMinute;
+        }
     };
     
     // 根据选中的学生ID更新科目下拉列表
-    function updateSubjectSelect(stuId) {
+    function updateSubjectSelect(stuId, selectedSubjectId) {
         var subjectSelect = document.getElementById('subjectSelect');
         subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
     
@@ -137,6 +166,11 @@
                 subjectSelect.add(option);
             }
         });
+
+        // 如果页面加载时有选中的科目，设置科目下拉列表的初始值
+        if (selectedSubjectId) {
+            subjectSelect.value = selectedSubjectId;
+        }
     }
 </script>
 </body>

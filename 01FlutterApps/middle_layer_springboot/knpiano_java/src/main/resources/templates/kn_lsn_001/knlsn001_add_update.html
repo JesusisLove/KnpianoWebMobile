@@ -46,6 +46,12 @@
     <div class="row">"
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
             <form th:action="@{/kn_lsn_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/><br>
 
@@ -55,7 +61,7 @@
                     </div><br>
 
                     <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
-                    <div class="form-group" th:if="${selectedinfo==null}">
+                    <div class="form-group" th:if="${(selectedinfo==null ) || (#strings.isEmpty(selectedinfo.lessonId))}">
                         <label>学生姓名</label> 
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
@@ -64,66 +70,77 @@
                     </div>
 
                     <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
-                    <div class="form-group" th:unless="${selectedinfo==null}">
+                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
                         <label>学生姓名</label> 
                         <input name="stuName" type="text" class="form-control" 
-                            th:value="${selectedinfo.stuName}" 
-                            readonly>
+                               th:value="${selectedinfo.stuName}" 
+                               readonly>
                         <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
                     </div>
                     <br>
 
                     <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
-                    <div class="form-group" th:if="${selectedinfo==null}" >
+                    <div class="form-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}" >
                         <label>科目名称</label> 
                         <select class="form-control" id="subjectSelect" name="subjectId">
                             <option value="">请选择</option>
                         </select>
                     </div>
-                    <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                    <div class="form-group" th:if="${selectedinfo==null}">
+
+                    <!-- 新規登録 模式下 科目级别名称用 文本框且操作不可 -->
+                    <div class="form-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
                         <label>科目级别名称</label> 
-                        <input id="subjectSubName" name="subjectSubName" type="text" th:attr="disabled='true'">
-                        <input id="subjectSubId" name="subjectSubId" type="hidden">
+                        <input id="subjectSubName" 
+                               name="subjectSubName" 
+                               type="text" 
+                               th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" 
+                               readonly>
+                        <input id="subjectSubId" name="subjectSubId" type="hidden" th:value="${selectedinfo != null ? selectedinfo.subjectSubId : ''}">
                     </div>
 
                     <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                    <div class="form-group" th:unless="${selectedinfo==null}">
+                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
                         <label>科目名称</label> 
-                        <input name="subjectName" type="text" class="form-control" 
-                            th:value="${selectedinfo.subjectName}" 
-                            th:disabled="true">
+                        <input name="subjectName" 
+                               type="text" class="form-control" 
+                               th:value="${selectedinfo.subjectName}" 
+                               readonly>
                         <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
                         <input name="delFlg" type="hidden" th:value="${selectedinfo.delFlg}">
                     </div>
 
-                    <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                    <div class="form-group" th:unless="${selectedinfo==null}">
+                    <!-- 変更編集 模式下 科目级别名称用 文本框且操作不 -->
+                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
                         <label>科目级别名称</label> 
-                        <!-- <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" th:disabled="true"> -->
-                        <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" th:attr="disabled='true'">
+                        <input name="subjectSubName" 
+                               type="text" 
+                               th:value="${selectedinfo.subjectSubName}" 
+                               readonly>
                         <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
                     </div>
 
                     <!-- 新規登録 模式下的上课种别 使用 Radio button -->
                     <br><label>上课种别</label>
-                    <div class="radio-group" th:if="${selectedinfo==null}" style="padding-left: 30px;">
+                    <div class="radio-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}" style="padding-left: 30px;">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0"
+                                th:checked="${selectedinfo != null and selectedinfo.lessonType == 0}">
                             <label class="form-check-label" for="option0">课结算（科目按课时结算的学生）</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option1" value="1">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option1" value="1"
+                                th:checked="${selectedinfo != null and selectedinfo.lessonType == 1}">
                             <label class="form-check-label" for="option1">月计划（科目按月交费学生）</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="lessonType" id="option2" value="2">
+                            <input class="form-check-input" type="radio" name="lessonType" id="option2" value="2"
+                                th:checked="${selectedinfo != null and selectedinfo.lessonType == 2}">
                             <label class="form-check-label" for="option2">月加课（科目对按月交费学生）</label>
                         </div>
                     </div>
 
                     <!-- 变更编辑 模式下的上课种别 使用 文本框 -->
-                    <div class="form-group" th:unless="${selectedinfo==null}">
+                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
                          <!-- 显示用的文本框，用户无法编辑 -->
                         <input type="text" class="form-control" 
                         th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}" readonly>
@@ -211,105 +228,132 @@
 </script>
 
 <script th:inline="javascript">
-// 从后端传递的 stuSubList 数据
-var jsonStuSubList = [[${stuSubList}]];
-
-// 页面加载完成后，初始化学生下拉列表
-window.onload = function() {
-    var studentSelect = document.getElementById('studentSelect');
-    var uniqueStudentIds = new Set(); // 使用集合来避免重复
-
-    // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
-    jsonStuSubList.forEach(function(item) {
-        if (!uniqueStudentIds.has(item.stuId)) {
-            uniqueStudentIds.add(item.stuId);
-            var option = new Option(item.stuName, item.stuId);
-            studentSelect.add(option);
+    // 从后端传递的 stuSubList 数据
+    var jsonStuSubList = /*[[${stuSubList}]]*/[];
+    var selectedStuId = /*[[${selectedinfo != null ? selectedinfo.stuId : ''}]]*/'';
+    var selectedSubjectId = /*[[${selectedinfo != null ? selectedinfo.subjectId : ''}]]*/'';
+    var selectedClassDuration = /*[[${selectedinfo != null ? selectedinfo.classDuration : ''}]]*/'';
+    var selectedSchedualDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
+    var selectedSubjectSubName = /*[[${selectedinfo != null ? selectedinfo.subjectSubName : ''}]]*/'';
+    var selectedSubjectSubId = /*[[${selectedinfo != null ? selectedinfo.subjectSubId : ''}]]*/'';
+    var selectedLessonType = /*[[${selectedinfo != null ? selectedinfo.lessonType : ''}]]*/'';
+    
+    // 页面加载完成后，初始化学生下拉列表和其他控件
+    window.onload = function() {
+        var studentSelect = document.getElementById('studentSelect');
+        var subjectSelect = document.getElementById('subjectSelect');
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                studentSelect.add(option);
+            }
+        });
+    
+        // 如果页面加载时有选中的学生，初始化科目下拉列表
+        if (selectedStuId) {
+            studentSelect.value = selectedStuId;
+            updateSubjectSelect(selectedStuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId);
         }
-    });
-
-    // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
-    studentSelect.onchange = function() {
-        updateSubjectSelect(this.value);
+    
+        // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
+        studentSelect.onchange = function() {
+            updateSubjectSelect(this.value, '', '', '');
+        };
+    
+        // 设置上课时长的初始值
+        if (selectedClassDuration) {
+            document.getElementById('lsnduration').value = selectedClassDuration;
+        }
+    
+        // 设置计划上课日期的初始值
+        if (selectedSchedualDate) {
+            document.getElementById('datetimepickerInput').value = selectedSchedualDate;
+        }
+    
+        // 设置上课种别的初始值
+        if (selectedLessonType) {
+            document.getElementById('option' + selectedLessonType).checked = true;
+            updateLessonType(selectedStuId, selectedSubjectId);
+        }
     };
-
-    // 全部还原为不可用
-    document.getElementById("option0").disabled = true;
-    document.getElementById("option1").disabled = true;
-    document.getElementById("option2").disabled = true;
-};
-
-// 根据选中的学生 ID 更新科目下拉列表
-function updateSubjectSelect(stuId) {
-    var subjectSelect = document.getElementById('subjectSelect');
-    subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
-
-    // 添加与选中学生 ID 相关的科目到科目下拉列表
-    jsonStuSubList.forEach(function(item) {
-        if (item.stuId === stuId) {
-            var option = new Option(item.subjectName, item.subjectId);
-            subjectSelect.add(option);
+    
+    // 根据选中的学生 ID 更新科目下拉列表
+    function updateSubjectSelect(stuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId) {
+        var subjectSelect = document.getElementById('subjectSelect');
+        var subjectSubNameInput = document.getElementById('subjectSubName');
+        subjectSubNameInput.readonly = true;
+        var subjectSubIdInput = document.getElementById('subjectSubId');
+        subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
+    
+        // 添加与选中学生 ID 相关的科目到科目下拉列表
+        jsonStuSubList.forEach(function(item) {
+            if (item.stuId === stuId) {
+                var option = new Option(item.subjectName, item.subjectId);
+                subjectSelect.add(option);
+            }
+        });
+    
+        // 设置科目下拉列表的初始值
+        if (selectedSubjectId) {
+            subjectSelect.value = selectedSubjectId;
+            subjectSubNameInput.value = selectedSubjectSubName;
+            subjectSubIdInput.value = selectedSubjectSubId;
         }
-    });
-
-    // 监听科目下拉列表的变化，并更新上课种别的 radio button和《学生档案》表里设置的上课时长
-    subjectSelect.onchange = function() {
-        updateLessonType(stuId, this.value);
-    };
-}
-
-// 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button和《学生档案》表里设置的上课时长
-function updateLessonType(stuId, subjectId) {
-    // 上课时长
-    var minutesPerLsn;
-
-    // item是从v_latest_subject_info_from_student_document视图里抽出来的结果集
-    var selectedItem = jsonStuSubList.find(function(item) {
-        return item.stuId === stuId && item.subjectId === subjectId;
-    });
-
-    // 遍历item，找到了对象记录
-    if (selectedItem) {
-        // 课费支付种别
-        var payStyle = selectedItem.payStyle;
-
-        // 根据课费支付种别来更新上课种别的 radio button
-        if (payStyle === 0) {
-            document.getElementById("option0").checked = true;
-            document.getElementById("option0").disabled = false;
-
-            document.getElementById("option1").disabled = true;
-            document.getElementById("option2").disabled = true;
-        } else if (payStyle === 1) {
-            document.getElementById("option0").disabled = true;
-
-            document.getElementById("option1").checked = true;
-            document.getElementById("option1").disabled = false;
-
-            document.getElementById("option2").disabled = false;
-        }
-        // 将该学生的该科目在《学生档案》表里设定的上课时长取出来
-        minutesPerLsn = selectedItem.minutesPerLsn;
-
-        // 拿到上课时长下拉列表框控件
-        var select = document.getElementById('lsnduration');
-        var subjectname = document.getElementById('subjectSubName');
-        var subjectid = document.getElementById('subjectSubId');
-
-         // 创建一个新的选项元素
-         var option = document.createElement('option');
-         option.value = minutesPerLsn;
-         option.text = minutesPerLsn;
-
-         // 设置下拉列表的选定值为 minutesPerLsn
-         select.value = minutesPerLsn;
-         // 新规模式下
-         subjectname.value = selectedItem.subjectSubName;
-         subjectid.value = selectedItem.subjectSubId;
-
-
+    
+        // 监听科目下拉列表的变化，并更新上课种别的 radio button和《学生档案》表里设置的上课时长
+        subjectSelect.onchange = function() {
+            updateLessonType(stuId, this.value);
+        };
     }
-}
+    
+    // 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button和《学生档案》表里设置的上课时长
+    function updateLessonType(stuId, subjectId) {
+        var subjectSubNameInput = document.getElementById('subjectSubName');
+        var subjectSubIdInput = document.getElementById('subjectSubId');
+        
+        // item是从v_latest_subject_info_from_student_document视图里抽出来的结果集
+        var selectedItem = jsonStuSubList.find(function(item) {
+            return item.stuId === stuId && item.subjectId === subjectId;
+        });
+    
+        // 遍历item，找到了对象记录
+        if (selectedItem) {
+            // 课费支付种别
+            var payStyle = selectedItem.payStyle;
+    
+            // 根据课费支付种别来更新上课种别的 radio button
+            if (payStyle === 0) {
+                document.getElementById("option0").checked = true;
+                document.getElementById("option0").disabled = false;
+    
+                document.getElementById("option1").disabled = true;
+                document.getElementById("option2").disabled = true;
+            } else if (payStyle === 1) {
+                document.getElementById("option0").disabled = true;
+    
+                document.getElementById("option1").checked = true;
+                document.getElementById("option1").disabled = false;
+    
+                document.getElementById("option2").disabled = false;
+            }
+            // 将该学生的该科目在《学生档案》表里设定的上课时长取出来
+            var minutesPerLsn = selectedItem.minutesPerLsn;
+    
+            // 拿到上课时长下拉列表框控件
+            var select = document.getElementById('lsnduration');
+    
+             // 设置下拉列表的选定值为 minutesPerLsn
+             select.value = minutesPerLsn;
+    
+            // 设置科目级别名称
+            subjectSubNameInput.value = selectedItem.subjectSubName;
+            subjectSubIdInput.value = selectedItem.subjectSubId;
+        }
+    }
 </script>
 <style>
     /* 调整控件最右侧按钮的宽度 */

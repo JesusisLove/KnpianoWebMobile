@@ -75,6 +75,8 @@ public class Kn05S001LsnFixController {
     // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_fixlsn_001")
     public String toFixedLessonAdd(Model model) {
+        // 告诉前端画面，这是新规登录模式
+        model.addAttribute("isAddNewMode", true);
 
         // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来，初期化新规/变更画面的科目下拉列表框
         model.addAttribute("stuSubList", getStuSubList());
@@ -97,7 +99,22 @@ public class Kn05S001LsnFixController {
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_fixlsn_001")
     public String executeFixedLessonAdd(Kn05S001LsnFixBean knFixLsn001Bean, Model model) {
-        knFixLsn001Dao.save(knFixLsn001Bean);
+        // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
+        boolean addNewMode = false;
+        if (knFixLsn001Dao.getInfoByKey(knFixLsn001Bean.getStuId(), 
+                                        knFixLsn001Bean.getSubjectId(), 
+                                        knFixLsn001Bean.getFixedWeek()) == null) {
+            // 前端画面在数据校验的时候，需要知道从后端传来的是新规登录模式还是变更编辑模式
+            addNewMode = true;
+        }
+
+        // 画面数据有效性校验
+        if (validateHasError(model, knFixLsn001Bean, addNewMode)) {
+            return "kn_fixlsn_001/knfixlsn001_add_update";
+        }
+
+        // 执行新规登录操作
+        knFixLsn001Dao.save(knFixLsn001Bean, addNewMode);
         this.activeDay = knFixLsn001Bean.getFixedWeek();
         return "redirect:/kn_fixlsn_001_all";
     }
@@ -108,6 +125,9 @@ public class Kn05S001LsnFixController {
                                     @PathVariable("subjectId") String subjectId, 
                                     @PathVariable("fixedWeek") String fixedWeek, 
                                     Model model) {
+        // 告诉前端画面，这是变更编辑模式
+        model.addAttribute("isAddNewMode", false);
+        
         Kn05S001LsnFixBean knFixLsn001Bean = knFixLsn001Dao.getInfoByKey(stuId, subjectId, fixedWeek);
         model.addAttribute("selectedFixedLesson", knFixLsn001Bean);
 
@@ -127,10 +147,23 @@ public class Kn05S001LsnFixController {
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_fixlsn_001")
     public String executeFixedLessonEdit(Kn05S001LsnFixBean knFixLsn001Bean, Model model) {
-        System.out.println("编辑固定授業計画: " + knFixLsn001Bean);
-        knFixLsn001Dao.save(knFixLsn001Bean);
-        this.activeDay = knFixLsn001Bean.getFixedWeek();
+        // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
+        boolean addNewMode = false;
+        if (knFixLsn001Dao.getInfoByKey(knFixLsn001Bean.getStuId(), 
+                                        knFixLsn001Bean.getSubjectId(), 
+                                        knFixLsn001Bean.getFixedWeek()) == null) {
+            // 前端画面在数据校验的时候，需要知道从后端传来的是新规登录模式还是变更编辑模式
+            addNewMode = true;
+        }
 
+        // 画面数据有效性校验
+        if (validateHasError(model, knFixLsn001Bean, addNewMode)) {
+            return "kn_fixlsn_001/knfixlsn001_add_update";
+        }
+
+        // 执行变更编辑操作
+        knFixLsn001Dao.save(knFixLsn001Bean, addNewMode);
+        this.activeDay = knFixLsn001Bean.getFixedWeek();
         return "redirect:/kn_fixlsn_001_all";
     }
 
@@ -159,5 +192,60 @@ public class Kn05S001LsnFixController {
             activeDaysList.add(bean.getFixedWeek());
         }
         return CommonProcess.removeDuplicates(activeDaysList) ;
+    }
+
+    private boolean validateHasError(Model model, Kn05S001LsnFixBean knFixLsn001Bean, boolean addNewMode) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knFixLsn001Bean, msgList);
+        if (hasError == true) {
+            // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来，初期化新规/变更画面的科目下拉列表框
+            model.addAttribute("stuSubList", getStuSubList());
+
+            // 初期化星期下拉列表框
+            final List<String> regularWeek = combListInfo.getRegularWeek();
+            model.addAttribute("regularweek",regularWeek );
+
+            // 初期化固定上课时间几点的下拉列表框
+            final List<String> regularHour = combListInfo.getRegularHour();
+            model.addAttribute("regularhour",regularHour );
+            
+            // 初期化固定上课时间几分的下拉列表框
+            final List<String> regularMinute = combListInfo.getRegularMinute();
+            model.addAttribute("regularminute",regularMinute );
+
+            model.addAttribute("selectedFixedLesson", knFixLsn001Bean);
+            // 告诉前端画面当前的模式是新规登录还是变更编辑模式
+            model.addAttribute("isAddNewMode", addNewMode);
+
+            // 将错误消息显示在画面上
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knFixLsn001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn05S001LsnFixBean knFixLsn001Bean, List<String> msgList) {
+        if (knFixLsn001Bean.getStuId()==null || knFixLsn001Bean.getStuId().isEmpty() ) {
+            msgList.add("请选择学生姓名");
+        }
+
+        if (knFixLsn001Bean.getSubjectId() == null || knFixLsn001Bean.getSubjectId().isEmpty()) {
+            msgList.add("请选择科目名称");
+        }
+
+        if (knFixLsn001Bean.getFixedWeek() == null || knFixLsn001Bean.getFixedWeek().isEmpty()) {
+            msgList.add("请选择星期");
+        }
+
+        if (knFixLsn001Bean.getFixedHour() == null) {
+            msgList.add("请选择时");
+        }
+
+        if (knFixLsn001Bean.getFixedMinute() == null) {
+            msgList.add("请选择分");
+        }
+
+        return (msgList.size() != 0);
     }
 }

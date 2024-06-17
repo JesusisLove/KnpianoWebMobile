@@ -11,8 +11,10 @@ import com.liu.springboot04web.bean.Kn01B001StuBean;
 import com.liu.springboot04web.dao.Kn01B001StuDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -57,8 +59,12 @@ public class Kn01B001StuController{
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_stu_001")
-    public String excuteInfoAdd(Kn01B001StuBean knStu001Bean) {
-        System.out.println("" + knStu001Bean);
+    public String excuteInfoAdd(Model model, Kn01B001StuBean knStu001Bean) {
+
+        // 画面数据有效性校验
+        if (validateHasError(model, knStu001Bean)) {
+            return "kn_stu_001/knstu001_add_update";
+        }
         knStu001Dao.save(knStu001Bean);
         return "redirect:/kn_stu_001_all";
     }
@@ -73,7 +79,11 @@ public class Kn01B001StuController{
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_stu_001")
-    public String excuteInfoEdit(@ModelAttribute Kn01B001StuBean knStu001Bean) {
+    public String excuteInfoEdit(Model model, @ModelAttribute Kn01B001StuBean knStu001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knStu001Bean)) {
+            return "kn_stu_001/knstu001_add_update";
+        }
         knStu001Dao.save(knStu001Bean);
         return "redirect:/kn_stu_001_all";
     }
@@ -89,5 +99,27 @@ public class Kn01B001StuController{
             redirectAttributes.addFlashAttribute("errorMessage", "該当データ【"+id+"】が使用中です。削除できません。");
             return "redirect:/kn_stu_001_all"; // 重定向到列表页面
         }
+    }
+
+    private boolean validateHasError(Model model, Kn01B001StuBean knStu001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knStu001Bean, msgList);
+        if (hasError == true) {
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knStu001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn01B001StuBean knStu001Bean, List<String> msgList) {
+        if (knStu001Bean.getStuName()==null || knStu001Bean.getStuName().isEmpty() ) {
+            msgList.add("请输入学生姓名");
+        }
+
+        if (knStu001Bean.getGender() == null) {
+            msgList.add("请选择性别");
+        }
+        return (msgList.size() != 0);
     }
 }

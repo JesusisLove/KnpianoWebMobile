@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import com.liu.springboot04web.bean.Kn01B003BnkBean;
 import com.liu.springboot04web.dao.Kn01B003BnkDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -53,7 +56,11 @@ public class Kn01F003BnkController {
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_bnk_001")
-    public String executeBankAdd(Kn01B003BnkBean knBnk001Bean) {
+    public String executeBankAdd(Model model, Kn01B003BnkBean knBnk001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knBnk001Bean)) {
+            return "kn_bnk_001/knbnk001_add_update";
+        }  
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }
@@ -68,7 +75,11 @@ public class Kn01F003BnkController {
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_bnk_001")
-    public String executeBankEdit(Kn01B003BnkBean knBnk001Bean) {
+    public String executeBankEdit(Model model, Kn01B003BnkBean knBnk001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knBnk001Bean)) {
+            return "kn_bnk_001/knbnk001_add_update";
+        } 
         knBnk001Dao.save(knBnk001Bean);
         return "redirect:/kn_bnk_001_all";
     }
@@ -78,5 +89,23 @@ public class Kn01F003BnkController {
     public String executeBankDelete(@PathVariable("id") String id) {
         knBnk001Dao.delete(id);
         return "redirect:/kn_bnk_001_all";
+    }
+
+    private boolean validateHasError(Model model, Kn01B003BnkBean knStu001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knStu001Bean, msgList);
+        if (hasError == true) {
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knStu001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn01B003BnkBean knStu001Bean, List<String> msgList) {
+        if (knStu001Bean.getBankName()==null || knStu001Bean.getBankName().isEmpty() ) {
+            msgList.add("请输入银行名称");
+        }
+        return (msgList.size() != 0);
     }
 }
