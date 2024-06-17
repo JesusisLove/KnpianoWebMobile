@@ -54,7 +54,6 @@ public class KNPianoMvcConfig extends WebMvcConfigurerAdapter {
             public void addInterceptors(InterceptorRegistry registry) {
                 // 为了学习SpringBoot的错误处理机制，暂时把拦截器注释掉 2020/08/03
 //                registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/login.html","/","/user/login");
-//                System.out.println("myWebMvcConfigurerAdapter　👉　addInterceptors　呼ばされた");
             }
             // addPathPatterns:添加你要拦截哪些请求。"/**":表示任意多层路径下的任意请求
             // excludePathPatterns：同时排除这三个请求，可以让非法用户访问

@@ -109,7 +109,7 @@
                             <td th:text="${studoc != null && studoc.subjectName != null ? studoc.subjectName : ''}"></td>
                             <td th:text="${studoc != null && studoc.subjectSubName != null ? studoc.subjectSubName : ''}"></td>
                             <td th:text="${studoc != null && studoc.adjustedDate != null ? #dates.format(studoc.adjustedDate, 'yyyy-MM-dd') : ''}"></td>
-                            <td th:text="${studoc != null && studoc.payStyle != null ? (studoc.payStyle == 1 ? '按月付费' :'按课时付费') :'' }"></td>
+                            <td th:text="${studoc != null && studoc.payStyle != null ? (studoc.payStyle == 1 ? '按月付费' :'课时付费') :'' }"></td>
                             <td th:text="${studoc != null && studoc.minutesPerLsn != null ? studoc.minutesPerLsn : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFee != null ? studoc.lessonFee : ''}"></td>
                             <td th:text="${studoc != null && studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}"></td>

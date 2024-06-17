@@ -24,7 +24,7 @@ public class Kn02F004PayBean implements KnPianoBean {
     protected String    bankName;
     protected String    lsnMonth;
     protected Integer   payStyle;
-    protected Integer   lsnCount;
+    protected float     lsnCount;
     protected float     lsnFee;
 
     public String getLsnPayId() {
@@ -111,10 +111,10 @@ public class Kn02F004PayBean implements KnPianoBean {
     public void setPayStyle(Integer payStyle) {
         this.payStyle = payStyle;
     }
-    public Integer getLsnCount() {
+    public float getLsnCount() {
         return lsnCount;
     }
-    public void setLsnCount(Integer lsnCount) {
+    public void setLsnCount(float lsnCount) {
         this.lsnCount = lsnCount;
     }
     public String getLsnMonth() {

@@ -43,7 +43,7 @@
                     ,lesson.lesson_type
                     ,lsnfee.pay_style
                     ,lsnfee.lsn_month
-          order by stu_name,lsn_month
+          order by stu_name,lsn_month desc, subject_id, subject_sub_id desc
     </select> 
 
     <!-- 点击未支付明细的【学费支付】按钮， 根据学费编号（lsn_fee_id) 抽出未支付的学费信息 初期化【学费支付】画面 -->

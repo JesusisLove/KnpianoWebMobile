@@ -42,7 +42,6 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     // 保存或更新学生档案信息信息
     public void save(Kn03D002StuDocBean knStudoc001Bean) {
 
-        System.out.println("Parameters from knStudoc001Bean: " + knStudoc001Bean.getStuId() + ", " + knStudoc001Bean.getSubjectId() + ", " + knStudoc001Bean.getSubjectSubId() + ", " + knStudoc001Bean.getAdjustedDate());
         String stuId = knStudoc001Bean.getStuId();
         String subjectSubId = knStudoc001Bean.getSubjectSubId();
         String subjectId = knStudoc001Bean.getSubjectId();

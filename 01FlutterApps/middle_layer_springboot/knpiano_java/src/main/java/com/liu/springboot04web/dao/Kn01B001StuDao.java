@@ -42,7 +42,6 @@ public class Kn01B001StuDao implements InterfaceKnPianoDao {
             // 学生の名前の自動採番
             knStu001Mapper.getNextSequence(map);
             knStu001Bean.setStuId(KNConstant.CONSTANT_KN_STU_SEQ+(Integer)map.get("parm_out"));
-            System.out.println(map.get("parm_out"));
             insert(knStu001Bean);
         } else {
             update(knStu001Bean);

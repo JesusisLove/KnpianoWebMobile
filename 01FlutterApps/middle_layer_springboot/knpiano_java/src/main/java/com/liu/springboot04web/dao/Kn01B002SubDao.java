@@ -20,7 +20,6 @@ public class Kn01B002SubDao implements InterfaceKnPianoDao {
     // 画面初期化显示所科目信息
     public List<Kn01B002SubBean> getInfoList() {
         List<Kn01B002SubBean> list = knSub001Mapper.getInfoList();
-        // System.out.println("select的KN_SUB_001数据：" + list.toString());
         return list;
     }
 
@@ -32,7 +31,6 @@ public class Kn01B002SubDao implements InterfaceKnPianoDao {
     // 根据ID获取科目信息
     public Kn01B002SubBean getInfoById(String id) {
         Kn01B002SubBean knSub001Bean = knSub001Mapper.getInfoById(id);
-        // System.out.println("select的KN_SUB_001数据：" + knSub001Bean.toString());
         return knSub001Bean;
     }
 
@@ -44,7 +42,6 @@ public class Kn01B002SubDao implements InterfaceKnPianoDao {
             // 科目ID的自动编号
             knSub001Mapper.getNextSequence(map);
             knSub001Bean.setSubjectId(KNConstant.CONSTANT_KN_SUB_SEQ + (Integer)map.get("parm_out"));
-            System.out.println(map.get("parm_out"));
             insert(knSub001Bean);
         } else {
             update(knSub001Bean);
@@ -53,19 +50,16 @@ public class Kn01B002SubDao implements InterfaceKnPianoDao {
 
     // 新增科目信息
     private void insert(Kn01B002SubBean knSub001Bean) {
-        // System.out.println("insert的KN_SUB_001数据：" + knSub001Bean.toString());
         knSub001Mapper.insertInfo(knSub001Bean);
     }
 
     // 更新科目信息
     private void update(Kn01B002SubBean knSub001Bean) {
-        // System.out.println("update的KN_SUB_001数据：" + knSub001Bean.toString());
         knSub001Mapper.updateInfo(knSub001Bean);
     }
 
     // 删除科目信息
     public void delete(String id) { 
-        System.out.println("delete的KN_SUB_001数据：科目ID = " + id);
         knSub001Mapper.deleteInfo(id); 
     }
 }
