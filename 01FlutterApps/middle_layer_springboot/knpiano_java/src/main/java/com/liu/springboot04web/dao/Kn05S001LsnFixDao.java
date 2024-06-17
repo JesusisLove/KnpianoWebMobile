@@ -19,7 +19,6 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
     // 获取所有固定授業計画的信息列表
     public List<Kn05S001LsnFixBean> getInfoList() {
         List<Kn05S001LsnFixBean> list = knFixLsn001Mapper.getInfoList();
-        // System.out.println("查询的固定授業計画管理数据：" + list.toString());
         return list;
     }
 
@@ -36,15 +35,14 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
     // 根据ID获取特定的固定授業計画信息
     public Kn05S001LsnFixBean getInfoByKey(String stuId, String subjectId, String fixedWeek) {
         Kn05S001LsnFixBean knFixLsn001Bean = knFixLsn001Mapper.getInfoById(stuId, subjectId, fixedWeek);
-        // System.out.println("查询的固定授業計画管理详细数据：" + knFixLsn001Bean.toString());
         return knFixLsn001Bean;
     }
 
     // 保存或更新固定授業計画信息
-    public void save(Kn05S001LsnFixBean knFixLsn001Bean) {
+    public void save(Kn05S001LsnFixBean knFixLsn001Bean, boolean addNewMode) {
 
         // 确认表里有没有记录，没有就insert，有记录就update
-        if (getInfoByKey(knFixLsn001Bean.getStuId(), knFixLsn001Bean.getSubjectId(), knFixLsn001Bean.getFixedWeek()) == null) {
+        if (addNewMode) {
             insert(knFixLsn001Bean);
         } else {
             update(knFixLsn001Bean);
@@ -58,13 +56,11 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
 
     // 新增固定授業計画信息
     private void insert(Kn05S001LsnFixBean knFixLsn001Bean) {
-        // System.out.println("插入的固定授業計画管理数据：" + knFixLsn001Bean.toString());
         knFixLsn001Mapper.insertInfo(knFixLsn001Bean);
     }
 
     // 更新固定授業計画信息
     private void update(Kn05S001LsnFixBean knFixLsn001Bean) {
-        // System.out.println("更新的固定授業計画管理数据：" + knFixLsn001Bean.toString());
         knFixLsn001Mapper.updateInfo(knFixLsn001Bean);
     }
 }

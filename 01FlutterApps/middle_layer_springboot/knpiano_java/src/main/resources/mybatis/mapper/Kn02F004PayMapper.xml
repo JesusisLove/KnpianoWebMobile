@@ -16,6 +16,7 @@
                     </if>
                 </foreach>
             </where>
+            order by stu_name,pay_month desc, lsn_pay_id desc, subject_id, subject_sub_id desc
     </select>
 
     <!-- 在课程管理模块里，当执行“签到”时，查看按月付费的科目有没有已经执行了月费结算处理

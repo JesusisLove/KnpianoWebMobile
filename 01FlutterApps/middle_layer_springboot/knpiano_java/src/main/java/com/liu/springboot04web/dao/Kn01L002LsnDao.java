@@ -29,7 +29,6 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
 
     public List<Kn01L002LsnBean> getInfoList() {
         List<Kn01L002LsnBean> list =knLsn001Mapper.getInfoList();
-        // System.out.println("selectの学生授業情報管理データ：" + list.toString());
         return list;
     }
 

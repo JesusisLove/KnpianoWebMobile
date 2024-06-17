@@ -45,6 +45,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 </if>
             </foreach>
         </where>
+        order by stu_name, lsn_month desc, lsn_fee_id desc, subject_id, subject_sub_id desc, lesson_type
     </select> 
 
     <update id="updateInfo">
