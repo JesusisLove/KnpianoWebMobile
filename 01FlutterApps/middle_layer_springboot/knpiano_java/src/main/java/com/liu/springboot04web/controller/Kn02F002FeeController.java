@@ -65,7 +65,6 @@ public class Kn02F002FeeController{
     // 【課費情報管理】新規画面にて、【保存】ボタンを押下して、新規情報を保存すること
     @PostMapping("/kn_lsn_fee_001")
     public String excuteInfoAdd(Kn02F002FeeBean knLsnFee001Bean) {
-        System.out.println("" + knLsnFee001Bean);
         knLsnFee001Dao.save(knLsnFee001Bean);
         return "redirect:/kn_lsn_fee_001_all";
     }

@@ -13,8 +13,10 @@ import com.liu.springboot04web.dao.Kn01B003BnkDao;
 import com.liu.springboot04web.dao.Kn05S002StubnkDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 @Controller
 public class Kn05S002StubnkController{
@@ -45,23 +47,11 @@ public class Kn05S002StubnkController{
 
     // 【学生銀行番号管理】新規画面にて、【保存】ボタンを押下して、新規情報を保存すること
     @PostMapping("/kn_05s002_stubnk")
-    public String excuteInfoAdd(Kn05S002StubnkBean Kn05S002StubnkBean) {
-        Kn05S002StubnkDao.save(Kn05S002StubnkBean);
-        return "redirect:/kn_05s002_stubnk_all";
-    }
-
-    // // 【学生銀行番号管理】編集ボタンを押下して、【学生銀行番号管理】編集画面へ遷移すること
-    // @GetMapping("/kn_05s002_stubnk/{id}")
-    // public String toInfoEdit(@PathVariable("id") String id, Model model) {
-    //     Kn05S002StubnkBean Kn05S002StubnkBean = Kn05S002StubnkDao.getInfoById(id);
-    //     model.addAttribute("selectedinfo", Kn05S002StubnkBean);
-    //     return "kn_05s002_stubnk/Kn05S002stubnk_add_update";
-    // }
-
-    
-    // 【学生銀行番号管理】編集画面にて、【保存】ボタンを押下して、変更した情報を保存すること
-    @PutMapping("/kn_05s002_stubnk")
-    public String excuteInfoEdit(@ModelAttribute Kn05S002StubnkBean Kn05S002StubnkBean) {
+    public String excuteInfoAdd(Model model, Kn05S002StubnkBean Kn05S002StubnkBean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, Kn05S002StubnkBean)) {
+            return "kn_05s002_stubnk/Kn05S002stubnk_add_update";
+        }
         Kn05S002StubnkDao.save(Kn05S002StubnkBean);
         return "redirect:/kn_05s002_stubnk_all";
     }
@@ -92,5 +82,29 @@ public class Kn05S002StubnkController{
             map.put(bean.getBankId(), bean.getBankName());
         }
         return map;
+    }
+
+    private boolean validateHasError(Model model, Kn05S002StubnkBean knStuBnk001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knStuBnk001Bean, msgList);
+        if (hasError == true) {
+            model.addAttribute("stuMap", getStuCodeValueMap());
+            model.addAttribute("bnkMap", getBnkCodeValueMap());
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knStuBnk001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn05S002StubnkBean knStuBnk001Bean, List<String> msgList) {
+        if (knStuBnk001Bean.getStuId()==null || knStuBnk001Bean.getStuId().isEmpty() ) {
+            msgList.add("请选择学生姓名");
+        }
+
+        if (knStuBnk001Bean.getBankId() == null || knStuBnk001Bean.getBankId().isEmpty()  ) {
+            msgList.add("请选择银行名称");
+        }
+        return (msgList.size() != 0);
     }
 }

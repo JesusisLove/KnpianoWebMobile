@@ -45,8 +45,16 @@ public class Kn05S001LsnFixController4Mobile {
     // 【新規登録/変更編集】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_fixlsn_001")
-    public void excuteInfoAdd(@RequestBody Kn05S001LsnFixBean knStu001Bean) {
-        knFixLsn001Dao.save(knStu001Bean);
+    public void excuteInfoAdd(@RequestBody Kn05S001LsnFixBean knFixLsn001Bean) {
+        // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
+        boolean addNewMode = false;
+        if (knFixLsn001Dao.getInfoByKey(knFixLsn001Bean.getStuId(), 
+                                        knFixLsn001Bean.getSubjectId(), 
+                                        knFixLsn001Bean.getFixedWeek()) == null) {
+            // 前端画面在数据校验的时候，需要知道从后端传来的是新规登录模式还是变更编辑模式
+            addNewMode = true;
+        }
+        knFixLsn001Dao.save(knFixLsn001Bean, addNewMode);
     }
 
     // 【排课一覧】削除ボタンを押下

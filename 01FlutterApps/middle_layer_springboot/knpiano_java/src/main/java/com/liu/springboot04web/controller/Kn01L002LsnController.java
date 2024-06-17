@@ -14,6 +14,7 @@ import com.liu.springboot04web.dao.Kn03D002StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -146,14 +147,22 @@ public class Kn01L002LsnController{
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_lsn_001")
-    public String excuteInfoAdd(Kn01L002LsnBean knLsn001Bean) {
+    public String excuteInfoAdd(Model model, Kn01L002LsnBean knLsn001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knLsn001Bean)) {
+            return "kn_lsn_001/knlsn001_add_update";
+        }
         knLsn001Dao.save(knLsn001Bean);
         return "redirect:/kn_lsn_001_all";
     }
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_lsn_001")
-    public String excuteInfoEdit(@ModelAttribute Kn01L002LsnBean knLsn001Bean) {
+    public String excuteInfoEdit(Model model, @ModelAttribute Kn01L002LsnBean knLsn001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knLsn001Bean)) {
+            return "kn_lsn_001/knlsn001_add_update";
+        }
         knLsn001Dao.save(knLsn001Bean);
         return "redirect:/kn_lsn_001_all";
     }
@@ -240,5 +249,43 @@ public class Kn01L002LsnController{
             } 
         }
         return bean;
+    }
+
+    private boolean validateHasError(Model model, Kn01L002LsnBean knLsn001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knLsn001Bean, msgList);
+        if (hasError == true) {
+            // 新规画面下拉列表框项目内容初始化
+            model.addAttribute("stuSubList", getStuSubList());
+
+            final List<String> durations = combListInfo.getDurations();
+            model.addAttribute("duration",durations );
+
+            // 将错误消息显示在画面上
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knLsn001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn01L002LsnBean knLsn001Bean, List<String> msgList) {
+        if (knLsn001Bean.getStuId()==null || knLsn001Bean.getStuId().isEmpty() ) {
+            msgList.add("请选择学生姓名");
+        }
+
+        if (knLsn001Bean.getSubjectId() == null || knLsn001Bean.getSubjectId().isEmpty()) {
+            msgList.add("请选择科目名称");
+        }
+
+        if (knLsn001Bean.getSchedualDate() == null) {
+            msgList.add("请选择计划上课日期");
+        }
+
+        if (knLsn001Bean.getClassDuration() == null || knLsn001Bean.getClassDuration() == 0) {
+            msgList.add("请选择上课时长");
+        }
+
+        return (msgList.size() != 0);
     }
 }

@@ -11,8 +11,10 @@ import com.liu.springboot04web.bean.Kn01B002SubBean;
 import com.liu.springboot04web.dao.Kn01B002SubDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -56,8 +58,11 @@ public class Kn01B002SubController {
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_sub_001")
-    public String executeSubjectAdd(Kn01B002SubBean knSub001Bean) {
-        System.out.println("新增科目: " + knSub001Bean);
+    public String executeSubjectAdd(Model model, Kn01B002SubBean knSub001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knSub001Bean)) {
+            return "kn_sub_001/knsub001_add_update";
+        }   
         knSub001Dao.save(knSub001Bean);
         return "redirect:/kn_sub_001_all";
     }
@@ -72,8 +77,11 @@ public class Kn01B002SubController {
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_sub_001")
-    public String executeSubjectEdit(Kn01B002SubBean knSub001Bean) {
-        System.out.println("编辑科目: " + knSub001Bean);
+    public String executeSubjectEdit(Model model, Kn01B002SubBean knSub001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knSub001Bean)) {
+            return "kn_sub_001/knsub001_add_update";
+        } 
         knSub001Dao.save(knSub001Bean);
         return "redirect:/kn_sub_001_all";
     }
@@ -89,5 +97,23 @@ public class Kn01B002SubController {
             redirectAttributes.addFlashAttribute("errorMessage", "該当データ【"+id+"】が使用中です。削除できません。");
             return "redirect:/kn_sub_001_all"; // 重定向到列表页面
         }
+    }
+
+    private boolean validateHasError(Model model, Kn01B002SubBean knStu001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knStu001Bean, msgList);
+        if (hasError == true) {
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knStu001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn01B002SubBean knStu001Bean, List<String> msgList) {
+        if (knStu001Bean.getSubjectName()==null || knStu001Bean.getSubjectName().isEmpty() ) {
+            msgList.add("请输入学科名称");
+        }
+        return (msgList.size() != 0);
     }
 }
