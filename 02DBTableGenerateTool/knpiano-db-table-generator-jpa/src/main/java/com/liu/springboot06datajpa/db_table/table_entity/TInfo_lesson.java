@@ -21,6 +21,7 @@ public class TInfo_lesson {
     @Id @Column (name = "lesson_id", length = 32, nullable = false)  protected String lessonId;
     @Column (name = "subject_id", length = 32)  protected String subjectId;
     @Column (name = "stu_id", length = 32)  protected String stuId;
+    @Column (name = "subject_sub_id", length = 32)  protected String subjectSubId;
     @Column (name = "class_duration")  protected Date classDuration;
     @Column (name = "lesson_type")  protected Integer lessonType;
     @Column (name = "schedual_date")  protected Date schedualDate;
