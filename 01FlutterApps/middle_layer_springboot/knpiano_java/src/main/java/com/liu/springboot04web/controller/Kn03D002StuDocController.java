@@ -18,6 +18,7 @@ import com.liu.springboot04web.dao.Kn01B002SubDao;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +73,8 @@ public class Kn03D002StuDocController {
     // 【検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_studoc_001")
     public String toStuDocAdd(Model model) {
+        // 告诉前端画面，这是新规登录模式
+        model.addAttribute("isAddNewMode", true);
 
         // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的学生下拉列表框
         model.addAttribute("stuMap", getStuCodeValueMap());
@@ -82,14 +85,29 @@ public class Kn03D002StuDocController {
 
         final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
+        model.addAttribute("selectedStuDoc", null);
 
         return "kn_studoc_001/knstudoc001_add_update";
     }
 
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_studoc_001")
-    public String executeStuDocAdd(Kn03D002StuDocBean knStudoc001Bean) {
-        knStudoc001Dao.save(knStudoc001Bean);
+    public String executeStuDocAdd(Model model, Kn03D002StuDocBean knStudoc001Bean) {
+        // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
+        boolean addNewMode = false;
+
+        String stuId = knStudoc001Bean.getStuId();
+        String subjectSubId = knStudoc001Bean.getSubjectSubId();
+        String subjectId = knStudoc001Bean.getSubjectId();
+        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
+        // 确认表里有没有记录，没有就insert，有记录就update
+        addNewMode = (knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null);
+
+        // 画面数据有效性校验
+        if (validateHasError(model, knStudoc001Bean, addNewMode)) {
+            return "kn_studoc_001/knstudoc001_add_update";
+        }
+        knStudoc001Dao.save(knStudoc001Bean, addNewMode);
         return "redirect:/kn_studoc_001_all";
     }
 
@@ -102,18 +120,36 @@ public class Kn03D002StuDocController {
                                @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
                                 Date adjustedDate, 
                                 Model model) {
-        System.out.println("Parameters from 変数: " + stuId + ", " + subjectId + ", " + subjectSubId + ", " + adjustedDate);
+        // 告诉前端画面，这是变更编辑模式
+        model.addAttribute("isAddNewMode", false);
+
         Kn03D002StuDocBean knStudoc001Bean = knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate);
         model.addAttribute("selectedStuDoc", knStudoc001Bean);
+
         final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
+        
         return "kn_studoc_001/knstudoc001_add_update";
     }
 
     // 【変更編集】画面にて、【保存】ボタンを押下
     @PutMapping("/kn_studoc_001")
-    public String executeStuDocEdit(Kn03D002StuDocBean knStudoc001Bean) {
-        knStudoc001Dao.save(knStudoc001Bean);
+    public String executeStuDocEdit(Model model, Kn03D002StuDocBean knStudoc001Bean) {
+        // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
+        boolean addNewMode = false;
+
+        String stuId = knStudoc001Bean.getStuId();
+        String subjectSubId = knStudoc001Bean.getSubjectSubId();
+        String subjectId = knStudoc001Bean.getSubjectId();
+        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
+        // 确认表里有没有记录，没有就insert，有记录就update
+        addNewMode = (knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null);
+
+        // 画面数据有效性校验
+        if (validateHasError(model, knStudoc001Bean, addNewMode)) {
+            return "kn_studoc_001/knstudoc001_add_update";
+        }
+        knStudoc001Dao.save(knStudoc001Bean, addNewMode);
         return "redirect:/kn_studoc_001_all";
     }
 
@@ -153,5 +189,51 @@ public class Kn03D002StuDocController {
     private List<Kn05S003SubjectEdabnBean> getEdaBanCodeValueMap() {
         List<Kn05S003SubjectEdabnBean> collection = kn05S003SubjectEdabnDao.getInfoList();
         return collection;
+    }
+
+    private boolean validateHasError(Model model, Kn03D002StuDocBean knStudoc001Bean, boolean addNewMode) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knStudoc001Bean, msgList);
+        if (hasError == true) {
+            // 新规画面下拉列表框项目内容初始化
+            model.addAttribute("stuMap", getStuCodeValueMap());
+            model.addAttribute("subjects", getSubCodeValueMap());
+            model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
+            final List<String> durations = combListInfo.getMinutesPerLsn();
+            model.addAttribute("duration",durations );
+
+            // 告诉前端画面当前的模式是新规登录还是变更编辑模式
+            model.addAttribute("isAddNewMode", addNewMode);
+
+            // 将错误消息显示在画面上
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedStuDoc", knStudoc001Bean);
+        }
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn03D002StuDocBean knStudoc001Bean, List<String> msgList) {
+        if (knStudoc001Bean.getStuId()==null || knStudoc001Bean.getStuId().isEmpty() ) {
+            msgList.add("请选择学生姓名");
+        }
+
+        if (knStudoc001Bean.getSubjectId() == null || knStudoc001Bean.getSubjectId().isEmpty()) {
+            msgList.add("请选择科目名称");
+        }
+
+        if (knStudoc001Bean.getSubjectSubId() == null || knStudoc001Bean.getSubjectSubId().isEmpty()) {
+            msgList.add("请选择科目级别名称");
+        }
+
+        if (knStudoc001Bean.getAdjustedDate() == null) {
+            msgList.add("请选择价格调整日期");
+        }
+
+        if (knStudoc001Bean.getMinutesPerLsn() == null || knStudoc001Bean.getMinutesPerLsn() == 0) {
+            msgList.add("请选择上课时长");
+        }
+
+        return (msgList.size() != 0);
     }
 }

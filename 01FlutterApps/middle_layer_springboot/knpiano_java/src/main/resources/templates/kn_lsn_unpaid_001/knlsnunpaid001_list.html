@@ -41,7 +41,6 @@
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_unpaid_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <hr/>
-            <hr/>
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_unpaid_001/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
@@ -65,7 +64,7 @@
                                     th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : '')}"></option>
                         </select>
                     </div>
-                    <div class="form-group" th:if="${selectedinfo==null}" style="margin-left: 20px;">
+                    <div class="form-group" style="margin-left: 20px;">
                         <label>学生姓名</label> 
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
@@ -74,6 +73,16 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary">検 索</button><hr/>
+                <!-- 如果没有学生的未支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有学生的未支付信息！</p>
+                </div>
             </form> 
             <!-- Tab账单明细 -->
             <!-- 未支付明细内容 -->

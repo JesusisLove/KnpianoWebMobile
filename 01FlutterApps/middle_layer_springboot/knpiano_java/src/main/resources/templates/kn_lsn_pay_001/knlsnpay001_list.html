@@ -74,9 +74,19 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary">検 索</button><hr/>
+                <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有学生的已支付信息！</p>
+                </div>
+
             </form> 
             <!-- 选项卡内容 -->
-            <hr/>
             <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
