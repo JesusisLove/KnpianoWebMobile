@@ -15,6 +15,7 @@ import com.liu.springboot04web.service.ComboListInfoService;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -127,7 +128,6 @@ public class Kn02F004UnpaidController{
 
         // 取得该生的银行信息
         String stuId = knLsnUnPaid001Bean.getStuId();
-
         // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
         Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
         model.addAttribute("bankMap", stuBankMap);
@@ -139,7 +139,22 @@ public class Kn02F004UnpaidController{
 
     // 【課費未支払管理】精算画面にて、【保存】ボタンを押下して、課費精算を行うこと
     @PostMapping("/kn_lsn_unpaid_001")
-    public String excuteLsnPay(Kn02F004UnpaidBean knLsnUnPaid001Bean) {
+    public String excuteLsnPay(Model model, Kn02F004UnpaidBean knLsnUnPaid001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knLsnUnPaid001Bean)) {
+            return "kn_lsn_unpaid_001/knlsnunpaid001_add_update";
+        }
+        // 課費精算を行う
+        knLsnUnPaid001Dao.excuteLsnPay(knLsnUnPaid001Bean);
+        return "redirect:/kn_lsn_unpaid_001_all";
+    }
+
+    @PutMapping("/kn_lsn_unpaid_001")
+    public String excuteLsnPayEdit(Model model, Kn02F004UnpaidBean knLsnUnPaid001Bean) {
+        // 画面数据有效性校验
+        if (validateHasError(model, knLsnUnPaid001Bean)) {
+            return "kn_lsn_unpaid_001/knlsnunpaid001_add_update";
+        }
         // 課費精算を行う
         knLsnUnPaid001Dao.excuteLsnPay(knLsnUnPaid001Bean);
         return "redirect:/kn_lsn_unpaid_001_all";
@@ -156,7 +171,6 @@ public class Kn02F004UnpaidController{
         return map;
     }
 
-
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
     private Map<String, String> getResultsTabStus(Collection<Kn02F004UnpaidBean> collection) {
 
@@ -171,5 +185,53 @@ public class Kn02F004UnpaidController{
             }
         }
         return activeStudentsMap;
+    }
+
+    private boolean validateHasError(Model model, Kn02F004UnpaidBean knLsnUnPaid001Bean) {
+        boolean hasError = false;
+        List<String> msgList = new ArrayList<String>();
+        hasError = inputDataHasError(knLsnUnPaid001Bean, msgList);
+        if (hasError == true) {
+            // 将学生交费信息响应送给前端
+            model.addAttribute("selectedinfo", knLsnUnPaid001Bean);
+
+            // 取得该生的银行信息
+            String stuId = knLsnUnPaid001Bean.getStuId();
+            // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
+            Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
+            model.addAttribute("bankMap", stuBankMap);
+
+            // 将错误消息显示在画面上
+            model.addAttribute("errorMessageList", msgList);
+            model.addAttribute("selectedinfo", knLsnUnPaid001Bean);
+        }
+
+        return hasError;
+    }
+
+    private boolean inputDataHasError(Kn02F004UnpaidBean knLsnUnPaid001Bean, List<String> msgList) {
+        if (knLsnUnPaid001Bean.getLsnPay() <= 0 ) {
+            msgList.add("请输入実績支払金額。");
+        }
+
+        if (knLsnUnPaid001Bean.getLessonType() == 1 && knLsnUnPaid001Bean.getPayStyle() == 1) {
+            if (knLsnUnPaid001Bean.getSubjectPrice() * 4 != knLsnUnPaid001Bean.getLsnPay()) {
+                msgList.add("精算金額和実際精算金額不一致，请重新输入");
+            }
+        } else {
+            if (knLsnUnPaid001Bean.getLsnFee() != knLsnUnPaid001Bean.getLsnPay()) {
+                msgList.add("精算金額和実際精算金額不一致，请重新输入");
+            }
+        }
+
+        if (knLsnUnPaid001Bean.getBankId() == null || knLsnUnPaid001Bean.getBankId().isEmpty()) {
+            msgList.add("请选择银行名称");
+        }
+
+        if (knLsnUnPaid001Bean.getPayMonth() == null || knLsnUnPaid001Bean.getPayMonth().isEmpty()) {
+            msgList.add("请选择要精算月份");
+        }
+
+        return (msgList.size() != 0);
     }
 }

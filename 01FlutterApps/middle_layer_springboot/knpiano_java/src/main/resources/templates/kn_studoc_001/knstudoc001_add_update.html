@@ -25,9 +25,10 @@
                 <input type="hidden" name="_method" value="put" th:if="${selectedStuDoc!=null}"/>
                 <br>
                 <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
-                <div class="form-group" th:if="${selectedStuDoc==null}">
+                <!-- <div class="form-group" th:if="${isAddNewMode}"> -->
+                <div class="form-group" th:if="${isAddNewMode}">
                     <label>学生姓名</label> 
-                    <select class="form-control" name="stuId"> 
+                    <select class="form-control" name="stuId" id="studentSelect"> 
                         <option value="">请选择</option>
                         <option th:each="element : ${stuMap}" 
                                 th:value="${element.key}" 
@@ -37,8 +38,9 @@
                         </option>
                     </select>
                 </div>
-                 <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
-                <div class="form-group" th:unless="${selectedStuDoc==null}">
+                <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
+                <!-- <div class="form-group" th:if="${!isAddNewMode}"> -->
+                <div class="form-group" th:if="${!isAddNewMode}">
                     <label>学生姓名</label> 
                     <input name="stuName" type="text" class="form-control" 
                            th:value="${selectedStuDoc.stuName}" 
@@ -48,7 +50,7 @@
                 <br>
 
                 <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
-                <div class="form-group" th:if="${selectedStuDoc==null}">
+                <div class="form-group" th:if="${isAddNewMode}">
                     <label for="subjectSelect">科目名称</label>
                     <select class="form-control" id="subjectSelect" name="subjectId">
                         <option value="">请选择</option>
@@ -60,7 +62,7 @@
                     </select>
                 </div>
                 <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                <div class="form-group" th:unless="${selectedStuDoc==null}">
+                <div class="form-group" th:if="${!isAddNewMode}">
                     <label>科目名称</label> 
                     <input name="subjectName" type="text" class="form-control" 
                         th:value="${selectedStuDoc.subjectName}" 
@@ -70,14 +72,14 @@
                 </div>
                 <br>
                 <!-- 新規登録 模式下 科目级别名称 下拉列表框 -->
-                <div class="form-group" th:if="${selectedStuDoc==null}">
+                <div class="form-group" th:if="${isAddNewMode}">
                     <label for="subSubjectSelect">科目级别名称</label>
                     <select class="form-control" id="subSubjectSelect" name="subjectSubId">
                         <option value="">请选择</option>
                     </select>
                 </div>
                 <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
-                <div class="form-group" th:unless="${selectedStuDoc==null}">
+                <div class="form-group" th:if="${!isAddNewMode}">
                     <label>科目级别名称</label> 
                     <input name="subjectSubName" type="text" class="form-control" 
                         th:value="${selectedStuDoc.subjectSubName}" 
@@ -87,7 +89,7 @@
                 
                 <br>
                 <!-- 新規登録 模式下 调整日期用 日期控件显示 -->
-                <div class="form-group"  th:if="${selectedStuDoc==null}">
+                <div class="form-group"  th:if="${isAddNewMode}">
                     <label>調整日付</label> 
                     <input id="adjustedDate" name="adjustedDate" type="date" class="form-control" placeholder=""
                             th:value="${selectedStuDoc != null && selectedStuDoc.adjustedDate != null ?
@@ -96,7 +98,7 @@
                 </div>
 
                 <!-- 変更編集 模式下 调整日期用 日期控件显示 -->
-                <div class="form-group"  th:unless="${selectedStuDoc==null}"><br>  
+                <div class="form-group"  th:if="${selectedStuDoc!=null}"><br>  
                     <label>調整日付</label> 
                     <input id="adjustedDate" name="adjustedDate" type="text" class="form-control" readonly
                             th:value="${selectedStuDoc != null && selectedStuDoc.adjustedDate != null ?
@@ -114,7 +116,7 @@
                             th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==1 : true">
                             <label class="form-check-label">按月付费</label>
                         </div>
-                        <div class="form-check" style="padding-left: 50px;"s>
+                        <div class="form-check" style="padding-left: 50px;">
                             <input class="form-check-input" type="radio" name="payStyle" value="0" 
                             th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==0 : false">
                             <label class="form-check-label">按课时付费</label>
@@ -135,55 +137,19 @@
                 <!-- 変更編集 模式下 显示当前科目的标准价格 -->
                 <div class="form-group">
                     <label>標準価格</label> 
-                    <input id="subjectPrice" name="lessonFee" type="text" class="form-control" value="0" readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
+                    <input id="subjectPrice" 
+                           name="lessonFee" type="text" class="form-control" 
+                           readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
                 </div>
                 <br>
                 <div class="form-group">  <label>調整価格</label> 
                     <input name="lessonFeeAdjusted" type="text" class="form-control" placeholder="" th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFeeAdjusted}:'0.00'">
                 </div>
-
-
-
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </main>
     </div>
 </div>
-<script>
-
-</script>
-<!-- <script th:inline="javascript">
-    /*<![CDATA[*/
-    var allSubjectSubs = /*[[${subjectSubs}]]*/[];
-    console.log('All Subject Subs:', allSubjectSubs); // 输出数据到控制台进行检查
-    $('#subjectPrice').val('0.0'); // 为了避免后台验证出现String转换float的错误，让画面一加载，就设置为0.0
-    $(document).ready(function () {
-        $('#subjectSelect').change(function () {
-            var subjectId = $(this).val();
-            console.log('Selected Subject ID:', subjectId); // 输出选定的subjectId
-            var subSubjectSelect = $('#subSubjectSelect');
-            subSubjectSelect.empty();
-            subSubjectSelect.append('<option value="">请选择</option>');
-            if (subjectId) {
-                // 筛选出与选定科目ID对应的子科目
-                var filteredSubs = allSubjectSubs.filter(function (sub) {
-                    return sub.subjectId == subjectId;
-                });
-                console.log('Filtered Subs:', filteredSubs); // 输出筛选后的数据到控制台进行检查
-                $.each(filteredSubs, function (index, sub) {
-                    subSubjectSelect.append('<option value="' + sub.subjectSubId + '" data-price="' + sub.subjectPrice + '">' + sub.subjectSubName + '</option>');
-                });
-            }
-            $('#subjectPrice').val('0.0');
-        });
-
-        $('#subSubjectSelect').change(function () {
-            var subjectPrice = $(this).find(':selected').data('price');
-            $('#subjectPrice').val(subjectPrice);
-        });
-    });
-    /*]]>*/
-</script> -->
 
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -193,8 +159,14 @@
     var selectedStuId = /*[[${selectedStuDoc != null ? selectedStuDoc.stuId : ''}]]*/'';
     var selectedSubjectId = /*[[${selectedStuDoc != null ? selectedStuDoc.subjectId : ''}]]*/'';
     var selectedSubjectSubId = /*[[${selectedStuDoc != null ? selectedStuDoc.subjectSubId : ''}]]*/'';
+    var selectedLessonFee = /*[[${selectedStuDoc != null ? selectedStuDoc.lessonFee : '0.0'}]]*/'';
+    var stuDoc =  /*[[${selectedStuDoc}]]*/[];
+    console.log('selectedStuDoc:', stuDoc); 
 
     $(document).ready(function () {
+        // 页面加载时设置标准价格
+        $('#subjectPrice').val(selectedLessonFee);
+        
         // 处理科目选择变化的事件
         $('#subjectSelect').change(function () {
             var subjectId = $(this).val();
@@ -238,6 +210,11 @@
             var option = $('<option>').val(sub.subjectSubId).text(sub.subjectSubName);
             subSubjectSelect.append(option);
         });
+
+        // 如果页面加载时有选中的科目级别，则设置该科目级别
+        if (selectedSubjectSubId) {
+            subSubjectSelect.val(selectedSubjectSubId);
+        }
     }
 
     function updatePrice(subjectSubId) {

@@ -37,48 +37,70 @@
     <div class="row">"
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_unpaid_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
             <form th:action="@{/kn_lsn_unpaid_001}" method="post">
-                <!-- <input type="hidden" name="_method" value="PUT" th:if="${selectedinfo != null}" /> -->
+                <input type="hidden" name="_method" value="PUT" th:if="${selectedinfo != null}" />
                 <div class="form-group"><br>
                     <label>支払番号</label>
                     <input name="lsnPayId" type="text" class="form-control" placeholder="システム自動採番、入力不可" 
-                    readonly th:value="${selectedinfo != null} ? ${selectedinfo.lsnPayId} : ''">
+                           readonly th:value="${selectedinfo != null} ? ${selectedinfo.lsnPayId} : ''">
                 </div>
                 <div class="form-group"><br>
                     <label>課費番号</label>
                     <input name="lsnFeeId" type="text" class="form-control" placeholder="" 
-                    readonly th:value="${selectedinfo != null} ? ${selectedinfo.lsnFeeId} : ''">
+                           readonly th:value="${selectedinfo != null} ? ${selectedinfo.lsnFeeId} : ''">
                 </div>
                 <div class="form-group"><br>
                     <label>学生姓名</label>
                     <input name="stuName" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.stuName} : ''" disabled=true>
+                           th:value="${selectedinfo != null} ? ${selectedinfo.stuName} : ''" readonly>
+                    <input name="stuId" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.stuId} : ''" >
                 </div>
                 <div class="form-group"><br>
                     <label>科目名称</label>
-                    <input name="stuName" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectName} : ''" disabled=true>
+                    <input name="subjectName" type="text" class="form-control" placeholder="" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.subjectName} : ''" readonly>
                 </div>
                 <div class="form-group"><br>
                     <label>科目級別</label>
-                    <input name="stuName" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectSubName} : ''" disabled=true>
+                    <input name="subjectSubName" type="text" class="form-control" placeholder="" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.subjectSubName} : ''" readonly>
                 </div>
                 <div class="form-group"><br>
                     <label>精算金額（实际上课产生的费用）</label>
                     <input name="lsnFee" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''" disabled=true>
+                           th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''" readonly>
                 </div>
 
+                <!-- 按月计划课的支付 -->
                 <div class="form-group" th:if="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}"><br>
                     <label>実際支払金額(按月交费的计划课，应满月交付)</label>
                     <input name="lsnPay" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice*4} : ''">
+                           th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice*4} : ''">
+
+                    <input name="lessonType" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''" >
+                    <input name="payStyle" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''" >
+                    <input name="subjectPrice" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice} : ''" >
                 </div>
+                <!-- 按月计划课以外的课的支付 -->
                 <div class="form-group" th:unless="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}"><br>
-                    <label>実際支払金額</label>
+                    <label>実際精算金額</label>
                     <input name="lsnPay" type="text" class="form-control" placeholder="" 
-                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''">
+                           th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''">
+
+                    <input name="lessonType" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''" >
+                    <input name="payStyle" type="hidden" class="form-control" 
+                           th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''" >
                 </div>
 
                 <!-- 新規登録 模式下 该学生用的银行名称 下拉列表框显示 -->
@@ -89,7 +111,7 @@
                         <option th:each="element,iterStat : ${bankMap}" 
                                 th:value="${element.key}"
                                 th:utext="${element.value}"
-                                th:selected="${iterStat.index == 0}">
+                                th:selected="${element.key == (selectedinfo != null ? selectedinfo.bankId : iterStat.index == 0)}">
                         </option>
                     </select>
                 </div>

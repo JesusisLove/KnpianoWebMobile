@@ -40,14 +40,9 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
     }
 
     // 保存或更新学生档案信息信息
-    public void save(Kn03D002StuDocBean knStudoc001Bean) {
+    public void save(Kn03D002StuDocBean knStudoc001Bean, boolean addNewMode) {
 
-        String stuId = knStudoc001Bean.getStuId();
-        String subjectSubId = knStudoc001Bean.getSubjectSubId();
-        String subjectId = knStudoc001Bean.getSubjectId();
-        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
-        // 确认表里有没有记录，没有就insert，有记录就update
-        if (getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null) {
+        if (addNewMode) {
             insert(knStudoc001Bean);
         } else {
             update(knStudoc001Bean);
