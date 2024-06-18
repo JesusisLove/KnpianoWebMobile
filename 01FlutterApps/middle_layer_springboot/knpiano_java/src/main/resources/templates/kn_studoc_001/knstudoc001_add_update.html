@@ -15,6 +15,12 @@
     <div class="row">
         <div th:replace="~{commons/bar::sidebar(activeUri='kn_studoc_001_link_active')}"></div><!-- サイドバー部分 -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
             <form th:action="@{/kn_studoc_001}" method="post">
                 <input type="hidden" name="_method" value="put" th:if="${selectedStuDoc!=null}"/>
                 <br>
@@ -25,7 +31,9 @@
                         <option value="">请选择</option>
                         <option th:each="element : ${stuMap}" 
                                 th:value="${element.key}" 
-                                th:utext="${element.value}">
+                                th:utext="${element.value}"
+                                th:selected="${element.key == selectedStuId}"
+                                >
                         </option>
                     </select>
                 </div>
@@ -44,7 +52,11 @@
                     <label for="subjectSelect">科目名称</label>
                     <select class="form-control" id="subjectSelect" name="subjectId">
                         <option value="">请选择</option>
-                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}"></option>
+                        <option th:each="subject : ${subjects}" 
+                                th:value="${subject.subjectId}" 
+                                th:text="${subject.subjectName}"
+                                th:selected="${subject.subjectId == selectedSubjectId}"
+                                ></option>
                     </select>
                 </div>
                 <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
@@ -52,12 +64,12 @@
                     <label>科目名称</label> 
                     <input name="subjectName" type="text" class="form-control" 
                         th:value="${selectedStuDoc.subjectName}" 
-                        disabled="true">
+                        readonly>
                     <input name="subjectId" type="hidden" th:value="${selectedStuDoc.subjectId}">
                     <input name="delFlg" type="hidden" th:value="${selectedStuDoc.delFlg}">
                 </div>
                 <br>
-                <!-- 子科目名称 下拉列表框 -->
+                <!-- 新規登録 模式下 科目级别名称 下拉列表框 -->
                 <div class="form-group" th:if="${selectedStuDoc==null}">
                     <label for="subSubjectSelect">科目级别名称</label>
                     <select class="form-control" id="subSubjectSelect" name="subjectSubId">
@@ -69,7 +81,7 @@
                     <label>科目级别名称</label> 
                     <input name="subjectSubName" type="text" class="form-control" 
                         th:value="${selectedStuDoc.subjectSubName}" 
-                        disabled="true">
+                        readonly>
                     <input name="subjectSubId" type="hidden" th:value="${selectedStuDoc.subjectSubId}">
                 </div>
                 
@@ -123,7 +135,7 @@
                 <!-- 変更編集 模式下 显示当前科目的标准价格 -->
                 <div class="form-group">
                     <label>標準価格</label> 
-                    <input id="subjectPrice" name="lessonFee" type="text" class="form-control" readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
+                    <input id="subjectPrice" name="lessonFee" type="text" class="form-control" value="0" readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
                 </div>
                 <br>
                 <div class="form-group">  <label>調整価格</label> 
@@ -140,10 +152,11 @@
 <script>
 
 </script>
-<script th:inline="javascript">
-       /*<![CDATA[*/
-       var allSubjectSubs = /*[[${subjectSubs}]]*/[];
+<!-- <script th:inline="javascript">
+    /*<![CDATA[*/
+    var allSubjectSubs = /*[[${subjectSubs}]]*/[];
     console.log('All Subject Subs:', allSubjectSubs); // 输出数据到控制台进行检查
+    $('#subjectPrice').val('0.0'); // 为了避免后台验证出现String转换float的错误，让画面一加载，就设置为0.0
     $(document).ready(function () {
         $('#subjectSelect').change(function () {
             var subjectId = $(this).val();
@@ -161,7 +174,7 @@
                     subSubjectSelect.append('<option value="' + sub.subjectSubId + '" data-price="' + sub.subjectPrice + '">' + sub.subjectSubName + '</option>');
                 });
             }
-            $('#subjectPrice').val('');
+            $('#subjectPrice').val('0.0');
         });
 
         $('#subSubjectSelect').change(function () {
@@ -170,6 +183,76 @@
         });
     });
     /*]]>*/
+</script> -->
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $('#subjectPrice').val('0.0'); // 为了避免后台验证出现String转换float的错误，让画面一加载，就设置为0.0
+    var allSubjectSubs = /*[[${subjectSubs}]]*/[];
+    console.log('All Subject Subs:', allSubjectSubs); // 输出数据到控制台进行检查
+    var selectedStuId = /*[[${selectedStuDoc != null ? selectedStuDoc.stuId : ''}]]*/'';
+    var selectedSubjectId = /*[[${selectedStuDoc != null ? selectedStuDoc.subjectId : ''}]]*/'';
+    var selectedSubjectSubId = /*[[${selectedStuDoc != null ? selectedStuDoc.subjectSubId : ''}]]*/'';
+
+    $(document).ready(function () {
+        // 处理科目选择变化的事件
+        $('#subjectSelect').change(function () {
+            var subjectId = $(this).val();
+            updateSubjectSubSelect(subjectId);
+        });
+
+         // 处理科目级别选择变化的事件
+         $('#subSubjectSelect').change(function () {
+            var subjectSubId = $(this).val();
+            updatePrice(subjectSubId);
+        });
+
+        // 页面加载时初始化科目级别名称下拉列表
+        if (selectedSubjectId) {
+            updateSubjectSubSelect(selectedSubjectId);
+        }
+
+        // 页面加载时设置科目和学生的选中状态
+        if (selectedStuId) {
+            $('#studentSelect').val(selectedStuId);
+        }
+        if (selectedSubjectId) {
+            $('#subjectSelect').val(selectedSubjectId);
+        }
+        if (selectedSubjectSubId) {
+            $('#subSubjectSelect').val(selectedSubjectSubId);
+        }
+    });
+
+    function updateSubjectSubSelect(subjectId) {
+        var subSubjectSelect = $('#subSubjectSelect');
+        subSubjectSelect.empty();
+        subSubjectSelect.append('<option value="">请选择</option>');
+
+        // 根据选中的科目 ID 筛选对应的科目级别名称
+        var filteredSubs = allSubjectSubs.filter(function (sub) {
+            return sub.subjectId == subjectId;
+        });
+
+        $.each(filteredSubs, function (index, sub) {
+            var option = $('<option>').val(sub.subjectSubId).text(sub.subjectSubName);
+            subSubjectSelect.append(option);
+        });
+    }
+
+    function updatePrice(subjectSubId) {
+        var selectedSub = allSubjectSubs.find(function (sub) {
+            return sub.subjectSubId == subjectSubId;
+        });
+
+        if (selectedSub) {
+            $('#subjectPrice').val(selectedSub.subjectPrice);
+        } else {
+            $('#subjectPrice').val('0.0');
+        }
+    }
+    /*]]>*/
 </script>
+
 </body>
 </html>
