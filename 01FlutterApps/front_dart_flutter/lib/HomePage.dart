@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kn_piano/03StuDocMngmnt/2studentInfoEdit/knstu001_list.dart';
-import 'package:kn_piano/01LessonMngmnt/2SubjectManagement/knsub001_list.dart';
+import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
+import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
 
