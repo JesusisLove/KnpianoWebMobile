@@ -36,7 +36,9 @@
 
     <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01B002SubBean">
         UPDATE t_mst_subject 
-        SET subject_name=#{subjectName}, subject_price=#{subjectPrice}, del_flg=#{delFlg}
+        SET 
+            subject_name=#{subjectName}
+           ,del_flg=#{delFlg}
         WHERE subject_id=#{subjectId}
     </update>
 

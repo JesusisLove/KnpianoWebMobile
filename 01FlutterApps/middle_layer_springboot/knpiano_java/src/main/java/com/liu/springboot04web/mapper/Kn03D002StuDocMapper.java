@@ -12,6 +12,9 @@ public interface Kn03D002StuDocMapper  {
     // 根据特定条模糊检索学生档案信息
     public List<Kn03D002StuDocBean> searchStuDoc(@Param("params") Map<String, Object> queryparams);
 
+    // 还未建档的学生姓名取得
+    public List<Kn03D002StuDocBean> getUnDocedList();
+
     public Kn03D002StuDocBean getInfoByKey(@Param("stuId") String stuId, 
                                            @Param("subjectId") String subjectId, 
                                            @Param("subjectSubId") String subjectSubId,

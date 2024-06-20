@@ -38,7 +38,16 @@
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_studoc_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <hr/>
-                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_studoc_001}">学生档案新規登録</a></h2>
+                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_studoc_001}">学生档案新規登録</a>
+                    <div th:each="unDocStu : ${unDocStuList}">
+                        <a class="btn btn-sm btn-primary" 
+                                th:href="@{/kn_studoc_001/{stuId}/{stuName}
+                                                            (stuId=${unDocStu.stuId}, 
+                                                            stuName=${unDocStu.stuName}
+                                                            )
+                                        }" methods="GET">[[${unDocStu.stuName}]]</a>
+                    </div>
+                </h2>
                 <hr/>
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_studoc_001/search}" th:object="${searchForm}" method="get">

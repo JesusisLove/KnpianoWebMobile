@@ -22,6 +22,12 @@ public class Kn03D002StuDocDao implements InterfaceKnPianoDao {
         return list;
     }
 
+    // 还未建档的学生姓名取得
+    public List<Kn03D002StuDocBean> getUnDocedList() {
+        List<Kn03D002StuDocBean> list = knStudoc001Mapper.getUnDocedList();
+        return list;
+    }
+    
     // 获取所有符合查询条件的学生档案信息
     public List<Kn03D002StuDocBean> searchStuDoc(Map<String, Object> params) {
         return knStudoc001Mapper.searchStuDoc(params);
