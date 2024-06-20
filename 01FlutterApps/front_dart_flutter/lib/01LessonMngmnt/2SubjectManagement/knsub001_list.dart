@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -84,86 +86,92 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
   }
 
   Widget _buildSubjectItem(KnSub001Bean subject) {
-    return ListTile(
-      title: Text(subject.subjectName),
-      subtitle: Row(
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(
+        // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
+        // 如果没有图像URL，可以使用一个本地的占位符图像
+          backgroundImage: AssetImage('images/student-placeholder.png'),
+        ), 
+        title: Text(subject.subjectName),
+        // subtitle: Row(
+        //     children: <Widget>[
+        //       // 为科目编号设置像素的左间距
+        //       const SizedBox(width: 10 ), 
+        //       Expanded(
+        //         child: Text(
+        //           subject.subjectId,
+        //           style: const TextStyle(fontSize: 14),
+        //         ),
+        //       ),
+        //       Container(
+        //         // 为科目名称设置像素的右间距
+        //         padding: const EdgeInsets.only(right: 16), 
+        //         child: Text(
+        //           '科目名称: ${subject.subjectName}',
+        //           style: const TextStyle(fontSize: 14),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // 为学生编号设置像素的左间距
-            const SizedBox(width: 20 ), 
-            Expanded(
-              child: Text(
-                subject.subjectId,
-                style: const TextStyle(fontSize: 14),
-              ),
+            // 编辑按钮
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.blue),
+              // 编辑按钮的事件处理函数
+              onPressed: () {
+                Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SubjectAddEdit(subject: subject, showMode: '編集'),
+                  ),
+                ).then((value) {
+                  // 检查返回值，如果为true，则重新加载数据
+                  if (value == true) {
+                    setState(() {
+                        futureSubjects = fetchSubjects();
+                    });
+                  }
+                });
+              },
             ),
-            Container(
-              // 为固定时间设置像素的右间距
-              padding: const EdgeInsets.only(right: 16), 
-              child: Text(
-                '价格: ¥${subject.subjectPrice.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 14),
-              ),
+
+            // 删除按钮
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('删除确认'),
+                      content: Text('确定要删除【${subject.subjectName}】这门科目吗？'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('取消'),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 关闭对话框
+                          },
+                        ),
+
+                        TextButton(
+                          child: const Text('确定'),
+                          onPressed: () {
+                            deleteSubject(subject);
+                            Navigator.of(context).pop(); // 关闭对话框
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
-
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          // 编辑按钮
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.blue),
-            // 编辑按钮的事件处理函数
-            onPressed: () {
-              Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SubjectAddEdit(subject: subject, showMode: '編集'),
-                ),
-              ).then((value) {
-                // 检查返回值，如果为true，则重新加载数据
-                if (value == true) {
-                  setState(() {
-                      futureSubjects = fetchSubjects();
-                  });
-                }
-              });
-            },
-          ),
-
-          // 删除按钮
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () async {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('删除确认'),
-                    content: Text('确定要删除【${subject.subjectName}】这门科目吗？'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('取消'),
-                        onPressed: () {
-                          Navigator.of(context).pop(); // 关闭对话框
-                        },
-                      ),
-
-                      TextButton(
-                        child: const Text('确定'),
-                        onPressed: () {
-                          deleteSubject(subject);
-                          Navigator.of(context).pop(); // 关闭对话框
-                          
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ],
       ),
     );
   }

@@ -26,38 +26,39 @@ class StudentEditState extends State<StudentEdit> {
   // 往后端提交新数据的退避变量
   String? stuId;
   String? stuName;
-  int? gender;
+  int?    gender;
   String? birthday;
   List<String?> telephones = List.filled(4, null);
   String? address;
   String? postCode;
   String? introducer;
-  int? delFlg;
+  int?    delFlg;
 
 // 用上一级传过来的List对象，初期化画面的项目数据
-  final TextEditingController _stuNameController = TextEditingController();
-  final TextEditingController _genderController = TextEditingController();
-  final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入
-  final List<TextEditingController> _telsController = List.generate(4, (_) => TextEditingController());
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _postCodeController = TextEditingController();
-  final TextEditingController _introducerController = TextEditingController();
+  final TextEditingController _stuNameController      = TextEditingController();
+  final TextEditingController _genderController       = TextEditingController();
+  final TextEditingController _birthdayController     = TextEditingController(); // 控制器用于管理日期输入
+  final List<TextEditingController> _telsController   = List.generate(4, (_) => TextEditingController());
+  final TextEditingController _addressController      = TextEditingController();
+  final TextEditingController _postCodeController     = TextEditingController();
+  final TextEditingController _introducerController   = TextEditingController();
 
-  final FocusNode _stuNameFocusNode = FocusNode();
-  final FocusNode _genderFocusNode = FocusNode();
-  final FocusNode _birthdayFocusNode = FocusNode();
-  final List<FocusNode?> _telephonesNode = List.filled(4, null);
-  final FocusNode _addressFocusNode = FocusNode();
-  final FocusNode _postCodeFocusNode = FocusNode();
-  final FocusNode _introducerFocusNode = FocusNode();
+// 为画面控件定义它对应的焦点对象
+  final FocusNode _stuNameFocusNode         = FocusNode();
+  final FocusNode _genderFocusNode          = FocusNode();
+  final FocusNode _birthdayFocusNode        = FocusNode();
+  final List<FocusNode?> _telephonesNode    = List.filled(4, null);
+  final FocusNode _addressFocusNode         = FocusNode();
+  final FocusNode _postCodeFocusNode        = FocusNode();
+  final FocusNode _introducerFocusNode      = FocusNode();
 
-  Color _stuNameColor = Colors.black;
-  Color _genderColor = Colors.black;
-  Color _birthdayColor = Colors.black;
+  Color _stuNameColor         = Colors.black;
+  Color _genderColor          = Colors.black;
+  Color _birthdayColor        = Colors.black;
   final List<Color> _telephonesColor = List.generate(4, (_) => Colors.black);
-  Color _addressColor = Colors.black;
-  Color _postCodeColor = Colors.black;
-  Color _introducerColor = Colors.black;
+  Color _addressColor         = Colors.black;
+  Color _postCodeColor        = Colors.black;
+  Color _introducerColor      = Colors.black;
 
   @override
   void initState() {
@@ -68,42 +69,61 @@ class StudentEditState extends State<StudentEdit> {
       delFlg = widget.student!.delFlg;
 
       // 把上一级画面传过来的student，赋值给TextFormField
-      _stuNameController.text = widget.student!.stuName;
-      _telsController[0].text=widget.student!.tel1;
-      _telsController[1].text=widget.student!.tel2;
-      _telsController[2].text=widget.student!.tel3;
-      _telsController[3].text=widget.student!.tel4;
-      _addressController.text = widget.student!.address;
-      _postCodeController.text = widget.student!.postCode;
-      _introducerController.text = widget.student!.introducer;
+      _stuNameController.text       = widget.student!.stuName;
+      _birthdayController.text      = widget.student!.birthday;
+      _telsController[0].text       = widget.student!.tel1;
+      _telsController[1].text       = widget.student!.tel2;
+      _telsController[2].text       = widget.student!.tel3;
+      _telsController[3].text       = widget.student!.tel4;
+      _addressController.text       = widget.student!.address;
+      _postCodeController.text      = widget.student!.postCode;
+      _introducerController.text    = widget.student!.introducer;
     }
 
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
-      setState(() => _stuNameColor = _stuNameFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _stuNameColor = _stuNameFocusNode.hasFocus 
+                                   ? Constants.stuDocThemeColor 
+                                   : Colors.black);
+                                   });
+
     _genderFocusNode.addListener(() {
-      setState(() => _genderColor = _genderFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _genderColor = _genderFocusNode.hasFocus 
+                                  ? Constants.stuDocThemeColor 
+                                  : Colors.black);
+                                  });
+
     _birthdayFocusNode.addListener(() {
-      setState(() => _birthdayColor = _birthdayFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _birthdayColor = _birthdayFocusNode.hasFocus 
+                                    ? Constants.stuDocThemeColor 
+                                    : Colors.black);
+                                    });
     // 初始化电话号码的 FocusNode
     for (int i = 0; i < _telephonesNode.length; i++) {
       _telephonesNode[i] = FocusNode();
       _telephonesNode[i]!.addListener(() {
-        setState(() => _telephonesColor[i] = _telephonesNode[i]!.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-      });
+      setState(() => _telephonesColor[i] = _telephonesNode[i]!.hasFocus 
+                                          ? Constants.stuDocThemeColor 
+                                          : Colors.black);
+                                        });
     }
     _addressFocusNode.addListener(() {
-      setState(() => _addressColor = _addressFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _addressColor = _addressFocusNode.hasFocus 
+                                   ? Constants.stuDocThemeColor 
+                                   : Colors.black);
+                                   });
+
     _postCodeFocusNode.addListener(() {
-      setState(() => _postCodeColor = _postCodeFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _postCodeColor = _postCodeFocusNode.hasFocus 
+                                    ? Constants.stuDocThemeColor 
+                                    : Colors.black);
+                                    });
+
     _introducerFocusNode.addListener(() {
-      setState(() => _introducerColor = _introducerFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _introducerColor = _introducerFocusNode.hasFocus 
+                                      ? Constants.stuDocThemeColor 
+                                      : Colors.black);
+                                      });
   }
 
   // 释放控制器资源
@@ -139,7 +159,7 @@ class StudentEditState extends State<StudentEdit> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: widget.student?.birthday !=null ? 
+      initialDate: (widget.student?.birthday !=null && widget.student!.birthday.isNotEmpty) ? 
                     DateFormat('yyyy/MM/dd').parse(widget.student!.birthday) : 
                     DateTime.now(),
       firstDate: DateTime(1900),
@@ -161,7 +181,7 @@ class StudentEditState extends State<StudentEdit> {
       ),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
+        child: SingleChildScrollView (
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +241,7 @@ class StudentEditState extends State<StudentEdit> {
                 inputLabelText: '出生日',
                 initialValue: birthday,
                 inputLabelColor: _birthdayColor,
-                inputController: null, 
+                inputController: _birthdayController, 
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
                 focusedBorderSideWidth: Constants.focusedBorderSideWidth,
@@ -245,7 +265,7 @@ class StudentEditState extends State<StudentEdit> {
               FormFields.createTextFormField(
                 inputFocusNode: _postCodeFocusNode,
                 inputLabelText: '邮政编号',
-                inputController: _addressController, 
+                inputController: _postCodeController, 
                 inputLabelColor: _postCodeColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -256,7 +276,7 @@ class StudentEditState extends State<StudentEdit> {
               FormFields.createTextFormField(
                 inputFocusNode: _addressFocusNode,
                 inputLabelText: '家庭住址',
-                inputController: _postCodeController, 
+                inputController: _addressController, 
                 inputLabelColor: _addressColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -304,17 +324,17 @@ class StudentEditState extends State<StudentEdit> {
           },
           body: jsonEncode(<String, dynamic>{
             'stuId'      : stuId,
-            'stuName'    : stuName,
-            'gender'     : gender,
-            'birthday'   : birthday,
+            'stuName'    : stuName ?? widget.student!.stuName,
+            'gender'     : gender ?? widget.student!.gender,
+            'birthday'   : birthday ?? widget.student!.birthday,
             'tel1'       : telephones.isNotEmpty ? telephones[0] : null,
             'tel2'       : telephones.isNotEmpty ? telephones[1] : null,
             'tel3'       : telephones.isNotEmpty ? telephones[2] : null,
             'tel4'       : telephones.isNotEmpty ? telephones[3] : null,
-            'address'    : address,
-            'postCode'   : postCode,
-            'introducer' : introducer,
-            'delFlg'     : delFlg,
+            'address'    : address ?? widget.student!.address,
+            'postCode'   : postCode ?? widget.student!.postCode,
+            'introducer' : introducer ?? widget.student!.introducer,
+            'delFlg'     : delFlg ?? 0,
           }),
         );
     

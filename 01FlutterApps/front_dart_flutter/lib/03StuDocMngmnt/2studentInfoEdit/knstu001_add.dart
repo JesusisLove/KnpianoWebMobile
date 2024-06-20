@@ -19,7 +19,13 @@ class StudentAdd extends StatefulWidget {
 class StudentAddState extends State<StudentAdd> {
 
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _stuNameController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController(); // 控制器用于管理日期输入
+  final List<TextEditingController> _telsController = List.generate(4, (_) => TextEditingController());
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _postCodeController = TextEditingController();
+  final TextEditingController _introducerController = TextEditingController();
 
   String? stuName;
   String? gender;
@@ -29,23 +35,21 @@ class StudentAddState extends State<StudentAdd> {
   String? postCode;
   String? introducer;
 
-  final FocusNode _stuNameFocusNode = FocusNode();
-  final FocusNode _genderFocusNode = FocusNode();
-  final FocusNode _birthdayFocusNode = FocusNode();
-  final List<FocusNode?> _telephonesNode = List.filled(4, null);
-  final FocusNode _addressFocusNode = FocusNode();
-  final FocusNode _postCodeFocusNode = FocusNode();
-  final FocusNode _introducerFocusNode = FocusNode();
+  final FocusNode _stuNameFocusNode         = FocusNode();
+  final FocusNode _genderFocusNode          = FocusNode();
+  final FocusNode _birthdayFocusNode        = FocusNode();
+  final List<FocusNode?> _telephonesNode    = List.filled(4, null);
+  final FocusNode _addressFocusNode         = FocusNode();
+  final FocusNode _postCodeFocusNode        = FocusNode();
+  final FocusNode _introducerFocusNode      = FocusNode();
 
-  Color _stuNameColor = Colors.black;
-  Color _genderColor = Colors.black;
-  Color _birthdayColor = Colors.black;
-
+  Color _stuNameColor       = Colors.black;
+  Color _genderColor        = Colors.black;
+  Color _birthdayColor      = Colors.black;
   final List<Color> _telephonesColor = List.generate(4, (_) => Colors.black);
-
-  Color _addressColor = Colors.black;
-  Color _postCodeColor = Colors.black;
-  Color _introducerColor = Colors.black;
+  Color _addressColor       = Colors.black;
+  Color _postCodeColor      = Colors.black;
+  Color _introducerColor    = Colors.black;
 
   @override
   void initState() {
@@ -53,36 +57,64 @@ class StudentAddState extends State<StudentAdd> {
 
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
-      setState(() => _stuNameColor = _stuNameFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _stuNameColor = _stuNameFocusNode.hasFocus 
+                                   ? Constants.stuDocThemeColor 
+                                   : Colors.black);
+                                   });
+
     _genderFocusNode.addListener(() {
-      setState(() => _genderColor = _genderFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _genderColor = _genderFocusNode.hasFocus 
+                                  ? Constants.stuDocThemeColor 
+                                  : Colors.black);
+                                  });
+
     _birthdayFocusNode.addListener(() {
-      setState(() => _birthdayColor = _birthdayFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _birthdayColor = _birthdayFocusNode.hasFocus 
+                                    ? Constants.stuDocThemeColor 
+                                    : Colors.black);
+                                    });
     // 初始化电话号码的 FocusNode
     for (int i = 0; i < _telephonesNode.length; i++) {
       _telephonesNode[i] = FocusNode();
       _telephonesNode[i]!.addListener(() {
-        setState(() => _telephonesColor[i] = _telephonesNode[i]!.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-      });
+      setState(() => _telephonesColor[i] = _telephonesNode[i]!.hasFocus 
+                                          ? Constants.stuDocThemeColor 
+                                          : Colors.black);
+                                        });
     }
     _addressFocusNode.addListener(() {
-      setState(() => _addressColor = _addressFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _addressColor = _addressFocusNode.hasFocus 
+                                   ? Constants.stuDocThemeColor 
+                                   : Colors.black);
+                                   });
+
     _postCodeFocusNode.addListener(() {
-      setState(() => _postCodeColor = _postCodeFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _postCodeColor = _postCodeFocusNode.hasFocus 
+                                    ? Constants.stuDocThemeColor 
+                                    : Colors.black);
+                                    });
+
     _introducerFocusNode.addListener(() {
-      setState(() => _introducerColor = _introducerFocusNode.hasFocus ? Constants.stuDocThemeColor : Colors.black);
-    });
+      setState(() => _introducerColor = _introducerFocusNode.hasFocus 
+                                      ? Constants.stuDocThemeColor 
+                                      : Colors.black);
+                                      });
   }
 
   @override
   void dispose() {
     // 释放控制器资源
+    _stuNameController.dispose();
+    _genderController.dispose();
     _birthdayController.dispose(); 
+    for (final controller in _telsController) {
+      controller.dispose();
+    }
+    _addressController.dispose();
+    _postCodeController.dispose();
+    _introducerController.dispose();
+
+    // 释放FocusNode资源
     _stuNameFocusNode.dispose();
     _genderFocusNode.dispose();
     _birthdayFocusNode.dispose();
@@ -101,7 +133,9 @@ class StudentAddState extends State<StudentAdd> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: birthday != null ? DateFormat('yyyy/MM/dd').parse(birthday!) : DateTime.now(),
+      initialDate: birthday != null ? 
+                   DateFormat('yyyy/MM/dd').parse(birthday!) : 
+                   DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -130,6 +164,8 @@ class StudentAddState extends State<StudentAdd> {
                 inputFocusNode: _stuNameFocusNode,
                 inputLabelText: '学生姓名',
                 inputLabelColor: _stuNameColor,
+                // initialValue: stuName, //编辑模式下的一个坑：👈手动输入一个新数据后，一回车就还原成了旧数据
+                inputController: _stuNameController,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
                 focusedBorderSideWidth: Constants.focusedBorderSideWidth,
@@ -191,6 +227,7 @@ class StudentAddState extends State<StudentAdd> {
               ...List.generate(4, (index) => FormFields.createTextFormField(
                   inputFocusNode: _telephonesNode[index]!,
                   inputLabelText: '联系电话${index + 1}',
+                  inputController: _telsController[index], 
                   inputLabelColor: _telephonesColor[index],
                   themeColor: Constants.stuDocThemeColor, 
                   enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -202,6 +239,7 @@ class StudentAddState extends State<StudentAdd> {
               FormFields.createTextFormField(
                 inputFocusNode: _postCodeFocusNode,
                 inputLabelText: '邮政编号',
+                inputController: _postCodeController, 
                 inputLabelColor: _postCodeColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -212,6 +250,7 @@ class StudentAddState extends State<StudentAdd> {
               FormFields.createTextFormField(
                 inputFocusNode: _addressFocusNode,
                 inputLabelText: '家庭住址',
+                inputController: _addressController, 
                 inputLabelColor: _addressColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
@@ -220,12 +259,13 @@ class StudentAddState extends State<StudentAdd> {
               ),
 
               FormFields.createTextFormField(
+                inputFocusNode: _introducerFocusNode,
+                inputLabelText: '介绍人',
+                inputController: _introducerController, 
+                inputLabelColor: _introducerColor,
                 themeColor: Constants.stuDocThemeColor, 
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth, 
                 focusedBorderSideWidth: Constants.focusedBorderSideWidth,
-                inputFocusNode: _introducerFocusNode,
-                inputLabelText: '介绍人',
-                inputLabelColor: _introducerColor,
                 onSave: (value) => introducer = value,
               ),
 
@@ -275,10 +315,14 @@ class StudentAddState extends State<StudentAdd> {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('提交成功'),
-            content: const Text('学生信息已提交'),
+            content: const Text('学生信息已保存'),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => {
+                  // 直接退回到一览画面
+                  Navigator.of(context).pop(),
+                  Navigator.of(context).pop(true) // 关闭当前页面并返回成功标识
+                },
                 child: const Text('确定'),
               ),
             ],

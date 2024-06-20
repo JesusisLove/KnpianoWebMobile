@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kn_piano/03StuDocMngmnt/1StudentBasicInfo/StudentAdd.dart';  // 确保导入路径正确
 import 'package:kn_piano/03StuDocMngmnt/2studentInfoEdit/knstu001_list.dart';
 import 'package:kn_piano/01LessonMngmnt/2SubjectManagement/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
@@ -21,10 +20,8 @@ class HomePageState extends State<HomePage> {
         // 上课管理页面
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor, ),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.book, text: "学生学科管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SubjectViewPage()));
-          }, bgcolor: consts.Constants.lessonThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
+          setButton(iconData: Icons.book, text: "学生学科管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
@@ -44,29 +41,39 @@ class HomePageState extends State<HomePage> {
       case 2:
         // 档案管理页面
         return [
-          setButton(iconData: Icons.school , text: "学生入学管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentAdd()));}, bgcolor:consts.Constants.stuDocThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.edit, text: "学生档案编辑", onPressed: () {
+          setButton(iconData: Icons.school , text: "学生基本信息管理", onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const StuEditList()));
           }, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.event_busy, text: "学生旷课管理", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
+
+
+          setButton(iconData: Icons.book, text: "科目基本信息管理", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const SubjectViewPage()));
+          }, bgcolor: consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.upgrade, text: "学生进度升级", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
+
+
+          setButton(iconData: Icons.food_bank, text: "银行基本信息管理", onPressed: () {}, bgcolor:consts.Constants.stuDocThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+        
+          setButton(iconData: Icons.folder, text: "学生档案信息管理", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
         ];
       case 3:
         // 综合管理页面（假设暂无特定按钮）
         return [
-          setButton(iconData: Icons.calendar_today, text: "年度课程汇报", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.person_off, text: "学生休学退学", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.settings, text: "年度账单明细", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          setButton(iconData: Icons.score, text: "学生考试管理", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          setButton(iconData: Icons.calendar_month, text: "年度课程汇报", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          setButton(iconData: Icons.receipt, text: "年度账单明细", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
         ];
       case 4:
         // 设置管理页面
         return [
+          setButton(iconData: Icons.calendar_today, text: "基本信息管理", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.calendar_today, text: "生成年度排课表", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.language, text: "多国语言切换", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
@@ -97,7 +104,7 @@ class HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: '上课管理'),
           BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '学费管理'),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: '档案管理'),
+          BottomNavigationBarItem(icon: Icon(Icons.engineering), label: '档案管理'),
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
         ],
