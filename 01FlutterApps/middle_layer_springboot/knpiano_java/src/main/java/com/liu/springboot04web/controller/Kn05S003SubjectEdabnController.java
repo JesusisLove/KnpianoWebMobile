@@ -40,7 +40,7 @@ public class Kn05S003SubjectEdabnController {
     }
 
 
-    // 【検索一覧】検索ボタンを押下
+    // 【明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_05s003_subject_edabn/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）
@@ -138,7 +138,7 @@ public class Kn05S003SubjectEdabnController {
             msgList.add("请输入枝番名称");
         }
         if (kn05S003SubjectEdabnBean.getSubjectPrice()<= 0) {
-            msgList.add("请选择该科目价格");
+            msgList.add("请输入该科目的价格");
         }
         return (msgList.size() != 0);
     }

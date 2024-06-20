@@ -48,7 +48,7 @@ public class Kn05S001LsnFixController {
         return "kn_fixlsn_001/knfixlsn001_list";
     }
 
-    // 【検索一覧】検索ボタンを押下
+    // 【明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_fixlsn_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）
@@ -72,7 +72,7 @@ public class Kn05S001LsnFixController {
         return "kn_fixlsn_001/knfixlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
-    // 【検索一覧】新規登録ボタンを押下
+    // 【明细検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_fixlsn_001")
     public String toFixedLessonAdd(Model model) {
         // 告诉前端画面，这是新规登录模式
@@ -119,7 +119,7 @@ public class Kn05S001LsnFixController {
         return "redirect:/kn_fixlsn_001_all";
     }
 
-    // 【検索一覧】編集ボタンを押下
+    // 【明细検索一覧】編集ボタンを押下
     @GetMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String toFixedLessonEdit(@PathVariable("stuId") String stuId, 
                                     @PathVariable("subjectId") String subjectId, 
@@ -167,7 +167,7 @@ public class Kn05S001LsnFixController {
         return "redirect:/kn_fixlsn_001_all";
     }
 
-    // 【検索一覧】削除ボタンを押下
+    // 【明细検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}")
     public String executeFixedLessonDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 
