@@ -46,13 +46,18 @@ public class Kn03D002StuDocController {
     // 【KNPiano后台维护 学生档案管理】ボタンをクリック
     @GetMapping("/kn_studoc_001_all")
     public String list(Model model) {
-        // 学生固定排课一览取得
+        // 已经建完档案的学生一览取得
         Collection<Kn03D002StuDocBean> collection = knStudoc001Dao.getInfoList();
         model.addAttribute("stuDocList", collection);
+
+        // 还未建档的学生姓名一览取得
+        Collection<Kn03D002StuDocBean> unDocStuList = knStudoc001Dao.getUnDocedList();
+        model.addAttribute("unDocStuList", unDocStuList);
+
         return "kn_studoc_001/knstudoc001_list";
     }
 
-    // 【検索一覧】検索ボタンを押下
+    // 【明细明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_studoc_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）
@@ -70,7 +75,7 @@ public class Kn03D002StuDocController {
         return "kn_studoc_001/knstudoc001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
-    // 【検索一覧】新規登録ボタンを押下
+    // 【明细明细検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_studoc_001")
     public String toStuDocAdd(Model model) {
         // 告诉前端画面，这是新规登录模式
@@ -82,11 +87,34 @@ public class Kn03D002StuDocController {
         model.addAttribute("subjects", getSubCodeValueMap());
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目枝番下拉列表框
         model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
-
         final List<String> durations = combListInfo.getMinutesPerLsn();
         model.addAttribute("duration",durations );
         model.addAttribute("selectedStuDoc", null);
 
+        return "kn_studoc_001/knstudoc001_add_update";
+    }
+
+    // 【明细明细検索一覧】尚未建档学生ボタンを押下
+    @GetMapping("/kn_studoc_001/{stuId}/{stuName}")
+    public String toStuDocEdit(@PathVariable("stuId") String stuId, 
+                               @PathVariable("stuName") String stuName, 
+                                Model model) {
+        // 告诉前端画面，这是新规登录模式
+        model.addAttribute("isAddNewMode", true);
+
+        // 从学生基本信息表里，把学生名取出来，初期化新规/变更画面的学生下拉列表框
+        model.addAttribute("stuMap", getStuCodeValueMap());
+        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
+        model.addAttribute("subjects", getSubCodeValueMap());
+        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目枝番下拉列表框
+        model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
+        final List<String> durations = combListInfo.getMinutesPerLsn();
+        model.addAttribute("duration",durations );
+
+        Kn03D002StuDocBean knStudoc001Bean = new Kn03D002StuDocBean();
+        knStudoc001Bean.setStuId(stuId);
+        knStudoc001Bean.setStuName(stuName);
+        model.addAttribute("selectedStuDoc", knStudoc001Bean);
         return "kn_studoc_001/knstudoc001_add_update";
     }
 
@@ -111,7 +139,7 @@ public class Kn03D002StuDocController {
         return "redirect:/kn_studoc_001_all";
     }
 
-    // 【検索一覧】編集ボタンを押下
+    // 【明细明细検索一覧】編集ボタンを押下
     @GetMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public String toStuDocEdit(@PathVariable("stuId") String stuId, 
                                @PathVariable("subjectId") String subjectId, 
@@ -153,7 +181,7 @@ public class Kn03D002StuDocController {
         return "redirect:/kn_studoc_001_all";
     }
 
-    // 【検索一覧】削除ボタンを押下
+    // 【明细明细検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public String executeStuDocDelete (@PathVariable("stuId") String stuId, 
                                             @PathVariable("subjectId") String subjectId, 

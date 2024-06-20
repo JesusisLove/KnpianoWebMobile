@@ -18,6 +18,12 @@
         </where>
     </select> 
 
+    <!-- 还未建档的学生姓名一览取得 -->
+    <select id="getUnDocedList" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
+        SELECT stu_id,stu_name FROM KNStudent.t_mst_student
+        WHERE stu_id NOT IN (select stu_id from t_info_student_document)
+    </select>
+
     <select id="getInfoByKey" resultType="com.liu.springboot04web.bean.Kn03D002StuDocBean">
         <!-- 绑定变量并格式化日期 -->
         <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
