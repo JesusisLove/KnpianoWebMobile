@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../Constants.dart';
+import 'knstu001_add.dart';
 import 'knstu001_edit.dart';
 import 'KnStu001Bean.dart'; // 导入Student模型
 import 'package:http/http.dart' as http;
@@ -31,14 +32,11 @@ class StuEditListState extends State<StuEditList> {
     // 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.studentInfoView}';
     final response = await http.get(Uri.parse(apiUrl));
-
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> jsonList = jsonDecode(decodedBody);
       jsonList.map((json) => KnStu001Bean.fromJson(json)).toList();
       List<KnStu001Bean> stuLst = jsonList.map((json) => KnStu001Bean.fromJson(json)).cast<KnStu001Bean>().toList();
-      // 使用logger输出jsonList
-      // logger.d(jsonList);
       return stuLst;
 
     } else {
@@ -51,7 +49,30 @@ class StuEditListState extends State<StuEditList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('学生一覧画面'),
+      actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            // 新規”➕”按钮的事件处理函数
+            onPressed: () {
+              Navigator.push<bool>(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => const StudentAdd(),
+                )
+              ).then((value){
+                  // 检查返回值，如果为true，则重新加载数据
+                  if (value == true) {
+                    setState(() {
+                      futureStudents = fetchStudents();
+                    });
+                  }
+                }
+              );
+            },
+          ),
+        ],
       ),
+      
       body: FutureBuilder<List<KnStu001Bean>>(
         future: futureStudents,
         builder: (context, snapshot) {
@@ -87,19 +108,29 @@ class StuEditListState extends State<StuEditList> {
         subtitle: Row(
           children: <Widget>[
             // 为学生编号设置像素的左间距
-            const SizedBox(width: 78 ), 
-            Expanded(
+            // const SizedBox(width: 28 ), 
+            // Expanded(
+            //   child: Text(
+            //     student.stuId,
+            //     style: const TextStyle(fontSize: 14),
+            //   ),
+            // ),
+
+            // const Spacer(), // 先不要删除，留着学习：这会填充所有可用空间
+            Container(
+              // 设置像素的右间距
+              padding: const EdgeInsets.only(left: 40), 
               child: Text(
-                student.stuId,
+                student.gender == 1 ? '男' : '女',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
-            // const Spacer(), // 先不要删除，留着学习：这会填充所有可用空间
+
             Container(
-              // 为固定时间设置像素的右间距
-              padding: const EdgeInsets.only(right: 60), 
+              // 设置像素的右间距
+              padding: const EdgeInsets.only(left: 20),
               child: Text(
-                student.gender == 1 ? '男' : '女',
+                student.birthday,
                 style: const TextStyle(fontSize: 14),
               ),
             ),

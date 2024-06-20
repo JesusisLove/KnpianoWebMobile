@@ -219,9 +219,9 @@ class ScheduleFormState extends State<ScheduleForm> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
+                  // 直接退回到一览画面
                   Navigator.of(context).pop(); // 关闭对话框
                   Navigator.of(context).pop(true); // 关闭当前页面并返回成功标识
-
                 },
                 child: const Text('确定'),
               ),

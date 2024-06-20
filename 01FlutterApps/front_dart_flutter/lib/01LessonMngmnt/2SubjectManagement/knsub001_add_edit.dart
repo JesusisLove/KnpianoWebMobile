@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -19,45 +21,30 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
   
   String? subjectId;
   String? subjectName;
-  String? subjectPrice;
   int? delFlg;
 
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _subjectNameController = TextEditingController();
-  final TextEditingController _subjectPriceController = TextEditingController();
-
   final FocusNode _subjectNameFocusNode = FocusNode();
-  final FocusNode _subjectPriceFocusNode = FocusNode();
-
   Color _subjectNameColor = Colors.black;
-  Color _subjectPriceColor = Colors.black;
 
   @override
   void initState() {
     super.initState();
     if (widget.subject != null) {
       subjectId = widget.subject!.subjectId;
-      // subjectName = widget.subject!.subjectName;
-      // subjectPrice = widget.subject!.subjectPrice.toString();
       delFlg = widget.subject!.delFlg;
       _subjectNameController.text = widget.subject!.subjectName;
-      _subjectPriceController.text = widget.subject!.subjectPrice.toString();
     }
     _subjectNameFocusNode.addListener(() {
       setState(() => _subjectNameColor = _subjectNameFocusNode.hasFocus ? Constants.lessonThemeColor : Colors.black);
-    });
-    _subjectPriceFocusNode.addListener(() {
-      setState(() => _subjectPriceColor = _subjectPriceFocusNode.hasFocus ? Constants.lessonThemeColor : Colors.black);
     });
    }
 
   @override
   void dispose() {
     _subjectNameController.dispose();
-    _subjectPriceController.dispose();
     _subjectNameFocusNode.dispose();
-    _subjectPriceFocusNode.dispose();
     super.dispose();
   }
 
@@ -77,7 +64,6 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
                 inputFocusNode: _subjectNameFocusNode,
                 inputLabelText: '科目名称',
                 inputLabelColor: _subjectNameColor,
-                // initialValue: subjectName,            //编辑模式下的一个坑：👈手动输入一个新数据后，一回车就还原成了旧数据
                 inputController: _subjectNameController,
                 themeColor: Constants.lessonThemeColor,
                 enabledBorderSideWidth: Constants.enabledBorderSideWidth,
@@ -86,23 +72,6 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '请输入科目名称';
-                  }
-                  return null;
-                },
-              ),
-              FormFields.createTextFormField(
-                inputFocusNode: _subjectPriceFocusNode,
-                inputLabelText: '科目价格',
-                // initialValue: subjectPrice!.toString(),//编辑模式下的一个坑：👈手动输入一个新数据后，一回车就还原成了旧数据
-                inputController: _subjectPriceController,
-                inputLabelColor: _subjectPriceColor,
-                themeColor: Constants.lessonThemeColor,
-                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
-                onSave: (value) => subjectPrice = value,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '请输入科目价格';
                   }
                   return null;
                 },
@@ -136,8 +105,6 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
         body: jsonEncode(<String, dynamic>{
           'subjectId': subjectId,
           'subjectName': subjectName,
-          // 'subjectPrice': (subjectPrice as double?), //👈这个写法不对导致程序不在继续往下执行的直接原因
-          'subjectPrice': double.tryParse(subjectPrice ?? '0'),
           'delFlg': delFlg,
         }),
       );
@@ -151,9 +118,10 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
             actions: <Widget>[
               TextButton(
                 onPressed: () => {
+                  // 直接退回到一览画面
                   Navigator.of(context).pop(),
                   Navigator.of(context).pop(true) // 关闭当前页面并返回成功标识
-                  },
+                },
                 child: const Text('确定'),
               ),
             ],
