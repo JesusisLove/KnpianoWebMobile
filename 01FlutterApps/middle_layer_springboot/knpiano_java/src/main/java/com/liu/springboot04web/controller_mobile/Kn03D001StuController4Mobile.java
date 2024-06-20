@@ -55,4 +55,3 @@ public class Kn03D001StuController4Mobile {
         knStu001Dao.save(knStu001Bean);
     }
 }
-

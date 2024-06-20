@@ -33,7 +33,7 @@ public class Kn02F002FeeController{
         return "kn_lsn_fee_001/knlsnfee001_list";
     }
 
-    // 【検索一覧】検索ボタンを押下
+    // 【明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_lsn_fee_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 回传参数设置（画面检索部的查询参数）

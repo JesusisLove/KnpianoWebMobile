@@ -32,7 +32,7 @@ public class Kn01B001StuController{
         return "kn_stu_001/knstu001_list";
     }
 
-    // 【検索一覧】検索ボタンを押下
+    // 【明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_stu_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
@@ -51,7 +51,7 @@ public class Kn01B001StuController{
         return "kn_stu_001/knstu001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
-    // 【検索一覧】新規登録ボタンを押下
+    // 【明细検索一覧】新規登録ボタンを押下
     @GetMapping("/kn_stu_001")
     public String toInfoAdd(Model model) {
         return "kn_stu_001/knstu001_add_update";
@@ -69,7 +69,7 @@ public class Kn01B001StuController{
         return "redirect:/kn_stu_001_all";
     }
 
-    // 【検索一覧】編集ボタンを押下
+    // 【明细検索一覧】編集ボタンを押下
     @GetMapping("/kn_stu_001/{id}")
     public String toInfoEdit(@PathVariable("id") String id, Model model) {
         Kn01B001StuBean knStu001Bean = knStu001Dao.getInfoById(id);
@@ -88,7 +88,7 @@ public class Kn01B001StuController{
         return "redirect:/kn_stu_001_all";
     }
 
-    // 【検索一覧】削除ボタンを押下
+    // 【明细検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_stu_001/{id}")
     public String executeInfoDelete(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
