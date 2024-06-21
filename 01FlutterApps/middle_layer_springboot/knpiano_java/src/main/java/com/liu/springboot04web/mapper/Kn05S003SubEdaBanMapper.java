@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 import com.liu.springboot04web.bean.Kn05S003SubjectEdabnBean;
-public interface Kn05S003SubjectEdabnMapper  {
+public interface Kn05S003SubEdaBanMapper  {
 
     public List<Kn05S003SubjectEdabnBean> getInfoList();
     public Kn05S003SubjectEdabnBean getInfoById(@Param("subId")String subId, 

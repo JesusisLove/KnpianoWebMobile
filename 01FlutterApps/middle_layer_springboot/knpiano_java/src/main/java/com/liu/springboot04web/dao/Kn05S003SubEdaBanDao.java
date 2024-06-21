@@ -2,7 +2,7 @@ package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn05S003SubjectEdabnBean;
 import com.liu.springboot04web.constant.KNConstant;
-import com.liu.springboot04web.mapper.Kn05S003SubjectEdabnMapper;
+import com.liu.springboot04web.mapper.Kn05S003SubEdaBanMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class Kn05S003SubEdaBanDao implements InterfaceKnPianoDao {
 
     @Autowired
-    private Kn05S003SubjectEdabnMapper kn05S003SubjectEdabnMapper;
+    private Kn05S003SubEdaBanMapper kn05S003SubjectEdabnMapper;
 
     public List<Kn05S003SubjectEdabnBean> getInfoList() {
         List<Kn05S003SubjectEdabnBean> list =kn05S003SubjectEdabnMapper.getInfoList();
