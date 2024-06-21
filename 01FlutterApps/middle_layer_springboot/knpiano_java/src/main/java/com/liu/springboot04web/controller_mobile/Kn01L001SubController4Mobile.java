@@ -31,7 +31,6 @@ public class Kn01L001SubController4Mobile {
         return ResponseEntity.ok(collection);
     }
 
-
     // 【新規/编辑】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_sub_001")
@@ -39,10 +38,9 @@ public class Kn01L001SubController4Mobile {
         knSub001Dao.save(knSub001Bean);
     }
 
-
     // 【学科一覧】削除ボタンを押下
     @CrossOrigin(origins = "*") 
- @DeleteMapping("/mb_kn_sub_001/{id}")
+    @DeleteMapping("/mb_kn_sub_001/{id}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("id") String id) {
         try {
             knSub001Dao.delete(id);

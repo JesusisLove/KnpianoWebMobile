@@ -24,7 +24,7 @@ import com.liu.springboot04web.dao.Kn05S003SubEdaBanDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
 @Controller
-public class Kn05S003SubjectEdabnController {
+public class Kn05S003SubEdaBanController {
 
     @Autowired
     Kn05S003SubEdaBanDao kn05S003SubjectEdabnDao;
