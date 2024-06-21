@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.liu.springboot04web.bean.Kn03D002StuDocBean;
 import com.liu.springboot04web.bean.Kn05S003SubjectEdabnBean;
 import com.liu.springboot04web.dao.Kn03D002StuDocDao;
-import com.liu.springboot04web.dao.Kn05S003SubjectEdabnDao;
+import com.liu.springboot04web.dao.Kn05S003SubEdaBanDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 import com.liu.springboot04web.bean.Kn01B001StuBean;
@@ -36,7 +36,7 @@ public class Kn03D002StuDocController {
     @Autowired
     private Kn01B002SubDao knSub001Dao;
     @Autowired
-    Kn05S003SubjectEdabnDao kn05S003SubjectEdabnDao;
+    Kn05S003SubEdaBanDao kn05S003SubjectEdabnDao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn03D002StuDocController(ComboListInfoService combListInfo) {

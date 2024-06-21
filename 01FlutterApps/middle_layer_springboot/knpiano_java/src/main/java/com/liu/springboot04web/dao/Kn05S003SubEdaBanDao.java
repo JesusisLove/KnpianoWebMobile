@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Repository
-public class Kn05S003SubjectEdabnDao implements InterfaceKnPianoDao {
+public class Kn05S003SubEdaBanDao implements InterfaceKnPianoDao {
 
     @Autowired
     private Kn05S003SubjectEdabnMapper kn05S003SubjectEdabnMapper;

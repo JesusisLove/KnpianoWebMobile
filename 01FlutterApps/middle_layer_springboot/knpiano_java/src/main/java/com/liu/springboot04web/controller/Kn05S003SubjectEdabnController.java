@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.liu.springboot04web.bean.Kn01B002SubBean;
 import com.liu.springboot04web.bean.Kn05S003SubjectEdabnBean;
 import com.liu.springboot04web.dao.Kn01B002SubDao;
-import com.liu.springboot04web.dao.Kn05S003SubjectEdabnDao;
+import com.liu.springboot04web.dao.Kn05S003SubEdaBanDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
 @Controller
 public class Kn05S003SubjectEdabnController {
 
     @Autowired
-    Kn05S003SubjectEdabnDao kn05S003SubjectEdabnDao;
+    Kn05S003SubEdaBanDao kn05S003SubjectEdabnDao;
     @Autowired
     Kn01B002SubDao kn01B002SubDao;
 
