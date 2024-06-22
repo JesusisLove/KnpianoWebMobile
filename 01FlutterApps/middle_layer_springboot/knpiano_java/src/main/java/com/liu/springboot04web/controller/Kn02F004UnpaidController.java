@@ -6,9 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
-import com.liu.springboot04web.bean.Kn05S002StubnkBean;
+import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.dao.Kn02F004UnpaidDao;
-import com.liu.springboot04web.dao.Kn05S002StubnkDao;
+import com.liu.springboot04web.dao.Kn03D003StubnkDao;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -30,7 +30,7 @@ public class Kn02F004UnpaidController{
     Collection<Kn02F004UnpaidBean> lsnFeeStuList;
 
     @Autowired
-    Kn05S002StubnkDao kn05S002StubnkDao;
+    Kn03D003StubnkDao kn05S002StubnkDao;
     @Autowired
     Kn02F004UnpaidDao knLsnUnPaid001Dao;
     
@@ -162,10 +162,10 @@ public class Kn02F004UnpaidController{
 
     // 学生银行下拉列表框初期化
     private Map<String, String> getStuBnkCodeValueMap(String stuId) {
-        Collection<Kn05S002StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
+        Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
 
         Map<String, String> map = new HashMap<>();
-        for (Kn05S002StubnkBean bean : collection) {
+        for (Kn03D003StubnkBean bean : collection) {
             map.put(bean.getBankId(), bean.getBankName());
         }
         return map;
