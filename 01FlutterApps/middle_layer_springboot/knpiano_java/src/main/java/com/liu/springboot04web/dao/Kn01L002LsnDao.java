@@ -3,7 +3,7 @@ package com.liu.springboot04web.dao;
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004PayBean;
-import com.liu.springboot04web.bean.Kn03D002StuDocBean;
+import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L002LsnMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
@@ -21,7 +21,7 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     @Autowired
     private Kn01L002LsnMapper knLsn001Mapper;
     @Autowired
-    private Kn03D002StuDocDao knStuDoc001Dao;
+    private Kn03D004StuDocDao knStuDoc001Dao;
     @Autowired
     private Kn02F002FeeDao    kn02F002FeeDao;
     @Autowired
@@ -125,7 +125,7 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
 
     private Kn02F002FeeBean setLsnFeeBean(Kn01L002LsnBean knLsn001Bean) {
 
-        Kn03D002StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId(), knLsn001Bean.getSubjectSubId());
+        Kn03D004StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId(), knLsn001Bean.getSubjectSubId());
         Kn02F002FeeBean bean = new Kn02F002FeeBean();
         
         bean.setStuId(knLsn001Bean.getStuId());

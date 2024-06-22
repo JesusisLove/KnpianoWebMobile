@@ -7,10 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
-import com.liu.springboot04web.bean.Kn03D002StuDocBean;
+import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
-import com.liu.springboot04web.dao.Kn03D002StuDocDao;
+import com.liu.springboot04web.dao.Kn03D004StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -30,7 +30,7 @@ public class Kn01L002LsnController{
     @Autowired
     private Kn01L002LsnDao knLsn001Dao;
     @Autowired
-    private Kn03D002StuDocDao kn03D002StuDocDao;
+    private Kn03D004StuDocDao kn03D002StuDocDao;
 
     // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
     Map<String, Object> backForwordMap; 
@@ -168,8 +168,8 @@ public class Kn01L002LsnController{
     }
 
     // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
-    private List<Kn03D002StuDocBean> getStuSubList() {
-        List<Kn03D002StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
+    private List<Kn03D004StuDocBean> getStuSubList() {
+        List<Kn03D004StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
         return list;
     }
 
