@@ -21,6 +21,12 @@ public class Kn05S003SubEdaBanDao implements InterfaceKnPianoDao {
         return list;
     }
 
+    // 手机端查询用
+    public List<Kn05S003SubjectEdabnBean> getSubEdaList(String subId) {
+        List<Kn05S003SubjectEdabnBean> list =kn05S003SubjectEdabnMapper.getSubEdaList(subId);
+        return list;
+    }
+
     // 获取所有符合查询条件的学生档案信息
     public List<Kn05S003SubjectEdabnBean> searchEdaSubject(Map<String, Object> params) {
         return kn05S003SubjectEdabnMapper.searchEdaSubject(params);
