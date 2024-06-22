@@ -8,19 +8,33 @@ class Constants {
 /// 
 
 // ******* 上课管理模块 *******//
-// 学生学科一览画面，画面初期化的url请求
-static const String subjectView = '/liu/mb_kn_sub_001_all';
 
-// 学生学科新规画面，点击“保存”按钮的url请求
-static const String subjectInfoAdd = '/liu/mb_kn_sub_001';
-
-// 学生学科编辑画面，点击“保存”按钮的url请求
-static const String subjectInfoEdit = '/liu/mb_kn_sub_001';
-
-// 学生学科编辑画面，点击“保存”按钮的url请求
-static const String subjectInfoDelete = '/liu/mb_kn_sub_001';
 
 // ******* 档案管理模块 *******//
+// 学生科目一览画面，画面初期化的url请求
+static const String subjectView = '/liu/mb_kn_sub_001_all';
+
+// 学生科目新规画面，点击“保存”按钮的url请求
+static const String subjectInfoAdd = '/liu/mb_kn_sub_001';
+
+// 学生科目编辑画面，点击“保存”按钮的url请求
+static const String subjectInfoEdit = '/liu/mb_kn_sub_001';
+
+// 学生科目一览画面，点击“删除”按钮的url请求
+static const String subjectInfoDelete = '/liu/mb_kn_sub_001';
+
+// 学生科目级别一览画面，画面初期化的url请求
+static const String subjectEdaView = '/liu/mb_kn_05s003_subject_edabn_by_subid';
+
+// 学生科目级别新规画面，点击“保存”按钮的url请求
+static const String subjectEdaAdd = '/liu/mb_kn_05s003_subject_edabn';
+
+// 学生科目级别编辑画面，点击“保存”按钮的url请求
+static const String subjectEdaEdit = '/liu/mb_kn_05s003_subject_edabn';
+
+// 学生科目级别一览画面，点击“删除”按钮的url请求
+static const String subjectEdaDelete = '/liu/mb_kn_05s003_subject_edabn';
+
 // 学生档案菜单画面，点击“学生档案编辑”按钮的url请求
 static const String studentInfoView = '/liu/mb_kn_stu_001_all';
 

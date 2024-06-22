@@ -21,7 +21,7 @@ class HomePageState extends State<HomePage> {
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
-          setButton(iconData: Icons.book, text: "学生学科管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
+          setButton(iconData: Icons.book, text: "学生科目管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
@@ -30,7 +30,7 @@ class HomePageState extends State<HomePage> {
       case 1:
         // 学费管理页面
         return [
-          setButton(iconData: Icons.monetization_on, text: "学科价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
+          setButton(iconData: Icons.monetization_on, text: "科目价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.payment, text: "支付科目学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

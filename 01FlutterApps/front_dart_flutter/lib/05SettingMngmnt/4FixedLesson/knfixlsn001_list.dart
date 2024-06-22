@@ -127,7 +127,7 @@ class ClassSchedulePageState extends State<ClassSchedulePage> with SingleTickerP
         title: Text(lesson.studentName),
         subtitle: Row(
           children: <Widget>[
-            // 为学科名称设置像素的左间距
+            // 为科目名称设置像素的左间距
             const SizedBox(width: 48 ), 
             Expanded(
               child: Text(
