@@ -37,7 +37,9 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
       _subjectNameController.text = widget.subject!.subjectName;
     }
     _subjectNameFocusNode.addListener(() {
-      setState(() => _subjectNameColor = _subjectNameFocusNode.hasFocus ? Constants.lessonThemeColor : Colors.black);
+      setState(() => _subjectNameColor = _subjectNameFocusNode.hasFocus 
+                                       ? Constants.stuDocThemeColor 
+                                       : Colors.black);
     });
    }
 
@@ -61,13 +63,13 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
           child: Column(
             children: [
               FormFields.createTextFormField(
-                inputFocusNode: _subjectNameFocusNode,
-                inputLabelText: '科目名称',
-                inputLabelColor: _subjectNameColor,
-                inputController: _subjectNameController,
-                themeColor: Constants.lessonThemeColor,
-                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                inputFocusNode          : _subjectNameFocusNode,
+                inputLabelText          : '科目名称',
+                inputLabelColor         : _subjectNameColor,
+                inputController         : _subjectNameController,
+                themeColor              : Constants.stuDocThemeColor,
+                enabledBorderSideWidth  : Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth  : Constants.focusedBorderSideWidth,
                 onSave: (value) =>  subjectName = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
