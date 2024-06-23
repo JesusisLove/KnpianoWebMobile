@@ -22,7 +22,7 @@ import java.util.Map;
 public class Kn03D003StubnkController{
 
     @Autowired
-    Kn03D003StubnkDao Kn05S002StubnkDao;
+    Kn03D003StubnkDao Kn03D003StubnkDao;
     @Autowired
     Kn03D001StuDao knStu001Dao;
     @Autowired
@@ -31,7 +31,7 @@ public class Kn03D003StubnkController{
     // 【学生銀行番号管理】ボタンをクリックして，全ての情報を表示すること
     @GetMapping("/kn_05s002_stubnk_all")
         public String list(Model model) {
-        Collection<Kn03D003StubnkBean> collection = Kn05S002StubnkDao.getInfoList();
+        Collection<Kn03D003StubnkBean> collection = Kn03D003StubnkDao.getInfoList();
         model.addAttribute("infoList",collection);
         return "kn_05s002_stubnk/Kn05S002stubnk_list";
     }
@@ -52,14 +52,15 @@ public class Kn03D003StubnkController{
         if (validateHasError(model, Kn05S002StubnkBean)) {
             return "kn_05s002_stubnk/Kn05S002stubnk_add_update";
         }
-        Kn05S002StubnkDao.save(Kn05S002StubnkBean);
+        Kn03D003StubnkDao.save(Kn05S002StubnkBean);
         return "redirect:/kn_05s002_stubnk_all";
     }
 
     // 【学生銀行番号管理】削除ボタンを押下して、当該情報を削除すること
-    @DeleteMapping("/kn_05s002_stubnk/{id}")
-    public String excuteInfoDelete(@PathVariable("id") String id) {
-        Kn05S002StubnkDao.delete(id);
+    @DeleteMapping("/kn_05s002_stubnk/{stuId}/{bankId}")
+    public String excuteInfoDelete(@PathVariable("stuId") String stuId,
+                                   @PathVariable("bankId") String bankId) {
+        Kn03D003StubnkDao.delete(stuId, bankId);
         return "redirect:/kn_05s002_stubnk_all";
     }
 

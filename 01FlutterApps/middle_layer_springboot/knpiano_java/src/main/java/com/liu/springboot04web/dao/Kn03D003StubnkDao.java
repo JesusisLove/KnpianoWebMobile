@@ -49,7 +49,7 @@ public class Kn03D003StubnkDao {
     }
 
     // 削除
-    public void delete(String id) { 
-        kn05S002StubnkMapper.deleteInfo(id); 
+    public void delete(String stuId, String bankId) { 
+        kn05S002StubnkMapper.deleteInfo(stuId, bankId); 
     }
 }

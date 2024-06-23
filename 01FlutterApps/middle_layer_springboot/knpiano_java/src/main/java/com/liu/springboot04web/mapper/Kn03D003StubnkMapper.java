@@ -15,7 +15,7 @@ public interface Kn03D003StubnkMapper {
     public List<Kn03D003StubnkBean> searchStuBank(@Param("params") Map<String, Object> queryparams);
     public void updateInfo(Kn03D003StubnkBean bean);
     public void insertInfo(Kn03D003StubnkBean bean);
-    public void deleteInfo(@Param("id")String id);
+    public void deleteInfo(@Param("stuId")String stuId, @Param("bankId")String bankId);
 
     // 执行数据库存储过程
     public void callProcedure(Map<String, Integer> map);
