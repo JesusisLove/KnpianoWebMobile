@@ -63,7 +63,9 @@
 
                         <td>
                             <!-- <a class="btn btn-sm btn-primary" th:href="@{/kn_05s002_stubnk/}+${info.bankId}" methods="GET">変更</a>  -->
-                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_05s002_stubnk/}+${info.bankId}">削除</button>
+                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_05s002_stubnk/{stuId}/{bankId}
+                                                                                        (stuId=${info.stuId},
+                                                                                        bankId=${info.bankId})}">削除</button>
                         </td>
                  </tr>
                     </tbody>
@@ -87,11 +89,13 @@
 <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
 <script>
     $(".deleteBtn").click(function() {
-        //thisが削除ボタンである
-        let del_uri = $(this).attr("liu_del_uri");
-        //対象フォームのsubmitを実行する
-        $("#deleteEmpForm").attr("action",del_uri).submit();
-        return false;
+        if (confirm('本当に削除しますか？')) {
+            //thisが削除ボタンである
+            let del_uri = $(this).attr("liu_del_uri");
+            //対象フォームのsubmitを実行する
+            $("#deleteEmpForm").attr("action",del_uri).submit();
+            return false;
+        }
     });
 </script>
 </body>
