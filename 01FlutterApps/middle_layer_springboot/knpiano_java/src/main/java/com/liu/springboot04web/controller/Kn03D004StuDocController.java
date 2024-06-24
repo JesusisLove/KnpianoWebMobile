@@ -21,8 +21,10 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 @Service
@@ -54,6 +56,10 @@ public class Kn03D004StuDocController {
         Collection<Kn03D004StuDocBean> unDocStuList = knStudoc001Dao.getUnDocedList();
         model.addAttribute("unDocStuList", unDocStuList);
 
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+       Map<String, String> resultsTabStus = getResultsTabStus(collection);
+       model.addAttribute("resultsTabStus", resultsTabStus);
+
         return "kn_studoc_001/knstudoc001_list";
     }
 
@@ -72,6 +78,10 @@ public class Kn03D004StuDocController {
         // 将queryParams传递给Service层或Mapper接口
         Collection<Kn03D004StuDocBean> searchResults = knStudoc001Dao.searchStuDoc(conditions);
         model.addAttribute("stuDocList", searchResults);
+
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+       Map<String, String> resultsTabStus = getResultsTabStus(searchResults);
+       model.addAttribute("resultsTabStus", resultsTabStus);
         return "kn_studoc_001/knstudoc001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
@@ -264,4 +274,20 @@ public class Kn03D004StuDocController {
 
         return (msgList.size() != 0);
     }
+
+        // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+        private Map<String, String> getResultsTabStus(Collection<Kn03D004StuDocBean> collection) {
+
+            Map<String, String> activeStudentsMap = new HashMap<>();
+            Set<String> seenStuIds = new HashSet<>();
+    
+            for (Kn03D004StuDocBean bean : collection) {
+                String stuId = bean.getStuId();
+                if (!seenStuIds.contains(stuId)) {
+                    activeStudentsMap.put(stuId, bean.getStuName());
+                    seenStuIds.add(stuId);
+                }
+            }
+            return activeStudentsMap;
+        }
 }
