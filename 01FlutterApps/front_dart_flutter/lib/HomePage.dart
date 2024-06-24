@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
+import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
 
 class HomePage extends StatefulWidget {
@@ -53,7 +54,9 @@ class HomePageState extends State<HomePage> {
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
 
 
-          setButton(iconData: Icons.food_bank, text: "银行基本信息管理", onPressed: () {}, bgcolor:consts.Constants.stuDocThemeColor,),
+          setButton(iconData: Icons.food_bank, text: "银行基本信息管理", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const BankViewPage()));
+          }, bgcolor:consts.Constants.stuDocThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
         
           setButton(iconData: Icons.folder, text: "学生档案信息管理", onPressed: () {}, bgcolor: consts.Constants.stuDocThemeColor,),
