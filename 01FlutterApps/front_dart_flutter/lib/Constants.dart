@@ -10,6 +10,9 @@ class Constants {
 // ******* 上课管理模块 *******//
 
 
+
+
+
 // ******* 档案管理模块 *******//
 // 学生科目一览画面，画面初期化的url请求
 static const String subjectView = '/liu/mb_kn_sub_001_all';
@@ -43,6 +46,29 @@ static const String studentInfoAdd = '/liu/mb_kn_stu_001_add';
 
 // 学生档案编辑画面，点击“保存”按钮的url请求
 static const String studentInfoEdit = '/liu/mb_kn_stu_001_edit';
+
+// 银行一览画面，画面初期化的url请求
+static const String bankView = '/liu/mb_kn_03d003_bank_all';
+
+// 银行学生新规画面，点击“保存”按钮的url请求
+static const String bankAddEdit = '/liu/mb_kn_03d003_bank';
+
+// 银行学生一览画面，点击“删除”按钮的url请求
+static const String bankDelete = '/liu/mb_kn_03d003_bank';
+
+// 银行一览画面，画面初期化的url请求
+static const String stuBankView = '/liu/mb_kn_03d003_students_by_bankid';
+
+// 银行学生新规画面，点击“保存”按钮的url请求
+static const String stuBankAdd = '/liu/mb_kn_03d003_bank_stu';
+
+// 银行学生一览画面，点击“删除”按钮的url请求
+static const String stuBankDelete = '/liu/mb_kn_03d003_bank_stu';
+
+
+
+
+
 
 
 // ******* 设置管理模块 *******//
