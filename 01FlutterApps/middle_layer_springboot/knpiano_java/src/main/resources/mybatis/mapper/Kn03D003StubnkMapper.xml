@@ -14,9 +14,16 @@ https://mybatis.org/mybatis-3/getting-started.html
         select * from v_info_student_bank order by stu_id
     </select>
 
-    <select id= "getInfoByStuId" resultType="com.liu.springboot04web.bean.Kn03D003StubnkBean">
+    <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn03D003StubnkBean">
         select * from v_info_student_bank
          where stu_id = #{stuId}
+
+    </select>
+
+    <!-- 手机前端该当银行被学生使用的学生信息抽出 -->
+    <select id= "getInfoByBnkId" resultType="com.liu.springboot04web.bean.Kn03D003StubnkBean">
+        select * from v_info_student_bank
+         where bank_id = #{bankId}
 
     </select>
 

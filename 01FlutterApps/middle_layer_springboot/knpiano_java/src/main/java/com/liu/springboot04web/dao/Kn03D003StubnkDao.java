@@ -19,13 +19,19 @@ public class Kn03D003StubnkDao {
     }
 
     public List<Kn03D003StubnkBean> getInfoById(String stuId) {
-        List<Kn03D003StubnkBean> list = kn05S002StubnkMapper.getInfoByStuId(stuId);
+        List<Kn03D003StubnkBean> list = kn05S002StubnkMapper.getInfoById(stuId);
         return list;
     }
 
     public Kn03D003StubnkBean getInfoById(String stuId, String bankId) {
         Kn03D003StubnkBean kn05S002StubnkBean = kn05S002StubnkMapper.getInfoByStuIdBnkId(stuId, bankId);
         return kn05S002StubnkBean;
+    }
+
+    // 手机前端该当银行被学生使用的学生信息抽出
+    public List<Kn03D003StubnkBean> getInfoByBnkId(String bankId) {
+        List<Kn03D003StubnkBean> list = kn05S002StubnkMapper.getInfoByBnkId(bankId);
+        return list;
     }
 
     public void save(Kn03D003StubnkBean kn05S002StubnkBean) {
