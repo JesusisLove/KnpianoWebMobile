@@ -16,9 +16,15 @@ public class Kn03D004StuDocDao implements InterfaceKnPianoDao {
     @Autowired
     private Kn03D004StuDocMapper knStudoc001Mapper;
 
-    // 获取所有学生档案信息的信息列表
+    // 获取所有学生档案信息的信息列表：后台维护使用
     public List<Kn03D004StuDocBean> getInfoList() {
         List<Kn03D004StuDocBean> list = knStudoc001Mapper.getInfoList();
+        return list;
+    }
+
+    // 手机端网页提取已经入档的学生名单
+    public List<Kn03D004StuDocBean> getDocedStuList() {
+        List<Kn03D004StuDocBean> list = knStudoc001Mapper.getDocedStuList();
         return list;
     }
 
@@ -27,6 +33,13 @@ public class Kn03D004StuDocDao implements InterfaceKnPianoDao {
         List<Kn03D004StuDocBean> list = knStudoc001Mapper.getUnDocedList();
         return list;
     }
+
+    // 手机端网页提取已经入档的学生他本人的历史档案信息 
+    public List<Kn03D004StuDocBean> getDocedstuDetailList(String stuId) {
+        List<Kn03D004StuDocBean> list = knStudoc001Mapper.getDocedstuDetailList(stuId);
+        return list;
+    }
+
     
     // 获取所有符合查询条件的学生档案信息
     public List<Kn03D004StuDocBean> searchStuDoc(Map<String, Object> params) {

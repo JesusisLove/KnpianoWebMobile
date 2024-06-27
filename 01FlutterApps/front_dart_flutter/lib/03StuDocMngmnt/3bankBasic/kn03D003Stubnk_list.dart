@@ -23,7 +23,7 @@ class BankStuPageView extends StatefulWidget {
 
 class _BankStuPageViewState extends State<BankStuPageView> {
   List<dynamic> bankStuBanBean = [];
-   late Future<List<Kn03D003StubnkBean>> futureBanStu;
+  late Future<List<Kn03D003StubnkBean>> futureBanStu;
 
   @override
   void initState() {

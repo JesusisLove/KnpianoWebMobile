@@ -8,12 +8,19 @@ import java.util.Date;
 public interface Kn03D004StuDocMapper  {
 
     public List<Kn03D004StuDocBean> getInfoList();
+
+    // 手机端网页提取已经入档的学生名单
+    public List<Kn03D004StuDocBean> getDocedStuList();
     
     // 根据特定条模糊检索学生档案信息
     public List<Kn03D004StuDocBean> searchStuDoc(@Param("params") Map<String, Object> queryparams);
 
     // 还未建档的学生姓名取得
     public List<Kn03D004StuDocBean> getUnDocedList();
+
+    // 手机端网页提取已经入档的学生他本人的历史档案信息 
+    public List<Kn03D004StuDocBean> getDocedstuDetailList(@Param("stuId") String stuId);
+
 
     public Kn03D004StuDocBean getInfoByKey(@Param("stuId") String stuId, 
                                            @Param("subjectId") String subjectId, 
