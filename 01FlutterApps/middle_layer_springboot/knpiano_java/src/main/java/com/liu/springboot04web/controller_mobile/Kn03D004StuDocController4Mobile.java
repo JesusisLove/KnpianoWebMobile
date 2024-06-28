@@ -96,7 +96,7 @@ public class Kn03D004StuDocController4Mobile {
 
     // 【档案一覧】削除ボタンを押下
     @CrossOrigin(origins = "*") 
-    @DeleteMapping("/mb_kn_studoc_001_delete/{id}")
+    @DeleteMapping("/mb_kn_studoc_001_delete/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("stuId") String stuId, 
                                                     @PathVariable("subjectId") String subjectId, 
                                                     @PathVariable("subjectSubId") String subjectSubId, 
