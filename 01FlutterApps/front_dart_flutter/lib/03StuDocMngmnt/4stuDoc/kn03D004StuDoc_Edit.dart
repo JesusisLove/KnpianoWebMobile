@@ -271,7 +271,6 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
       'subjectSubId': widget.subjectSubId,
       'adjustedDate': widget.adjustedDate,
       'payStyle': payStyle,
-      'duration': selectedDuration,
       'lessonFee': standardPrice,
       'lessonFeeAdjusted': adjustedPriceValue,
       'minutesPerLsn':selectedDuration,
