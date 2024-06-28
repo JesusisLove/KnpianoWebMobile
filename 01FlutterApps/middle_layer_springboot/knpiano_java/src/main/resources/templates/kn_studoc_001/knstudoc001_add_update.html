@@ -135,11 +135,27 @@
                 </div>
                 <br>
                 <!-- 変更編集 模式下 显示当前科目的标准价格 -->
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label>標準価格</label> 
                     <input id="subjectPrice" 
                            name="lessonFee" type="text" class="form-control" 
                            readonly th:value="${selectedStuDoc!=null}?${selectedStuDoc.lessonFee}">
+                </div> -->
+                <div class="form-group">
+                    <label>標準価格</label>
+                    <div class="input-group">
+                        <input id="subjectPrice"
+                               name="lessonFee" 
+                               type="text" 
+                               class="form-control"
+                               readonly 
+                               th:value="${selectedStuDoc != null ? selectedStuDoc.lessonFee : ''}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="toggleReadonly">
+                                <span id="toggleButtonText"><i class="fas fa-lock"></i> 開启</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <br>
                 <div class="form-group">  <label>調整価格</label> 
@@ -230,6 +246,25 @@
     }
     /*]]>*/
 </script>
-
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectPrice = document.getElementById('subjectPrice');
+        const toggleButton = document.getElementById('toggleReadonly');
+        const toggleButtonText = document.getElementById('toggleButtonText');
+        let isReadonly = true;
+    
+        toggleButton.addEventListener('click', function() {
+            isReadonly = !isReadonly;
+            subjectPrice.readOnly = isReadonly;
+            
+            // 更新按钮文本和图标
+            if (isReadonly) {
+                toggleButtonText.innerHTML = '<i class="fas fa-lock"></i> 开启';
+            } else {
+                toggleButtonText.innerHTML = '<i class="fas fa-lock-open"></i> 关闭';
+            }
+        });
+    });
+</script>
 </body>
 </html>
