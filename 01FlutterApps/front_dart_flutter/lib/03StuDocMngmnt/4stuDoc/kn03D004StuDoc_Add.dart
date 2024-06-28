@@ -25,9 +25,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   List<Kn05S003SubjectEdabnBean>  subjectSubs = [];
   List<DurationBean> ?            duration = [];
   KnSub001Bean?                   selectedSubject;
-  Kn05S003SubjectEdabnBean?       selectedSubjectSub;
+  Kn05S003SubjectEdabnBean ?       selectedSubjectSub;
   DateTime ?                      adjustmentDate = DateTime.now();
   bool                            isMonthlyPayment = true;
+  int ?                           payStyle = 1;
   int ?                           selectedDuration;
   double                          standardPrice = 0.0;
   TextEditingController           adjustedPriceController = TextEditingController();
@@ -195,11 +196,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                 Expanded(
                   child: RadioListTile<bool>(
                     title: const Text('按月付费'),
-                    value: true,
+                    value: (payStyle == 1),
                     groupValue: isMonthlyPayment,
                     onChanged: (bool? value) {
                       setState(() {
-                        isMonthlyPayment = value ?? true;
+                        payStyle = 1;
                       });
                     },
                   ),
@@ -207,11 +208,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                 Expanded(
                   child: RadioListTile<bool>(
                     title: const Text('课时付费'),
-                    value: false,
+                    value: (payStyle == 0),
                     groupValue: isMonthlyPayment,
                     onChanged: (bool? value) {
                       setState(() {
-                        isMonthlyPayment = value ?? false;
+                        payStyle = 0;
                       });
                     },
                   ),
@@ -328,8 +329,8 @@ Future<void> saveData() async {
     'subjectId': selectedSubject?.subjectId,
     'subjectSubId': selectedSubjectSub?.subjectSubId,
     'adjustedDate': adjustmentDate?.toIso8601String().split('T')[0], // 格式化为 YYYY-MM-DD
-    'payStyle': isMonthlyPayment ? 1 : 0,
-    'duration': selectedDuration,
+    'payStyle': payStyle,
+    'minutesPerLsn': selectedDuration,
     'lessonFee': standardPrice,
     'lessonFeeAdjusted': double.tryParse(adjustedPriceController.text) ?? 0.0,
   };
