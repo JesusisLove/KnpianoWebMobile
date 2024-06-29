@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:kn_piano/03StuDocMngmnt/4stuDoc/Kn03D004StuDocBean.dart';
@@ -129,7 +129,7 @@ Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
                     });
                     break;
                   case 'delete':
-                    // TODO: 实现删除功能
+                    // 删除
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -148,7 +148,7 @@ Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
                               child: const Text('确定'),
                               onPressed: () {
                                 _deleteSubjectEdaBan(student.stuId, student.subjectId, student.subjectSubId, student.adjustedDate);
-                                Navigator.of(context).pop(); // 关闭对话框
+                                Navigator.of(context).pop(true); 
                               },
                             ),
                           ],
@@ -187,51 +187,60 @@ Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
 void _deleteSubjectEdaBan(String stuId, String subjectId, String subjectSubId, String adjustedDate) async {
   final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.stuDocInfoDelete}/$stuId/$subjectId/$subjectSubId/$adjustedDate';
   try {
-        http.delete(
-          Uri.parse(deleteUrl),
-          headers: {
-            'Content-Type': 'application/json', // 添加内容类型头
-          },
-        )
-        .then((response) {
-          if (response.statusCode == 200) {
-            reloadData();
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('删除失败'),
-                  content: Text(response.body),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('确定'),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        });
-    } catch (e) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('网络异常'),
-              content: const Text('无法连接到服务器'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('确定'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            );
-          },
-        );
+    final response = await http.delete(
+      Uri.parse(deleteUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // 删除成功后重新获取数据
+      await _fetchStudentData();
+      
+      // 检查 stuDocNotifier 中的数据量
+      if (stuDocNotifier.value.isEmpty) {
+        // 如果数据为空，关闭当前页面
+        Navigator.of(context).pop(true);
+      } else {
+        // 如果还有数据，刷新当前页面
+        setState(() {});
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('删除失败'),
+            content: Text(response.body),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('确定'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
     }
+  } catch (e) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('网络异常'),
+          content: const Text('无法连接到服务器'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
+}
 
   void reloadData() {
     // 重新加载数据
