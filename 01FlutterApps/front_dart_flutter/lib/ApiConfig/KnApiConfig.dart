@@ -7,7 +7,7 @@ class KnConfig {
 
   static Future<void> load() async {
     try {
-      final jsonString = await rootBundle.loadString('kn-config/apiconfig.json');
+      final jsonString = await rootBundle.loadString('kn-vpn-config/apiconfig.json');
       final jsonResponse = json.decode(jsonString);
       apiBaseUrl = jsonResponse['apiBaseUrl'];
     } catch (e) {
