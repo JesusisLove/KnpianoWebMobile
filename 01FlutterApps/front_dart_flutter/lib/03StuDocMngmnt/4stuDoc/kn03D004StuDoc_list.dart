@@ -18,6 +18,8 @@ class StudentDocPage extends StatefulWidget {
 
 class _StudentDocPageState extends State<StudentDocPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int archivedCount = 0;
+  int unarchivedCount = 0;
 
   // 使用 ValueNotifier 来管理状态
   final ValueNotifier<List<Kn03D004StuDocBean>> stuDocNotifier = ValueNotifier([]);
@@ -40,6 +42,7 @@ class _StudentDocPageState extends State<StudentDocPage> with SingleTickerProvid
         final decodedBody = utf8.decode(responseStuDoc.bodyBytes);
         List<dynamic> stuDocJson = json.decode(decodedBody);
         stuDocNotifier.value = stuDocJson.map((json) => Kn03D004StuDocBean.fromJson(json)).toList();
+        archivedCount = stuDocNotifier.value.length;  // 更新已入档案人数
       } else {
         throw Exception('Failed to load archived students');
       }
@@ -52,6 +55,7 @@ class _StudentDocPageState extends State<StudentDocPage> with SingleTickerProvid
         final decodedBody = utf8.decode(responseStuUnDoc.bodyBytes);
         List<dynamic> stuUnDocJson = json.decode(decodedBody);
         stuUnDocNotifier.value = stuUnDocJson.map((json) => Kn03D004StuDocBean.fromJson(json)).toList();
+        unarchivedCount = stuUnDocNotifier.value.length;  // 更新未入档案人数
       } else {
         throw Exception('Failed to load unarchived students');
       }
@@ -68,13 +72,13 @@ class _StudentDocPageState extends State<StudentDocPage> with SingleTickerProvid
       builder: (context, unDocStudents, child) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('档案管理'),
+            title: Text(unarchivedCount == 0 ? '档案管理（$archivedCount人）' : '档案管理'),
             bottom: unDocStudents.isNotEmpty
                 ? TabBar(
                     controller: _tabController,
-                    tabs: const [
-                      Tab(text: '已入档案'),
-                      Tab(text: '未入档案'),
+                    tabs:  [                  
+                      Tab(text: '已入档案 （$archivedCount人）'),
+                      Tab(text: '未入档案 （$unarchivedCount人）'),
                     ],
                   )
                 : null,
@@ -109,28 +113,36 @@ class _StudentDocPageState extends State<StudentDocPage> with SingleTickerProvid
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
               title: Text(student.stuName),
-              trailing: PopupMenuButton<String>(
-                onSelected: (String result) {
-                  switch (result) {
-                    case 'detail':
-                      Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StudentDocDetailPage(stuId: student.stuId, stuName: student.stuName),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('${student.subjectCount} 科', 
+                          style: const TextStyle(fontSize: 16.0)),
+                          const SizedBox(width: 48.0), // 调整 Text 和 PopupMenuButton 之间的间距
+                  PopupMenuButton<String>(
+                    onSelected: (String result) {
+                      switch (result) {
+                        case 'detail':
+                          Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StudentDocDetailPage(stuId: student.stuId, stuName: student.stuName),
+                            ),
+                          ).then((value) {
+                            _fetchStudentData();
+                          });
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'detail',
+                        child: ListTile(
+                          leading: Icon(Icons.edit),
+                          title: Text('详细'),
                         ),
-                      ).then((value) {
-                        _fetchStudentData();
-                      });
-                      break;
-                  }
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'detail',
-                    child: ListTile(
-                      leading: Icon(Icons.edit),
-                      title: Text('详细'),
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
