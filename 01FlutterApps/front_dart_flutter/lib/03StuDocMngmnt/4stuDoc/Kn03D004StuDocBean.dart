@@ -10,6 +10,7 @@ class Kn03D004StuDocBean {
   final String adjustedDate;
   final int    payStyle;
   final int    minutesPerLsn;
+  final int    subjectCount;
   final double lessonFee;
   final double lessonFeeAdjusted;
   final String examDate;
@@ -25,6 +26,7 @@ class Kn03D004StuDocBean {
     required this.adjustedDate,
     required this.payStyle,
     required this.minutesPerLsn,
+    required this.subjectCount,
     required this.lessonFee,
     required this.lessonFeeAdjusted,
     required this.examDate,
@@ -57,6 +59,7 @@ class Kn03D004StuDocBean {
       adjustedDate:       formattedAdjustedDate,
       payStyle:           json['payStyle'] ?? 0,
       minutesPerLsn:      json['minutesPerLsn'] ?? 0,
+      subjectCount:       json['subjectCount'] ?? 0,
       lessonFee:          json['lessonFee']?.toDouble() ?? 0.0,
       lessonFeeAdjusted:  json['lessonFeeAdjusted']?.toDouble() ?? 0.0,
       examDate:           json['examDate'] ?? '',

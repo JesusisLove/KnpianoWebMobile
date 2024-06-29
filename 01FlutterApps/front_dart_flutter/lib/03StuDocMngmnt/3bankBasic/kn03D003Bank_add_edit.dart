@@ -97,7 +97,7 @@ class _BankAddEditState extends State<BankAddEdit> {
       _formKey.currentState!.save();
 
       // 银行新规编辑画面，点击“保存”按钮的url请求
-      final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankAdd}';
+      final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.bankAddEdit}';
 
       var response = await http.post(
         Uri.parse(apiUrl),
