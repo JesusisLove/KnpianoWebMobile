@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
+import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
@@ -21,7 +22,9 @@ class HomePageState extends State<HomePage> {
       case 0:
         // 上课管理页面
         return[
-          setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor, ),
+          setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage()));
+          }, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
           setButton(iconData: Icons.book, text: "学生科目管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
