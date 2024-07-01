@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AddCourseDialog extends StatefulWidget {
-  const AddCourseDialog({super.key, this.scheduleDate});
+  const AddCourseDialog({super.key, this.scheduleDate, this.scheduleTime});
   final String? scheduleDate;
+  final String? scheduleTime;
   @override
   // ignore: library_private_types_in_public_api
   _AddCourseDialogState createState() => _AddCourseDialogState();
@@ -31,8 +32,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '添加课程:${widget.scheduleDate}', 
-                  style: const TextStyle(fontSize: 18, 
+                  '添加课程:${widget.scheduleDate} ${widget.scheduleTime}', 
+                  style: const TextStyle(fontSize: 14, 
                   fontWeight: FontWeight.bold)
                 ),
                 IconButton(
