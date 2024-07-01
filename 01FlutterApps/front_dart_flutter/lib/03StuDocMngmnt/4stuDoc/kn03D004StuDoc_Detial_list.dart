@@ -54,13 +54,29 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('档案明细管理'),
+        // 设置本页面的标题：例如 邱彦涛 的科目明细，要求邱彦涛地下有下划线。
+        title: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '${widget.stuName}',
+                // 给学生姓名下添加下划线
+                style: const TextStyle(
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+              const TextSpan(
+                text: ' 的课程',
+              ),
+            ],
+          ),
+        ),
+
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             // 新規”➕”按钮的事件处理函数
             onPressed: () {
-              // Navigate to add bankStu page or handle add operation
               Navigator.push<bool>(
                 context, 
                 MaterialPageRoute(
@@ -99,11 +115,13 @@ Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
             leading: const CircleAvatar(
               backgroundImage: AssetImage('images/student-placeholder.png'),
             ),
-            title: Text(student.stuName),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            title: Text('${student.subjectName} ${student.subjectSubName}'),
+            subtitle: Row(
               children: [
-                Text('${student.subjectName} ${student.subjectSubName}   ${student.adjustedDate.substring(0,10)}'),
+                Expanded(
+                  child: Text(student.lessonFeeAdjusted > 0 ? '＄${student.lessonFeeAdjusted}' : '＄${student.lessonFee}'),
+                ),
+                Text(student.adjustedDate.substring(0, 10)),
               ],
             ),
             trailing: PopupMenuButton<String>(
