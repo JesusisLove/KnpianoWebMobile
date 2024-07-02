@@ -6,6 +6,8 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class Kn01L002LsnBean implements KnPianoBean {
 
     protected String lessonId;
@@ -17,7 +19,8 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String stuName;
     protected Integer classDuration;
     protected Integer lessonType;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")// 接受手机前端的请求时接纳前端String类型的日期值
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date schedualDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date scanQrDate;

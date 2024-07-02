@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,9 +10,9 @@ import '../../ApiConfig/KnApiConfig.dart';
 import '../../Constants.dart';
 
 class AddCourseDialog extends StatefulWidget {
-  const AddCourseDialog({Key? key, this.scheduleDate, this.scheduleTime}) : super(key: key);
-  final String? scheduleDate;
-  final String? scheduleTime;
+  const AddCourseDialog({super.key, required this.scheduleDate, required this.scheduleTime});
+  final String scheduleDate;
+  final String scheduleTime;
   @override
   _AddCourseDialogState createState() => _AddCourseDialogState();
 }
@@ -20,6 +22,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   String? selectedSubject;
   String? subjectLevel;
   String? courseType;
+  int? lessonType;
   int? selectedDuration;
   List<Kn03D004StuDocBean> stuDocList = [];
   List<dynamic> stuSubjectsList = [];
@@ -51,7 +54,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
         throw Exception('Failed to load archived students');
       }
     } catch (e) {
-      // Handle error
+      _showErrorDialog('加载学生数据失败: ${e.toString()}');
     }
   }
 
@@ -76,7 +79,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
         throw Exception('Failed to load archived subjects of the student');
       }
     } catch (e) {
-      // Handle error
+      _showErrorDialog('加载学生科目失败: ${e.toString()}');
     }
   }
 
@@ -96,7 +99,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
         throw Exception('Failed to load duration');
       }
     } catch (e) {
-      // Handle error
+      _showErrorDialog('加载上课时长失败: ${e.toString()}');
     }
   }
 
@@ -106,12 +109,84 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       if (selectedSubjectInfo['payStyle'] == 0) {
         courseType = '课结算';
         isRadioEnabled = false;
+        lessonType = 0;
       } else {
         courseType = '月计划';
         isRadioEnabled = true;
+        lessonType = 1;
       }
       selectedDuration = selectedSubjectInfo['minutesPerLsn'];
     });
+  }
+
+  bool _validateForm() {
+    if (selectedStudent == null) {
+      _showErrorDialog('请选择学生姓名');
+      return false;
+    }
+    if (selectedSubject == null) {
+      _showErrorDialog('请选择科目名称');
+      return false;
+    }
+    if (selectedDuration == null) {
+      _showErrorDialog('请选择上课时长');
+      return false;
+    }
+    return true;
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('必须入力：'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveCourse() async {
+    if (!_validateForm()) return;
+
+    final selectedStudentDoc = stuDocList.firstWhere((student) => student.stuName == selectedStudent);
+    final selectedSubjectInfo = stuSubjectsList.firstWhere((subject) => subject['subjectName'] == selectedSubject);
+
+    final Map<String, dynamic> courseData = {
+      'stuId': selectedStudentDoc.stuId,
+      'subjectId': selectedSubjectInfo['subjectId'],
+      'subjectSubId': selectedSubjectInfo['subjectSubId'],
+      'lessonType': lessonType,
+      'classDuration': selectedDuration,
+      'schedualDate': '${widget.scheduleDate} ${widget.scheduleTime}',
+
+    };
+
+    try {
+      final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
+      final response = await http.post(
+        Uri.parse(apiLsnSaveUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(courseData),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.of(context).pop(true); // Close dialog and indicate success
+      } else {
+        throw Exception('Failed to save course');
+      }
+    } catch (e) {
+      _showErrorDialog('保存失败: ${e.toString()}');
+    }
   }
 
   @override
@@ -203,7 +278,17 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                       groupValue: courseType,
                       onChanged: (isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')
                           ? (String? value) {
-                              setState(() => courseType = value!);
+                              setState(() {
+                                courseType = value!;
+                                // 根据上课种别设定该当值
+                                if (type == '课结算') {
+                                  lessonType = 0;
+                                } else if (type == '月计划') {
+                                  lessonType = 1;
+                                } else if (type == '月加课') {
+                                  lessonType = 2;
+                                }
+                              });
                             }
                           : null,
                     ),
@@ -228,11 +313,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                // ignore: sort_child_properties_last
                 child: const Text('保存'),
-                onPressed: () {
-                  // 在这里处理保存逻辑
-                  Navigator.of(context).pop();
-                },
+                onPressed: _saveCourse,
               ),
             ),
           ],
