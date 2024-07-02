@@ -95,4 +95,10 @@ public class Kn03D004StuDocDao implements InterfaceKnPianoDao {
         List<Kn03D004StuDocBean> list = knStudoc001Mapper.getLatestSubjectList();
         return list;
     }
+
+    // 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息
+    public List<Kn03D004StuDocBean>  getLatestSubjectListByStuId(String stuId) {
+        List<Kn03D004StuDocBean> list = knStudoc001Mapper.getLatestSubjectListByStuId(stuId);
+        return list;
+    }
 }

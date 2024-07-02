@@ -10,6 +10,9 @@ public interface Kn01L002LsnMapper  {
 
     public List<Kn01L002LsnBean> getInfoList();
 
+    // 手机前端页面课程表页面，获取指定元月日这一天的学生的排课课程
+    public List<Kn01L002LsnBean> getInfoListByDay(@Param("schedualDate") String schedualDate);
+
     // 获取所有学生最新正在上课的科目信息
     public List<Kn01L002LsnBean>  getLatestSubjectList();
 
