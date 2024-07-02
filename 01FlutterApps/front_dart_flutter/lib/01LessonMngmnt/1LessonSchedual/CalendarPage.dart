@@ -62,11 +62,22 @@ class _CalendarPageState extends State<CalendarPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
     );
-    
+
+    // 点击时间轴上的时间或时间线弹出子对话框窗体 
     showDialog(
       context: context,
-      builder: (BuildContext context) => AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time),
-    );
+      builder: (BuildContext context) {
+        return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
+      },
+    ).then((result) {
+      if (result == true) {
+        setState(() {
+          // 排完课后刷新课程表页面
+          _fetchStudentLsn(DateTime.parse(formattedDate));
+        });
+      }
+    });
+
   }
 
   @override

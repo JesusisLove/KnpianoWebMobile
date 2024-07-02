@@ -17,6 +17,10 @@ static const String apiLsnDruationUrl = '/liu/mb_kn_lsn_duration';
 // 排课页面，从学生档案表视图中取得该学生正在上的所有科目信息
 static const String apiLatestSubjectsnUrl = '/liu/mb_kn_latest_subjects';
 
+// 保存排课信息
+static const String apiLsnSave = '/liu/mb_kn_lsn_001_save';
+
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
