@@ -96,7 +96,7 @@ public class Kn01L002LsnController4Mobile {
     @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_latest_subjects/{stuId}")
     public ResponseEntity<List<Kn03D004StuDocBean>> getLatestSubjectListByStuId(@PathVariable("stuId") String stuId) {
-        List<Kn03D004StuDocBean> subjectList = kn03D004StuSubjectDao.getDocedstuDetailList(stuId);
+        List<Kn03D004StuDocBean> subjectList = kn03D004StuSubjectDao.getLatestSubjectListByStuId(stuId);
         return ResponseEntity.ok(subjectList);
     }
 

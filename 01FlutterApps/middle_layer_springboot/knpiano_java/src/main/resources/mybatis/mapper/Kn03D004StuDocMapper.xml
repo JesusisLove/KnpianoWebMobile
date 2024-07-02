@@ -56,7 +56,7 @@
 
     <!-- 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息 -->
     <select id="getLatestSubjectListByStuId" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
-        SELECT * FROM v_latest_subject_info_from_student_document order by stu_name
+        SELECT * FROM v_latest_subject_info_from_student_document
         WHERE stu_id = #{stuId} 
         ORDER BY subject_id
     </select>
