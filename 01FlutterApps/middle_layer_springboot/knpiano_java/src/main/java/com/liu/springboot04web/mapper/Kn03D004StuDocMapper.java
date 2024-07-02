@@ -27,7 +27,11 @@ public interface Kn03D004StuDocMapper  {
                                            @Param("subjectSubId") String subjectSubId,
                                            @Param("adjustedDate") Date adjustedDate);
 
+    // 后台维护，获取suo有学生最新正在上的科目信息
     public List<Kn03D004StuDocBean> getLatestSubjectList();
+
+    // 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息
+    public List<Kn03D004StuDocBean>  getLatestSubjectListByStuId(@Param("stuId") String stuId);
 
     public void updateInfo(Kn03D004StuDocBean bean);
 

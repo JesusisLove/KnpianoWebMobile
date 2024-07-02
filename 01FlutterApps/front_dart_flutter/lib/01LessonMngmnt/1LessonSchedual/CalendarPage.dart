@@ -2,9 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
+import 'package:kn_piano/Constants.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'AddCourseDialog.dart';
+import 'Kn01L002LsnBean.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -18,20 +23,41 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final List<StudentLsn> studentLsns = [
-    StudentLsn(stuName: 'John', subjectName: 'English', time: '09:00'),
-    StudentLsn(stuName: 'Tom', subjectName: 'English', time: '11:00'),
-    StudentLsn(stuName: 'Ben', subjectName: 'English', time: '13:00'),
-  ];
+  List<Kn01L002LsnBean> studentLsns = [];
 
-  List<StudentLsn> getEventsForTime(String time) {
+  @override
+  void initState() {
+    super.initState();
+    _fetchStudentLsn(_focusedDay);
+  }
+
+  Future<void> _fetchStudentLsn(DateTime date) async {
+    try {
+      String schedualDate = DateFormat('yyyy-MM-dd').format(date);
+      final String apilsnInfoByDayUrl = '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
+      final response = await http.get(Uri.parse(apilsnInfoByDayUrl));
+
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        List<dynamic> responseStuLsnsJson = json.decode(decodedBody);
+        setState(() {
+          studentLsns = responseStuLsnsJson.map((json) => Kn01L002LsnBean.fromJson(json)).toList();
+        });
+      } else {
+        throw Exception('Failed to load archived lessons of the day');
+      }
+    } catch (e) {
+      print('Error fetching current-day\'s lessons data: $e');
+    }
+  }
+
+  List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
     return studentLsns.where((event) => event.time == time).toList();
   }
 
   void _handleTimeSelection(BuildContext context, String time) {
     DateTime dateToUse = _selectedDay ?? DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateToUse);
-    // print('Date: $formattedDate, Time: $time');
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
@@ -68,6 +94,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
+              _fetchStudentLsn(selectedDay);
             },
             onFormatChanged: (format) {
               if (_calendarFormat != format) {
@@ -81,28 +108,14 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             child: ListView(
               children: [
-                for (var i = 8; i <= 22; i++) ...[
-                  TimeTile(
-                    time: '${i.toString().padLeft(2, '0')}:00',
-                    events: getEventsForTime('${i.toString().padLeft(2, '0')}:00'),
-                    onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:00'),
-                  ),
-                  TimeTile(
-                    time: '${i.toString().padLeft(2, '0')}:15',
-                    events: getEventsForTime('${i.toString().padLeft(2, '0')}:15'),
-                    onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:15'),
-                  ),
-                  TimeTile(
-                    time: '${i.toString().padLeft(2, '0')}:30',
-                    events: getEventsForTime('${i.toString().padLeft(2, '0')}:30'),
-                    onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:30'),
-                  ),
-                  TimeTile(
-                    time: '${i.toString().padLeft(2, '0')}:45',
-                    events: getEventsForTime('${i.toString().padLeft(2, '0')}:45'),
-                    onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:45'),
-                  ),
-                ],
+                for (var i = 8; i <= 22; i++)
+                  for (var j = 0; j < 60; j += 15) ...[
+                    TimeTile(
+                      time: '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}',
+                      events: getSchedualLessonForTime('${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
+                      onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
+                    ),
+                  ],
               ],
             ),
           ),
@@ -112,17 +125,9 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 }
 
-class StudentLsn {
-  final String stuName;
-  final String subjectName;
-  final String time;
-
-  StudentLsn({required this.stuName, required this.subjectName, required this.time});
-}
-
 class TimeTile extends StatelessWidget {
   final String time;
-  final List<StudentLsn> events;
+  final List<Kn01L002LsnBean> events;
   final VoidCallback onTap;
 
   const TimeTile({
@@ -134,67 +139,138 @@ class TimeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (events.isEmpty) {
+      return GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          height: 20,
+          child: _buildTimeLine(),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  time,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    height: 0.5,
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-              ],
-            ),
-            for (var event in events)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(event.stuName),
-                            const SizedBox(width: 8),
-                            Text(event.subjectName),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildTimeLine(),
+            ...events.map((event) => _buildEventTile(event)),
           ],
         ),
       ),
     );
+  }
+
+  // 构建时间轴上的时间线
+  Widget _buildTimeLine() {
+    return Row(
+      children: [
+        SizedBox(
+          width: 50,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 0, //左边距
+              right:0
+              ),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _buildTimeText(),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 0.5,
+            color: Colors.grey.shade300,
+          ),
+        ),
+      ],
+    );
+  }
+
+Widget _buildEventTile(Kn01L002LsnBean event) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
+    child: Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade100,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        children: [
+          Text(
+            event.stuName,
+            style: const TextStyle(fontSize: 13, 
+            // fontWeight: FontWeight.bold
+            ), // 设置字体大小和粗细
+          ),
+          const SizedBox(width: 8),
+          Text(
+            event.subjectName ,
+            style: const TextStyle(fontSize: 12), // 设置字体大小
+          ),
+          const SizedBox(width: 4),
+          Text(
+            event.subjectSubName ,
+            style: const TextStyle(fontSize: 9), // 设置字体大小
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${event.classDuration}分钟' ,
+            style: const TextStyle(fontSize: 12), // 设置字体大小
+          ),
+          const SizedBox(width: 8),
+          Text(
+            event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
+            style: const TextStyle(fontSize: 12), // 设置字体大小
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
+  Widget _buildTimeText() {
+    final isFullHour = time.endsWith(':00');
+    const backgroundColor = Colors.white;
+
+    // 整点时间的字体大小设置（如 08:00，09:00，12:00等）
+    if (isFullHour) {
+      return Text(
+        time,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w300,
+        ),
+      );
+    } else {
+      return RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: time.substring(0, 3),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w300,
+                color: backgroundColor,
+              ),
+            ),
+            TextSpan(
+              text: time.substring(3),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w300,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

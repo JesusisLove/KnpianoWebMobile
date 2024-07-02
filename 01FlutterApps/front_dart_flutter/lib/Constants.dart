@@ -8,10 +8,14 @@ class Constants {
 /// 
 
 // ******* 上课管理模块 *******//
+// 课程表一览页面当前选中日期的这一天课程信息
+static const String lsnInfoByDay = '/liu/mb_kn_lsn_info_by_day';
 
+// 排课页面获取系统定义的上课时长
+static const String apiLsnDruationUrl = '/liu/mb_kn_lsn_duration';
 
-
-
+// 排课页面，从学生档案表视图中取得该学生正在上的所有科目信息
+static const String apiLatestSubjectsnUrl = '/liu/mb_kn_latest_subjects';
 
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
