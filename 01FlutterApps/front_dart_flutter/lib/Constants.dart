@@ -24,6 +24,9 @@ static const String apiStuLsnEdit = '/liu/mb_kn_lsn_001';
 // 保存排课信息
 static const String apiLsnSave = '/liu/mb_kn_lsn_001_save';
 
+// 删除排课信息
+static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
+
 
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
