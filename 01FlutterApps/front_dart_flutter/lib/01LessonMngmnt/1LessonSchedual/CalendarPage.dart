@@ -59,25 +59,27 @@ class _CalendarPageState extends State<CalendarPage> {
     DateTime dateToUse = _selectedDay ?? DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateToUse);
     
+    // 这个不重要，它会在手机屏幕底下显示一黑色的条，上面显示点击的日期
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
     );
 
-    // 点击时间轴上的时间或时间线弹出子对话框窗体 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
-      },
-    ).then((result) {
-      if (result == true) {
-        setState(() {
+    List<Kn01L002LsnBean> eventsForTime = getSchedualLessonForTime(time);
+    if (eventsForTime.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
+        },
+      ).then((result) {
+        if (result == true) {
+          setState(() {
           // 排完课后刷新课程表页面
-          _fetchStudentLsn(DateTime.parse(formattedDate));
-        });
-      }
-    });
-
+            _fetchStudentLsn(DateTime.parse(formattedDate));
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -105,6 +107,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
+              // 点击课程表日期，获取该日期的当日上课的学生课程信息
               _fetchStudentLsn(selectedDay);
             },
             onFormatChanged: (format) {
@@ -117,6 +120,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           const SizedBox(height: 20),
           Expanded(
+            // 当日的学生上课信息排列在ListView控件上
             child: ListView(
               children: [
                 for (var i = 8; i <= 22; i++)
@@ -168,7 +172,7 @@ class TimeTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTimeLine(),
-            ...events.map((event) => _buildEventTile(event)),
+            ...events.map((event) => _buildEventTile(context, event)),
           ],
         ),
       ),
@@ -182,10 +186,7 @@ class TimeTile extends StatelessWidget {
         SizedBox(
           width: 50,
           child: Padding(
-            padding: const EdgeInsets.only(
-              left: 0, //左边距
-              right:0
-              ),
+            padding: const EdgeInsets.only(left: 0, right:0),
             child: Align(
               alignment: Alignment.centerRight,
               child: _buildTimeText(),
@@ -202,49 +203,132 @@ class TimeTile extends StatelessWidget {
     );
   }
 
-Widget _buildEventTile(Kn01L002LsnBean event) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
-    child: Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade100,
-        borderRadius: BorderRadius.circular(4),
+  Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade100,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    event.stuName,
+                    style: const TextStyle(fontSize: 13,
+                    // fontWeight: FontWeight.bold
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    event.subjectName,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    event.subjectSubName,
+                    style: const TextStyle(fontSize: 9),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${event.classDuration}分钟',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (String result) {
+                // 处理选中的菜单项
+                switch (result) {
+                  case '签到':
+                  // 处理签到的业务
+                    print('点击了签到按钮');
+                    break;
+                  case '撤销':
+                  // 处理撤销的业务
+                    print('点击了撤销按钮');
+                    break;
+                  case '修改':
+                  // 处理修改的业务
+                    print('点击了修改按钮');
+                    break;
+                  case '调课':
+                  // 处理调课的业务
+                    print('点击了调课按钮');
+                    break;
+                  case '删除':
+                  // 处理删除的业务
+                    print('点击了删除按钮');
+                    break;
+                  case '备注':
+                  // 处理备注的业务
+                    print('点击了备注按钮');
+                    break;
+                  default:
+                    print('未知按钮被点击');
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: '签到',
+                  height: 36, // 减小高度以适应更小的字体
+                  child: Text('签到', style: TextStyle(fontSize: 11.5)), // 调小字体大小
+                ),
+                const PopupMenuItem<String>(
+                  value: '撤销',
+                  height: 36,
+                  child: Text('撤销', style: TextStyle(fontSize: 11.5)),
+                ),
+                const PopupMenuDivider(height: 1), // 减小分隔线高度
+                const PopupMenuItem<String>(
+                  value: '修改',
+                  height: 36,
+                  child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                ),
+                const PopupMenuItem<String>(
+                  value: '调课',
+                  height: 36,
+                  child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                ),
+                const PopupMenuItem<String>(
+                  value: '删除',
+                  height: 36,
+                  child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                ),
+                const PopupMenuDivider(height: 1), // 减小分隔线高度
+                const PopupMenuItem<String>(
+                  value: '备注',
+                  height: 36,
+                  child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                ),
+              ],
+              // 设置菜单的宽度，并添加圆角
+              constraints: const BoxConstraints(
+                  minWidth: 50, // 设置最小宽度
+                  maxWidth: 60, // 设置最大宽度
+                ),
+                position: PopupMenuPosition.under, // 确保菜单在按钮下方打开
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // 添加圆角
+                ),
+                padding: EdgeInsets.zero, // 移除内边距以使菜单更紧凑
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          Text(
-            event.stuName,
-            style: const TextStyle(fontSize: 13, 
-            // fontWeight: FontWeight.bold
-            ), // 设置字体大小和粗细
-          ),
-          const SizedBox(width: 8),
-          Text(
-            event.subjectName ,
-            style: const TextStyle(fontSize: 12), // 设置字体大小
-          ),
-          const SizedBox(width: 4),
-          Text(
-            event.subjectSubName ,
-            style: const TextStyle(fontSize: 9), // 设置字体大小
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '${event.classDuration}分钟' ,
-            style: const TextStyle(fontSize: 12), // 设置字体大小
-          ),
-          const SizedBox(width: 8),
-          Text(
-            event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
-            style: const TextStyle(fontSize: 12), // 设置字体大小
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildTimeText() {
     final isFullHour = time.endsWith(':00');
