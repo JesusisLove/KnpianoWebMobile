@@ -55,18 +55,20 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select> 
 
     <update id="updateInfo">
-        update t_info_lesson set
-            lesson_id = #{lessonId},
-            subject_id = #{subjectId},
-            subject_sub_id = #{subjectSubId},
-            stu_id = #{stuId},
-            class_duration = #{classDuration},
-            lesson_type = #{lessonType},
-            schedual_date = #{schedualDate},
-            scanQR_date = #{scanQrDate},
-            lsn_adjusted_date = #{lsnAdjustedDate},
-            extra_to_dur_date = #{extraToDurDate},
-            del_flg = #{delFlg}
+        <!-- 通过使用动态 SQL 的方式来实现根据参数是否为 null 或空来决定是否更新对应的字 -->
+        update t_info_lesson
+        <set>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="subjectSubId != null">subject_sub_id = #{subjectSubId},</if>
+            <if test="stuId != null">stu_id = #{stuId},</if>
+            <if test="classDuration != null">class_duration = #{classDuration},</if>
+            <if test="lessonType != null">lesson_type = #{lessonType},</if>
+            <if test="schedualDate != null">schedual_date = #{schedualDate},</if>
+            <if test="scanQrDate != null">scanQR_date = #{scanQrDate},</if>
+            <if test="lsnAdjustedDate != null">lsn_adjusted_date = #{lsnAdjustedDate},</if>
+            <if test="extraToDurDate != null">extra_to_dur_date = #{extraToDurDate},</if>
+            <if test="delFlg != null">del_flg = #{delFlg}</if>
+        </set>
         where lesson_id = #{lessonId}
     </update>
 

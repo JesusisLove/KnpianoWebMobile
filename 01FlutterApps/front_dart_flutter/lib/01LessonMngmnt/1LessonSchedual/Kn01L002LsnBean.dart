@@ -2,19 +2,21 @@
 import 'package:intl/intl.dart';
 
 class Kn01L002LsnBean {
+  final String lessonId;
   final String stuId;
   final String subjectId;
   final String subjectSubId;
   final String stuName;
   final String subjectName;
   final String subjectSubName;
-  final int classDuration;
+  late final int classDuration;
   final int lessonType;
   final String schedualDate; // 将其标记为 final，因为它在构造函数中被赋值。
   final String time;
 
   // 更新构造函数以正确赋值
   Kn01L002LsnBean({
+    required this.lessonId,
     required this.stuId,
     required this.subjectId,
     required this.subjectSubId,
@@ -43,6 +45,7 @@ class Kn01L002LsnBean {
     }
 
     return Kn01L002LsnBean(
+      lessonId:json['lessonId'] as String,
       stuId: json['stuId'] as String,
       subjectId: json['subjectId'] as String,
       subjectSubId: json['subjectSubId'] as String,
