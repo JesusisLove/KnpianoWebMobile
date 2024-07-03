@@ -346,15 +346,31 @@ class TimeTile extends StatelessWidget {
             },
             itemBuilder: (BuildContext context) {
               // 根据 scanQrDate 的值决定显示哪些菜单项
-              if (event.scanQrDate != null && event.scanQrDate.length > 0) {
-                // 只显示备注按钮
-                return [
-                  const PopupMenuItem<String>(
-                    value: '备注',
-                    height: 36,
-                    child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                  ),
-                ];
+              if ((event.scanQrDate != null) &&(event.scanQrDate.length > 0)) {
+                // 如果是当日误操作了“「签到」，可以做「撤销」操作，过了当日就「撤销」不可了。
+                if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+                  return[
+                    const PopupMenuItem<String>(
+                      value: '撤销',
+                      height: 36,
+                      child: Text('撤销', style: TextStyle(fontSize: 11.5)),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: '备注',
+                      height: 36,
+                      child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                    ),
+                  ];
+                } else {
+                  // 过了当日，只显示备注按钮
+                  return [
+                    const PopupMenuItem<String>(
+                      value: '备注',
+                      height: 36,
+                      child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                    ),
+                  ];
+                }
               } else {
                 // 显示所有按钮
                 return <PopupMenuEntry<String>>[
@@ -362,11 +378,6 @@ class TimeTile extends StatelessWidget {
                     value: '签到',
                     height: 36, // 减小高度以适应更小的字体
                     child: Text('签到', style: TextStyle(fontSize: 11.5)),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: '撤销',
-                    height: 36,
-                    child: Text('撤销', style: TextStyle(fontSize: 11.5)),
                   ),
                   const PopupMenuDivider(height: 1),
                   const PopupMenuItem<String>(
