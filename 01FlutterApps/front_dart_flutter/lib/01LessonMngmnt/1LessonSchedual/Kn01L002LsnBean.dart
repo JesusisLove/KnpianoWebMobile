@@ -13,6 +13,9 @@ class Kn01L002LsnBean {
   final int lessonType;
   final String schedualDate; // 将其标记为 final，因为它在构造函数中被赋值。
   final String time;
+  final String scanQrDate;
+  final String lsnAdjustedDate;
+  final String extraToDurDate;
 
   // 更新构造函数以正确赋值
   Kn01L002LsnBean({
@@ -27,12 +30,18 @@ class Kn01L002LsnBean {
     required this.lessonType,
     required this.schedualDate,
     required this.time,
+    required this.scanQrDate,
+    required this.lsnAdjustedDate,
+    required this.extraToDurDate,
   });
 
   // 更新工厂方法以正确解析和格式化日期
   factory Kn01L002LsnBean.fromJson(Map<String, dynamic> json) {
     String formattedSchedualDate = '';
     String formattedTime = '';
+    String formattedScanQrDate = "";
+    String formattedLsnAdjustedDate = "";
+    String formattedExtraToDurDate = "";
 
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
@@ -40,6 +49,23 @@ class Kn01L002LsnBean {
         formattedSchedualDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
         formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
       }
+
+      if (json['scanQrDate'] != null && json['scanQrDate'] != '') {
+        DateTime parsedDate = DateTime.parse(json['scanQrDate']);
+        formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+      }
+
+      if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'] != '') {
+        DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
+        formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+      }
+      
+      if (json['extraToDurDate'] != null && json['extraToDurDate'] != '') {
+        DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
+        formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+      }
+
     } catch (e) {
       print('Error parsing or formatting schedualDate: $e');
     }
@@ -56,6 +82,9 @@ class Kn01L002LsnBean {
       lessonType: json['lessonType'] as int,
       schedualDate: formattedSchedualDate,
       time: formattedTime,
+      scanQrDate:formattedScanQrDate,
+      lsnAdjustedDate:formattedLsnAdjustedDate,
+      extraToDurDate:formattedExtraToDurDate,
     );
   }
 }
