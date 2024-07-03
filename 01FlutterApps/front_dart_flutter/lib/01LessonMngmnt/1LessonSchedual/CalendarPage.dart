@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'AddCourseDialog.dart';
+import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -81,6 +82,22 @@ class _CalendarPageState extends State<CalendarPage> {
       });
     }
   }
+  
+  // 迁移到排课的编辑画面
+  void _handleEditCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditCourseDialog(lessonId: event.lessonId);
+      },
+    ).then((result) {
+      if (result == true) {
+        setState(() {
+          _fetchStudentLsn(DateTime.parse(event.schedualDate));
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +146,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       time: '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}',
                       events: getSchedualLessonForTime('${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
                       onTap: () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
+                      onEdit: _handleEditCourse,
                     ),
                   ],
               ],
@@ -144,12 +162,14 @@ class TimeTile extends StatelessWidget {
   final String time;
   final List<Kn01L002LsnBean> events;
   final VoidCallback onTap;
+  final Function(Kn01L002LsnBean) onEdit;
 
   const TimeTile({
     super.key,
     required this.time,
     this.events = const [],
     required this.onTap,
+    required this.onEdit,
   });
 
   @override
@@ -252,27 +272,27 @@ class TimeTile extends StatelessWidget {
                 // 处理选中的菜单项
                 switch (result) {
                   case '签到':
-                  // 处理签到的业务
+                    // 处理签到的业务
                     print('点击了签到按钮');
                     break;
                   case '撤销':
-                  // 处理撤销的业务
+                    // 处理撤销的业务
                     print('点击了撤销按钮');
                     break;
                   case '修改':
                   // 处理修改的业务
-                    print('点击了修改按钮');
+                    onEdit(event);
                     break;
                   case '调课':
-                  // 处理调课的业务
+                    // 处理调课的业务
                     print('点击了调课按钮');
                     break;
                   case '删除':
-                  // 处理删除的业务
+                    // 处理删除的业务
                     print('点击了删除按钮');
                     break;
                   case '备注':
-                  // 处理备注的业务
+                    // 处理备注的业务
                     print('点击了备注按钮');
                     break;
                   default:
