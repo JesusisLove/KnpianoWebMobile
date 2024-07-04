@@ -20,6 +20,8 @@ public interface Kn01L002LsnMapper  {
 
     List<Kn01L002LsnBean> searchLessons(@Param("params") Map<String, Object> queryparams);
 
+    public void reScheduleLsnCancel(@Param("lessonId") String lessonId);
+
     public void updateInfo(Kn01L002LsnBean bean);
 
     public void insertInfo(Kn01L002LsnBean bean);

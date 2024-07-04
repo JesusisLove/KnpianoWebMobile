@@ -91,6 +91,12 @@ https://mybatis.org/mybatis-3/getting-started.html
         where lesson_id = #{lessonId}
     </update>
 
+    <update id="reScheduleLsnCancel">
+        <!-- 取消调课操作 -->
+        update t_info_lesson Set lsn_adjusted_date = NULL
+        where lesson_id = #{lessonId}
+    </update>
+
     <insert id="insertInfo" keyColumn="">
         insert into t_info_lesson (
             lesson_id,

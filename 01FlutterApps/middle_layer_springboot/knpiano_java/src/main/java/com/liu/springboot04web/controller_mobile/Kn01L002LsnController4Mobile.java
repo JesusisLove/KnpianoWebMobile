@@ -55,6 +55,15 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(collection);
     }
 
+       // 课程表一览】画面にて、签到ボタンを押下
+    @GetMapping("/mb_kn_lsn_001_lsn_sign/{id}")
+    public void lessonSign(@PathVariable("id") String id) {
+        // 拿到该课程信息
+        Kn01L002LsnBean knLsn001Bean = kn01L002LsnDao.getInfoById(id);
+        kn01L002LsnDao.excuteSign(knLsn001Bean);
+        // return ResponseEntity.ok("Ok");
+    }
+
     // 【课程表一览】画面にて、【编辑】ボタンを押下
     @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_lsn_001/{lessonId}")
@@ -63,11 +72,19 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(kn01L002LsnBean);
     }
 
-    // 【学生排课新規编辑】画面にて、【保存】ボタンを押下
+    // 【学生排课新規、编辑、调课】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_lsn_001_save")
     public void excuteInfoAdd(@RequestBody Kn01L002LsnBean knStudoc001Bean) {
         kn01L002LsnDao.save(knStudoc001Bean);
+    }
+
+    // 【课程表一覧】取消调课的请求处理
+    @CrossOrigin(origins = "*") 
+    @PostMapping("/mb_kn_lsn_resche_cancel/{lessonId}")
+    public ResponseEntity<String> executeInfoRescheCancel(@PathVariable("lessonId") String lessonId) {
+        kn01L002LsnDao.reScheduleLsnCancel(lessonId);
+        return ResponseEntity.ok("success");
     }
 
     // 【课程表一覧】削除ボタンを押下

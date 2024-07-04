@@ -7,6 +7,8 @@ import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L002LsnMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,12 +68,17 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         }
     }
 
+    // 撤销调课
+    public void reScheduleLsnCancel(String lessonId) {
+        knLsn001Mapper.reScheduleLsnCancel(lessonId);
+    }
+
     // 新規
     private void insert(Kn01L002LsnBean knLsn001Bean) {
         knLsn001Mapper.insertInfo(knLsn001Bean);
     }
 
-    // 変更
+    // 変更，调课
     private void update(Kn01L002LsnBean knLsn001Bean) {
         knLsn001Mapper.updateInfo(knLsn001Bean);
     }
