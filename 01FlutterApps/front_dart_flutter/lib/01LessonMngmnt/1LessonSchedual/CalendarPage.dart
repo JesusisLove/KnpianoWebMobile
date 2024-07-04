@@ -164,6 +164,52 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
+
+  // 取消调课操作
+  void _handleCancelRescheCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('取消调课确认'),
+          content: Text('要取消【${event.subjectName}】这节课的调课吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () async {
+                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
+                try {
+                  final response = await http.post(
+                    Uri.parse(deleteUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    setState(() {
+                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                    });
+                    Navigator.of(context).pop(true);
+                  } else {
+                    throw Exception('Failed to delete lesson');
+                  }
+                } catch (e) {
+                  print('Error deleting lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 执行指定学生的课程删除操作
   void _handleDeleteCourse(Kn01L002LsnBean event) {
     showDialog(
@@ -259,6 +305,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       onEdit      : _handleEditCourse,
                       onDelete    : _handleDeleteCourse,
                       onReschLsn  : _handleReschLsnCourse,
+                      onCancel    : _handleCancelRescheCourse,
                       selectedDay : _selectedDay ?? DateTime.now(),
                     ),
                   ],
@@ -278,6 +325,7 @@ class TimeTile extends StatelessWidget {
   final Function(Kn01L002LsnBean) onEdit;
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
+  final Function(Kn01L002LsnBean) onCancel;
   final DateTime selectedDay;
 
   const TimeTile({
@@ -288,6 +336,7 @@ class TimeTile extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onReschLsn,
+    required this.onCancel,
     required this.selectedDay,
   });
 
@@ -343,7 +392,7 @@ class TimeTile extends StatelessWidget {
   }
 
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
-    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDay);
+    final selectedDayStr = DateFormat('yyyy-MM-dd').format(selectedDay);
 
     // 计划上课日期的yyyy/mm/dd格式
     final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 
@@ -353,21 +402,25 @@ class TimeTile extends StatelessWidget {
     final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 
         ? event.lsnAdjustedDate.substring(0, 10) 
         : '';
-    // 是计划课记录
-    final isOriginalDate = selectedDateStr == eventScheduleDateStr;
-    // 是调课记录
-    final isAdjustedDate = selectedDateStr == eventAdjustedDateStr;
-
+ 
+    // 调课日期有值
     final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
+
+    // 是调课记录元
+    final isAdjustedDateFrom = ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled);
+
+    // 是调课记录先
+    final isAdjustedDateTo = ((selectedDayStr == eventAdjustedDateStr) && (eventScheduleDateStr != selectedDayStr ));    
+   
 
     Color backgroundColor;
     Color textColor = Colors.black;
     String additionalInfo = '';
 
-    if (isOriginalDate && hasBeenRescheduled) {
+    if (isAdjustedDateFrom) {
       backgroundColor = Colors.grey.shade300;
       additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
-    } else if (isAdjustedDate) {
+    } else if (isAdjustedDateTo) {
       backgroundColor = Colors.orange.shade100;
       additionalInfo = '调课From：${event.schedualDate}';
     } else {
@@ -433,6 +486,9 @@ class TimeTile extends StatelessWidget {
                       case '调课':
                         onReschLsn(event);
                         break;
+                      case '取消':
+                        onCancel(event);
+                        break;
                       case '删除':
                         onDelete(event);
                         break;
@@ -445,6 +501,7 @@ class TimeTile extends StatelessWidget {
                   },
                   itemBuilder: (BuildContext context) {
                     if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
+                      // 签到记录的菜单显示
                       if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
                         return[
                           const PopupMenuItem<String>(
@@ -470,36 +527,72 @@ class TimeTile extends StatelessWidget {
                         ];
                       }
                     } else {
-                      // 显示所有按钮
-                      return <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: '签到',
-                          height: 36,
-                          child: Text('签到', style: TextStyle(fontSize: 11.5)),
-                        ),
-                        const PopupMenuDivider(height: 1),
-                        const PopupMenuItem<String>(
-                          value: '修改',
-                          height: 36,
-                          child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: '调课',
-                          height: 36,
-                          child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: '删除',
-                          height: 36,
-                          child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                        ),
-                        const PopupMenuDivider(height: 1),
-                        const PopupMenuItem<String>(
-                          value: '备注',
-                          height: 36,
-                          child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                        ),
-                      ];
+                      // 如果是调课元记录情况下，显示按钮
+                      if (isAdjustedDateFrom) {
+                        return <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: '修改',
+                            height: 36,
+                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuDivider(height: 1),
+                          const PopupMenuItem<String>(
+                            value: '调课',
+                            height: 36,
+                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: '取消',
+                            height: 36,
+                            child: Text('取消', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuDivider(height: 1),
+                          const PopupMenuItem<String>(
+                            value: '删除',
+                            height: 36,
+                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuDivider(height: 1),
+                          const PopupMenuItem<String>(
+                            value: '备注',
+                            height: 36,
+                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                          ),
+                        ];
+                      } 
+                      // 计划课和调课记录情况下，显示按钮
+                      else {
+                        // 显示所有按钮
+                        return <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: '签到',
+                            height: 36,
+                            child: Text('签到', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuDivider(height: 1),
+                          const PopupMenuItem<String>(
+                            value: '修改',
+                            height: 36,
+                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: '调课',
+                            height: 36,
+                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: '删除',
+                            height: 36,
+                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuDivider(height: 1),
+                          const PopupMenuItem<String>(
+                            value: '备注',
+                            height: 36,
+                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                          ),
+                        ];
+                      }
                     }
                   },
                   constraints: const BoxConstraints(
