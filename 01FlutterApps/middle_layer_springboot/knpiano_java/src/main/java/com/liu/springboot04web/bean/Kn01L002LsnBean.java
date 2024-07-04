@@ -24,6 +24,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected Date schedualDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date scanQrDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")// 接受手机前端的请求时接纳前端String类型的日期值
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date lsnAdjustedDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")

@@ -57,7 +57,7 @@ class Kn01L002LsnBean {
 
       if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
-        formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
         formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
       }
       
