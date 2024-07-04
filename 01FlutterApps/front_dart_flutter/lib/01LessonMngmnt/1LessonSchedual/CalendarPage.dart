@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'AddCourseDialog.dart';
 import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
+import 'RescheduleLessonDialog.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -53,19 +54,45 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
-    return studentLsns.where((event) => event.time == time).toList();
+
+    // 这是点击日历按钮日期的yyyy/mm/dd的字符串形式
+    String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay ?? DateTime.now());
+    return studentLsns.where((event) {
+      // yyyy/mm/dd 
+      String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10
+          ? event.schedualDate.substring(0, 10)
+          : '';
+      // HH:mm
+      String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16
+          ? event.schedualDate.substring(11, 16)
+          : '';
+
+            // yyyy/mm/dd 
+      String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+          ? event.lsnAdjustedDate.substring(0, 10)
+          : '';
+      // HH:mm
+      String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
+          ? event.lsnAdjustedDate.substring(11, 16)
+          : '';
+      
+      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time)
+           ||(eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
+
+    }).toList();
   }
 
+  // 看一下这个时间轴上也没有空位置可以点击time的时间来排课
   void _handleTimeSelection(BuildContext context, String time) {
     DateTime dateToUse = _selectedDay ?? DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateToUse);
     
-    // 这个不重要，它会在手机屏幕底下显示一黑色的条，上面显示点击的日期
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
     );
 
     List<Kn01L002LsnBean> eventsForTime = getSchedualLessonForTime(time);
+
     if (eventsForTime.isEmpty) {
       showDialog(
         context: context,
@@ -93,61 +120,94 @@ class _CalendarPageState extends State<CalendarPage> {
     ).then((result) {
       if (result == true) {
         setState(() {
-          _fetchStudentLsn(DateTime.parse(event.schedualDate));
+          _fetchStudentLsn(_selectedDay ?? DateTime.now());
+        });
+      }
+    });
+  }
+
+  // 迁移调课画面
+  void _handleReschLsnCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent, // 设置为透明以显示自定义背景
+          child: Container(
+            width: 300, // 设置宽度
+            height: 400,// 设置高度
+            decoration: BoxDecoration(
+              color: Colors.white, // 设置背景色
+              borderRadius: BorderRadius.circular(16), // 设置圆角
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: RescheduleLessonDialog(lessonId: event.lessonId),
+            ),
+          ),
+        );
+      },
+    ).then((result) {
+      if (result == true) {
+        setState(() {
+          _fetchStudentLsn(_selectedDay ?? DateTime.now());
         });
       }
     });
   }
 
   // 执行指定学生的课程删除操作
-void _handleDeleteCourse(Kn01L002LsnBean event) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('删除确认'),
-        content: Text('确定要删除【${event.subjectName}】这节课吗？'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('取消'),
-            onPressed: () {
-              Navigator.of(context).pop(); // 关闭对话框
-            },
-          ),
-
-          TextButton(
-            child: const Text('确定'),
-            onPressed: () async {
-              final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
-              try {
-                final response = await http.delete(
-                  Uri.parse(deleteUrl),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                );
-                if (response.statusCode == 200) {
-                  // 请求成功，更新界面
-                  setState(() {
-                    _fetchStudentLsn(DateTime.parse(event.schedualDate));
-                  });
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop(true); // 关闭对话框并传递成功结果
-                } else {
-                  throw Exception('Failed to delete lesson');
+  void _handleDeleteCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('删除确认'),
+          content: Text('确定要删除【${event.subjectName}】这节课吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () async {
+                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
+                try {
+                  final response = await http.delete(
+                    Uri.parse(deleteUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    setState(() {
+                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                    });
+                    Navigator.of(context).pop(true);
+                  } else {
+                    throw Exception('Failed to delete lesson');
+                  }
+                } catch (e) {
+                  print('Error deleting lesson: $e');
                 }
-              } catch (e) {
-                print('Error deleting lesson: $e');
-                // 处理删除失败情况
-                // 可以添加错误提示或其他处理
-              }
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +258,8 @@ void _handleDeleteCourse(Kn01L002LsnBean event) {
                       onTap       : () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
                       onEdit      : _handleEditCourse,
                       onDelete    : _handleDeleteCourse,
+                      onReschLsn  : _handleReschLsnCourse,
+                      selectedDay : _selectedDay ?? DateTime.now(),
                     ),
                   ],
               ],
@@ -215,6 +277,8 @@ class TimeTile extends StatelessWidget {
   final VoidCallback onTap;
   final Function(Kn01L002LsnBean) onEdit;
   final Function(Kn01L002LsnBean) onDelete;
+  final Function(Kn01L002LsnBean) onReschLsn;
+  final DateTime selectedDay;
 
   const TimeTile({
     super.key,
@@ -223,6 +287,8 @@ class TimeTile extends StatelessWidget {
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
+    required this.onReschLsn,
+    required this.selectedDay,
   });
 
   @override
@@ -277,149 +343,190 @@ class TimeTile extends StatelessWidget {
   }
 
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
-    child: Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade100,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDay);
+
+    // 计划上课日期的yyyy/mm/dd格式
+    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 
+        ? event.schedualDate.substring(0, 10) 
+        : '';
+    // 调课日期的yyyy/mm/dd格式
+    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 
+        ? event.lsnAdjustedDate.substring(0, 10) 
+        : '';
+    // 是计划课记录
+    final isOriginalDate = selectedDateStr == eventScheduleDateStr;
+    // 是调课记录
+    final isAdjustedDate = selectedDateStr == eventAdjustedDateStr;
+
+    final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
+
+    Color backgroundColor;
+    Color textColor = Colors.black;
+    String additionalInfo = '';
+
+    if (isOriginalDate && hasBeenRescheduled) {
+      backgroundColor = Colors.grey.shade300;
+      additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
+    } else if (isAdjustedDate) {
+      backgroundColor = Colors.orange.shade100;
+      additionalInfo = '调课From：${event.schedualDate}';
+    } else {
+      backgroundColor = Colors.blue.shade100;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  event.stuName,
-                  style: const TextStyle(fontSize: 13),
-                  // fontWeight: FontWeight.bold
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        event.stuName,
+                        style: TextStyle(fontSize: 13, color: textColor),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        event.subjectName,
+                        style: TextStyle(fontSize: 12, color: textColor),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        event.subjectSubName,
+                        style: TextStyle(fontSize: 9, color: textColor),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${event.classDuration}分钟',
+                        style: TextStyle(fontSize: 12, color: textColor),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
+                        style: TextStyle(fontSize: 12, color: textColor),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  event.subjectName,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  event.subjectSubName,
-                  style: const TextStyle(fontSize: 9),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${event.classDuration}分钟',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
-                  style: const TextStyle(fontSize: 12),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.black),
+                  onSelected: (String result) {
+                    switch (result) {
+                      case '签到':
+                        print('点击了签到按钮');
+                        break;
+                      case '撤销':
+                        print('点击了撤销按钮');
+                        break;
+                      case '修改':
+                        onEdit(event);
+                        break;
+                      case '调课':
+                        onReschLsn(event);
+                        break;
+                      case '删除':
+                        onDelete(event);
+                        break;
+                      case '备注':
+                        print('点击了备注按钮');
+                        break;
+                      default:
+                        print('未知按钮被点击');
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
+                      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+                        return[
+                          const PopupMenuItem<String>(
+                            value: '撤销',
+                            height: 36,
+                            child: Text('撤销', style:
+                            TextStyle(fontSize: 11.5)),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: '备注',
+                            height: 36,
+                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                          ),
+                        ];
+                      } else {
+                        // 过了当日，只显示备注按钮
+                        return [
+                          const PopupMenuItem<String>(
+                            value: '备注',
+                            height: 36,
+                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                          ),
+                        ];
+                      }
+                    } else {
+                      // 显示所有按钮
+                      return <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: '签到',
+                          height: 36,
+                          child: Text('签到', style: TextStyle(fontSize: 11.5)),
+                        ),
+                        const PopupMenuDivider(height: 1),
+                        const PopupMenuItem<String>(
+                          value: '修改',
+                          height: 36,
+                          child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: '调课',
+                          height: 36,
+                          child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: '删除',
+                          height: 36,
+                          child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                        ),
+                        const PopupMenuDivider(height: 1),
+                        const PopupMenuItem<String>(
+                          value: '备注',
+                          height: 36,
+                          child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                        ),
+                      ];
+                    }
+                  },
+                  constraints: const BoxConstraints(
+                    minWidth: 50,
+                    maxWidth: 60,
+                  ),
+                  position: PopupMenuPosition.under,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (String result) {
-              switch (result) {
-                case '签到':
-                  print('点击了签到按钮');
-                  break;
-                case '撤销':
-                  print('点击了撤销按钮');
-                  break;
-                case '修改':
-                  onEdit(event);
-                  break;
-                case '调课':
-                  print('点击了调课按钮');
-                  break;
-                case '删除':
-                  onDelete(event);
-                  break;
-                case '备注':
-                  print('点击了备注按钮');
-                  break;
-                default:
-                  print('未知按钮被点击');
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              // 根据 scanQrDate 的值决定显示哪些菜单项
-              if ((event.scanQrDate != null) &&(event.scanQrDate.length > 0)) {
-                // 如果是当日误操作了“「签到」，可以做「撤销」操作，过了当日就「撤销」不可了。
-                if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
-                  return[
-                    const PopupMenuItem<String>(
-                      value: '撤销',
-                      height: 36,
-                      child: Text('撤销', style: TextStyle(fontSize: 11.5)),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: '备注',
-                      height: 36,
-                      child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                    ),
-                  ];
-                } else {
-                  // 过了当日，只显示备注按钮
-                  return [
-                    const PopupMenuItem<String>(
-                      value: '备注',
-                      height: 36,
-                      child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                    ),
-                  ];
-                }
-              } else {
-                // 显示所有按钮
-                return <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: '签到',
-                    height: 36, // 减小高度以适应更小的字体
-                    child: Text('签到', style: TextStyle(fontSize: 11.5)),
-                  ),
-                  const PopupMenuDivider(height: 1),
-                  const PopupMenuItem<String>(
-                    value: '修改',
-                    height: 36,
-                    child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: '调课',
-                    height: 36,
-                    child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: '删除',
-                    height: 36,
-                    child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                  ),
-                  const PopupMenuDivider(height: 1),// 减小分隔线高度
-                  const PopupMenuItem<String>(
-                    value: '备注',
-                    height: 36,
-                    child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                  ),
-                ];
-              }
-            },
-            // 设置菜单的宽度，并添加圆角
-            constraints: const BoxConstraints(
-              minWidth: 50, // 设置最小宽度
-              maxWidth: 60, // 设置最大宽度
-            ),
-            position: PopupMenuPosition.under,// 确保菜单在按钮下方打开
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8), // 添加圆角
-            ),
-            padding: EdgeInsets.zero,// 移除内边距以使菜单更紧凑
-          ),
-        ],
+            if (additionalInfo.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  additionalInfo,
+                  style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.black54),
+                ),
+              ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildTimeText() {
     final isFullHour = time.endsWith(':00');
