@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -58,20 +58,20 @@ class _CalendarPageState extends State<CalendarPage> {
     // 这是点击日历按钮日期的yyyy/mm/dd的字符串形式
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay ?? DateTime.now());
     return studentLsns.where((event) {
-      // yyyy/mm/dd 
+      // 计划课日期 yyyy/mm/dd 
       String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10
           ? event.schedualDate.substring(0, 10)
           : '';
-      // HH:mm
+      // 计划课时间 HH:mm
       String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16
           ? event.schedualDate.substring(11, 16)
           : '';
 
-            // yyyy/mm/dd 
+      // 调课日期 yyyy/mm/dd 
       String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
           ? event.lsnAdjustedDate.substring(0, 10)
           : '';
-      // HH:mm
+      // 调课时间 HH:mm
       String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
           ? event.lsnAdjustedDate.substring(11, 16)
           : '';
@@ -124,6 +124,51 @@ class _CalendarPageState extends State<CalendarPage> {
         });
       }
     });
+  }
+
+  // 执行上课签到
+  void _handleSignCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('执行签到确认'),
+          content: Text('签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () async {
+                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
+                try {
+                  final response = await http.get(
+                    Uri.parse(signUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    }, 
+                  );
+                  if (response.statusCode == 200) {
+                    setState(() {
+                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                    });
+                    Navigator.of(context).pop(true);
+                  } else {
+                    throw Exception('Failed to delete lesson');
+                  }
+                } catch (e) {
+                  print('Error deleting lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // 迁移调课画面
@@ -302,6 +347,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       time        : '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}',
                       events      : getSchedualLessonForTime('${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
                       onTap       : () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
+                      onSign      : _handleSignCourse,
                       onEdit      : _handleEditCourse,
                       onDelete    : _handleDeleteCourse,
                       onReschLsn  : _handleReschLsnCourse,
@@ -322,6 +368,7 @@ class TimeTile extends StatelessWidget {
   final String time;
   final List<Kn01L002LsnBean> events;
   final VoidCallback onTap;
+  final Function(Kn01L002LsnBean) onSign;
   final Function(Kn01L002LsnBean) onEdit;
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
@@ -333,6 +380,7 @@ class TimeTile extends StatelessWidget {
     required this.time,
     this.events = const [],
     required this.onTap,
+    required this.onSign,
     required this.onEdit,
     required this.onDelete,
     required this.onReschLsn,
@@ -402,30 +450,79 @@ class TimeTile extends StatelessWidget {
     final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 
         ? event.lsnAdjustedDate.substring(0, 10) 
         : '';
- 
-    // 调课日期有值
+
+    // 调课日期有值，表示已经调课了
     final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
 
-    // 是调课记录元
-    final isAdjustedDateFrom = ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled);
+    // 签到日期有值，表示已经签到了
+    final hasBeenSigned = event.scanQrDate != null && event.scanQrDate.isNotEmpty;
 
-    // 是调课记录先
-    final isAdjustedDateTo = ((selectedDayStr == eventAdjustedDateStr) && (eventScheduleDateStr != selectedDayStr ));    
-   
+    // 计划课（未签到/已签到）
+    final isScheduledUnsignedLsn = ((selectedDayStr == eventScheduleDateStr) && !hasBeenRescheduled && !hasBeenSigned);
+    final isScheduledSignedLsn = ((selectedDayStr == eventScheduleDateStr) && !hasBeenRescheduled && hasBeenSigned);
+
+    // 调课元（未签到）
+    final isAdjustedUnSignedLsnFrom = ((selectedDayStr == eventScheduleDateStr) 
+                                    && hasBeenRescheduled 
+                                    && (selectedDayStr != eventAdjustedDateStr) 
+                                    && !hasBeenSigned);
+    // 调课元（已签到）                                
+    final isAdjustedSignedLsnFrom   = ((selectedDayStr == eventScheduleDateStr) 
+                                    && hasBeenRescheduled 
+                                    && (selectedDayStr != eventAdjustedDateStr) 
+                                    && hasBeenSigned);
+
+    // 调课先（未签到）
+    final isAdjustedUnSignedLsnTo = ((selectedDayStr != eventScheduleDateStr) 
+                                  && hasBeenRescheduled 
+                                  && (selectedDayStr == eventAdjustedDateStr) 
+                                  && !hasBeenSigned);
+    // 调课先（已签到）                              
+    final isAdjustedSignedLsnTo   = ((selectedDayStr != eventScheduleDateStr) 
+                                  && hasBeenRescheduled 
+                                  && (selectedDayStr == eventAdjustedDateStr) 
+                                  && hasBeenSigned);
 
     Color backgroundColor;
     Color textColor = Colors.black;
     String additionalInfo = '';
-
-    if (isAdjustedDateFrom) {
+    // 调课元未签到
+    if (isAdjustedUnSignedLsnFrom) {
       backgroundColor = Colors.grey.shade300;
       additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
-    } else if (isAdjustedDateTo) {
+    } 
+    // 调课元已签到
+    else if (isAdjustedSignedLsnFrom) {
+      backgroundColor = Colors.grey.shade300;
+      additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
+    } 
+    // 调课先未签到
+    else if (isAdjustedUnSignedLsnTo) {
       backgroundColor = Colors.orange.shade100;
       additionalInfo = '调课From：${event.schedualDate}';
-    } else {
+    } 
+    // 调课先已签到
+    else if (isAdjustedSignedLsnTo) {
+      // backgroundColor = Colors.green.shade100;
+      backgroundColor = Colors.grey.shade500;
+      additionalInfo = '调课From：${event.schedualDate}';
+    } 
+    // 计划课未签到
+    else if (isScheduledUnsignedLsn) {
       backgroundColor = Colors.blue.shade100;
     }
+    // 计划课已签到
+    else if (isScheduledSignedLsn) {
+      // backgroundColor = Colors.green.shade100;
+      backgroundColor = Colors.grey.shade500;
+    } else {
+      backgroundColor = Colors.black12;
+    }
+
+ TextDecoration textDecoration = TextDecoration.none;
+ if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
+    textDecoration = TextDecoration.lineThrough;
+  }
 
     return Padding(
       padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
@@ -445,27 +542,27 @@ class TimeTile extends StatelessWidget {
                     children: [
                       Text(
                         event.stuName,
-                        style: TextStyle(fontSize: 13, color: textColor),
+                        style: TextStyle(fontSize: 13, color: textColor, decoration: textDecoration,),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         event.subjectName,
-                        style: TextStyle(fontSize: 12, color: textColor),
+                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         event.subjectSubName,
-                        style: TextStyle(fontSize: 9, color: textColor),
+                        style: TextStyle(fontSize: 9, color: textColor, decoration: textDecoration,),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${event.classDuration}分钟',
-                        style: TextStyle(fontSize: 12, color: textColor),
+                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
-                        style: TextStyle(fontSize: 12, color: textColor),
+                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
                       ),
                     ],
                   ),
@@ -475,7 +572,7 @@ class TimeTile extends StatelessWidget {
                   onSelected: (String result) {
                     switch (result) {
                       case '签到':
-                        print('点击了签到按钮');
+                        onSign(event);
                         break;
                       case '撤销':
                         print('点击了撤销按钮');
@@ -528,7 +625,7 @@ class TimeTile extends StatelessWidget {
                       }
                     } else {
                       // 如果是调课元记录情况下，显示按钮
-                      if (isAdjustedDateFrom) {
+                      if (isAdjustedUnSignedLsnFrom) {
                         return <PopupMenuEntry<String>>[
                           const PopupMenuItem<String>(
                             value: '修改',

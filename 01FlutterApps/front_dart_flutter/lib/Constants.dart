@@ -17,12 +17,17 @@ static const String apiLsnDruationUrl = '/liu/mb_kn_lsn_duration';
 // 新规排课页面，从学生档案表视图中取得该学生正在上的所有科目信息
 static const String apiLatestSubjectsnUrl = '/liu/mb_kn_latest_subjects';
 
+// 课程表画面一览，课程签到请求
+static const String apiStuLsnSign = '/liu/mb_kn_lsn_001_lsn_sign';
+
 // 编辑排课页面，从学生档案表视图中取得该学生正在上的某一科目信息
 static const String apiStuLsnEdit = '/liu/mb_kn_lsn_001';
 
-
 // 保存排课信息
 static const String apiLsnSave = '/liu/mb_kn_lsn_001_save';
+
+// 取消调课请求
+static const String apiLsnRescheCancel = '/liu/mb_kn_lsn_resche_cancel';
 
 // 删除排课信息
 static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
