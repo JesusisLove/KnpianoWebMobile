@@ -2,12 +2,20 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'knAutoConfigJsonApi.dart';
+
 class KnConfig {
   static late String apiBaseUrl;
 
   static Future<void> load() async {
     try {
-      final jsonString = await rootBundle.loadString('kn-vpn-config/apiconfig.json');
+      /*  自动获取在【pubspec.yaml】里配置的这些api文件
+        #  - kn-config/apiconfig.json
+        #  - kn-localhost-config/apiconfig.json
+        #  - kn-lan-config/apiconfig.json
+          - kn-vpn-config/apiconfig.json
+      */
+      final jsonString = await ApiJsonConfigAutoGet.loadConfigFile();
       final jsonResponse = json.decode(jsonString);
       apiBaseUrl = jsonResponse['apiBaseUrl'];
     } catch (e) {
