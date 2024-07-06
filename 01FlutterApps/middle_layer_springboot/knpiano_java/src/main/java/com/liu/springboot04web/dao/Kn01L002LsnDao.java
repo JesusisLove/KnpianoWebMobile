@@ -8,7 +8,6 @@ import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L002LsnMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +67,11 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         }
     }
 
+    // 撤销签到
+    public void restoreSignedLsn(String lessonId) {
+        knLsn001Mapper.restoreSignedLsn(lessonId);
+    }
+
     // 撤销调课
     public void reScheduleLsnCancel(String lessonId) {
         knLsn001Mapper.reScheduleLsnCancel(lessonId);
@@ -107,7 +111,7 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     public void excuteUndo(Kn01L002LsnBean knLsn001Bean) {
         // 将签到日期撤销
         knLsn001Bean.setScanQrDate(null);
-        save(knLsn001Bean);
+        restoreSignedLsn(knLsn001Bean.getLessonId());
 
         // 课费撤销
         undoNewLsnFee(knLsn001Bean);

@@ -20,6 +20,9 @@ public interface Kn01L002LsnMapper  {
 
     List<Kn01L002LsnBean> searchLessons(@Param("params") Map<String, Object> queryparams);
 
+    // 撤销签到
+    public void restoreSignedLsn(@Param("lessonId") String lessonId);
+
     public void reScheduleLsnCancel(@Param("lessonId") String lessonId);
 
     public void updateInfo(Kn01L002LsnBean bean);
