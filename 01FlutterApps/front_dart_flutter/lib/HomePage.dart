@@ -26,8 +26,8 @@ class HomePageState extends State<HomePage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage()));
           }, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
-          setButton(iconData: Icons.book, text: "学生科目管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          // setButton(iconData: Icons.book, text: "学生科目管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.pie_chart, text: "课时统计查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
@@ -35,9 +35,9 @@ class HomePageState extends State<HomePage> {
       case 1:
         // 学费管理页面
         return [
-          setButton(iconData: Icons.monetization_on, text: "科目价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.payment, text: "支付科目学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
+          // setButton(iconData: Icons.monetization_on, text: "科目价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          setButton(iconData: Icons.payment, text: "课费支付管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

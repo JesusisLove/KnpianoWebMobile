@@ -232,7 +232,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
               },
               items: stuDocList.map((student) => DropdownMenuItem(
                 value: student.stuName,
-                child: Text(student.stuName ?? ''),
+                child: Text(student.stuName),
               )).toList(),
             ),
             const SizedBox(height: 0),
