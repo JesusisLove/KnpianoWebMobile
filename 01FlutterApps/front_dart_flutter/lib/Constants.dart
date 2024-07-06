@@ -148,8 +148,8 @@ static const double homePageControlPadding = 40.0;
 
 // 画面控件背景颜色主题
 static const Color lessonThemeColor = Color.fromARGB(255, 37, 205, 191);
-static const Color lsnfeeThemeColor = Color.fromARGB(255, 92, 190, 12);
-static const Color stuDocThemeColor = Color.fromARGB(255, 240, 150, 30);
+static const Color lsnfeeThemeColor = Color.fromARGB(255, 229, 57, 53);
+static const Color stuDocThemeColor = Color.fromARGB(255, 57, 150, 50);
 static const Color ingergThemeColor = Color.fromARGB(255, 255, 141, 186);
 static const Color settngThemeColor = Color.fromARGB(255, 155, 125, 230);
 

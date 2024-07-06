@@ -6,7 +6,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 确保Flutter绑定初始化
   await KnConfig.load(); // 加载SpringBoot端的ip地址及端口
   runApp(const MaterialApp(
-    title: 'Flutter Demo',
+    title: '一对一教学管理系统',
     home: HomePage(),  // 使用HomePage作为启动页面
   ));
 }

@@ -23,12 +23,16 @@ public interface Kn01L002LsnMapper  {
     // 撤销签到
     public void restoreSignedLsn(@Param("lessonId") String lessonId);
 
+    // 取消调课
     public void reScheduleLsnCancel(@Param("lessonId") String lessonId);
 
+    // 更新排课
     public void updateInfo(Kn01L002LsnBean bean);
 
+    // 新规排课
     public void insertInfo(Kn01L002LsnBean bean);
 
+    // 删除排课
     public void deleteInfo(String id);
 
     // 执行数据库存储过程
