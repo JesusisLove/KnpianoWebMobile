@@ -171,6 +171,51 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  // 执行撤销
+  void _handleRestoreCourse(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('撤销确认'),
+          content: Text('确实要撤销【${event.subjectName}】这节课吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () async {
+                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
+                try {
+                  final response = await http.get(
+                    Uri.parse(signUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    }, 
+                  );
+                  if (response.statusCode == 200) {
+                    setState(() {
+                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                    });
+                    Navigator.of(context).pop(true);
+                  } else {
+                    throw Exception('Failed to delete lesson');
+                  }
+                } catch (e) {
+                  print('Error deleting lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 迁移调课画面
   void _handleReschLsnCourse(Kn01L002LsnBean event) {
     showDialog(
@@ -348,6 +393,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       events      : getSchedualLessonForTime('${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
                       onTap       : () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
                       onSign      : _handleSignCourse,
+                      onRestore   : _handleRestoreCourse,
                       onEdit      : _handleEditCourse,
                       onDelete    : _handleDeleteCourse,
                       onReschLsn  : _handleReschLsnCourse,
@@ -369,6 +415,7 @@ class TimeTile extends StatelessWidget {
   final List<Kn01L002LsnBean> events;
   final VoidCallback onTap;
   final Function(Kn01L002LsnBean) onSign;
+  final Function(Kn01L002LsnBean) onRestore;
   final Function(Kn01L002LsnBean) onEdit;
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
@@ -381,6 +428,7 @@ class TimeTile extends StatelessWidget {
     this.events = const [],
     required this.onTap,
     required this.onSign,
+    required this.onRestore,
     required this.onEdit,
     required this.onDelete,
     required this.onReschLsn,
@@ -575,7 +623,7 @@ class TimeTile extends StatelessWidget {
                         onSign(event);
                         break;
                       case '撤销':
-                        print('点击了撤销按钮');
+                        onRestore(event);
                         break;
                       case '修改':
                         onEdit(event);

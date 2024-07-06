@@ -55,12 +55,23 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(collection);
     }
 
-       // 课程表一览】画面にて、签到ボタンを押下
+    // 课程表一览】画面にて、签到ボタンを押下
     @GetMapping("/mb_kn_lsn_001_lsn_sign/{id}")
     public void lessonSign(@PathVariable("id") String id) {
         // 拿到该课程信息
         Kn01L002LsnBean knLsn001Bean = kn01L002LsnDao.getInfoById(id);
         kn01L002LsnDao.excuteSign(knLsn001Bean);
+        // return ResponseEntity.ok("Ok");
+    }
+
+    // 课程表一览】画面にて、撤销ボタンを押下
+    @GetMapping("/mb_kn_lsn_001_lsn_undo/{id}")
+    public void lessonUndo(@PathVariable("id") String id) {
+
+        // 拿到该课程信息
+        Kn01L002LsnBean knLsn001Bean = kn01L002LsnDao.getInfoById(id);
+        // 撤销签到登记
+        kn01L002LsnDao.excuteUndo(knLsn001Bean);
         // return ResponseEntity.ok("Ok");
     }
 
