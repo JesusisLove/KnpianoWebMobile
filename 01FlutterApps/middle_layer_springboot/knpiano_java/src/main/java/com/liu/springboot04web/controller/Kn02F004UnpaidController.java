@@ -72,6 +72,9 @@ public class Kn02F004UnpaidController{
         int currentYear = Year.now().getValue();
         model.addAttribute("currentyear", currentYear);
         model.addAttribute("knyearlist", knYear);
+        // 月份下拉列表框初期化前台页面
+        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MM"));
+        model.addAttribute("currentmonth", currentMonth);
         model.addAttribute("knmonthlist", knMonth);
 
        // 利用resultsTabStus的学生名，在前端页面做Tab

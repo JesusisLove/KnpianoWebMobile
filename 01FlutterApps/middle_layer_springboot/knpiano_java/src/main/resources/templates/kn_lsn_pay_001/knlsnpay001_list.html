@@ -7,7 +7,7 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
     <title>Dashboard Template · Bootstrap</title>
-    <script src="knScriptfunctions.js"></script>
+    <!-- <script src="knScriptfunctions.js"></script> -->
     <!-- src
     └── main
         └── resources
@@ -62,7 +62,7 @@
                             <option th:each="month : ${knmonthlist}" 
                                     th:value="${month}" 
                                     th:text="${month}" 
-                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : '')}"></option>
+                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : currentmonth)}"></option>
                         </select>
                     </div>
                     <div class="form-group" th:if="${selectedinfo==null}" style="margin-left: 20px;">
