@@ -67,32 +67,7 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         }
     }
 
-    // 撤销签到
-    public void restoreSignedLsn(String lessonId) {
-        knLsn001Mapper.restoreSignedLsn(lessonId);
-    }
-
-    // 撤销调课
-    public void reScheduleLsnCancel(String lessonId) {
-        knLsn001Mapper.reScheduleLsnCancel(lessonId);
-    }
-
-    // 新規
-    private void insert(Kn01L002LsnBean knLsn001Bean) {
-        knLsn001Mapper.insertInfo(knLsn001Bean);
-    }
-
-    // 変更，调课
-    private void update(Kn01L002LsnBean knLsn001Bean) {
-        knLsn001Mapper.updateInfo(knLsn001Bean);
-    }
-
-    // 削除
-    public void delete(String id) { 
-        knLsn001Mapper.deleteInfo(id); 
-    }
-
-    // 签到
+    // 执行签到
     @Transactional
     public void excuteSign(Kn01L002LsnBean knLsn001Bean) {
         // 检查该课程是否是有效的课程
@@ -106,7 +81,7 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         }
     }
 
-    // 撤销
+    // 撤销签到
     @Transactional
     public void excuteUndo(Kn01L002LsnBean knLsn001Bean) {
         // 将签到日期撤销
@@ -159,7 +134,8 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
         bean.setOwnFlg(0);
 
         // 按月精算的课程的own_flg设定处理
-        if (bean.getPayStyle() == 1) {
+        // 计划课还分为月计划:(lessonType=1)，和月加课:(lessonType=2)，这里处理的对象是月计划。月加课的费用另结算
+        if (bean.getPayStyle() == 1 && bean.getLessonType() == 1) {
             setOwnFlg(bean);
         }
 
@@ -193,5 +169,29 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
 
         // 删除当日的课费计算记录
         kn02F002FeeDao.delete(feeBean.getLsnFeeId(), feeBean.getLessonId());
+    }
+    // 撤销签到
+    public void restoreSignedLsn(String lessonId) {
+        knLsn001Mapper.restoreSignedLsn(lessonId);
+    }
+
+    // 撤销调课
+    public void reScheduleLsnCancel(String lessonId) {
+        knLsn001Mapper.reScheduleLsnCancel(lessonId);
+    }
+
+    // 新規排课
+    private void insert(Kn01L002LsnBean knLsn001Bean) {
+        knLsn001Mapper.insertInfo(knLsn001Bean);
+    }
+
+    // 修改排课
+    private void update(Kn01L002LsnBean knLsn001Bean) {
+        knLsn001Mapper.updateInfo(knLsn001Bean);
+    }
+
+    // 削除排课
+    public void delete(String id) { 
+        knLsn001Mapper.deleteInfo(id); 
     }
 }
