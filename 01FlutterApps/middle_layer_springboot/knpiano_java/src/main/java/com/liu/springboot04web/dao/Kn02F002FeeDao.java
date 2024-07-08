@@ -107,6 +107,13 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
         return knLsnFee001Bean;
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 画面初期化显示所科目信息
+    public List<Kn02F002FeeBean> getStuFeeDetaillist(String stuId, String year) {
+        List<Kn02F002FeeBean> list =knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
+        return list;
+    }
+
     @Override
     public KnPianoBean getInfoById(String id) {
         throw new UnsupportedOperationException("Unimplemented method 'getInfoById'");

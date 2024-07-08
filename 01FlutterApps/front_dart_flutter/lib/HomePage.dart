@@ -3,6 +3,7 @@ import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
+import '02LsnFeeMngmnt/kn02F001Stu_list.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import 'Constants.dart' as consts; // 引入包含全局常量的文件
@@ -36,8 +37,10 @@ class HomePageState extends State<HomePage> {
         // 学费管理页面
         return [
           // setButton(iconData: Icons.monetization_on, text: "科目价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
-          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.payment, text: "课费支付管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔 
+          setButton(iconData: Icons.payment, text: "课费支付管理", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const StuFinancialPage()));
+          }, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

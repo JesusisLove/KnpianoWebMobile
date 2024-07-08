@@ -36,6 +36,12 @@ static const String apiLsnRescheCancel = '/liu/mb_kn_lsn_resche_cancel';
 static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
 
 
+// ******* 課費管理模块 *******//
+//.......当前的学生课程费用详细................................................................
+
+static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
+
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
