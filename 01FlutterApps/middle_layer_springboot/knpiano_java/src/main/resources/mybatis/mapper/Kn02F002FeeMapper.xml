@@ -30,7 +30,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         <!-- limit 1 -->
     </select>
 
-    <!-- 从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <!-- 后台维护用：从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
     <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         SELECT * FROM v_info_lesson order by stu_name
     </select>
@@ -48,18 +48,44 @@ https://mybatis.org/mybatis-3/getting-started.html
         order by stu_name, lsn_month desc, lsn_fee_id desc, subject_id, subject_sub_id desc, lesson_type
     </select> 
 
+    <!-- 手机前端用：从学生课程管理表视图中取得在课学生正在上的课程费用 -->
+    <select id="getStuFeeListByYear" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        select   stu_id
+                ,subject_id
+                ,subject_name
+                ,subject_sub_name
+                ,pay_style,lesson_type
+                ,sum(lsn_count) as lsn_count
+                ,sum(lsn_fee) as lsn_fee
+                ,lsn_month
+        from v_info_lesson_fee_connect_lsn 
+        where stu_id = #{stuId}
+          and lsn_month like CONCAT('%', #{year}, '%')
+        group by stu_id
+                ,subject_id
+                ,subject_name
+                ,subject_sub_name
+                ,pay_style
+                ,lesson_type
+                ,lsn_month
+        order by lsn_month,subject_id;
+    </select>
+
     <update id="updateInfo">
-        update t_info_lesson_fee set
-            lsn_fee_id = #{lsnFeeId},
-            lesson_id = #{lessonId},
-            pay_style = #{payStyle},
-            lsn_fee = #{lsnFee},
-            lsn_month = #{lsnMonth},
-            own_flg = #{ownFlg},
-            del_flg = #{delFlg}
-        where lsn_fee_id = #{lsnFeeId}
-            and lesson_id = #{lessonId}
-    </update>
+        update t_info_lesson_fee
+        <set>
+            <!-- 检查每个字段是否为空，只更新不为空的字段 -->
+            <if test="lsnFeeId != null">lsn_fee_id = #{lsnFeeId},</if>
+            <if test="lessonId != null"> lesson_id = #{lessonId},</if>
+            <if test="payStyle != null"> pay_style = #{payStyle},</if>
+            <if test="lsnFee != null">     lsn_fee = #{lsnFee},</if>
+            <if test="lsnMonth != null"> lsn_month = #{lsnMonth},</if>
+            <if test="ownFlg != null">     own_flg = #{ownFlg},</if>
+            <if test="delFlg != null">     del_flg = #{delFlg},</if>
+        </set>
+        where lsn_fee_id = #{lsnFeeId} 
+          and lesson_id  = #{lessonId}
+    </update>    
 
     <!-- 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理-->
     <update id="updateOwnFlg">
