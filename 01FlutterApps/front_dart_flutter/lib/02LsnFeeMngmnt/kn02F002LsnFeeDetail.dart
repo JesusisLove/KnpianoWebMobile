@@ -39,11 +39,12 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     super.dispose();
   }
 
+  // 该学生已支付和未支付的账单信息
   Future<void> fetchFeeDetails() async {
-    final String apiStuDocUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuFeeDetailByYear}/${widget.stuId}/$selectedYear';
-    final responseStuDoc = await http.get(Uri.parse(apiStuDocUrl));
-    if (responseStuDoc.statusCode == 200) {
-      final decodedBody = utf8.decode(responseStuDoc.bodyBytes);
+    final String apiLsnPaidAndUnpaidDetailUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuFeeDetailByYear}/${widget.stuId}/$selectedYear';
+    final responseFeeDetails = await http.get(Uri.parse(apiLsnPaidAndUnpaidDetailUrl));
+    if (responseFeeDetails.statusCode == 200) {
+      final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
       List<dynamic> stuDocJson = json.decode(decodedBody);
       setState(() {
         stuFeeDetailNotifier.value = stuDocJson.map((json) => Kn02F002FeeBean.fromJson(json)).toList();
@@ -328,7 +329,7 @@ class MonthLineItem extends StatelessWidget {
                               String lessonTypeText = '';
                               switch (item.lessonType) {
                                 case 0:
-                                  lessonTypeText = '加时课';
+                                  lessonTypeText = '课结算';
                                   break;
                                 case 1:
                                   lessonTypeText = '月计划';

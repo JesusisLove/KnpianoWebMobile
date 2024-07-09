@@ -47,6 +47,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     setState(() {});
   }
 
+  // 取得该学生的银行信息
   Future<void> fetchBankList() async {
     final String apiGetBnkUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.monthData.first.stuId}';
     final response = await http.get(Uri.parse(apiGetBnkUrl));
@@ -65,6 +66,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
+  // 执行学费入账处理
   Future<void> saveLsnPay() async {
     // 把要结算的信息放在List数组里传递给Java端，在后端循环插入操作。 
     final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}/$selectedSubjects';
