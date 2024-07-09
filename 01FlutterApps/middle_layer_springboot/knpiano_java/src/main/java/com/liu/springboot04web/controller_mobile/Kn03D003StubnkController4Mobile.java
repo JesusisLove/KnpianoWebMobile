@@ -28,6 +28,15 @@ public class Kn03D003StubnkController4Mobile {
         return ResponseEntity.ok(collection);
     }
 
+    // 学费记账的画面初期表示里，用到该生名下ta的银行名称
+    @CrossOrigin(origins = "*") 
+    @GetMapping("/mb_kn_03d003_banks_by_stuid/{stuId}")
+    public ResponseEntity<Collection<Kn03D003StubnkBean>> getStuBankList2(@PathVariable("stuId") String stuId) {
+        // 获取目前所有科目信息显示在画面一览上
+        Collection<Kn03D003StubnkBean> collection = Kn03D003StubnkDao.getInfoById(stuId);
+        return ResponseEntity.ok(collection);
+    }
+
     // 【新規/编辑】画面にて、【保存】ボタンを押下
     @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_03d003_bank_stu")

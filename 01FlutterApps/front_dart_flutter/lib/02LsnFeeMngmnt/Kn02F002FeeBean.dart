@@ -5,18 +5,18 @@ class Kn02F002FeeBean {
   final String lessonId;
   final double lsnFee;
   final String lsnMonth;
-  final int ownFlg;
-  final int lessonType;
-  final String stuId;
+  final int    ownFlg;
+  final int    lessonType;
+  late  String stuId;
   final String subjectId;
-  final String stuName;
+  late  String stuName; // 因为后续需要赋值操作，所以由final改为late
   final String subjectName;
-  final int payStyle;
+  final int    payStyle;
   final double lsnCount;
   // 画面用变量
-  final int month;
+  final int    month;
   final String payDate;
-  final int? payStatus;
+  final int?   payStatus;
 
   Kn02F002FeeBean({
     required this.lsnFeeId,
@@ -46,6 +46,7 @@ class Kn02F002FeeBean {
         formattedPayDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error parsing or formatting payDate: $e');
     }
 
@@ -55,6 +56,7 @@ class Kn02F002FeeBean {
       try {
         month = int.parse(lsnMonth.split('-')[1]);
       } catch (e) {
+        // ignore: avoid_print
         print('Error parsing month: $e');
       }
     }
