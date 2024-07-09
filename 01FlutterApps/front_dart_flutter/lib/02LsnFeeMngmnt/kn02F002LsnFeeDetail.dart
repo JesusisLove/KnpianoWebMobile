@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
+import 'Kn02F003LsnPay.dart';
 
 class LsnFeeDetail extends StatefulWidget {
   const LsnFeeDetail({super.key, required this.stuId, required this.stuName});
@@ -200,6 +201,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                   itemBuilder: (context, index) {
                     final month = months[index];
                     final monthData = feeDetailList.where((detail) => detail.month == month).toList();
+                    monthData.first.stuId = widget.stuId;
+                    monthData.first.stuName = widget.stuName;
                     return MonthLineItem(month: month, monthData: monthData);
                   },
                 );
@@ -282,6 +285,14 @@ class MonthLineItem extends StatelessWidget {
                             onSelected: (String result) {
                               if (result == 'record') {
                                 // 迁移至课费记账画面
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData),
+                                  ),
+                                ).then((value) {
+                                  // 在此处执行页面刷新（画面重现加载处理）
+                                });
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

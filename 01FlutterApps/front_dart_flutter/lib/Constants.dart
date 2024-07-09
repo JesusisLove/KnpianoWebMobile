@@ -41,6 +41,8 @@ static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
 
 static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
 
+// 点击学费入账按钮，往后端发送学费入账保存请求
+static const String apiStuPaySave = '/liu/mb_kn_lsn_pay_save';
 
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
@@ -92,6 +94,9 @@ static const String bankDelete = '/liu/mb_kn_03d003_bank';
 
 // 银行一览画面，画面初期化的url请求
 static const String stuBankView = '/liu/mb_kn_03d003_students_by_bankid';
+
+// 学费记账的画面初期表示里，用到该生名下ta的银行名称
+static const String stuBankList = '/liu/mb_kn_03d003_banks_by_stuid';
 
 // 银行学生新规画面，点击“保存”按钮的url请求
 static const String stuBankAdd = '/liu/mb_kn_03d003_bank_stu';
