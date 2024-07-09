@@ -58,7 +58,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) => Container(
-        height: 90,
+        //点击年份选择器，弹出的滑轮高度
+        height: 160,
         padding: const EdgeInsets.only(top: 6.0),
         margin: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -117,13 +118,13 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(32.0),
+            padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Expanded(
                   flex: 3,
                   child: SizedBox(
-                    height: 40,
+                    height: 32,
                     child: TextField(
                       controller: _stuNameController,
                       readOnly: true,
@@ -141,7 +142,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red, width: 0.6),
                         ),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                       ),
                     ),
                   ),
@@ -150,7 +151,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                 Expanded(
                   flex: 2,
                   child: SizedBox(
-                    height: 40,
+                    height: 32,
                     child: GestureDetector(
                       onTap: _showYearPicker,
                       child: InputDecorator(
