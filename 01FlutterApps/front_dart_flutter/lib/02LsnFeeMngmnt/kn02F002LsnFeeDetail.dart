@@ -204,7 +204,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                     final monthData = feeDetailList.where((detail) => detail.month == month).toList();
                     monthData.first.stuId = widget.stuId;
                     monthData.first.stuName = widget.stuName;
-                    return MonthLineItem(month: month, monthData: monthData);
+                    // 修改：传递fetchFeeDetails函数给MonthLineItem
+                    return MonthLineItem(month: month, monthData: monthData, fetchFeeDetails: fetchFeeDetails);
                   },
                 );
               },
@@ -216,11 +217,18 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
   }
 }
 
+// 修改：MonthLineItem类的定义，添加fetchFeeDetails参数
 class MonthLineItem extends StatelessWidget {
   final int month;
   final List<Kn02F002FeeBean> monthData;
+  final Future<void> Function() fetchFeeDetails;
 
-  const MonthLineItem({super.key, required this.month, required this.monthData});
+  const MonthLineItem({
+    super.key, 
+    required this.month, 
+    required this.monthData, 
+    required this.fetchFeeDetails
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -232,6 +240,9 @@ class MonthLineItem extends StatelessWidget {
     double spaceHeight = 15.0;
     double orangeAreaHeight = 30.0; // 橙色区域的高度
     double blueContainerHeight = monthData.length * recordHeight + spaceHeight + orangeAreaHeight + 16.0; // 16.0 for padding
+
+    // 修改：检查是否所有的ownFlg都是1
+    bool allPaid = monthData.every((item) => item.ownFlg == 1);
 
     return IntrinsicHeight(
       // ListView控件的一个Cell行
@@ -293,14 +304,31 @@ class MonthLineItem extends StatelessWidget {
                                   ),
                                 ).then((value) {
                                   // 在此处执行页面刷新（画面重现加载处理）
+                                  fetchFeeDetails();
                                 });
+                              } 
+                              // 新增：处理查看学费按钮
+                              else if (result == 'view') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData),
+                                  ),
+                                );
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
-                                value: 'record',
-                                child: Text('学费记账'),
-                              ),
+                              // 修改：根据allPaid的值决定显示哪个按钮
+                              if (!allPaid)
+                                const PopupMenuItem<String>(
+                                  value: 'record',
+                                  child: Text('学费记账'),
+                                ),
+                              if (allPaid)
+                                const PopupMenuItem<String>(
+                                  value: 'view',
+                                  child: Text('学费查看'),
+                                ),
                             ],
                             icon: const Icon(Icons.more_vert, size: 20),
                             padding: EdgeInsets.zero,
@@ -338,11 +366,17 @@ class MonthLineItem extends StatelessWidget {
                                   lessonTypeText = '月加课';
                                   break;
                               }
+                              // 修改：根据ownFlg决定文本样式
+                              TextStyle textStyle = TextStyle(
+                                fontSize: 12,
+                                color: item.ownFlg == 1 ? Colors.black : Colors.blue,
+                                decoration: item.ownFlg == 1 ? TextDecoration.lineThrough : TextDecoration.none,
+                              );
                               return SizedBox(
                                 height: recordHeight,
                                 child: Text(
                                   '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     课费：\$${item.lsnFee.toStringAsFixed(2)}',
-                                  style: const TextStyle(fontSize: 12, color: Colors.blue),
+                                  style: textStyle,
                                 ),
                               );
                             }).toList(),
@@ -350,16 +384,22 @@ class MonthLineItem extends StatelessWidget {
                           Container(
                             height: orangeAreaHeight,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.orange, width: 0.2), // 调整为原来的60%
+                              border: Border.all(color: Colors.orange, width: 0.2),
                               color: Colors.yellow[50],
                               borderRadius: const BorderRadius.all(Radius.circular(4)),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('已支付:', style: TextStyle(fontSize: 12, color: Colors.orange)),
-                                Text('未支付:', style: TextStyle(fontSize: 12, color: Colors.orange)),
+                                Text(
+                                  '已支付: \$${monthData.where((item) => item.ownFlg == 1).fold(0.0, (sum, item) => sum + item.lsnFee).toStringAsFixed(2)}',
+                                  style: const TextStyle(fontSize: 12, color: Colors.orange)
+                                ),
+                                Text(
+                                  '未支付: \$${monthData.where((item) => item.ownFlg == 0).fold(0.0, (sum, item) => sum + item.lsnFee).toStringAsFixed(2)}',
+                                  style: const TextStyle(fontSize: 12, color: Colors.orange)
+                                ),
                               ],
                             ),
                           )
