@@ -1,11 +1,12 @@
 import 'package:intl/intl.dart';
 
 class Kn02F002FeeBean {
+  final String lsnPayId;
   final String lsnFeeId;
   final String lessonId;
   final double lsnFee;
   final String lsnMonth;
-  final int    ownFlg;
+  late int    ownFlg;
   final int    lessonType;
   late  String stuId;
   final String subjectId;
@@ -19,6 +20,7 @@ class Kn02F002FeeBean {
   final int?   payStatus;
 
   Kn02F002FeeBean({
+    required this.lsnPayId,
     required this.lsnFeeId,
     required this.lessonId,
     required this.lsnFee,
@@ -62,6 +64,7 @@ class Kn02F002FeeBean {
     }
 
     return Kn02F002FeeBean(
+      lsnPayId    : json['lsnPayId'] ?? '',
       lsnFeeId    : json['lsnFeeId'] ?? '',
       lessonId    : json['lessonId'] ?? '',
       lsnFee      : json['lsnFee']?.toDouble() ?? 0.0,

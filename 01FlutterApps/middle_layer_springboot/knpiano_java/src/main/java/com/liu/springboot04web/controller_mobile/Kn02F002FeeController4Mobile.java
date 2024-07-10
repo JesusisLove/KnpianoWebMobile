@@ -56,7 +56,8 @@ public class Kn02F002FeeController4Mobile {
 
     // 【課費精算管理】撤销ボタンを押下して、当該情報を引き戻すこと
     @DeleteMapping("/mb_kn_lsn_pay_undo/{lsnPayId}/{lsnFeeId}")
-    public ResponseEntity<String> undoLsnPay(@PathVariable("lsnPayId") String lsnPayId, @PathVariable("lsnFeeId") String lsnFeeId) {
+    public ResponseEntity<String> undoLsnPay(@PathVariable("lsnPayId") String lsnPayId, 
+                                             @PathVariable("lsnFeeId") String lsnFeeId) {
         knLsnPay001Dao.excuteUndoLsnPay(lsnPayId, lsnFeeId);
         return ResponseEntity.ok("Ok");
     }

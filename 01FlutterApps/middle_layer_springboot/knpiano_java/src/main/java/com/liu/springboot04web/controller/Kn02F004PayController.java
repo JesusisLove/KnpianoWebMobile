@@ -105,7 +105,7 @@ public class Kn02F004PayController{
         return "kn_lsn_pay_001/knlsnpay001_list";
     }
 
-    // 【課費精算管理】削除ボタンを押下して、当該情報を削除すること
+    // 【課費精算管理】撤销ボタンを押下して、当該情報を引き戻すこと
     @DeleteMapping("/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}")
     public String undoLsnPay(@PathVariable("lsnPayId") String lsnPayId, @PathVariable("lsnFeeId") String lsnFeeId) {
         knLsnPay001Dao.excuteUndoLsnPay(lsnPayId, lsnFeeId);
