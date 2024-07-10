@@ -224,11 +224,12 @@ class MonthLineItem extends StatelessWidget {
   final Future<void> Function() fetchFeeDetails;
 
   const MonthLineItem({
-    super.key, 
+    Key? key, 
     required this.month, 
     required this.monthData, 
     required this.fetchFeeDetails
-  });
+  }) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +301,7 @@ class MonthLineItem extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData),
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, allPaid: allPaid,),
                                   ),
                                 ).then((value) {
                                   // 在此处执行页面刷新（画面重现加载处理）
@@ -312,7 +313,7 @@ class MonthLineItem extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData),
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, allPaid: allPaid),
                                   ),
                                 );
                               }

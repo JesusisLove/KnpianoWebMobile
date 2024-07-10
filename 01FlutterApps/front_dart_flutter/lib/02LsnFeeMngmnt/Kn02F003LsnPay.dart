@@ -9,8 +9,9 @@ import 'Kn02F004UnpaidBean.dart';
 
 class Kn02F003LsnPay extends StatefulWidget {
   final List<Kn02F002FeeBean> monthData;
+   bool allPaid;
 
-  const Kn02F003LsnPay({super.key, required this.monthData});
+   Kn02F003LsnPay({super.key, required this.monthData, required this.allPaid});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -28,10 +29,15 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   @override
   void initState() {
     super.initState();
-    // 修改：初始化selectedSubjects时考虑ownFlg
     selectedSubjects = List.generate(widget.monthData.length, (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     fetchBankList();
+    
+    ////////////  调试代码 //////////////
+    // for (var fee in widget.monthData) {
+    //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
+    // }
+    ////////////////////////////////////
   }
 
   void calculateTotalFee() {
@@ -48,7 +54,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     setState(() {});
   }
 
-  // 取得该学生的银行信息
   Future<void> fetchBankList() async {
     final String apiGetBnkUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.monthData.first.stuId}';
     final response = await http.get(Uri.parse(apiGetBnkUrl));
@@ -67,9 +72,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
-  // 执行学费入账处理
   Future<void> saveLsnPay() async {
-    // 往后端发送保存请求
     final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}';
     List<Kn02F004UnpaidBean> selectedFees = [];
 
@@ -80,12 +83,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
           lsnPay: widget.monthData[i].lsnFee,
           payMonth: widget.monthData.first.lsnMonth,
           payDate: selectedDate.toString(),
-          bankId: selectedBankId!, //如果你确定 selectedBankId 在这里永远不会为 null，你可以使用空断言操作符 '!':
+          bankId: selectedBankId!,
         ));
       }
     }
 
-    // 添加错误处理
     try {
       final response = await http.post(
         Uri.parse(apiLsnSaveUrl),
@@ -95,18 +97,15 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
       if (response.statusCode == 200) {
         // ignore: use_build_context_synchronously
-        Navigator.pop(context, true); // Close current page and refresh previous page
+        Navigator.pop(context, true);
       } else {
-        // 使用showErrorDialog显示错误信息
         showErrorDialog('保存学费支付失败。错误码：${response.statusCode}');
       }
     } catch (e) {
-      // 捕获并显示网络错误
       showErrorDialog('网络错误：$e');
     }
   }
 
-  // 新增：显示错误提示对话框的方法
   void showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -127,7 +126,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     );
   }
 
-  // 新增：验证并执行保存操作的方法
   void validateAndSave() {
     if (!selectedSubjects.contains(true)) {
       showErrorDialog('请选择要入账的课程');
@@ -138,13 +136,41 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
-  // 追加：撤销支付的方法
+  // 修改：添加确认对话框
+  Future<void> showConfirmDialog(String lsnPayId, String lsnFeeId) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('确认'),
+          content: const Text('您确定要撤销这笔支付吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确认'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                restorePayment(lsnPayId, lsnFeeId);
+                widget.allPaid = false;
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> restorePayment(String lsnPayId, String lsnFeeId) async {
     final String apiStuPayRestoreUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPayRestore}/$lsnPayId/$lsnFeeId';
     try {
       final response = await http.delete(Uri.parse(apiStuPayRestoreUrl));
       if (response.statusCode == 200) {
-        // 刷新页面数据
         setState(() {
           int index = widget.monthData.indexWhere((element) => element.lsnFeeId == lsnFeeId);
           if (index != -1) {
@@ -163,6 +189,12 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
   @override
   Widget build(BuildContext context) {
+  ////////////  调试代码 //////////////
+    // print('Building Kn02F003LsnPay widget');
+    // widget.monthData.forEach((fee) {
+    //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
+    // });
+  ////////////////////////////////////
     return Scaffold(
       appBar: AppBar(
         title: Text.rich(
@@ -178,7 +210,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.of(context).pop(true),
         ),
       ),
       body: Column(
@@ -192,7 +224,18 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 final fee = widget.monthData[index];
                 final lessonTypeText = fee.lessonType == 0 ? '结算课' : 
                                        fee.lessonType == 1 ? '月计划' : '月加课';
-                // 修改：根据ownFlg控制checkbox和PopupMenuButton的状态
+                // 修改：检查支付日期是否等于系统当前日期
+                bool isPaymentToday = false;
+                if (fee.payDate != null && fee.payDate!.isNotEmpty) {
+                  try {
+                    final paymentDate = DateTime.parse(fee.payDate!);
+                    isPaymentToday = DateFormat('yyyy-MM-dd').format(paymentDate) == 
+                                    DateFormat('yyyy-MM-dd').format(DateTime.now());
+                  } catch (e) {
+                    print('Invalid date format: ${fee.payDate}');
+                    // 可以在这里添加更多的错误处理逻辑
+                  }
+                }
                 return ListTile(
                   title: Row(
                     children: [
@@ -220,12 +263,12 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       ),
                     ],
                   ),
-                  // 修改：使用PopupMenuButton替换ElevatedButton
-                  trailing: fee.ownFlg == 1
+                  // 修改：根据支付日期控制PopupMenuButton的可见性
+                  trailing: fee.ownFlg == 1 && isPaymentToday
                       ? PopupMenuButton<String>(
                           onSelected: (String result) {
                             if (result == 'restore') {
-                              restorePayment(fee.lsnPayId, fee.lsnFeeId);
+                              showConfirmDialog(fee.lsnPayId!, fee.lsnFeeId);
                             }
                           },
                           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -295,7 +338,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: validateAndSave,
+                    onPressed: !widget.allPaid ? validateAndSave : null,
                       child: const Text('学费入账'),
                     ),
                   ],

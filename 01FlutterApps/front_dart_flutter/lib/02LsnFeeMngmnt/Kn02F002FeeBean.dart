@@ -16,7 +16,7 @@ class Kn02F002FeeBean {
   final double lsnCount;
   // 画面用变量
   final int    month;
-  final String payDate;
+  final String? payDate;
   final int?   payStatus;
 
   Kn02F002FeeBean({

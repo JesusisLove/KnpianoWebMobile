@@ -60,6 +60,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 ,lsn_count
                 ,lsn_fee
                 ,lsn_month
+                ,pay_date
                 ,own_flg
             from v_info_lesson_sum_fee_unpaid_yet
             where stu_id = #{stuId}
@@ -75,6 +76,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 ,lsn_count
                 ,lsn_fee
                 ,lsn_month
+                ,pay_date
                 ,own_flg
             from v_info_lesson_sum_fee_pay_over
             where stu_id = #{stuId}
