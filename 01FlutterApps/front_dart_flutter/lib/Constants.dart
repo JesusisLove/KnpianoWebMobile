@@ -44,6 +44,10 @@ static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
 // 点击学费入账按钮，往后端发送学费入账保存请求
 static const String apiStuPaySave = '/liu/mb_kn_lsn_pay_save';
 
+// 在学生的学费账单画面里点击撤销按钮，往后端发送学费撤销请求
+static const String apiStuPayRestore = '/liu/mb_kn_lsn_pay_undo';
+
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求

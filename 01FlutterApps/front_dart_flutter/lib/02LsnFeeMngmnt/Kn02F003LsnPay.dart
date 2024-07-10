@@ -28,7 +28,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   @override
   void initState() {
     super.initState();
-    selectedSubjects = List.generate(widget.monthData.length, (index) => false);
+    // 修改：初始化selectedSubjects时考虑ownFlg
+    selectedSubjects = List.generate(widget.monthData.length, (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     fetchBankList();
   }
@@ -73,7 +74,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     List<Kn02F004UnpaidBean> selectedFees = [];
 
     for (int i = 0; i < widget.monthData.length; i++) {
-      if (selectedSubjects[i]) {
+      if (selectedSubjects[i] && widget.monthData[i].ownFlg == 0) {
         selectedFees.add(Kn02F004UnpaidBean(
           lsnFeeId: widget.monthData[i].lsnFeeId,
           lsnPay: widget.monthData[i].lsnFee,
@@ -137,16 +138,39 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
+  // 追加：撤销支付的方法
+  Future<void> restorePayment(String lsnPayId, String lsnFeeId) async {
+    final String apiStuPayRestoreUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPayRestore}/$lsnPayId/$lsnFeeId';
+    try {
+      final response = await http.delete(Uri.parse(apiStuPayRestoreUrl));
+      if (response.statusCode == 200) {
+        // 刷新页面数据
+        setState(() {
+          int index = widget.monthData.indexWhere((element) => element.lsnFeeId == lsnFeeId);
+          if (index != -1) {
+            widget.monthData[index].ownFlg = 0;
+            selectedSubjects[index] = false;
+          }
+        });
+        updatePaymentAmount();
+      } else {
+        showErrorDialog('撤销支付失败。错误码：${response.statusCode}');
+      }
+    } catch (e) {
+      showErrorDialog('网络错误：$e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text.rich( // XXX M月分的学费账单
+        title: Text.rich(
           TextSpan(
             children: [
               TextSpan(
                 text: '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份',
-                style: const TextStyle(decoration: TextDecoration.underline),// 添加下划线
+                style: const TextStyle(decoration: TextDecoration.underline),
               ),
               const TextSpan(text: '的学费账单'),
             ],
@@ -168,11 +192,23 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 final fee = widget.monthData[index];
                 final lessonTypeText = fee.lessonType == 0 ? '结算课' : 
                                        fee.lessonType == 1 ? '月计划' : '月加课';
-                return CheckboxListTile(
+                // 修改：根据ownFlg控制checkbox和PopupMenuButton的状态
+                return ListTile(
                   title: Row(
                     children: [
+                      Checkbox(
+                        value: selectedSubjects[index],
+                        onChanged: fee.ownFlg == 0
+                            ? (bool? value) {
+                                setState(() {
+                                  selectedSubjects[index] = value!;
+                                  updatePaymentAmount();
+                                });
+                              }
+                            : null,
+                      ),
                       Text('课费: \$${fee.lsnFee.toStringAsFixed(2)}'),
-                      const SizedBox(width: 16),// 调整文本之间的间距
+                      const SizedBox(width: 16),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -184,14 +220,22 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       ),
                     ],
                   ),
-                  value: selectedSubjects[index],
-                  onChanged: (bool? value) {
-                    setState(() {
-                      selectedSubjects[index] = value!;
-                      updatePaymentAmount();
-                    });
-                  },
-                  secondary: const Icon(Icons.payment), // 可选的次要图标
+                  // 修改：使用PopupMenuButton替换ElevatedButton
+                  trailing: fee.ownFlg == 1
+                      ? PopupMenuButton<String>(
+                          onSelected: (String result) {
+                            if (result == 'restore') {
+                              restorePayment(fee.lsnPayId, fee.lsnFeeId);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'restore',
+                              child: Text('撤销'),
+                            ),
+                          ],
+                        )
+                      : null,
                 );
               },
             ),
@@ -210,7 +254,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                         Text('剩余: \$${(totalFee - paymentAmount).toStringAsFixed(2)}'),
                       ],
                     ),
-                    // 添加: 在合计和存入银行之间加一条横线
                     const Divider(thickness: 1, height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +295,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      // 修改：将 onPressed 事件处理程序改为 validateAndSave 方法
                       onPressed: validateAndSave,
                       child: const Text('学费入账'),
                     ),
