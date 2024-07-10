@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /* 機能番号：KN_LSN_PAY_001 【課費支払管理】テーブルを生成する */
 @SuppressWarnings("JpaDataSourceORMInspection")
@@ -23,6 +24,7 @@ public class TInfo_lesson_pay {
     @Id @Column (name = "lsn_fee_id", length = 32, nullable = false)  protected String lsnFeeId;
     @Column (name = "lsn_pay")  protected float lsnPay;
     @Column (name = "pay_month", length = 7)  protected String payMonth;
+    @Column (name = "pay_date")  protected Date payDate;
     @Column (name = "bank_id", length = 32)  protected String bankId;
     @Column (name = "del_flg", columnDefinition = "integer  default 0")  protected Integer delFlg;
     @Column (name = "create_date", columnDefinition = "TIMESTAMP  default CURRENT_TIMESTAMP")  protected Timestamp createDate;

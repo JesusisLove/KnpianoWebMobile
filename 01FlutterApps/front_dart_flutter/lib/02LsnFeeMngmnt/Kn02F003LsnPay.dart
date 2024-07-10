@@ -68,8 +68,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
   // 执行学费入账处理
   Future<void> saveLsnPay() async {
-    // 把要结算的信息放在List数组里传递给Java端，在后端循环插入操作。 
-    final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}/$selectedSubjects';
+    // 往后端发送保存请求
+    final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}';
     List<Kn02F004UnpaidBean> selectedFees = [];
 
     for (int i = 0; i < widget.monthData.length; i++) {
@@ -78,23 +78,30 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
           lsnFeeId: widget.monthData[i].lsnFeeId,
           lsnPay: widget.monthData[i].lsnFee,
           payMonth: widget.monthData.first.lsnMonth,
-          bankId: selectedBankId!,//如果你确定 selectedBankId 在这里永远不会为 null，你可以使用空断言操作符 '!':
+          payDate: selectedDate.toString(),
+          bankId: selectedBankId!, //如果你确定 selectedBankId 在这里永远不会为 null，你可以使用空断言操作符 '!':
         ));
       }
     }
 
-    final response = await http.post(
-      Uri.parse(apiLsnSaveUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(selectedFees),
-    );
+    // 添加错误处理
+    try {
+      final response = await http.post(
+        Uri.parse(apiLsnSaveUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(selectedFees),
+      );
 
-    if (response.statusCode == 200) {
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context, true); // Close current page and refresh previous page
-    } else {
-      // Handle error
-      // print('Failed to save lesson payment');
+      if (response.statusCode == 200) {
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context, true); // Close current page and refresh previous page
+      } else {
+        // 使用showErrorDialog显示错误信息
+        showErrorDialog('保存学费支付失败。错误码：${response.statusCode}');
+      }
+    } catch (e) {
+      // 捕获并显示网络错误
+      showErrorDialog('网络错误：$e');
     }
   }
 

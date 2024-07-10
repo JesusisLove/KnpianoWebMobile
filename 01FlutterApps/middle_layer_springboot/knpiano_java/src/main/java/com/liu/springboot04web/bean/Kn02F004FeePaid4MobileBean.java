@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class Kn02F004PayBean implements KnPianoBean {
+public class Kn02F004FeePaid4MobileBean implements KnPianoBean {
 
     protected String lsnPayId;
     protected String lsnFeeId;
@@ -30,6 +30,7 @@ public class Kn02F004PayBean implements KnPianoBean {
     protected Integer   payStyle;
     protected float     lsnCount;
     protected float     lsnFee;
+    protected Integer   ownFlg;
 
     public String getLsnPayId() {
         return lsnPayId;
@@ -156,6 +157,12 @@ public class Kn02F004PayBean implements KnPianoBean {
     }
     public void setBankName(String bankName) {
         this.bankName = bankName;
+    }
+    public Integer getOwnFlg() {
+        return ownFlg;
+    }
+    public void setOwnFlg(Integer ownFlg) {
+        this.ownFlg = ownFlg;
     }
     
 }

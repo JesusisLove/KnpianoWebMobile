@@ -102,6 +102,7 @@
             lsn_fee_id,
             lsn_pay,
             pay_month,
+            pay_date,
             bank_id
             )
         values (
@@ -109,6 +110,7 @@
             #{lsnFeeId},
             #{lsnPay},
             #{payMonth},
+            #{payDate},
             #{bankId}
         )
     </insert>

@@ -23,7 +23,8 @@
                         <th>精算種別</th>
                         <th>銀行番号</th>
                         <th>銀行名称</th>
-                        <th>精算日付</th>
+                        <th>精算月</th>
+                        <th>支払日付</th>
                         <th>作成日</th>
                         <th>更新日</th>
                     </tr>
@@ -45,6 +46,7 @@
                         <td>[[${info.bankId}]]</td>
                         <td>[[${info.bankName}]]</td>
                         <td>[[${info.payMonth}]]</td>
+                        <td>[[${#dates.format(info.payDate,'yyyy-MM-dd')}]]</td>
                         <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>
