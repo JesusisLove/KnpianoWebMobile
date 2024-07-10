@@ -2,12 +2,19 @@ package com.liu.springboot04web.bean;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class Kn02F004UnpaidBean implements KnPianoBean {
 
     protected String lsnPayId;
     protected String lsnFeeId;
     protected float lsnPay;
     protected String payMonth;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")// 接受手机前端的请求时接纳前端String类型的日期值
+    @DateTimeFormat(pattern = "yyyy-MM-dd")// 后台维护页面的请求响应处理
+    protected Date payDate;
     protected String bankId;
     protected Integer delFlg;
     protected Date createDate;
@@ -154,6 +161,12 @@ public class Kn02F004UnpaidBean implements KnPianoBean {
     }
     public void setSubjectPrice(float subjectPrice) {
         this.subjectPrice = subjectPrice;
+    }
+    public Date getPayDate() {
+        return payDate;
+    }
+    public void setPayDate(Date payDate) {
+        this.payDate = payDate;
     }
 
 }

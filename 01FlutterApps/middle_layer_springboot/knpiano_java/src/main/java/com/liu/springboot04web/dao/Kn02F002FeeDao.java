@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
+import com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean;
 import com.liu.springboot04web.bean.KnPianoBean;
 import com.liu.springboot04web.mapper.Kn02F002FeeMapper;
 
@@ -109,8 +110,8 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 画面初期化显示所科目信息
-    public List<Kn02F002FeeBean> getStuFeeDetaillist(String stuId, String year) {
-        List<Kn02F002FeeBean> list =knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
+    public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String year) {
+        List<Kn02F004FeePaid4MobileBean> list =knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
         return list;
     }
 

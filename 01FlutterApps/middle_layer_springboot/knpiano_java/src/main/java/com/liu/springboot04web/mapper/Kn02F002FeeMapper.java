@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
+import com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean;
 public interface Kn02F002FeeMapper  {
 
     public List<Kn02F002FeeBean> getInfoList();
@@ -17,7 +18,7 @@ public interface Kn02F002FeeMapper  {
                                                           @Param("lsnMonth")   String  lsnMonth);
 
     // 手机前端用：从学生课程管理表视图中取得在课学生正在上的科目，在课程费用管理的新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生
-    public List<Kn02F002FeeBean> getStuFeeListByYear(@Param("stuId")String stuId,
+    public List<Kn02F004FeePaid4MobileBean> getStuFeeListByYear(@Param("stuId")String stuId,
                                                      @Param("year") String year);
     public void updateInfo(Kn02F002FeeBean bean);
     // 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理

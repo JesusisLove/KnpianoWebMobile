@@ -1,9 +1,12 @@
+import 'package:intl/intl.dart';
+
 class Kn02F004UnpaidBean {
   final String? lsnPayId;
   final String  lsnFeeId;
   final double  lsnPay;
   final String  payMonth;
   late  String  bankId;
+  final String  payDate;
 
   // 表关联项目
   final int?    lessonType;
@@ -26,6 +29,7 @@ class Kn02F004UnpaidBean {
     required this.lsnFeeId,
     required this.lsnPay,
     required this.payMonth,
+    required this.payDate,
     required this.bankId,
              this.lessonType,
              this.stuId,
@@ -44,11 +48,22 @@ class Kn02F004UnpaidBean {
 
   // 从后台拿到的json数据转化为Kn02F004UnpaidBean对象
   factory Kn02F004UnpaidBean.fromJson(Map<String, dynamic> json) {
+     String formattedPayDate = '';
+    try {
+      if (json['schedualDate'] != null && json['schedualDate'] != '') {
+        DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        formattedPayDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+      }
+    } catch (e) {
+      print('Error parsing or formatting schedualDate: $e');
+    }
+
     return Kn02F004UnpaidBean(
       lsnPayId        : json['lsnPayId'] ?? '',
       lsnFeeId        : json['lsnFeeId'] ?? '',
       lsnPay          : json['lsnPay']?.toDouble() ?? 0.0,
       payMonth        : json['payMonth'] ?? '',
+      payDate         : formattedPayDate,
       bankId          : json['bankId'] ?? '',
       lessonType      : json['lessonType'],
       stuId           : json['stuId'] ?? '',
@@ -72,6 +87,7 @@ class Kn02F004UnpaidBean {
       'lsnFeeId'        : lsnFeeId,
       'lsnPay'          : lsnPay,
       'payMonth'        : payMonth,
+      'payDate'         : payDate,
       'bankId'          : bankId,
       'lessonType'      : lessonType,
       'stuId'           : stuId,
