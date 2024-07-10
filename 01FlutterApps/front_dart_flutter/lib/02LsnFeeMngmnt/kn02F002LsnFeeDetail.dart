@@ -315,7 +315,10 @@ class MonthLineItem extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder: (context) => Kn02F003LsnPay(monthData: monthData, allPaid: allPaid),
                                   ),
-                                );
+                                ).then((value) {
+                                  // 在此处执行页面刷新（画面重现加载处理）
+                                  fetchFeeDetails();
+                                });;
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
