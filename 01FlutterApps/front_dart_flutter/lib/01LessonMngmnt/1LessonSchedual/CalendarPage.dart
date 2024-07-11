@@ -8,6 +8,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import 'AddCourseDialog.dart';
 import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
@@ -348,13 +349,20 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('课程表'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+      appBar: KnAppBar(
+          title: '课程表',
+          subtitle: '学生课程管理 >> 课程表',
+          context: context,
+          appBarBackgroundColor: Constants.lessonThemeColor, // 自定义AppBar背景颜色
+          titleColor: Colors.blue.shade900, // 自定义标题颜色
+          subtitleBackgroundColor: Colors.blue.shade700, // 自定义底部文本框背景颜色
+          subtitleTextColor: Colors.white, // 自定义底部文本颜色
+          titleFontSize: 20.0, // 自定义标题字体大小
+          subtitleFontSize: 12.0, // 自定义底部文本字体大小
+          actions: [
+            // 如果需要，可以在这里添加额外的操作按钮
+          ],
         ),
-      ),
       body: Column(
         children: [
           TableCalendar(
