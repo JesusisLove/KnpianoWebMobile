@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // 引入 intl 包来格式化日期
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';// API配置文件
-import 'package:kn_piano/CommonProcess/FormFields.dart';// 共通控件作成（所有窗体控件统一标准）
+import 'package:kn_piano/CommonProcess/customUI/FormFields.dart';// 共通控件作成（所有窗体控件统一标准）
 import 'package:kn_piano/Constants.dart'; // 引入包含全局常量的文件
 
 
