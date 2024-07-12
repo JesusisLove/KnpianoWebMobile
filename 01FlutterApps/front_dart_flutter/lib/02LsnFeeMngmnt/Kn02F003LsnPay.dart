@@ -3,15 +3,30 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F004UnpaidBean.dart';
 
+// ignore: must_be_immutable
 class Kn02F003LsnPay extends StatefulWidget {
   final List<Kn02F002FeeBean> monthData;
-   bool allPaid;
+  bool allPaid;
+  // AppBar背景颜色
+  final Color knBgColor;
+  // 字体颜色
+  final Color knFontColor;
+  // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
+  late String pagePath;
 
-   Kn02F003LsnPay({super.key, required this.monthData, required this.allPaid});
+   Kn02F003LsnPay({
+    super.key, 
+      required this.monthData, 
+      required this.allPaid, 
+      required this.knBgColor, 
+      required this.knFontColor, 
+      required this.pagePath
+    });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -19,6 +34,7 @@ class Kn02F003LsnPay extends StatefulWidget {
 }
 
 class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
+  final String titleName = '学费账单';
   List<bool> selectedSubjects = [];
   List<Map<String, dynamic>> bankList = [];
   String? selectedBankId;
@@ -29,6 +45,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   @override
   void initState() {
     super.initState();
+    widget.pagePath = '${widget.pagePath} >> $titleName';
     selectedSubjects = List.generate(widget.monthData.length, (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     fetchBankList();
@@ -196,22 +213,24 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     // });
   ////////////////////////////////////
     return Scaffold(
-      appBar: AppBar(
-        title: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份',
-                style: const TextStyle(decoration: TextDecoration.underline),
-              ),
-              const TextSpan(text: '的学费账单'),
-            ],
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(true),
-        ),
+      appBar: KnAppBar(
+        title: '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
+        subtitle: widget.pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+                                    widget.knFontColor.red - 20, 
+                                    widget.knFontColor.green - 20, 
+                                    widget.knFontColor.blue - 20),
+
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+                                    widget.knFontColor.red + 20, 
+                                    widget.knFontColor.green + 20, 
+                                    widget.knFontColor.blue + 20),
+
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0, // 自定义标题字体大小
+        subtitleFontSize: 12.0, // 自定义底部文本字体大小
       ),
       body: Column(
         children: [

@@ -3,10 +3,12 @@ import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
-import '02LsnFeeMngmnt/kn02F001Stu_list.dart';
+
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
-import 'Constants.dart' as consts; // 引入包含全局常量的文件
+import 'CommonProcess/StudentNameMenuCommon.dart';
+import 'Constants.dart' as consts;
+import 'Constants.dart'; // 引入包含全局常量的文件
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,24 +26,39 @@ class HomePageState extends State<HomePage> {
         // 上课管理页面
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
           }, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
-          // setButton(iconData: Icons.book, text: "学生科目管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
-          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
+
+          setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {
+             Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const StudentNameMenuCommon(
+                          knBgColor: consts.Constants.lessonThemeColor,
+                          knFontColor: Colors.blue,
+                          pagePath: "上课进度管理>>在课学生一览",
+                          pageId: "",)
+              ));
+          }, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+
           setButton(iconData: Icons.pie_chart, text: "课时统计查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
         ];
       case 1:
         // 学费管理页面
         return [
-          // setButton(iconData: Icons.monetization_on, text: "科目价格管理", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor, ),
-          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔 
           setButton(iconData: Icons.payment, text: "课费支付管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const StuFinancialPage()));
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => const StuFinancialPage()));
+             Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const StudentNameMenuCommon(
+                          knBgColor: consts.Constants.lsnfeeThemeColor,
+                          knFontColor: Colors.white,
+                          pagePath: "课费支付管理>>在课学生一览",
+                          pageId: Constants.stuLsnFeeListPage)
+              ));
           }, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+
+
           setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.assessment, text: "学费月度报告", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
