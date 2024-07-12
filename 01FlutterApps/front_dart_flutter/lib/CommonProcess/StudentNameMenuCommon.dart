@@ -113,6 +113,7 @@ Widget build(BuildContext context) {
           ],
         ),
       ],
+      bottom: null,
     ),
     body: _buildStudentGrid(),
   );

@@ -174,6 +174,9 @@ static const double focusedBorderSideWidth = 1.5;
 
 ////////// 画面跳转映射用的 PageIp 定义 ////////////////////////////////////////////////////////////////////////////////////
 static const String stuLsnFeeListPage = 'stuFinacialPage';
+// 课程进度统计页面的pageId
+static const String kn01L002LsnStatistic = 'Kn01L002LsnStatistic';
+
 
 
 

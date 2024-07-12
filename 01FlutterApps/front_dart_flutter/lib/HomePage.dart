@@ -36,7 +36,7 @@ class HomePageState extends State<HomePage> {
                           knBgColor: consts.Constants.lessonThemeColor,
                           knFontColor: Colors.blue,
                           pagePath: "上课进度管理>>在课学生一览",
-                          pageId: "",)
+                          pageId: Constants.kn01L002LsnStatistic,)
               ));
           }, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
