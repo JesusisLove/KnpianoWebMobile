@@ -121,7 +121,6 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     return Scaffold(
       appBar: KnAppBar(
           title: titleName,
-          // subtitle: '${widget.pagePath} >> $titleName',
           subtitle: widget.pagePath,
           context: context,
           appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
@@ -140,6 +139,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
           subtitleFontSize: 12.0, // 自定义底部文本字体大小
                   actions: [
           PopupMenuButton<String>(
+            icon: Icon(Icons.more_horiz, color:widget.knFontColor),
             onSelected: (String result) {
               if (result == 'prepay') {
                 print('预支付学费被选中');
@@ -153,9 +153,33 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             ],
           ),
         ],
+          // actions: [
+          //   Row(
+          //     children: [
+          //       // 新增：添加一个 SizedBox 来调整按钮的位置
+          //       SizedBox(width: 16),
+          //       // 修改：将 PopupMenuButton 包装在 Center 中以垂直居中
+          //       Center(
+          //         child: PopupMenuButton<String>(
+          //           onSelected: (String result) {
+          //             if (result == 'prepay') {
+          //               print('预支付学费被选中');
+          //             }
+          //           },
+          //           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          //             const PopupMenuItem<String>(
+          //               value: 'prepay',
+          //               child: Text('预支付学费'),
+          //                     ),
+          //             ],
+          //           ),
+          //       ),
+          //                     // 新增：添加一个 SizedBox 来平衡左右间距
+          //       SizedBox(width: 16),
+          //     ],
+          //   ),
+          // ],
       ),
-
-
 
       body: Column(
         children: [

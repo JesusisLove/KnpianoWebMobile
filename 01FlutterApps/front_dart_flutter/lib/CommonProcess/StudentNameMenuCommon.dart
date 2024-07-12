@@ -18,12 +18,12 @@ class StudentNameMenuCommon extends StatefulWidget {
   final String pageId;
 
   const StudentNameMenuCommon({
-    super.key, // 正确使用Key? key来接收key参数
+    super.key,
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
     required this.pageId,
-  }); // 使用super调用父类构造函数，并传递key参数
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -70,62 +70,59 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
       );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: KnAppBar(
-          title: '在课学生一览',
-          subtitle: widget.pagePath,
-          context: context,
-          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
-                                     widget.knFontColor.red - 20, 
-                                     widget.knFontColor.green - 20, 
-                                     widget.knFontColor.blue - 20),
-
-          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
-                                     widget.knFontColor.red + 20, 
-                                     widget.knFontColor.green + 20, 
-                                     widget.knFontColor.blue + 20),
-
-          subtitleTextColor: Colors.white, // 自定义底部文本颜色
-          titleFontSize: 20.0, // 自定义标题字体大小
-          subtitleFontSize: 12.0, // 自定义底部文本字体大小
-          
-          actions: [
-            // 调整页面布局的大中小按钮
-            PopupMenuButton<DisplayMode>(
-              onSelected: (DisplayMode result) {
-                setState(() {
-                  _displayMode = result;
-                });
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<DisplayMode>>[
-                const PopupMenuItem<DisplayMode>(
-                  value: DisplayMode.small,
-                  child: Text('小'),
-                ),
-                const PopupMenuItem<DisplayMode>(
-                  value: DisplayMode.medium,
-                  child: Text('中'),
-                ),
-                const PopupMenuItem<DisplayMode>(
-                  value: DisplayMode.large,
-                  child: Text('大'),
-                ),
-              ],
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: KnAppBar(
+      title: '在课学生一览',
+      subtitle: widget.pagePath,
+      context: context,
+      appBarBackgroundColor: widget.knBgColor,
+      titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                 widget.knFontColor.red - 20, 
+                                 widget.knFontColor.green - 20, 
+                                 widget.knFontColor.blue - 20),
+      subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                 widget.knFontColor.red + 20, 
+                                 widget.knFontColor.green + 20, 
+                                 widget.knFontColor.blue + 20),
+      subtitleTextColor: Colors.white,
+      titleFontSize: 20.0,
+      subtitleFontSize: 12.0,
+      actions: [
+        PopupMenuButton<DisplayMode>(
+          icon: Icon(Icons.more_horiz, color: widget.knFontColor),
+          onSelected: (DisplayMode result) {
+            setState(() {
+              _displayMode = result;
+            });
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<DisplayMode>>[
+            const PopupMenuItem<DisplayMode>(
+              value: DisplayMode.small,
+              child: Text('小'),
+            ),
+            const PopupMenuItem<DisplayMode>(
+              value: DisplayMode.medium,
+              child: Text('中'),
+            ),
+            const PopupMenuItem<DisplayMode>(
+              value: DisplayMode.large,
+              child: Text('大'),
             ),
           ],
         ),
-      body: _buildStudentGrid(),
-    );
-  }
+      ],
+    ),
+    body: _buildStudentGrid(),
+  );
+}
 
   Widget _buildStudentGrid() {
     int crossAxisCount;
     switch (_displayMode) {
       case DisplayMode.small:
-        crossAxisCount = 4;  // 改为3列，以适应更大的边距
+        crossAxisCount = 4;
         break;
       case DisplayMode.medium:
         crossAxisCount = 3;
