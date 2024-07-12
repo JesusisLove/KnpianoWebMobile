@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
 import '../02LsnFeeMngmnt/kn02F002LsnFeeDetail.dart';
 import '../Constants.dart';
 
@@ -29,12 +30,17 @@ class PageIdMapping extends StatelessWidget {
   Future<void> _navigateToPage(BuildContext context) async {
     late Widget page;
     switch (pageId) {
-      case 'page1':
-        // TODO: Define page1 Widget
-        page = const Scaffold(body: Center(child: Text('Page 1')));
+      case Constants.kn01L002LsnStatistic: // 迁移至课程进度统计画面
+
+        page = Kn01L002LsnStatistic(stuId:stuId, 
+                            stuName:stuName,
+                            knBgColor: Constants.lessonThemeColor,
+                            knFontColor: Colors.blue,
+                            pagePath: "上课进度管理 >> 在课学生一览",
+                            );
         break;
 
-      case Constants.stuLsnFeeListPage:
+      case Constants.stuLsnFeeListPage: // 迁移至课程费用详细画面
         page = LsnFeeDetail(stuId:stuId, 
                             stuName:stuName,
                             knBgColor: Constants.lsnfeeThemeColor,

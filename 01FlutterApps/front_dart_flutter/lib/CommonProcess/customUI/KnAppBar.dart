@@ -12,13 +12,14 @@ PreferredSizeWidget KnAppBar({
   double titleFontSize = 18.0,
   double subtitleFontSize = 9.0,
   List<Widget>? actions,
-  bool refreshPreviousPage = false, // 新增参数，控制是否刷新上一页
+  bool refreshPreviousPage = false,
+  TabBar? bottom, // 修改为可选参数
 }) {
   final double topPadding = MediaQuery.of(context).padding.top;
   final double sidePadding = 16.0; // 侧边距
 
   return PreferredSize(
-    preferredSize: const Size.fromHeight(kToolbarHeight + kToolbarHeight / 3),
+    preferredSize: Size.fromHeight(kToolbarHeight + kToolbarHeight / 3 + (bottom?.preferredSize.height ?? 0)),
     child: Container(
       padding: EdgeInsets.only(top: topPadding),
       child: AppBar(
@@ -72,6 +73,7 @@ PreferredSizeWidget KnAppBar({
             ),
           ],
         ),
+        bottom: bottom, // 添加 bottom 参数
       ),
     ),
   );
