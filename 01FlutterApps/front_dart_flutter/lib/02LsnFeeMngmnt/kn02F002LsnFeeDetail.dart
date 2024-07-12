@@ -1,22 +1,41 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F003LsnPay.dart';
 
+// ignore: must_be_immutable
 class LsnFeeDetail extends StatefulWidget {
-  const LsnFeeDetail({super.key, required this.stuId, required this.stuName});
+  LsnFeeDetail({
+    super.key, 
+    required this.stuId, 
+    required this.stuName,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
   final String stuId;
   final String stuName;
+  // AppBar背景颜色
+  final Color knBgColor;
+  // 字体颜色
+  final Color knFontColor;
+  // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
+  late String pagePath ;
+
 
   @override
   _LsnFeeDetailState createState() => _LsnFeeDetailState();
 }
 
 class _LsnFeeDetailState extends State<LsnFeeDetail> {
+  final String titleName = '课程费用详细';
   late int selectedYear;
   late List<int> years;
   late TextEditingController _stuNameController;
@@ -30,6 +49,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     years = List.generate(currentYear - 2017, (index) => currentYear - index);
     selectedYear = currentYear;
     _stuNameController = TextEditingController(text: widget.stuName);
+    widget.pagePath = '${widget.pagePath} >> $titleName';
     fetchFeeDetails();
   }
 
@@ -99,9 +119,26 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('课程费用详细'),
-        actions: [
+      appBar: KnAppBar(
+          title: titleName,
+          // subtitle: '${widget.pagePath} >> $titleName',
+          subtitle: widget.pagePath,
+          context: context,
+          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+                                     widget.knFontColor.red - 20, 
+                                     widget.knFontColor.green - 20, 
+                                     widget.knFontColor.blue - 20),
+
+          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+                                     widget.knFontColor.red + 20, 
+                                     widget.knFontColor.green + 20, 
+                                     widget.knFontColor.blue + 20),
+
+          subtitleTextColor: Colors.white, // 自定义底部文本颜色
+          titleFontSize: 20.0, // 自定义标题字体大小
+          subtitleFontSize: 12.0, // 自定义底部文本字体大小
+                  actions: [
           PopupMenuButton<String>(
             onSelected: (String result) {
               if (result == 'prepay') {
@@ -117,6 +154,9 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
           ),
         ],
       ),
+
+
+
       body: Column(
         children: [
           Padding(
@@ -194,7 +234,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                 if (feeDetailList.isEmpty) {
                   return const Center(child: Text('No fee details available'));
                 }
-                final months = feeDetailList.map((detail) => detail.month).where((month) => month > 0).toSet().toList()..sort();
+                final months = feeDetailList.map((detail) => detail.month).where((month) 
+                                                              => month > 0).toSet().toList()..sort();
                 print('Available months: $months');
                 
                 return ListView.builder(
@@ -205,7 +246,10 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                     monthData.first.stuId = widget.stuId;
                     monthData.first.stuName = widget.stuName;
                     // 修改：传递fetchFeeDetails函数给MonthLineItem
-                    return MonthLineItem(month: month, monthData: monthData, fetchFeeDetails: fetchFeeDetails);
+                    return MonthLineItem(month: month, 
+                                     monthData: monthData, 
+                               fetchFeeDetails: fetchFeeDetails,
+                                      pagePath: widget.pagePath, );
                   },
                 );
               },
@@ -222,13 +266,15 @@ class MonthLineItem extends StatelessWidget {
   final int month;
   final List<Kn02F002FeeBean> monthData;
   final Future<void> Function() fetchFeeDetails;
+  final String pagePath;
 
   const MonthLineItem({
-    Key? key, 
+    super.key, 
     required this.month, 
     required this.monthData, 
-    required this.fetchFeeDetails
-  }) : super(key: key);
+    required this.fetchFeeDetails,
+    required this.pagePath, // LsnFeeDetail调用MonthLineItem时，把LsnFeeDetail的pagePath传递过来
+  });
 
 
   @override
@@ -301,7 +347,12 @@ class MonthLineItem extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, allPaid: allPaid,),
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, 
+                                                                           allPaid: allPaid,
+                                                                         knBgColor: Constants.lsnfeeThemeColor,
+                                                                       knFontColor: Colors.white,
+                                                                          pagePath: pagePath,
+                                                                           ),
                                   ),
                                 ).then((value) {
                                   // 在此处执行页面刷新（画面重现加载处理）
@@ -313,7 +364,12 @@ class MonthLineItem extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, allPaid: allPaid),
+                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, 
+                                                                           allPaid: allPaid,
+                                                                         knBgColor: Constants.lsnfeeThemeColor,
+                                                                       knFontColor: Colors.white,
+                                                                          pagePath: pagePath,
+                                                                           ),
                                   ),
                                 ).then((value) {
                                   // 在此处执行页面刷新（画面重现加载处理）

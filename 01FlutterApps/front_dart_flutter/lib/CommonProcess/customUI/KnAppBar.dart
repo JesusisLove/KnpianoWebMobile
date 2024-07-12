@@ -9,8 +9,9 @@ PreferredSizeWidget KnAppBar({
   Color subtitleBackgroundColor = Colors.blue,
   Color subtitleTextColor = Colors.white,
   double titleFontSize = 18.0,
-  double subtitleFontSize = 14.0,
+  double subtitleFontSize = 9.0,
   List<Widget>? actions,
+  bool refreshPreviousPage = false, // 新增参数，控制是否刷新上一页
 }) {
   final double topPadding = MediaQuery.of(context).padding.top;
 
@@ -30,7 +31,13 @@ PreferredSizeWidget KnAppBar({
                 children: [
                   IconButton(
                     icon: Icon(Icons.arrow_back, color: titleColor),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      if (refreshPreviousPage) {
+                        Navigator.of(context).pop(true); // 返回并刷新上一页
+                      } else {
+                        Navigator.of(context).pop(); // 普通返回
+                      }
+                    },
                   ),
                   Expanded(
                     child: Center(
@@ -41,8 +48,8 @@ PreferredSizeWidget KnAppBar({
                     ),
                   ),
                   // 为了保持对称，添加一个空的 IconButton
-                 const IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.transparent),
+                  const IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.transparent),
                     onPressed: null,
                   ),
                 ],
