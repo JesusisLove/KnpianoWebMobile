@@ -67,11 +67,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        // 移除了bottom参数
       ),
       body: Column(
         children: [
-          // 新增：将TabBar放在AppBar下方
           TabBar(
             controller: _tabController,
             tabs: const [
@@ -114,30 +112,13 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Container(
-                  width: 800, // 调整图表的宽度
+                  width: 420, // 调整图表的宽度
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: 12,
-                      barTouchData: BarTouchData(
-                        enabled: true,
-                        touchTooltipData: BarTouchTooltipData(
-                          fitInsideHorizontally: true,
-                          fitInsideVertically: true,
-                          tooltipPadding: EdgeInsets.zero,
-                          tooltipMargin: 8,
-                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                            return BarTooltipItem(
-                              rod.toY.round().toString(),
-                              const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                  child: LineChart( // 修改：将BarChart改为LineChart
+                    LineChartData( // 修改：将BarChartData改为LineChartData
+                      lineBarsData: _generateLineBarsData(lessonCounts), // 新增：生成线图数据
+                      minY: 0,
+                      maxY: 8, //取所有记录中最大的那个课时值
                       titlesData: FlTitlesData(
                         show: true,
                         bottomTitles: AxisTitles(
@@ -149,13 +130,13 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
                                 child: Text('${value.toInt() + 1}月'),
                               );
                             },
-                            reservedSize: 30,
+                            reservedSize: 40,
                           ),
                         ),
                         leftTitles: const AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 30,
+                            reservedSize: 40,
                             interval: 1,
                           ),
                         ),
@@ -168,7 +149,6 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
                       ),
                       gridData: const FlGridData(show: true),
                       borderData: FlBorderData(show: true),
-                      barGroups: _generateBarGroups(lessonCounts),
                     ),
                   ),
                 ),
@@ -181,28 +161,36 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     );
   }
 
-  List<BarChartGroupData> _generateBarGroups(List<LessonCount> lessonCounts) {
-    return List.generate(12, (index) {
-      LessonCount count = lessonCounts[index];
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: count.monthPlan.toDouble(),
-            color: Colors.blue,
-            width: 16,
-            borderRadius: const BorderRadius.all(Radius.zero),
-          ),
-          BarChartRodData(
-            toY: count.monthExtra.toDouble(),
-            color: Colors.pink,
-            width: 16,
-            borderRadius: const BorderRadius.all(Radius.zero),
-          ),
-        ],
-        showingTooltipIndicators: [0, 1],
-      );
-    });
+  // 新增：生成线图数据的方法
+  List<LineChartBarData> _generateLineBarsData(List<LessonCount> lessonCounts) {
+    List<FlSpot> planSpots = [];
+    List<FlSpot> extraSpots = [];
+
+    for (int i = 0; i < lessonCounts.length; i++) {
+      planSpots.add(FlSpot(i.toDouble(), lessonCounts[i].monthPlan.toDouble()));
+      extraSpots.add(FlSpot(i.toDouble(), lessonCounts[i].monthExtra.toDouble()));
+    }
+
+    return [
+      LineChartBarData(
+        spots: planSpots,
+        isCurved: false,
+        color: Colors.blue,
+        barWidth: 1, // 调整曲线的粗细
+        isStrokeCapRound: true,
+        dotData: FlDotData(show: true),
+        belowBarData: BarAreaData(show: false),
+      ),
+      LineChartBarData(
+        spots: extraSpots,
+        isCurved: false,
+        color: Colors.pink,
+        barWidth: 1,
+        isStrokeCapRound: true,
+        dotData: FlDotData(show: true),
+        belowBarData: BarAreaData(show: false),
+      ),
+    ];
   }
 
   Widget _buildPendingLessonsView() {
