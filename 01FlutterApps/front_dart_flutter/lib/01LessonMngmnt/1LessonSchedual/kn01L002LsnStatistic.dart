@@ -52,38 +52,42 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-          title: titleName,
-          subtitle: widget.pagePath,
-          context: context,
-          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
-                                     widget.knFontColor.red - 20, 
-                                     widget.knFontColor.green - 20, 
-                                     widget.knFontColor.blue - 20),
-
-          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
-                                     widget.knFontColor.red + 20, 
-                                     widget.knFontColor.green + 20, 
-                                     widget.knFontColor.blue + 20),
-
-          subtitleTextColor: Colors.white, // 自定义底部文本颜色
-          titleFontSize: 20.0, // 自定义标题字体大小
-          subtitleFontSize: 12.0, // 自定义底部文本字体大小
-          bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "上课完了统计"),
-            Tab(text: "还未上课统计"),
-          ],
-        ),
+        title: titleName,
+        subtitle: widget.pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red - 20, 
+                                   widget.knFontColor.green - 20, 
+                                   widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red + 20, 
+                                   widget.knFontColor.green + 20, 
+                                   widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        // 移除了bottom参数
       ),
-
-
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildCompletedLessonsView(),
-          _buildPendingLessonsView(),
+          // 新增：将TabBar放在AppBar下方
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: "上课完了统计"),
+              Tab(text: "还未上课统计"),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildCompletedLessonsView(),
+                _buildPendingLessonsView(),
+              ],
+            ),
+          ),
         ],
       ),
     );
