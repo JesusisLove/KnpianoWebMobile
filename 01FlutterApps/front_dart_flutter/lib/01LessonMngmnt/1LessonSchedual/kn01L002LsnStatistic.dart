@@ -122,11 +122,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   // 把从后端取出来的结果集，对科目名称去掉重复处理
   List<String> getUniqueSubjectNames(List<Kn02F002FeeBean> staticLsnList) {
     Set<String> uniqueSubjects = <String>{};
-    
     for (var lesson in staticLsnList) {
       uniqueSubjects.add(lesson.subjectName);
     }
-    
     List<String> sortedUniqueSubjects = uniqueSubjects.toList()..sort();
     return sortedUniqueSubjects;
   }
@@ -324,15 +322,25 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     List<FlSpot> planSpots = [];
     List<FlSpot> extraSpots = [];
 
+    double regularTotal = 0;
+    double planTotal = 0;
+    double extraTotal = 0;
+
     for (int i = 0; i < lessonCounts.length; i++) {
-      double month = i.toDouble(); // 使用索引作为月份（0-11）
+      double month = i.toDouble();// 使用索引作为月份（0-11）
+      regularTotal += lessonCounts[i].monthRegular;
+      planTotal += lessonCounts[i].monthPlan;
+      extraTotal += lessonCounts[i].monthExtra;
+
       regularSpots.add(FlSpot(month, lessonCounts[i].monthRegular));
       planSpots.add(FlSpot(month, lessonCounts[i].monthPlan));
       extraSpots.add(FlSpot(month, lessonCounts[i].monthExtra));
     }
 
-    return [
-      LineChartBarData(
+    List<LineChartBarData> lineBarsData = [];
+
+    if (regularTotal > 0) {
+      lineBarsData.add(LineChartBarData(
         spots: regularSpots,
         isCurved: false,
         color: Colors.green,
@@ -340,8 +348,11 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
-      ),
-      LineChartBarData(
+      ));
+    }
+
+    if (planTotal > 0) {
+      lineBarsData.add(LineChartBarData(
         spots: planSpots,
         isCurved: false,
         color: Colors.blue,
@@ -349,8 +360,11 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
-      ),
-      LineChartBarData(
+      ));
+    }
+
+    if (extraTotal > 0) {
+      lineBarsData.add(LineChartBarData(
         spots: extraSpots,
         isCurved: false,
         color: Colors.red,
@@ -358,8 +372,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
-      ),
-    ];
+      ));
+    }
+
+    return lineBarsData;
   }
 
   // 新增：计算Y轴最大值的方法
@@ -376,22 +392,21 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     return const Center(child: Text("还未上课统计"));
   }
 
-// 创建一个转换函数
-LessonCount convertToLessonCount(Kn02F002FeeBean feeBean) {
-  return LessonCount(
-    monthRegular: feeBean.totalLsnCount0,
-    monthPlan: feeBean.totalLsnCount1,
-    monthExtra: feeBean.totalLsnCount2,
-  );
-}
-
+  // 创建一个转换函数
+  LessonCount convertToLessonCount(Kn02F002FeeBean feeBean) {
+    return LessonCount(
+      monthRegular: feeBean.totalLsnCount0,
+      monthPlan: feeBean.totalLsnCount1,
+      monthExtra: feeBean.totalLsnCount2,
+    );
+  }
 }
 
 // 修改：LessonCount类
 class LessonCount {
-  late final double monthRegular;
-  late final double monthPlan;
-  late final double monthExtra;
+  final double monthRegular;
+  final double monthPlan;
+  final double monthExtra;
 
   LessonCount({
     required this.monthRegular,
