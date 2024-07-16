@@ -119,6 +119,12 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
     public KnPianoBean getInfoById(String id) {
         throw new UnsupportedOperationException("Unimplemented method 'getInfoById'");
     }
+
+    // 手机前端课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）
+    public List<Kn02F002FeeBean> getInfoLsnStatisticList(String stuId, String year) {
+
+        return knLsnFee001Mapper.getInfoLsnStatisticsByStuId(stuId, year);
+    }
 }
 
 

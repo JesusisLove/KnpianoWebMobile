@@ -19,7 +19,10 @@ public class Kn02F002FeeBean implements KnPianoBean{
     protected String    subjectName;
     protected Integer   payStyle;
     protected float     lsnCount;
-
+    // 手机端 课程进度统计，在前端页面的chart图上初期化各科目1年中每月的课程数量图
+    protected float     totalLsnCount0;
+    protected float     totalLsnCount1;;
+    protected float     totalLsnCount2;;
 
     public String getLsnFeeId() {
         return lsnFeeId;
@@ -110,5 +113,23 @@ public class Kn02F002FeeBean implements KnPianoBean{
     }
     public void setLsnCount(float lsnCount) {
         this.lsnCount = lsnCount;
+    }
+    public float getTotalLsnCount0() {
+        return totalLsnCount0;
+    }
+    public void setTotalLsnCount0(float totalLsnCount0) {
+        this.totalLsnCount0 = totalLsnCount0;
+    }
+    public float getTotalLsnCount1() {
+        return totalLsnCount1;
+    }
+    public void setTotalLsnCount1(float totalLsnCount1) {
+        this.totalLsnCount1 = totalLsnCount1;
+    }
+    public float getTotalLsnCount2() {
+        return totalLsnCount2;
+    }
+    public void setTotalLsnCount2(float totalLsnCount2) {
+        this.totalLsnCount2 = totalLsnCount2;
     }
 }

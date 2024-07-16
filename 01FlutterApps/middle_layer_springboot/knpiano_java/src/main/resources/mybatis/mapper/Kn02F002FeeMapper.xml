@@ -135,4 +135,30 @@ https://mybatis.org/mybatis-3/getting-started.html
               #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
           }
     </select>
+
+    <!-- 手机前端课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算） -->
+    <select id= "getInfoLsnStatisticsByStuId" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        SELECT 
+           subject_id,subject_name,
+           SUM(lsn_count0) AS total_lsn_count0,
+           SUM(lsn_count1) AS total_lsn_count1,
+           SUM(lsn_count2) AS total_lsn_count2,
+           lsn_month 
+       FROM
+           (SELECT 
+               subject_id,subject_name,
+               CASE WHEN lesson_type = 0 THEN lsn_count ELSE 0 END AS lsn_count0,
+               CASE WHEN lesson_type = 1 THEN lsn_count ELSE 0 END AS lsn_count1,
+               CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END AS lsn_count2,
+               lsn_month
+           FROM 
+               KNStudent.v_info_lsn_statistics_by_stuid 
+           WHERE stu_id = #{stuId}
+             AND substring(lsn_month,1,4) = #{year}
+           ) AS derived_table
+       GROUP BY 
+           subject_id, subject_name, lsn_month
+       ORDER BY 
+           subject_id, subject_name, lsn_month;
+    </select>
 </mapper>

@@ -18,6 +18,10 @@ class Kn02F002FeeBean {
   final int    month;
   final String? payDate;
   final int?   payStatus;
+  // chart图上初期化各科目1年中每月的课程数量图
+  final double totalLsnCount0;
+  final double totalLsnCount1;
+  final double totalLsnCount2;
 
   Kn02F002FeeBean({
     required this.lsnPayId,
@@ -37,6 +41,9 @@ class Kn02F002FeeBean {
     required this.month,
     required this.payDate,
     required this.payStatus,
+    required this.totalLsnCount0,
+    required this.totalLsnCount1,
+    required this.totalLsnCount2,
   });
 
   factory Kn02F002FeeBean.fromJson(Map<String, dynamic> json) {
@@ -80,6 +87,9 @@ class Kn02F002FeeBean {
       month       : month,
       payDate     : formattedPayDate,
       payStatus   : json['payStatus'] as int? ?? 0,
+      totalLsnCount0:json['totalLsnCount0']?.toDouble() ?? 0.0,
+      totalLsnCount1:json['totalLsnCount1']?.toDouble() ?? 0.0,
+      totalLsnCount2:json['totalLsnCount2']?.toDouble() ?? 0.0,
     );
   }
 }

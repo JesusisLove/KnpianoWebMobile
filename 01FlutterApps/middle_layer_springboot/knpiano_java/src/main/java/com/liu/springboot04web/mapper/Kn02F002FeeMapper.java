@@ -31,4 +31,6 @@ public interface Kn02F002FeeMapper  {
     // 获取下一个序列值
     public void getNextSequence(Map<String, Object> map);
 
+    // 手机前端课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）
+    public List<Kn02F002FeeBean> getInfoLsnStatisticsByStuId(String stuId, String year);
 }
