@@ -1,8 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart'; // 新增：导入CupertinoPicker
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http; // 新增：导入http包
+import 'dart:convert'; // 新增：导入json解码
 
+import '../../02LsnFeeMngmnt/Kn02F002FeeBean.dart';
+import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+
+// 新增：导入Kn02F002FeeBean类
+import '../../Constants.dart';
 
 // ignore: must_be_immutable
 class Kn01L002LsnStatistic extends StatefulWidget {
@@ -37,27 +46,90 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   late List<int> _years;
   late int _selectedYear;
 
+  // 新增：存储从后端获取的数据
+  List<Kn02F002FeeBean> staticLsnList = [];
+
   @override
   void initState() {
     super.initState();
     widget.pagePath = '${widget.pagePath} >> $titleName';
     _tabController = TabController(length: 2, vsync: this);
-    _fetchData();
 
     // 新增：初始化年份列表和选中年份
     int currentYear = DateTime.now().year;
     _years = List.generate(currentYear - 2017, (index) => currentYear - index);
     _selectedYear = currentYear;
+
+    _fetchData(); // 修改：在初始化时调用_fetchData
   }
 
-  void _fetchData() {
-    subjectsData = {
-      for (int i = 1; i <= 20; i++)
-        '科目$i': List.generate(12, (index) => LessonCount(monthPlan: 3 + (index + i) % 4, monthExtra: 1 + (index + i) % 3)),
-    };
+  // 修改：_fetchData方法
+  Future<void> _fetchData() async {
+    final String apiLsnSignedStatisticUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+    
+    try {
+      final response = await http.get(Uri.parse(apiLsnSignedStatisticUrl));
+      if (response.statusCode == 200) {
+        // 使用 utf8.decode 来正确处理字符编码
+        final String decodedBody = utf8.decode(response.bodyBytes);
+        final List<dynamic> jsonData = json.decode(decodedBody);
+        staticLsnList = jsonData.map((item) => Kn02F002FeeBean.fromJson(item)).toList();
+        _processData();
+      } else {
+        // 处理错误情况
+        print('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      // 处理异常
+      print('Error fetching data: $e');
+      if (e is HttpException) {
+        print('HttpException: ${e.message}');
+      } else if (e is SocketException) {
+        print('SocketException: ${e.message}');
+      }
+    }
+  }
+
+  // 新增：处理数据的方法
+  void _processData() {
+    subjectsData.clear();
+    List<String> uniqueSubjects = getUniqueSubjectNames(staticLsnList);
+    
+    for (var subjectName in uniqueSubjects) {
+      List<LessonCount> monthlyData = List.generate(12, (_) => LessonCount(monthRegular: 0, monthPlan: 0, monthExtra: 0));
+      
+      for (var item in staticLsnList.where((item) => item.subjectName == subjectName)) {
+        List<String> dateParts = item.lsnMonth.split('-');
+        if (dateParts.length == 2) {
+          int monthIndex = int.parse(dateParts[1]) - 1; // 将月份转换为0-11的索引
+          if (monthIndex >= 0 && monthIndex < 12) {
+            LessonCount newCount = convertToLessonCount(item);
+            monthlyData[monthIndex] = LessonCount(
+              monthRegular: monthlyData[monthIndex].monthRegular + newCount.monthRegular,
+              monthPlan: monthlyData[monthIndex].monthPlan + newCount.monthPlan,
+              monthExtra: monthlyData[monthIndex].monthExtra + newCount.monthExtra
+            );
+          }
+        }
+      }
+      
+      subjectsData[subjectName] = monthlyData;
+    }
+
     setState(() {});
   }
 
+  // 把从后端取出来的结果集，对科目名称去掉重复处理
+  List<String> getUniqueSubjectNames(List<Kn02F002FeeBean> staticLsnList) {
+    Set<String> uniqueSubjects = <String>{};
+    
+    for (var lesson in staticLsnList) {
+      uniqueSubjects.add(lesson.subjectName);
+    }
+    
+    List<String> sortedUniqueSubjects = uniqueSubjects.toList()..sort();
+    return sortedUniqueSubjects;
+  }
   // 新增：显示年份选择器
   void _showYearPicker() {
     showCupertinoModalPopup<void>(
@@ -82,6 +154,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
             onSelectedItemChanged: (int selectedItem) {
               setState(() {
                 _selectedYear = _years[selectedItem];
+                _fetchData(); // 修改：在年份改变时重新获取数据
               });
             },
             children: List<Widget>.generate(_years.length, (int index) {
@@ -151,9 +224,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
                     onPressed: _showYearPicker,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
-                      minimumSize: const Size(80, 45),
+                      minimumSize: const Size(80, 48),
                     ),
-                    child: Text('$_selectedYear年'),
+                    child: Text('$_selectedYear'),
                   ),
                 ),
               ],
@@ -174,6 +247,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     );
   }
 
+  // 修改：_buildCompletedLessonsView方法
   Widget _buildCompletedLessonsView() {
     return ListView.builder(
       itemCount: subjectsData.length,
@@ -195,13 +269,13 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Container(
-                  width: 420, // 调整图表的宽度
+                  width: 420,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: LineChart( // 修改：将BarChart改为LineChart
-                    LineChartData( // 修改：将BarChartData改为LineChartData
-                      lineBarsData: _generateLineBarsData(lessonCounts), // 新增：生成线图数据
+                  child: LineChart(
+                    LineChartData(
+                      lineBarsData: _generateLineBarsData(lessonCounts),
                       minY: 0,
-                      maxY: 8, //取所有记录中最大的那个课时值
+                      maxY: _calculateMaxY(lessonCounts),
                       titlesData: FlTitlesData(
                         show: true,
                         bottomTitles: AxisTitles(
@@ -244,17 +318,29 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     );
   }
 
-  // 新增：生成线图数据的方法
+  // 修改：_generateLineBarsData方法
   List<LineChartBarData> _generateLineBarsData(List<LessonCount> lessonCounts) {
+    List<FlSpot> regularSpots = [];
     List<FlSpot> planSpots = [];
     List<FlSpot> extraSpots = [];
 
     for (int i = 0; i < lessonCounts.length; i++) {
-      planSpots.add(FlSpot(i.toDouble(), lessonCounts[i].monthPlan.toDouble()));
-      extraSpots.add(FlSpot(i.toDouble(), lessonCounts[i].monthExtra.toDouble()));
+      double month = i.toDouble(); // 使用索引作为月份（0-11）
+      regularSpots.add(FlSpot(month, lessonCounts[i].monthRegular));
+      planSpots.add(FlSpot(month, lessonCounts[i].monthPlan));
+      extraSpots.add(FlSpot(month, lessonCounts[i].monthExtra));
     }
 
     return [
+      LineChartBarData(
+        spots: regularSpots,
+        isCurved: false,
+        color: Colors.green,
+        barWidth: 1,
+        isStrokeCapRound: true,
+        dotData: const FlDotData(show: true),
+        belowBarData: BarAreaData(show: false),
+      ),
       LineChartBarData(
         spots: planSpots,
         isCurved: false,
@@ -267,7 +353,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
       LineChartBarData(
         spots: extraSpots,
         isCurved: false,
-        color: Colors.pink,
+        color: Colors.red,
         barWidth: 1,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
@@ -276,14 +362,40 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     ];
   }
 
+  // 新增：计算Y轴最大值的方法
+  double _calculateMaxY(List<LessonCount> lessonCounts) {
+    double maxY = 0;
+    for (var count in lessonCounts) {
+      double total = count.monthRegular + count.monthPlan + count.monthExtra;
+      if (total > maxY) maxY = total;
+    }
+    return maxY.ceilToDouble();
+  }
+
   Widget _buildPendingLessonsView() {
     return const Center(child: Text("还未上课统计"));
   }
+
+// 创建一个转换函数
+LessonCount convertToLessonCount(Kn02F002FeeBean feeBean) {
+  return LessonCount(
+    monthRegular: feeBean.totalLsnCount0,
+    monthPlan: feeBean.totalLsnCount1,
+    monthExtra: feeBean.totalLsnCount2,
+  );
 }
 
-class LessonCount {
-  final int monthPlan;
-  final int monthExtra;
+}
 
-  LessonCount({required this.monthPlan, required this.monthExtra});
+// 修改：LessonCount类
+class LessonCount {
+  late final double monthRegular;
+  late final double monthPlan;
+  late final double monthExtra;
+
+  LessonCount({
+    required this.monthRegular,
+    required this.monthPlan,
+    required this.monthExtra,
+  });
 }

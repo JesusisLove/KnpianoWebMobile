@@ -35,6 +35,8 @@ static const String apiLsnRescheCancel = '/liu/mb_kn_lsn_resche_cancel';
 // 删除排课信息
 static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
 
+// 课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）
+static const String apiLsnSignedStatistic = '/liu/mb_kn_lsn_signed_total';
 
 // ******* 課費管理模块 *******//
 //.......当前的学生课程费用详细................................................................
