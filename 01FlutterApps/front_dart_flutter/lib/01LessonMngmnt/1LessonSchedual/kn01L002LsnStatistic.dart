@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart'; // 新增：导入CupertinoPicker
 
 import '../../CommonProcess/customUI/KnAppBar.dart';
 
@@ -32,12 +33,21 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   Map<String, List<LessonCount>> subjectsData = {};
   final String titleName = '课程进度统计';
 
+  // 新增：选择年份相关变量
+  late List<int> _years;
+  late int _selectedYear;
+
   @override
   void initState() {
     super.initState();
     widget.pagePath = '${widget.pagePath} >> $titleName';
     _tabController = TabController(length: 2, vsync: this);
     _fetchData();
+
+    // 新增：初始化年份列表和选中年份
+    int currentYear = DateTime.now().year;
+    _years = List.generate(currentYear - 2017, (index) => currentYear - index);
+    _selectedYear = currentYear;
   }
 
   void _fetchData() {
@@ -46,6 +56,45 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         '科目$i': List.generate(12, (index) => LessonCount(monthPlan: 3 + (index + i) % 4, monthExtra: 1 + (index + i) % 3)),
     };
     setState(() {});
+  }
+
+  // 新增：显示年份选择器
+  void _showYearPicker() {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: SafeArea(
+          top: false,
+          child: CupertinoPicker(
+            magnification: 1.22,
+            squeeze: 1.2,
+            useMagnifier: true,
+            itemExtent: 32.0,
+            scrollController: FixedExtentScrollController(
+              initialItem: _years.indexOf(_selectedYear),
+            ),
+            onSelectedItemChanged: (int selectedItem) {
+              setState(() {
+                _selectedYear = _years[selectedItem];
+              });
+            },
+            children: List<Widget>.generate(_years.length, (int index) {
+              return Center(
+                child: Text(
+                  _years[index].toString(),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -70,13 +119,47 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
       ),
       body: Column(
         children: [
-          TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: "上课完了统计"),
-              Tab(text: "还未上课统计"),
-            ],
+          Container(
+            decoration: const BoxDecoration(
+              border: Border(
+                // bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      Tab(text: "上课完了统计"),
+                      Tab(text: "还未上课统计"),
+                    ],
+                    indicatorColor: Colors.blue,
+                    labelColor: Colors.blue,
+                    unselectedLabelColor: Colors.black,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(color: Colors.grey[300]!, width: 1),
+                      bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                    ),
+                  ),
+                  child: TextButton(
+                    onPressed: _showYearPicker,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(80, 45),
+                    ),
+                    child: Text('$_selectedYear年'),
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(height: 10), // 添加一些垂直间距
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -178,7 +261,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         color: Colors.blue,
         barWidth: 1, // 调整曲线的粗细
         isStrokeCapRound: true,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
       ),
       LineChartBarData(
@@ -187,7 +270,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
         color: Colors.pink,
         barWidth: 1,
         isStrokeCapRound: true,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
       ),
     ];
