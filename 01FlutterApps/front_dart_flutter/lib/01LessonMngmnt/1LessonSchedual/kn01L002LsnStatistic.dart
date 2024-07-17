@@ -431,31 +431,39 @@ void _processUnScanedLsnData() {
     return maxY.ceilToDouble();
   }
 
-  // 还未上课统计
-  Widget _buildPendingLessonsView() {
-    return ListView.builder(
-      itemCount: staticUnScanedLsnList.length,
-      itemBuilder: (context, index) {
-        final lesson = staticUnScanedLsnList[index];
-        final lessonDate = lesson.lsnAdjustedDate.isNotEmpty ? lesson.lsnAdjustedDate : lesson.schedualDate;
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: ListTile(
-            title: Text(lesson.subjectName),
-            subtitle: Text('上课日期: $lessonDate'),
-            trailing: ElevatedButton(
-              child: const Text('查看'),
-              onPressed: () {
-                // 这里可以添加查看详细信息的逻辑
-                String targetDateTime = lessonDate.substring(0,10);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage(focusedDay: targetDateTime)));
-              },
-            ),
+// 还未上课统计
+ Widget _buildPendingLessonsView() {
+  return ListView.builder(
+    itemCount: staticUnScanedLsnList.length,
+    itemBuilder: (context, index) {
+      final lesson = staticUnScanedLsnList[index];
+      final lessonDate = lesson.lsnAdjustedDate.isNotEmpty ? lesson.lsnAdjustedDate : lesson.schedualDate;
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: ListTile(
+          title: Text(lesson.subjectName),
+          subtitle: Text('上课日期: $lessonDate'),
+          trailing: ElevatedButton(
+            child: const Text('查看'),
+            onPressed: () async {  // 将 onPressed 改为异步函数
+              String targetDateTime = lessonDate.substring(0, 10);
+              // 等待 CalendarPage 返回
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CalendarPage(focusedDay: targetDateTime)),
+              );
+              // 当 CalendarPage 关闭并返回到此页面时，刷新数据
+              setState(() {
+                // 重新加载您的数据
+                _fetchData();
+              });
+            },
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   // 创建一个转换函数
   LessonCount convertToLessonCount(Kn02F002FeeBean feeBean) {
