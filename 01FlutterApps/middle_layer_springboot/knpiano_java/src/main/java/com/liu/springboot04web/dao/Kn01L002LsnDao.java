@@ -194,4 +194,9 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     public void delete(String id) { 
         knLsn001Mapper.deleteInfo(id); 
     }
+
+    // 手机前端：课程进度统计--【还未上课统计】Tab，提取未上课（未签到）的 处理
+    public List<Kn01L002LsnBean> getUnScanSQDateLsnInfoByYear(String stuId, String year) {
+        return knLsn001Mapper.getUnScanSQDateLsnInfoByYear(stuId, year);                                                          
+    }
 }

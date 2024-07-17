@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+
 public interface Kn01L002LsnMapper  {
 
     public List<Kn01L002LsnBean> getInfoList();
@@ -39,5 +40,9 @@ public interface Kn01L002LsnMapper  {
     public void callProcedure(Map<String, Integer> map);
     // 获取下一个序列值
     public void getNextSequence(Map<String, Object> map);
+
+    // 手机前端：课程进度统计--【还未上课统计】Tab，提取未上课（未签到）的 处理
+    public List<Kn01L002LsnBean> getUnScanSQDateLsnInfoByYear(@Param("stuId") String stuId,
+                                                              @Param("year") String year);
 
 }
