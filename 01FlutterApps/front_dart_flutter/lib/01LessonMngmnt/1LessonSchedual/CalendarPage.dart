@@ -15,28 +15,33 @@ import 'Kn01L002LsnBean.dart';
 import 'RescheduleLessonDialog.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
-
+  final String focusedDay;
+  // [修改] 构造函数参数类型修改为String
+  const CalendarPage({Key? key, required this.focusedDay}) : super(key: key);
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  
+  // [新增] 新增 late 变量声明
+  late DateTime _focusedDay;
+  late DateTime _selectedDay;
 
   List<Kn01L002LsnBean> studentLsns = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchStudentLsn(_focusedDay);
+    // [新增] 初始化 _focusedDay 和 _selectedDay
+    _focusedDay = DateFormat('yyyy-MM-dd').parse(widget.focusedDay);
+    _selectedDay = _focusedDay;
+    _fetchStudentLsn(widget.focusedDay.trim());
   }
 
-  Future<void> _fetchStudentLsn(DateTime date) async {
+  Future<void> _fetchStudentLsn(String schedualDate) async {
     try {
-      String schedualDate = DateFormat('yyyy-MM-dd').format(date);
       final String apilsnInfoByDayUrl = '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
       final response = await http.get(Uri.parse(apilsnInfoByDayUrl));
 
@@ -55,9 +60,8 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
-
-    // 这是点击日历按钮日期的yyyy/mm/dd的字符串形式
-    String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay ?? DateTime.now());
+    // [修改] 使用 _selectedDay 替代原来的判断
+    String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
     return studentLsns.where((event) {
       // 计划课日期 yyyy/mm/dd 
       String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10
@@ -85,8 +89,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   // 看一下这个时间轴上也没有空位置可以点击time的时间来排课
   void _handleTimeSelection(BuildContext context, String time) {
-    DateTime dateToUse = _selectedDay ?? DateTime.now();
-    String formattedDate = DateFormat('yyyy-MM-dd').format(dateToUse);
+    // [修改] 使用 _selectedDay
+    String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
@@ -104,11 +108,11 @@ class _CalendarPageState extends State<CalendarPage> {
         if (result == true) {
           setState(() {
           // 排完课后刷新课程表页面
-            _fetchStudentLsn(DateTime.parse(formattedDate));
+            _fetchStudentLsn(formattedDate);
           });
         }
       });
-    }
+}
   }
   
   // 迁移到排课的编辑画面
@@ -121,7 +125,8 @@ class _CalendarPageState extends State<CalendarPage> {
     ).then((result) {
       if (result == true) {
         setState(() {
-          _fetchStudentLsn(_selectedDay ?? DateTime.now());
+          // [修改] 使用 _selectedDay
+          _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
         });
       }
     });
@@ -155,7 +160,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                      // [修改] 使用 _selectedDay
+                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -200,7 +206,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                      // [修改] 使用 _selectedDay
+                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -214,7 +221,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
         );
       },
-    );
+);
   }
 
   // 迁移调课画面
@@ -249,12 +256,12 @@ class _CalendarPageState extends State<CalendarPage> {
     ).then((result) {
       if (result == true) {
         setState(() {
-          _fetchStudentLsn(_selectedDay ?? DateTime.now());
+          // [修改] 使用 _selectedDay
+          _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
         });
       }
     });
   }
-
 
   // 取消调课操作
   void _handleCancelRescheCourse(Kn01L002LsnBean event) {
@@ -284,7 +291,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                      // [修改] 使用 _selectedDay
+                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -329,7 +337,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(_selectedDay ?? DateTime.now());
+                      // [修改] 使用 _selectedDay
+                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -368,18 +377,20 @@ class _CalendarPageState extends State<CalendarPage> {
           TableCalendar(
             firstDay: DateTime.utc(2010, 10, 16),
             lastDay: DateTime.utc(2030, 3, 14),
+            // [修改] 使用 _focusedDay
             focusedDay: _focusedDay,
             calendarFormat: _calendarFormat,
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
-            onDaySelected: (selectedDay, focusedDay, ) {
+            // [修改] 更新 onDaySelected 回调
+            onDaySelected: (selectedDay, focusedDay,) {
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
               // 点击课程表日期，获取该日期的当日上课的学生课程信息
-              _fetchStudentLsn(selectedDay);
+              _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
             },
             onFormatChanged: (format) {
               if (_calendarFormat != format) {
@@ -406,7 +417,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       onDelete    : _handleDeleteCourse,
                       onReschLsn  : _handleReschLsnCourse,
                       onCancel    : _handleCancelRescheCourse,
-                      selectedDay : _selectedDay ?? DateTime.now(),
+                      // [修改] 使用 _selectedDay
+                      selectedDay : _selectedDay,
                     ),
                   ],
               ],

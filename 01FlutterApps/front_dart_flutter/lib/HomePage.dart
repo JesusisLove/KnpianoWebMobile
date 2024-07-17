@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
@@ -26,7 +27,9 @@ class HomePageState extends State<HomePage> {
         // 上课管理页面
         return[
           setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+            DateTime dateTime = DateTime.now(); // 假设这是您的 DateTime 变量
+            String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage(focusedDay: formattedDate)));
           }, bgcolor: consts.Constants.lessonThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔  
 
