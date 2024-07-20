@@ -18,6 +18,7 @@
                         <th>学生<br>姓名</th>
                         <th>上课时长<br>（分钟）</th>
                         <th>授業<br>種別</th>
+                        <th>計画<br>手段</th>
                         <th>計画授業<br>日付</th>
                         <th>調整授業<br>日付</th>
                         <th>授業変換<br>日付</th>
@@ -38,6 +39,7 @@
                         <td>[[${info.stuName}]]</td>
                         <td>[[${info.classDuration}]]</td>
                         <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                        <td th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}"></td>
                         <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
                         <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
                         <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>

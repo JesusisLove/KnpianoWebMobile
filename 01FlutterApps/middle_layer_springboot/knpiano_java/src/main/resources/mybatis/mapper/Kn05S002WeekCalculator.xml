@@ -37,9 +37,11 @@
           AND end_week_date=#{weekEnd}
     </update>
 
+    <!-- 只撤销Batch排课部分，手动排课保留 -->
     <delete id ="cancelWeeklySchedual">
         delete from t_info_lesson 
         where substring(schedual_date,1,10) between #{weekStart} and #{weekEnd}
+          and schedual_type = 1;
     </delete>
 
     <!-- 课程表里确认是否有一句签到的课程
@@ -50,6 +52,7 @@
         select * from t_info_lesson 
          where scanqr_date is not null
            and schedual_date between #{weekStart} and #{weekEnd}
+           and schedual_type = 1;
     </select>
 
 </mapper>

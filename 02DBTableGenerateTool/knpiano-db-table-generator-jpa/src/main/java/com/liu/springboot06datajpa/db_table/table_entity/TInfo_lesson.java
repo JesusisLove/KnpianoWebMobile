@@ -24,6 +24,7 @@ public class TInfo_lesson {
     @Column (name = "subject_sub_id", length = 32)  protected String subjectSubId;
     @Column (name = "class_duration")  protected Date classDuration;
     @Column (name = "lesson_type")  protected Integer lessonType;
+    @Column (name = "schedual_type")  protected Integer schedualType;
     @Column (name = "schedual_date")  protected Date schedualDate;
     @Column (name = "scanQR_date")  protected Date scanQRDate;
     @Column (name = "lsn_adjusted_date")  protected Date lsnAdjustedDate;

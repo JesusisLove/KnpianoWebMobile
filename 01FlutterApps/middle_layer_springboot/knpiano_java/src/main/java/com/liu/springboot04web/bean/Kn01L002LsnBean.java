@@ -19,6 +19,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String stuName;
     protected Integer classDuration;
     protected Integer lessonType;
+    protected Integer schedualType;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")// 接受手机前端的请求时接纳前端String类型的日期值
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date schedualDate;
@@ -182,6 +183,12 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setSubjectSubName(String subjectSubName) {
         this.subjectSubName = subjectSubName;
+    }
+    public Integer getSchedualType() {
+        return schedualType;
+    }
+    public void setSchedualType(Integer schedualType) {
+        this.schedualType = schedualType;
     } 
     
 }

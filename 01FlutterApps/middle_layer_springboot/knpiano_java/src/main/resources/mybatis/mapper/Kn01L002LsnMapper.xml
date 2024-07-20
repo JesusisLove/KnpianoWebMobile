@@ -15,7 +15,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         select * from v_info_lesson order by stu_id, lesson_id desc, subject_sub_id desc, lesson_type
     </select>
 
-    <!-- 手机前端页面课程表页面，获取指定元月日这一天的学生的排课课程 -->
+    <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->
     <select id= "getInfoListByDay" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         select 
             lesson_id
