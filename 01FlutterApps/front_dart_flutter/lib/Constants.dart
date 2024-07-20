@@ -46,6 +46,8 @@ static const String apiLsnUnSignedStatistic = '/liu/mb_kn_lsn_unsigned_list';
 // ******* 課費管理模块 *******//
 //.......当前的学生课程费用详细................................................................
 
+static const String apiStuNameByYear = '/liu/mb_kn_lsn_fee_001_all';
+
 static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
 
 // 点击学费入账按钮，往后端发送学费入账保存请求
@@ -58,7 +60,7 @@ static const String apiStuPayRestore = '/liu/mb_kn_lsn_pay_undo';
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
-static const String studentInfoView = '/liu/mb_kn_stu_001_all';
+static const String studentInfoView = '/liu/mb_kn_studoced_all';
 
 // 学生一览画面，点击“保存”按钮的url请求
 static const String studentInfoAdd = '/liu/mb_kn_stu_001_add';

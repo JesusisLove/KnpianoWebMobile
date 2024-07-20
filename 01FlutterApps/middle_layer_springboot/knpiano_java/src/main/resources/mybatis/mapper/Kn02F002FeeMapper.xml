@@ -11,7 +11,14 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F002FeeMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee_connect_lsn order by stu_name,lsn_month
+        <!--  year 参数为 null 或空时不执行 WHERE 子句，而在有值时才执行。 -->
+        select * from v_info_lesson_fee_connect_lsn 
+        <where>
+            <if test="year != null and year != ''">
+                substring(lsn_month, 1, 4) = #{year}
+            </if>
+        </where>
+        order by stu_name,lsn_month
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
-import '../Constants.dart';
 import 'customUI/KnAppBar.dart';
 import 'pageIdMapping.dart';
 
@@ -17,12 +16,15 @@ class StudentNameMenuCommon extends StatefulWidget {
   // 子画面迁移Id
   final String pageId;
 
+  final String strUri;
+
   const StudentNameMenuCommon({
     super.key,
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
     required this.pageId,
+    required this.strUri,
   });
 
   @override
@@ -41,7 +43,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   }
 
   Future<void> fetchStudents() async {
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.studentInfoView}';
+    final String apiUrl = '${KnConfig.apiBaseUrl}${widget.strUri}';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {

@@ -15,17 +15,22 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class Kn02F002FeeDao implements InterfaceKnPianoDao {
+public class Kn02F002FeeDao {
 
     @Autowired
     private Kn02F002FeeMapper knLsnFee001Mapper;
 
     // 画面初期化显示所科目信息
-    public List<Kn02F002FeeBean> getInfoList() {
-        List<Kn02F002FeeBean> list =knLsnFee001Mapper.getInfoList();
+    // public List<Kn02F002FeeBean> getInfoList() {
+    //     List<Kn02F002FeeBean> list =knLsnFee001Mapper.getInfoList();
+    //     return list;
+    // }
+
+    public List<Kn02F002FeeBean> getInfoList(String year) {
+        List<Kn02F002FeeBean> list =knLsnFee001Mapper.getInfoList(year);
         return list;
     }
-
+    
     // 获取所有符合查询条件的课费信息
     public List<Kn02F002FeeBean> searchLsnFee(Map<String, Object> params) {
         return knLsnFee001Mapper.searchLsnFee(params);
@@ -113,11 +118,6 @@ public class Kn02F002FeeDao implements InterfaceKnPianoDao {
     public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String year) {
         List<Kn02F004FeePaid4MobileBean> list =knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
         return list;
-    }
-
-    @Override
-    public KnPianoBean getInfoById(String id) {
-        throw new UnsupportedOperationException("Unimplemented method 'getInfoById'");
     }
 
     // 手机前端课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）

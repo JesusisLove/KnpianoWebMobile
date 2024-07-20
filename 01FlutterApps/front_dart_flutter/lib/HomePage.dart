@@ -39,7 +39,8 @@ class HomePageState extends State<HomePage> {
                           knBgColor: consts.Constants.lessonThemeColor,
                           knFontColor: Colors.blue,
                           pagePath: "上课进度管理>>在课学生一览",
-                          pageId: Constants.kn01L002LsnStatistic,)
+                          pageId: Constants.kn01L002LsnStatistic,
+                          strUri: Constants.studentInfoView,)
               ));
           }, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
@@ -56,7 +57,8 @@ class HomePageState extends State<HomePage> {
                           knBgColor: consts.Constants.lsnfeeThemeColor,
                           knFontColor: Colors.white,
                           pagePath: "课费支付管理>>在课学生一览",
-                          pageId: Constants.stuLsnFeeListPage)
+                          pageId: Constants.stuLsnFeeListPage,
+                          strUri: '${Constants.apiStuNameByYear}/2024',)
               ));
           }, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

@@ -2,9 +2,12 @@ package com.liu.springboot04web.controller_mobile;
 
 import java.util.List;
 
+import org.hibernate.mapping.Collection;
+import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean;
 import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 import com.liu.springboot04web.dao.Kn02F002FeeDao;
@@ -31,6 +35,14 @@ public class Kn02F002FeeController4Mobile {
 
     @Autowired
     Kn02F004PayDao knLsnPay001Dao;
+
+    // 取得当前年度要付课费的学生名称一览
+    @CrossOrigin(origins = "*") 
+    @GetMapping("/mb_kn_lsn_fee_001_all/{selectedYear}")
+    public ResponseEntity<List<Kn02F002FeeBean>> list(@PathVariable("selectedYear") Integer year) {
+        List<Kn02F002FeeBean> list = knLsnFee001Dao.getInfoList(Integer.toString(year));
+        return ResponseEntity.ok(list);
+    }
 
     // 取得该生当前年度的课费详细信息
     @CrossOrigin(origins = "*") 
