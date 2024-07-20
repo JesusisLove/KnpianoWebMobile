@@ -67,8 +67,8 @@ flutter:
   assets:
   #  - kn-config/apiconfig.json
   #  - kn-localhost-config/apiconfig.json
-    - kn-lan-config/apiconfig.json
-  #  - kn-vpn-config/apiconfig.json
+  #  - kn-lan-config/apiconfig.json
+    - kn-vpn-config/apiconfig.json
     - images/student-placeholder.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

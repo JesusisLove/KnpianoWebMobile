@@ -26,8 +26,8 @@ public class Kn02F004UnpaidDao {
     }
 
     // 根据课费编号（lsn_fee_id)取得当个未支付信息
-    public Kn02F004UnpaidBean gethLsnUnpayByID(String lsnFeeId) {
-        Kn02F004UnpaidBean knLsnUnpaid001Bean = knLsnUnpaid001Mapper.gethLsnUnpayByID(lsnFeeId);
+    public Kn02F004UnpaidBean getLsnUnpayByID(String lsnFeeId) {
+        Kn02F004UnpaidBean knLsnUnpaid001Bean = knLsnUnpaid001Mapper.getLsnUnpayByID(lsnFeeId);
         return knLsnUnpaid001Bean;
     }
     

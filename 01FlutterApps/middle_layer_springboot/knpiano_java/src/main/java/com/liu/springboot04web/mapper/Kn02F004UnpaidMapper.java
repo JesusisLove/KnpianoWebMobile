@@ -9,7 +9,7 @@ import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 public interface Kn02F004UnpaidMapper  {
 
     public List<Kn02F004UnpaidBean> searchLsnUnpay(@Param("params") Map<String, Object> params);
-    public Kn02F004UnpaidBean gethLsnUnpayByID(@Param("lsnFeeId") String lsnFeeId);
+    public Kn02F004UnpaidBean getLsnUnpayByID(@Param("lsnFeeId") String lsnFeeId);
     public void updateInfo(Kn02F004UnpaidBean bean);
     public void insertInfo(Kn02F004UnpaidBean bean);
     public void deleteInfo(@Param("lsnPayId") String lsnPayId, 
