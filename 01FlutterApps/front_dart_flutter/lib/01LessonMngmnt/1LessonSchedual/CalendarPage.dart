@@ -363,7 +363,7 @@ class _CalendarPageState extends State<CalendarPage> {
           subtitle: '学生课程管理 >> 课程表',
           context: context,
           appBarBackgroundColor: Constants.lessonThemeColor, // 自定义AppBar背景颜色
-          titleColor: Colors.blue.shade900, // 自定义标题颜色
+          titleColor: Colors.white, // 自定义标题颜色
           subtitleBackgroundColor: Colors.blue.shade700, // 自定义底部文本框背景颜色
           subtitleTextColor: Colors.white, // 自定义底部文本颜色
           titleFontSize: 20.0, // 自定义标题字体大小

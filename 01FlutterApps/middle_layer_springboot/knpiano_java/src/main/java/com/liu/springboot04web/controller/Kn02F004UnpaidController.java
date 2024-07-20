@@ -127,7 +127,7 @@ public class Kn02F004UnpaidController{
     public String toLsnPay(@PathVariable("lsnFeeId") String lsnFeeId, 
                                   Model model) {
         // 根据课费编号，取得未支付的课费信息
-        Kn02F004UnpaidBean knLsnUnPaid001Bean = knLsnUnPaid001Dao.gethLsnUnpayByID(lsnFeeId);
+        Kn02F004UnpaidBean knLsnUnPaid001Bean = knLsnUnPaid001Dao.getLsnUnpayByID(lsnFeeId);
 
         // 取得该生的银行信息
         String stuId = knLsnUnPaid001Bean.getStuId();

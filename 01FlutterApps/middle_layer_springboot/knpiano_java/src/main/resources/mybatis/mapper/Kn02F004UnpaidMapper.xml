@@ -47,7 +47,7 @@
     </select> 
 
     <!-- 点击未支付明细的【学费支付】按钮， 根据学费编号（lsn_fee_id) 抽出未支付的学费信息 初期化【学费支付】画面 -->
-    <select id="gethLsnUnpayByID" resultType="com.liu.springboot04web.bean.Kn02F004UnpaidBean">
+    <select id="getLsnUnpayByID" resultType="com.liu.springboot04web.bean.Kn02F004UnpaidBean">
         select lsnfee.lsn_fee_id
                 ,lsnfee.stu_id
                 ,lsnfee.stu_name
