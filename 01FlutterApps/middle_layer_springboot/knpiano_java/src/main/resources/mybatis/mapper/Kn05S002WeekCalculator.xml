@@ -20,4 +20,36 @@
         TRUNCATE TABLE t_fixedlesson_status
 
     </delete>
+
+    <!-- 执行一周计划排课的Batch处理 -->
+    <select id="doLsnWeeklySchedual" statementType="CALLABLE">
+        {call sp_weekly_batch_lsn_schedule_process (
+            #{weekStart, mode=IN, jdbcType=VARCHAR},
+            #{weekEnd,   mode=IN, jdbcType=VARCHAR},
+            #{SEQCode,   mode=IN, jdbcType=VARCHAR}
+        )}
+    </select>
+
+    <update id="updateWeeklyBatchStatus" >
+        UPDATE t_fixedlesson_status
+        SET fixed_status= #{lsnStatus}
+        WHERE start_week_date=#{weekStart}
+          AND end_week_date=#{weekEnd}
+    </update>
+
+    <delete id ="cancelWeeklySchedual">
+        delete from t_info_lesson 
+        where substring(schedual_date,1,10) between #{weekStart} and #{weekEnd}
+    </delete>
+
+    <!-- 课程表里确认是否有一句签到的课程
+    课题：如果这期间，认为手动排了一节课，并且签到了，因手动排的课导致有记录而不允许撤销，实际上这个排课记录根本就不是batch执行的记录，这种情况下怎么办呢？
+    课题状态：正在考虑中。。。 
+    -->
+    <select id= "checkLsnHasSignedOrNot" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        select * from t_info_lesson 
+         where scanqr_date is not null
+           and schedual_date between #{weekStart} and #{weekEnd}
+    </select>
+
 </mapper>
