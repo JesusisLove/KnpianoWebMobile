@@ -26,11 +26,32 @@
                 font-size: 3.5rem;
             }
         }
+        /* カスタムスタイル */
+        .btn-primary:disabled, .btn-danger:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
     </style>
     <!-- このテンプレート用のカスタムスタイル -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
 <body>
+
+
+<!-- 调试信息开始 -->
+<div>Debug: strMessage exists: [[${strMessage != null}]]</div>
+<div>Debug: strMessage value: [[${strMessage}]]</div> 
+<!-- 调试信息结束-->
+
+<!-- <div th:if="${strMessage}" class="alert alert-danger" role="alert">
+    <p th:text="${strMessage}"></p>
+</div> -->
+
+<!-- 额外的调试信息 -->
+<div th:unless="${strMessage}" style="color: blue;">
+    strMessage is null or empty
+</div>
+
     <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
         <div class="row">
@@ -42,15 +63,29 @@
                     <h2><button class="btn btn-sm btn-danger deleteAllBtn" th:attr="del_uri=@{/kn_calculate_Weeks_deleteAll}">全部削除</button></h2>
                 </div>
                 <hr/>
+                <!-- 显示处理消息 -->1111111
+                <!-- <div th:if="${strMessage}" class="alert alert-danger" role="alert">
+                    <p th:text="${strMessage}"></p>
+                </div> -->
+                <div th:if="${apiResponse != null}">
+                    <div th:if="${apiResponse.success}" class="alert alert-success" role="alert">
+                        <p th:text="${apiResponse.msgContent}"></p>
+                    </div>
+                    <div th:unless="${apiResponse.success}" class="alert alert-danger" role="alert">
+                        <p th:text="${apiResponse.msgContent}"></p>
+                    </div>
+                </div>
+                2222222
                 <!-- 明細部 -->
                 <div class="table-responsive">
                     <table class="table table-striped table-sm">
                         <thead>
                         <tr>
                             <th>周次</th>
-                            <th>开始星期</th>
+                            <th>开始星期</th>   
                             <th>结束星期</th>
                             <th>状态</th>
+                            <th>操作</th>
                             <th>备注</th>
                         </tr>
                         </thead>
@@ -59,8 +94,16 @@
                                 <td th:text="第+${info.weekNumber}+周"></td>
                                 <td th:text="${info.startWeekDate}"></td>
                                 <td th:text="${info.endWeekDate}"></td>
-                                <td th:text="${info.fixedStatus}"></td>
-                                <td></td>
+                                <td class="status-value" th:text="${info.fixedStatus}"></td>
+                                <td>
+                                    <button class="btn btn-sm scheduleBtn" 
+                                            th:classappend="${info.fixedStatus == 0 ? 'btn-primary' : 'btn-secondary'}"
+                                            th:attr="data-start=${info.startWeekDate}, data-end=${info.endWeekDate}"
+                                            th:disabled="${info.fixedStatus == 1}">排课</button>
+                                    <button class="btn btn-sm cancelBtn" 
+                                            th:classappend="${info.fixedStatus == 1 ? 'btn-danger' : 'btn-secondary'}"
+                                            th:disabled="${info.fixedStatus == 0}">撤销</button>
+                                </td>
                             </tr> 
                         </tbody>
                     </table>
@@ -71,7 +114,6 @@
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
-    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
     <script>
         $(document).ready(function() {
             $(".deleteAllBtn").click(function() {
@@ -88,6 +130,62 @@
                         }
                     });
                 }
+            });
+
+            // 点击"排课"按钮
+            $(".scheduleBtn").click(function() {
+                var $scheduleBtn = $(this);
+                var $cancelBtn = $scheduleBtn.next('.cancelBtn');
+                var $statusCell = $scheduleBtn.closest('tr').find('.status-value');
+                var weekStart = $scheduleBtn.data('start');
+                var weekEnd = $scheduleBtn.data('end');
+                
+                var url = /*[[@{/liu/kn_excute_Week_lsn_schedual}]]*/ '/liu/kn_excute_Week_lsn_schedual';
+                url += '/' + weekStart + '/' + weekEnd;
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(result) {
+                        $scheduleBtn.prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+                        $cancelBtn.prop('disabled', false).removeClass('btn-secondary').addClass('btn-danger');
+                        $statusCell.text('1');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error details:', xhr.responseText);
+                        alert('排课失败，请重试。错误: ' + xhr.status + ' ' + error);
+                    }
+                });
+            });
+
+            // 点击"撤销"按钮
+            $(".cancelBtn").click(function() {
+                var $cancelBtn = $(this);
+                var $scheduleBtn = $cancelBtn.prev('.scheduleBtn');
+                var $statusCell = $cancelBtn.closest('tr').find('.status-value');
+                var weekStart = $scheduleBtn.data('start');
+                var weekEnd = $scheduleBtn.data('end');
+                
+                var url = /*[[@{/liu/kn_cancel_Week_lsn_schedual}]]*/ '/liu/kn_cancel_Week_lsn_schedual';
+                url += '/' + weekStart + '/' + weekEnd;
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    // dataType:'json' //把它放开，点击按钮连请求都不发送了（到不了java后端）
+                    success: function(apiResponse) {
+                        if(apiResponse.success) {
+                            alert(apiResponse.msgContent);
+                            $scheduleBtn.prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
+                            $cancelBtn.prop('disabled', true).removeClass('btn-danger').addClass('btn-secondary');
+                            $statusCell.text('0');
+                        } else {
+                            alert(apiResponse.msgContent);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error details:', xhr.responseText);
+                        alert('撤销失败，请重试。错误: ' + xhr.status + ' ' + error);
+                    }
+                });
             });
         });
     </script>
