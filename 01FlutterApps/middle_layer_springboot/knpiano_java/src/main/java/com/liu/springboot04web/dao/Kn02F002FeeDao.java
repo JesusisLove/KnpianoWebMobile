@@ -116,7 +116,7 @@ public class Kn02F002FeeDao {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 画面初期化显示所科目信息
     public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String year) {
-        List<Kn02F004FeePaid4MobileBean> list =knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
+        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
         return list;
     }
 
