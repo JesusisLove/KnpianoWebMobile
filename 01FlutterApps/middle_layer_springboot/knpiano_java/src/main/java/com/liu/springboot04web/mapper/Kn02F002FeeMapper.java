@@ -9,7 +9,9 @@ import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean;
 public interface Kn02F002FeeMapper  {
 
-    public List<Kn02F002FeeBean> getInfoList();
+    // public List<Kn02F002FeeBean> getInfoList(); // 废弃不要了
+    // year不为空的时候不执行where条件
+    public List<Kn02F002FeeBean> getInfoList(@Param("year") String year);
     public List<Kn02F002FeeBean> searchLsnFee(@Param("params") Map<String, Object> queryparams);
     public Kn02F002FeeBean       getInfoById(String lsnFeeId, String lessonId);
     public List<Kn02F002FeeBean> checkScheLsnCurrentMonth(@Param("stuId")      String  stuId,

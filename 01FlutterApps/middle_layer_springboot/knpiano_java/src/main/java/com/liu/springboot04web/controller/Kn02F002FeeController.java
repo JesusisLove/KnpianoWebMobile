@@ -23,7 +23,7 @@ public class Kn02F002FeeController{
     // 【課費情報管理】ボタンをクリックして，全ての情報を表示すること
     @GetMapping("/kn_lsn_fee_001_all")
     public String list(Model model) {
-        Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList();
+        Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList(null);
         model.addAttribute("infoList",collection);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
