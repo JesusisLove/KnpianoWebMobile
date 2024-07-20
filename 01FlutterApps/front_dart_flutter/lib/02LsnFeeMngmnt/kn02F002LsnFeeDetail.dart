@@ -421,7 +421,7 @@ class MonthLineItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // 🔸各科明显区域 + 【已支付和未支付区域】
+                  // 🔸各科明细区域 + 【已支付和未支付区域】
                   Container(
                     height: blueContainerHeight, // 动态设置蓝色边框容器的高度
                     decoration: BoxDecoration(
@@ -459,7 +459,7 @@ class MonthLineItem extends StatelessWidget {
                               return SizedBox(
                                 height: recordHeight,
                                 child: Text(
-                                  '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     课费：\$${item.lsnFee.toStringAsFixed(2)}',
+                                  '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     课费：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',
                                   style: textStyle,
                                 ),
                               );

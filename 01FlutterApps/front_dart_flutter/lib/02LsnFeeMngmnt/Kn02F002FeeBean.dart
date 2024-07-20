@@ -22,6 +22,8 @@ class Kn02F002FeeBean {
   final double totalLsnCount0;
   final double totalLsnCount1;
   final double totalLsnCount2;
+    // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
+  final double? subjectPrice;
 
   Kn02F002FeeBean({
     required this.lsnPayId,
@@ -44,6 +46,7 @@ class Kn02F002FeeBean {
     required this.totalLsnCount0,
     required this.totalLsnCount1,
     required this.totalLsnCount2,
+    required this.subjectPrice,
   });
 
   factory Kn02F002FeeBean.fromJson(Map<String, dynamic> json) {
@@ -90,6 +93,7 @@ class Kn02F002FeeBean {
       totalLsnCount0:json['totalLsnCount0']?.toDouble() ?? 0.0,
       totalLsnCount1:json['totalLsnCount1']?.toDouble() ?? 0.0,
       totalLsnCount2:json['totalLsnCount2']?.toDouble() ?? 0.0,
+      subjectPrice  :json['subjectPrice']?.toDouble() ?? 0.0,
     );
   }
 }
