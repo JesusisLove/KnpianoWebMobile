@@ -31,7 +31,15 @@ public class Kn02F004FeePaid4MobileBean implements KnPianoBean {
     protected float     lsnCount;
     protected float     lsnFee;
     protected Integer   ownFlg;
+    // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
+    protected float     subjectPrice;
 
+    public float getSubjectPrice() {
+        return subjectPrice;
+    }
+    public void setSubjectPrice(float subjectPrice) {
+        this.subjectPrice = subjectPrice;
+    }
     public String getLsnPayId() {
         return lsnPayId;
     }

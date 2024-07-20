@@ -15,7 +15,7 @@ class StudentNameMenuCommon extends StatefulWidget {
   final String pagePath;
   // 子画面迁移Id
   final String pageId;
-
+  // 接受各业务画面传递过来的uri
   final String strUri;
 
   const StudentNameMenuCommon({
@@ -48,11 +48,24 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        
+        // 使用 Set 来去重
+        final Set<String> uniqueIds = {};
+        final List<Map<String, dynamic>> uniqueStudents = [];
+
+        for (var item in data) {
+          final String id = item['stuId'].toString();
+          if (!uniqueIds.contains(id)) {
+            uniqueIds.add(id);
+            uniqueStudents.add({
+              'id': id,
+              'name': item['stuName'] ?? '未知姓名',
+            });
+          }
+        }
+
         setState(() {
-          students = List<Map<String, dynamic>>.from(data.map((item) => {
-            'id': item['stuId'],
-            'name': item['stuName'] ?? '未知姓名',
-          }));
+          students = uniqueStudents;
         });
       } else {
         print('Failed to load students');
@@ -63,63 +76,63 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   }
 
   void _onStudentTap(String stuId, String stuName, String pageId) {
-    // 这里可以添加导航到下一个页面的逻辑
+    // 导航到页面ID的Mapping文件，根据相应的PageId跳转至PageId对应的业务画面。
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => PageIdMapping(
         pageId: pageId, 
         stuId: stuId,
         stuName: stuName,))
-      );
+    );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: KnAppBar(
-      title: '在课学生一览',
-      subtitle: widget.pagePath,
-      context: context,
-      appBarBackgroundColor: widget.knBgColor,
-      titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                 widget.knFontColor.red - 20, 
-                                 widget.knFontColor.green - 20, 
-                                 widget.knFontColor.blue - 20),
-      subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                 widget.knFontColor.red + 20, 
-                                 widget.knFontColor.green + 20, 
-                                 widget.knFontColor.blue + 20),
-      subtitleTextColor: Colors.white,
-      titleFontSize: 20.0,
-      subtitleFontSize: 12.0,
-      actions: [
-        PopupMenuButton<DisplayMode>(
-          icon: Icon(Icons.more_horiz, color: widget.knFontColor),
-          onSelected: (DisplayMode result) {
-            setState(() {
-              _displayMode = result;
-            });
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<DisplayMode>>[
-            const PopupMenuItem<DisplayMode>(
-              value: DisplayMode.small,
-              child: Text('小'),
-            ),
-            const PopupMenuItem<DisplayMode>(
-              value: DisplayMode.medium,
-              child: Text('中'),
-            ),
-            const PopupMenuItem<DisplayMode>(
-              value: DisplayMode.large,
-              child: Text('大'),
-            ),
-          ],
-        ),
-      ],
-      bottom: null,
-    ),
-    body: _buildStudentGrid(),
-  );
-}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: KnAppBar(
+        title: '在课学生一览',
+        subtitle: widget.pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red - 20, 
+                                   widget.knFontColor.green - 20, 
+                                   widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red + 20, 
+                                   widget.knFontColor.green + 20, 
+                                   widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        actions: [
+          PopupMenuButton<DisplayMode>(
+            icon: Icon(Icons.more_horiz, color: widget.knFontColor),
+            onSelected: (DisplayMode result) {
+              setState(() {
+                _displayMode = result;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<DisplayMode>>[
+              const PopupMenuItem<DisplayMode>(
+                value: DisplayMode.small,
+                child: Text('小'),
+              ),
+              const PopupMenuItem<DisplayMode>(
+                value: DisplayMode.medium,
+                child: Text('中'),
+              ),
+              const PopupMenuItem<DisplayMode>(
+                value: DisplayMode.large,
+                child: Text('大'),
+              ),
+            ],
+          ),
+        ],
+        bottom: null,
+      ),
+      body: _buildStudentGrid(),
+    );
+  }
 
   Widget _buildStudentGrid() {
     int crossAxisCount;

@@ -58,14 +58,16 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   }
 
   void calculateTotalFee() {
-    totalFee = widget.monthData.fold(0, (sum, fee) => sum + fee.lsnFee);
+    // totalFee = widget.monthData.fold(0, (sum, fee) => sum + fee.lsnFee);
+    totalFee = widget.monthData.fold(0, (sum, fee) => sum + (fee.lessonType == 1 ? (fee.subjectPrice! * 4) : fee.lsnFee));
   }
 
   void updatePaymentAmount() {
     paymentAmount = 0;
     for (int i = 0; i < widget.monthData.length; i++) {
       if (selectedSubjects[i]) {
-        paymentAmount += widget.monthData[i].lsnFee;
+        // paymentAmount += widget.monthData[i].lsnFee;
+        paymentAmount +=   widget.monthData[i].lessonType == 1 ? (widget.monthData[i].subjectPrice! * 4) : widget.monthData[i].lsnFee;
       }
     }
     setState(() {});
@@ -274,7 +276,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${fee.subjectName}($lessonTypeText)',
+                          Text('${fee.subjectName}($lessonTypeText:${fee.subjectPrice}/节)',
                               style: const TextStyle(fontSize: 12)),
                           Text('上课节数: ${fee.lsnCount}',
                               style: const TextStyle(fontSize: 12)),
