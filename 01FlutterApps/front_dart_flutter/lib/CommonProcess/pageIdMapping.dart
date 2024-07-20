@@ -35,7 +35,7 @@ class PageIdMapping extends StatelessWidget {
         page = Kn01L002LsnStatistic(stuId:stuId, 
                             stuName:stuName,
                             knBgColor: Constants.lessonThemeColor,
-                            knFontColor: Colors.blue,
+                            knFontColor: Colors.white,
                             pagePath: "上课进度管理 >> 在课学生一览",
                             );
         break;

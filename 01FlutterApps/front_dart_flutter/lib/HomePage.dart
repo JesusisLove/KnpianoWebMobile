@@ -37,7 +37,7 @@ class HomePageState extends State<HomePage> {
              Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const StudentNameMenuCommon(
                           knBgColor: consts.Constants.lessonThemeColor,
-                          knFontColor: Colors.blue,
+                          knFontColor: Colors.white,
                           pagePath: "上课进度管理>>在课学生一览",
                           pageId: Constants.kn01L002LsnStatistic,
                           strUri: Constants.studentInfoView,)
