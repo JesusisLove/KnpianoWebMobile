@@ -26,7 +26,7 @@ class HomePageState extends State<HomePage> {
       case 0:
         // 上课管理页面
         return[
-          setButton(iconData: Icons.schedule, text: "学生课程管理", onPressed: () {
+          setButton(iconData: Icons.schedule, text: "学生课程表", onPressed: () {
             DateTime dateTime = DateTime.now(); // 假设这是您的 DateTime 变量
             String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
             Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarPage(focusedDay: formattedDate)));
@@ -44,7 +44,8 @@ class HomePageState extends State<HomePage> {
               ));
           }, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-
+          setButton(iconData: Icons.pie_chart, text: "上课历史记录", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.pie_chart, text: "课时统计查询", onPressed: () {}, bgcolor: consts.Constants.lessonThemeColor,),
         ];
       case 1:

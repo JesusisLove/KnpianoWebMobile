@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean;
-import com.liu.springboot04web.bean.KnPianoBean;
 import com.liu.springboot04web.mapper.Kn02F002FeeMapper;
 
 import java.util.HashMap;
