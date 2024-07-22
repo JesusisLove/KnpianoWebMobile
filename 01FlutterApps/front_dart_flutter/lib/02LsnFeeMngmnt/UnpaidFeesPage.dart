@@ -13,7 +13,6 @@ class UnpaidFeesPage extends StatelessWidget {
         ),
         title: const Text('2024/01 未缴纳学费明细'),
         centerTitle: true,
-        backgroundColor: Colors.purple[100],
       ),
       body: Column(
         children: [
@@ -85,11 +84,11 @@ class UnpaidFeesPage extends StatelessWidget {
           final month = (index + 1).toString().padLeft(2, '0');
           final isActive = index < 5;
           return ElevatedButton(
-            child: Text('$month月份'),
             style: ElevatedButton.styleFrom(
               backgroundColor: isActive ? Colors.red : Colors.grey,
             ),
             onPressed: isActive ? () {} : null,
+            child: Text('$month月份'),
           );
         }),
       ),
