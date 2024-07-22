@@ -439,12 +439,14 @@ class MonthLineItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: monthData.map((item) {
                               String lessonTypeText = '';
+                              String lsnFeeText = '时课费';
                               switch (item.lessonType) {
                                 case 0:
                                   lessonTypeText = '课结算';
                                   break;
                                 case 1:
                                   lessonTypeText = '月计划';
+                                  lsnFeeText = '月课费';
                                   break;
                                 case 2:
                                   lessonTypeText = '月加课';
@@ -459,7 +461,7 @@ class MonthLineItem extends StatelessWidget {
                               return SizedBox(
                                 height: recordHeight,
                                 child: Text(
-                                  '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     课费：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',
+                                  '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     $lsnFeeText：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',
                                   style: textStyle,
                                 ),
                               );

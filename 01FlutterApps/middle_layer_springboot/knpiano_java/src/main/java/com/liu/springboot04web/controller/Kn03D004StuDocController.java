@@ -38,7 +38,7 @@ public class Kn03D004StuDocController {
     @Autowired
     private Kn03D002SubDao knSub001Dao;
     @Autowired
-    Kn03D002SubEdaBanDao kn05S003SubjectEdabnDao;
+    private Kn03D002SubEdaBanDao kn05S003SubjectEdabnDao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn03D004StuDocController(ComboListInfoService combListInfo) {
