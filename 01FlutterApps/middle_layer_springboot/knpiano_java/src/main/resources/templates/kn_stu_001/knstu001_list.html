@@ -11,7 +11,6 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
     <!-- Bootstrap core CSS -->
-    <!--<link href="../assets/dist/css/bootstrap.css" rel="stylesheet">-->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
     <style>
         .bd-placeholder-img {
@@ -34,7 +33,7 @@
 <body>
 <div th:replace="~{commons/bar::topbar}"></div>
 <div class="container-fluid">
-    <div class="row">"
+    <div class="row">
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_stu_001_link_active')}"></div>
        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <hr/>
@@ -128,7 +127,7 @@
                             <a class="btn btn-sm btn-primary" th:href="@{/kn_stu_001/}+${info.stuId}" 
                                 methods="GET">変更</a> 
                             <button class="btn btn-sm btn-danger deleteBtn" 
-                                    th:attr="student_del_uri=@{/kn_stu_001/}+${info.stuId}">削除</button>
+                                    th:attr="student_del_uri=@{/kn_stu_001/}+${info.stuId},student_id=${info.stuId},student_name=${info.stuName}">削除</button>
                         </td>
                     </tr>
                     </tbody>
@@ -141,25 +140,50 @@
         </form>
     </div>
 </div>
-<!--Bootstrap core JavaScrip
-=============================-->
-<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
 
-<!-- Icons -->
-
-<!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+<!-- 削除プロセス -->
 <script>
-    $(".deleteBtn").click(function() {
-        if (confirm('本当に削除しますか？')) {
-            //thisが削除ボタンである
-            let del_uri = $(this).attr("student_del_uri");
-            //対象フォームのsubmitを実行する
-            $("#deleteStudentForm").attr("action",del_uri).submit();
-            return false;
-        }
+   $(".deleteBtn").click(function() {
+        let del_uri = $(this).attr("student_del_uri");
+        let stuId = $(this).attr("student_id");
+        let stuName = $(this).attr("student_name");
+        // 固定排课记录检查
+        $.ajax({
+            url: "/liu/kn_fixlsn_check/search",
+            method: "GET",
+            data: { stuId: stuId },
+            dataType: 'json', // 假设后端返回JSON数据
+            success: function(response) {
+                // 假设后端返回的JSON对象中包含fixedLessonList
+                let fixedLessonList = response.fixedLessonList;
+                console.log("获取到的固定课程列表:", fixedLessonList);
+                if (fixedLessonList && fixedLessonList.length > 0) {
+                    // 有固定排课记录，显示确认对话框
+                    if (confirm(`該生${stuName}目前有固定排課記録，削除該生会将Ta的固定排課記録一緒に削除，你確定要執行削除吗？`)) {
+                        executeDelete(del_uri);
+                    }
+                } else {
+                    // 没有固定排课记录，直接执行删除
+                    if (confirm('本当に削除しますか？')) {
+                        executeDelete(del_uri);
+                    }
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX请求失败:", textStatus, errorThrown);
+                alert("固定排課記録の確認中にエラーが発生しました。");
+            }
+        });
     });
+
+    function executeDelete(del_uri) {
+        $("#deleteStudentForm").attr("action", del_uri).submit();
+    }
 </script>
 </body>
 </html>

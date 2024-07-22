@@ -67,7 +67,7 @@ public class Kn05S001LsnFixController {
         List<String> resultsTabDays = CommonProcess.sortWeekdays(getResultsTabDays(searchResults));
         model.addAttribute("resultsTabDays", resultsTabDays);
         // 学生一周有复数天的排课，则默认显示第一个卡片（从Mon到Sun）
-        model.addAttribute("activeDay", resultsTabDays.get(0));
+        model.addAttribute("activeDay", resultsTabDays.size()>0?resultsTabDays.get(0):"");
 
         return "kn_fixlsn_001/knfixlsn001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }

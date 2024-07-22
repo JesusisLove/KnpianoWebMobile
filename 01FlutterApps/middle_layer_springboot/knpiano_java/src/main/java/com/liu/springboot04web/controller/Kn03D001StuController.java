@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.liu.springboot04web.bean.Kn03D001StuBean;
+import com.liu.springboot04web.bean.Kn05S001LsnFixBean;
 import com.liu.springboot04web.dao.Kn03D001StuDao;
+import com.liu.springboot04web.dao.Kn05S001LsnFixDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public class Kn03D001StuController{
 
     @Autowired
     Kn03D001StuDao knStu001Dao;
+    @Autowired
+    private Kn05S001LsnFixDao kn05S001LsnFixDao;
 
     // 【KNPiano后台维护 学生信息】ボタンをクリック
     @GetMapping("/kn_stu_001_all")
@@ -92,13 +96,29 @@ public class Kn03D001StuController{
     @DeleteMapping("/kn_stu_001/{id}")
     public String executeInfoDelete(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
+            // 对该生执行物理删除
             knStu001Dao.delete(id);
+            // 线看看Ta有没有固定排课，有的话先执行固定排课的物理删除
+            kn05S001LsnFixDao.deleteByKeys(id, null, null);
             return "redirect:/kn_stu_001_all";
         } catch (DataIntegrityViolationException e) {
             // 添加异常消息到重定向属性
             redirectAttributes.addFlashAttribute("errorMessage", "該当データ【"+id+"】が使用中です。削除できません。");
             return "redirect:/kn_stu_001_all"; // 重定向到列表页面
         }
+    }
+    // 这是为knstu001_list.html页面里的 AJAX 请求提供一个专门的处理器方法
+    // 在执行删除学生之前，前确认该生目前有没有固定排课几率
+    @GetMapping("/kn_fixlsn_check/search")
+    @ResponseBody
+    public Map<String, Object> searchFixedLessons(@RequestParam String stuId) {
+        Map<String, Object> conditions = new HashMap<>();
+        conditions.put("stu_id", stuId);
+        Collection<Kn05S001LsnFixBean> searchResults = kn05S001LsnFixDao.searchFixedLessons(conditions);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("fixedLessonList", searchResults);
+        return response;
     }
 
     private boolean validateHasError(Model model, Kn03D001StuBean knStu001Bean) {

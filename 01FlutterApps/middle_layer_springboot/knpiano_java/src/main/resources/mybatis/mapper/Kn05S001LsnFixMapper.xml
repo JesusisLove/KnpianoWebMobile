@@ -36,9 +36,18 @@
     </update>
 
     <delete id="deleteInfoByKeys">
-        DELETE FROM t_info_fixedlesson WHERE stu_id = #{stuId} 
-                                         AND subject_id = #{subjectId} 
-                                         AND fixed_week = #{fixedWeek}
+        DELETE FROM t_info_fixedlesson
+        <where>
+            <if test="stuId != null and stuId != ''">
+                AND stu_id = #{stuId}
+            </if>
+            <if test="subjectId != null and subjectId != ''">
+                AND subject_id = #{subjectId}
+            </if>
+            <if test="fixedWeek != null and fixedWeek != ''">
+                AND fixed_week = #{fixedWeek}
+            </if>
+        </where>
     </delete>
 
     <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
