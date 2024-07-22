@@ -4,6 +4,7 @@ import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
+import '02LsnFeeMngmnt/MonthlyIncomeReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
@@ -66,7 +67,9 @@ class HomePageState extends State<HomePage> {
 
           setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.assessment, text: "学费月度报告", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
+          setButton(iconData: Icons.assessment, text: "学费月度报告", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyIncomeReportPage()));
+          }, bgcolor: consts.Constants.lsnfeeThemeColor,),
         ];
       case 2:
         // 档案管理页面
