@@ -4,7 +4,6 @@ import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
-
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
@@ -35,12 +34,12 @@ class HomePageState extends State<HomePage> {
 
           setButton(iconData: Icons.timeline, text: "上课进度管理", onPressed: () {
              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const StudentNameMenuCommon(
+                builder: (context) =>  StudentNameMenuCommon(
                           knBgColor: consts.Constants.lessonThemeColor,
                           knFontColor: Colors.white,
                           pagePath: "上课进度管理>>在课学生一览",
                           pageId: Constants.kn01L002LsnStatistic,
-                          strUri: Constants.studentInfoView,)
+                          strUri: '${Constants.lsnInfoStuName}/${DateTime.now().year}',)
               ));
           }, bgcolor: consts.Constants.lessonThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
@@ -54,12 +53,12 @@ class HomePageState extends State<HomePage> {
           setButton(iconData: Icons.payment, text: "课费支付管理", onPressed: () {
             // Navigator.push(context, MaterialPageRoute(builder: (context) => const StuFinancialPage()));
              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const StudentNameMenuCommon(
+                builder: (context) => StudentNameMenuCommon(
                           knBgColor: consts.Constants.lsnfeeThemeColor,
                           knFontColor: Colors.white,
                           pagePath: "课费支付管理>>在课学生一览",
                           pageId: Constants.stuLsnFeeListPage,
-                          strUri: '${Constants.apiStuNameByYear}/2024',)
+                          strUri: '${Constants.apiStuNameByYear}/${DateTime.now().year}',)
               ));
           }, bgcolor: consts.Constants.lsnfeeThemeColor, ),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

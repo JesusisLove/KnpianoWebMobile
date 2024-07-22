@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;@Repository
 
-public class Kn01L002LsnDao implements InterfaceKnPianoDao {
+public class Kn01L002LsnDao {
 
     @Autowired
     private Kn01L002LsnMapper knLsn001Mapper;
@@ -28,8 +28,8 @@ public class Kn01L002LsnDao implements InterfaceKnPianoDao {
     @Autowired
     private Kn02F004PayDao    kn02f004PayDao;
 
-    public List<Kn01L002LsnBean> getInfoList() {
-        List<Kn01L002LsnBean> list =knLsn001Mapper.getInfoList();
+    public List<Kn01L002LsnBean> getInfoList(String year) {
+        List<Kn01L002LsnBean> list =knLsn001Mapper.getInfoList(year);
         return list;
     }
 
