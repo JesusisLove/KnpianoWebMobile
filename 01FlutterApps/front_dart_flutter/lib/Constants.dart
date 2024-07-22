@@ -8,6 +8,9 @@ class Constants {
 /// 
 
 // ******* 上课管理模块 *******//
+// 上课管理模块的在课学生姓名一览
+static const String lsnInfoStuName = '/liu/mb_kn_lsn_all';
+
 // 课程表一览页面当前选中日期的这一天课程信息
 static const String lsnInfoByDay = '/liu/mb_kn_lsn_info_by_day';
 
