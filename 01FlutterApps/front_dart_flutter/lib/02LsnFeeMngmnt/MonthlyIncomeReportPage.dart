@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+
+import 'UnpaidFeesPage.dart';
 
 class MonthlyIncomeReportPage extends StatefulWidget {
   const MonthlyIncomeReportPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonthlyIncomeReportPageState createState() => _MonthlyIncomeReportPageState();
 }
 
@@ -26,16 +28,16 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.blue),
+          icon: const Icon(Icons.arrow_back, color: Colors.blue),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('综合管理', style: TextStyle(color: Colors.blue)),
+        title: const Text('综合管理', style: TextStyle(color: Colors.blue)),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: Column(
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Text(
               '2024年度月收入报告',
@@ -54,83 +56,77 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
 
   Widget _buildTableHeader() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
       ),
-      child: Row(
+      child: const Row(
         children: [
           Expanded(flex: 1, child: Text('月份', style: TextStyle(fontWeight: FontWeight.bold))),
           Expanded(flex: 2, child: Text('应收入', style: TextStyle(fontWeight: FontWeight.bold))),
           Expanded(flex: 2, child: Text('实收入', style: TextStyle(fontWeight: FontWeight.bold))),
-          Expanded(flex: 2, child: Text('平账结果', style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(flex: 3, child: Text('平账结果', style: TextStyle(fontWeight: FontWeight.bold))),
         ],
       ),
     );
   }
 
-Widget _buildIncomeList() {
-  return ListView.builder(
-    itemCount: incomeData.length,
-    itemBuilder: (context, index) {
-      var item = incomeData[index];
-      return Slidable(
-        endActionPane: ActionPane(
-          motion: DrawerMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (_) => _navigateToUnpaidFeesPage(item['month']),
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              icon: Icons.info,
-              label: '详细',
-            ),
-          ],
-        ),
-        child: Container(
+  Widget _buildIncomeList() {
+    return ListView.builder(
+      itemCount: incomeData.length,
+      itemBuilder: (context, index) {
+        var item = incomeData[index];
+        return Container(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
           ),
           child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             title: Row(
               children: [
                 Expanded(flex: 1, child: Text(item['month'])),
                 Expanded(flex: 2, child: Text(item['expected'].toStringAsFixed(1))),
                 Expanded(flex: 2, child: Text(item['actual'].toStringAsFixed(1))),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('${item['difference'].toStringAsFixed(1)}欠', style: TextStyle(color: Colors.red)),
-                      Icon(Icons.chevron_right, color: Colors.grey),
+                      Text('${item['difference'].toStringAsFixed(1)}欠', style: const TextStyle(color: Colors.red)),
+                      IconButton(
+                        icon: const Icon(Icons.info_outline, color: Colors.blue),
+                        onPressed: () => _navigateToUnpaidFeesPage(context, item['month']),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      );
-    },
+        );
+      },
+    );
+  }
+
+void _navigateToUnpaidFeesPage(BuildContext context, String month) {
+  Navigator.push(
+    context, 
+    MaterialPageRoute(
+      builder: (context) => const UnpaidFeesPage(),
+    ),
   );
 }
 
-  void _navigateToUnpaidFeesPage(String month) {
-    // 这里添加导航到UnpaidFeesPage的逻辑
-    print('Navigate to UnpaidFeesPage for month: $month');
-  }
-
   Widget _buildBottomSection() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHints(),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           _buildTotalAmounts(),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           _buildYearPicker(),
         ],
       ),
@@ -138,7 +134,7 @@ Widget _buildIncomeList() {
   }
 
   Widget _buildHints() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -160,7 +156,7 @@ Widget _buildIncomeList() {
   }
 
   Widget _buildTotalAmounts() {
-    return Column(
+    return const Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,12 +178,12 @@ Widget _buildIncomeList() {
     return GestureDetector(
       onTap: () => _showYearPicker(context),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: Colors.lightBlue[100],
           borderRadius: BorderRadius.circular(5),
         ),
-        child: Center(child: Text('$selectedYear年', style: TextStyle(fontSize: 18))),
+        child: Center(child: Text('$selectedYear年', style: const TextStyle(fontSize: 18))),
       ),
     );
   }
@@ -197,16 +193,16 @@ Widget _buildIncomeList() {
       context: context,
       builder: (_) => Container(
         height: 300,
-        color: Color.fromARGB(255, 255, 255, 255),
+        color: const Color.fromARGB(255, 255, 255, 255),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 40,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CupertinoButton(child: Text('取消'), onPressed: () => Navigator.of(context).pop()),
-                  CupertinoButton(child: Text('确定'), onPressed: () => Navigator.of(context).pop()),
+                  CupertinoButton(child: const Text('取消'), onPressed: () => Navigator.of(context).pop()),
+                  CupertinoButton(child: const Text('确定'), onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
             ),
