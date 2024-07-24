@@ -29,7 +29,7 @@
                 <foreach item="value" index="key" collection="params">
                     <if test="value != null and value != ''">
                         <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
-                        AND ${key} like CONCAT('%', #{value}, '%')
+                        AND ${key} = #{value}
                     </if>
                 </foreach>
             </where>             
