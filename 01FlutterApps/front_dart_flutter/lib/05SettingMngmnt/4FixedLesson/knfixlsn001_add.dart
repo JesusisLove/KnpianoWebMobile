@@ -4,10 +4,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 
+// ignore: must_be_immutable
 class ScheduleForm extends StatefulWidget {
-  const ScheduleForm({super.key});
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  ScheduleForm({
+    super.key,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   ScheduleFormState createState() => ScheduleFormState();
@@ -15,6 +25,7 @@ class ScheduleForm extends StatefulWidget {
 
 class ScheduleFormState extends State<ScheduleForm> {
   final _formKey = GlobalKey<FormState>();
+  String titleName = "学生固定排课（新規）";
 
   String? selectedStuId;
   String? selectedSubId;
@@ -81,7 +92,27 @@ class ScheduleFormState extends State<ScheduleForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("学生固定排课（新規）")),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: '${widget.pagePath} >> $titleName',
+        context: context,
+        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+                                    widget.knFontColor.red - 20, 
+                                    widget.knFontColor.green - 20, 
+                                    widget.knFontColor.blue - 20),
+
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+                                    widget.knFontColor.red + 20, 
+                                    widget.knFontColor.green + 20, 
+                                    widget.knFontColor.blue + 20),
+
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0, // 自定义标题字体大小
+        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        addInvisibleRightButton: true,
+    ),
+
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(

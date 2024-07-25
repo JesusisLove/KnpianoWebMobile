@@ -3,12 +3,23 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'KnFixLsn001Bean.dart';
 
 class ScheduleFormEdit extends StatefulWidget {
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
   final KnFixLsn001Bean? lesson;
-  const ScheduleFormEdit({super.key, this.lesson});
+
+  ScheduleFormEdit({
+    super.key, 
+    this.lesson,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   ScheduleFormEditState createState() => ScheduleFormEditState();
@@ -16,7 +27,7 @@ class ScheduleFormEdit extends StatefulWidget {
 
 class ScheduleFormEditState extends State<ScheduleFormEdit> {
   final _formKey = GlobalKey<FormState>();
-
+  String titleName = "学生固定排课（編集）";
   String? selectedStuId;
   String? selectedSubId;
   String? selectedStudent;
@@ -47,7 +58,27 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("学生固定排课（編集）")),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: '${widget.pagePath} >> $titleName',
+        context: context,
+        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+                                    widget.knFontColor.red - 20, 
+                                    widget.knFontColor.green - 20, 
+                                    widget.knFontColor.blue - 20),
+
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+                                    widget.knFontColor.red + 20, 
+                                    widget.knFontColor.green + 20, 
+                                    widget.knFontColor.blue + 20),
+
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0, // 自定义标题字体大小
+        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        addInvisibleRightButton: true,
+    ),
+
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(

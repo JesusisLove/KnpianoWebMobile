@@ -1,21 +1,36 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'Kn05S002FixedLsnStatusBean.dart';
 import 'package:intl/intl.dart';
 
+// ignore: must_be_immutable
 class Kn05S002WeekCalculatorSchedual extends StatefulWidget {
-  const Kn05S002WeekCalculatorSchedual({Key? key}) : super(key: key);
+    // AppBar背景颜色
+  final Color knBgColor;
+  // 字体颜色
+  final Color knFontColor;
+  // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
+  late String pagePath ;
+
+   Kn05S002WeekCalculatorSchedual({
+    super.key,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+    });
 
   @override
   _Kn05S002WeekCalculatorSchedualState createState() => _Kn05S002WeekCalculatorSchedualState();
 }
 
 class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorSchedual> {
+  final String titleName = '周次排课设置';
   List<Kn05S002FixedLsnStatusBean> staticLsnList = [];
   bool isLoading = false;
 
@@ -132,8 +147,40 @@ Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDa
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${DateTime.now().year}年度周次排课设置'),
+      appBar: KnAppBar(
+          title: titleName,
+          subtitle: '${widget.pagePath} >> $titleName',
+          context: context,
+          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+                                     widget.knFontColor.red - 20, 
+                                     widget.knFontColor.green - 20, 
+                                     widget.knFontColor.blue - 20),
+
+          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+                                     widget.knFontColor.red + 20, 
+                                     widget.knFontColor.green + 20, 
+                                     widget.knFontColor.blue + 20),
+
+          subtitleTextColor: Colors.white, // 自定义底部文本颜色
+          titleFontSize: 20.0, // 自定义标题字体大小
+          subtitleFontSize: 12.0, // 自定义底部文本字体大小
+                  actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_horiz, color:widget.knFontColor),
+            onSelected: (String result) {
+              if (result == 'prepay') {
+                print('预支付学费被选中');
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'prepay',
+                child: Text('年度周次生成'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

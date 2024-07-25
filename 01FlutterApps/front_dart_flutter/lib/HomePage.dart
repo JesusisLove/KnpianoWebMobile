@@ -66,8 +66,8 @@ class HomePageState extends State<HomePage> {
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
 
 
-          setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          // setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.assessment, text: "学费月度报告", onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const MonthlyIncomeReportPage(
                                   knBgColor: consts.Constants.lsnfeeThemeColor,
@@ -118,13 +118,26 @@ class HomePageState extends State<HomePage> {
           // setButton(iconData: Icons.calendar_today, text: "年度周次执行", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.calendar_today, text: "周次排课设置", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const Kn05S002WeekCalculatorSchedual()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Kn05S002WeekCalculatorSchedual(
+                                  knBgColor: consts.Constants.settngThemeColor,
+                                  knFontColor: Colors.white,
+                                  pagePath: "设置管理",)
+                                ));
           }, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+
           setButton(iconData: Icons.language, text: "多国语言切换", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          
           setButton(iconData: Icons.settings, text: "固定排课设置", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const ClassSchedulePage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ClassSchedulePage(
+                                  knBgColor: consts.Constants.settngThemeColor,
+                                  knFontColor: Colors.white,
+                                  pagePath: "设置管理",)
+                                ));
+
+
+
           }, bgcolor: consts.Constants.settngThemeColor,),
         ];
       default:
