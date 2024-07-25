@@ -3,12 +3,25 @@ import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02f005FeeMonthlyUnpaidPage.dart';
 import 'Kn02f005FeeMonthlyReportBean.dart';
 
 class MonthlyIncomeReportPage extends StatefulWidget {
-  const MonthlyIncomeReportPage({super.key});
+  const MonthlyIncomeReportPage({
+    super.key,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
+
+  // AppBar背景颜色
+  final Color knBgColor;
+  // 字体颜色
+  final Color knFontColor;
+  // 画面迁移路径
+  final String pagePath;
 
   @override
   _MonthlyIncomeReportPageState createState() => _MonthlyIncomeReportPageState();
@@ -22,10 +35,13 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
   double totalHasPaid = 0;
   double totalUnpaid = 0;
   bool isLoading = true;
+  final String titleName = '学费月度报告';
+  late String pagePath;
 
   @override
   void initState() {
     super.initState();
+    pagePath = '${widget.pagePath} >> $titleName';
     fetchMonthlyReport();
   }
 
@@ -68,14 +84,23 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blue),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('综合管理', style: TextStyle(color: Colors.blue)),
-        backgroundColor: Colors.white,
-        elevation: 0,
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red - 20,
+                                   widget.knFontColor.green - 20,
+                                   widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red + 20,
+                                   widget.knFontColor.green + 20,
+                                   widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        addInvisibleRightButton: true, // 用来填充KnAppBar使布局对称
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
       ),
       body: Column(
         children: [
@@ -161,6 +186,9 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
         builder: (context) => UnpaidFeesPage(
           initialYearMonth: yearMonth,
           availableMonths: availableMonths,
+          knBgColor: Constants.lsnfeeThemeColor,
+                                  knFontColor: Colors.white,
+                                  pagePath: "学费月度报告",
         ),
       ),
     );
