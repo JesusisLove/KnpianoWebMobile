@@ -60,6 +60,13 @@ static const String apiStuPaySave = '/liu/mb_kn_lsn_pay_save';
 static const String apiStuPayRestore = '/liu/mb_kn_lsn_pay_undo';
 
 
+// 学费月度报表
+static const String apiFeeMonthlyReport = '/liu/mb_kn02f005_all';
+
+// 未缴纳学费明细
+static const String apiFeeUnpaidReport = '/liu/mb_kn02f005_unpaid_details';
+
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
