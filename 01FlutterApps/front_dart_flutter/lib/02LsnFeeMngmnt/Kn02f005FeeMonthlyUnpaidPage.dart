@@ -4,18 +4,25 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02f005FeeMonthlyReportBean.dart';
 
 class UnpaidFeesPage extends StatefulWidget {
   final String initialYearMonth;
   final List<String> availableMonths;
+  final Color knBgColor;
+  final Color knFontColor;
+  final String pagePath;
 
   const UnpaidFeesPage({
-    Key? key,
+    super.key,
     required this.initialYearMonth,
     required this.availableMonths,
-  }) : super(key: key);
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   _UnpaidFeesPageState createState() => _UnpaidFeesPageState();
@@ -25,11 +32,14 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
   late String selectedYearMonth;
   List<Kn02f005FeeMonthlyReportBean> feeList = [];
   double totalUnpaid = 0;
+  final String titleName = '未缴纳学费明细';
+  late String pagePath;
 
   @override
   void initState() {
     super.initState();
     selectedYearMonth = widget.initialYearMonth;
+    pagePath = '${widget.pagePath} >> $titleName';
     fetchFeeDetails();
   }
 
@@ -55,13 +65,23 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text('$selectedYearMonth 未缴纳学费明细'),
-        centerTitle: true,
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red - 20,
+                                   widget.knFontColor.green - 20,
+                                   widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red + 20,
+                                   widget.knFontColor.green + 20,
+                                   widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        addInvisibleRightButton: true, // 用来填充KnAppBar使布局对称
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
       ),
       body: Column(
         children: [

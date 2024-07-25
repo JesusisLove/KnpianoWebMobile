@@ -68,7 +68,12 @@ class HomePageState extends State<HomePage> {
           setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.assessment, text: "学费月度报告", onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyIncomeReportPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const MonthlyIncomeReportPage(
+                                  knBgColor: consts.Constants.lsnfeeThemeColor,
+                                  knFontColor: Colors.white,
+                                  pagePath: "学费管理",)
+
+            ));
           }, bgcolor: consts.Constants.lsnfeeThemeColor,),
         ];
       case 2:

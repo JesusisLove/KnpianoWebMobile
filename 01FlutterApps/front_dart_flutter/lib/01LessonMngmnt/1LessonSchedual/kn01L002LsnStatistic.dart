@@ -228,6 +228,7 @@ void _processUnScanedLsnData() {
                                    widget.knFontColor.green + 20, 
                                    widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
+        addInvisibleRightButton: true,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
       ),
