@@ -5,7 +5,7 @@
         select * from v_info_lesson_pay_fee_lsn
     </select>
 
-    <!-- 根据相应条件抽出未支付的学费信息 -->
+    <!-- 根据相应条件抽出已支付的学费信息 -->
     <select id="searchLsnPay" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
         SELECT * FROM KNStudent.v_info_lesson_pay_over
             <where>
