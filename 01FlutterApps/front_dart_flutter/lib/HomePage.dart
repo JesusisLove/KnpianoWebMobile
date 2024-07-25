@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
 import 'Constants.dart'; // 引入包含全局常量的文件
@@ -114,9 +115,11 @@ class HomePageState extends State<HomePage> {
       case 4:
         // 设置管理页面
         return [
-          setButton(iconData: Icons.calendar_today, text: "基本信息管理", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
-          setButton(iconData: Icons.calendar_today, text: "生成年度排课表", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
+          // setButton(iconData: Icons.calendar_today, text: "年度周次执行", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
+          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          setButton(iconData: Icons.calendar_today, text: "周次排课设置", onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const Kn05S002WeekCalculatorSchedual()));
+          }, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.language, text: "多国语言切换", onPressed: () {}, bgcolor: consts.Constants.settngThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔

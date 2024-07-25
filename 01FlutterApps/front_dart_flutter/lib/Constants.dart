@@ -149,15 +149,7 @@ static const String stuDocLsnDuration = '/liu/mb_kn_duration';
 static const String stuDocInfoDelete = '/liu/mb_kn_studoc_001_delete';
 
 
-
-
-
-
-
-
-
-
-// ******* 设置管理模块 *******//
+//.......设置................................................................................
 // 设置管理菜单画面，点击“固定排课设置”按钮的url请求
 static const String fixedLsnInfoView = '/liu/mb_kn_fixlsn_001_all';
 
@@ -171,7 +163,16 @@ static const String fixedLsnInfoEdit = '/liu/mb_kn_fixlsn_001';
 //固定排课一览画面，点击LiseView里的“删除”按钮的url请求
 static const String fixedLsnInfoDelete = '/liu/mb_kn_fixlsn_001';
 
+//年度周次排课信息取得的url请求
+static const String weeklySchedualDateForOneYear = '/liu/mb_kn_calculate_Weeks';
 
+//一周排课的url请求
+static const String weeklySchedualExcute = '/liu/mb_kn_excute_Week_lsn_schedual';
+
+//撤销排课的url请求
+static const String weeklySchedualCancel = '/liu/mb_kn_cancel_Week_lsn_schedual';
+
+//.......其他................................................................................
 // 主页面button按钮尺寸
 static const double homePageButtonWidth = 240.0;  
 static const double homePageButtonHeight = 60.0;
