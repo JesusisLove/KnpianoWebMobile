@@ -88,7 +88,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 ,lsn_fee
                 ,lsn_month
                 ,pay_date
-                ,own_flg
+                ,1 as own_flg
             from v_info_lesson_sum_fee_pay_over
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')

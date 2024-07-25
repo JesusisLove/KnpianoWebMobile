@@ -4,7 +4,7 @@ import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
-import '02LsnFeeMngmnt/MonthlyIncomeReportPage.dart';
+import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';

@@ -1,27 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-import 'UnpaidFeesPage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../ApiConfig/KnApiConfig.dart';
+import '../Constants.dart';
+import 'Kn02f005FeeMonthlyUnpaidPage.dart';
+import 'Kn02f005FeeMonthlyReportBean.dart';
 
 class MonthlyIncomeReportPage extends StatefulWidget {
   const MonthlyIncomeReportPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MonthlyIncomeReportPageState createState() => _MonthlyIncomeReportPageState();
 }
 
 class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
   int selectedYear = DateTime.now().year;
   List<int> years = List.generate(DateTime.now().year - 2017, (index) => DateTime.now().year - index).toList();
+  List<Kn02f005FeeMonthlyReportBean> monthlyReports = [];
+  double totalShouldPay = 0;
+  double totalHasPaid = 0;
+  double totalUnpaid = 0;
+  bool isLoading = true;
 
-  final List<Map<String, dynamic>> incomeData = [
-    {'month': '01', 'expected': 12065.0, 'actual': 11740.0, 'difference': 325.0},
-    {'month': '02', 'expected': 12055.0, 'actual': 11240.0, 'difference': 815.0},
-    {'month': '03', 'expected': 11750.0, 'actual': 10900.0, 'difference': 850.0},
-    {'month': '04', 'expected': 12070.0, 'actual': 11050.0, 'difference': 1020.0},
-    {'month': '05', 'expected': 10640.0, 'actual': 8950.0, 'difference': 1690.0},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchMonthlyReport();
+  }
+
+  Future<void> fetchMonthlyReport() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.apiFeeMonthlyReport}/$selectedYear';
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        List<dynamic> jsonData = json.decode(decodedBody);
+        setState(() {
+          monthlyReports = jsonData.map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json)).toList();
+          calculateTotals();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load monthly report');
+      }
+    } catch (e) {
+      print('Error fetching monthly report: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void calculateTotals() {
+    totalShouldPay = monthlyReports.fold(0, (sum, item) => sum + item.shouldPayLsnFee);
+    totalHasPaid = monthlyReports.fold(0, (sum, item) => sum + item.hasPaidLsnFee);
+    totalUnpaid = monthlyReports.fold(0, (sum, item) => sum + item.unpaidLsnFee);
+  }
+
+  List<String> collectMonths() {
+    return monthlyReports.map((report) => report.lsnMonth.substring(5, 7)).toSet().toList()..sort();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +79,18 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Text(
-              '2024年度月收入报告',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              '$selectedYear年度月收入报告',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           _buildTableHeader(),
           Expanded(
-            child: _buildIncomeList(),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _buildIncomeList(),
           ),
           _buildBottomSection(),
         ],
@@ -73,9 +117,9 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
 
   Widget _buildIncomeList() {
     return ListView.builder(
-      itemCount: incomeData.length,
+      itemCount: monthlyReports.length,
       itemBuilder: (context, index) {
-        var item = incomeData[index];
+        var item = monthlyReports[index];
         return Container(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
@@ -84,18 +128,18 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             title: Row(
               children: [
-                Expanded(flex: 1, child: Text(item['month'])),
-                Expanded(flex: 2, child: Text(item['expected'].toStringAsFixed(1))),
-                Expanded(flex: 2, child: Text(item['actual'].toStringAsFixed(1))),
+                Expanded(flex: 1, child: Text(item.lsnMonth.substring(5, 7))),
+                Expanded(flex: 2, child: Text(item.shouldPayLsnFee.toStringAsFixed(1))),
+                Expanded(flex: 2, child: Text(item.hasPaidLsnFee.toStringAsFixed(1))),
                 Expanded(
                   flex: 3,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('${item['difference'].toStringAsFixed(1)}欠', style: const TextStyle(color: Colors.red)),
+                      Text('${item.unpaidLsnFee.toStringAsFixed(1)}欠', style: const TextStyle(color: Colors.red)),
                       IconButton(
                         icon: const Icon(Icons.info_outline, color: Colors.blue),
-                        onPressed: () => _navigateToUnpaidFeesPage(context, item['month']),
+                        onPressed: () => _navigateToUnpaidFeesPage(context, item.lsnMonth),
                       ),
                     ],
                   ),
@@ -108,14 +152,19 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
     );
   }
 
-void _navigateToUnpaidFeesPage(BuildContext context, String month) {
-  Navigator.push(
-    context, 
-    MaterialPageRoute(
-      builder: (context) => const UnpaidFeesPage(),
-    ),
-  );
-}
+  void _navigateToUnpaidFeesPage(BuildContext context, String month) {
+    String yearMonth = '$selectedYear-${month.substring(5, 7)}';
+    List<String> availableMonths = collectMonths();
+    Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => UnpaidFeesPage(
+          initialYearMonth: yearMonth,
+          availableMonths: availableMonths,
+        ),
+      ),
+    );
+  }
 
   Widget _buildBottomSection() {
     return Container(
@@ -123,8 +172,6 @@ void _navigateToUnpaidFeesPage(BuildContext context, String month) {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHints(),
-          const SizedBox(height: 10),
           _buildTotalAmounts(),
           const SizedBox(height: 10),
           _buildYearPicker(),
@@ -133,42 +180,20 @@ void _navigateToUnpaidFeesPage(BuildContext context, String month) {
     );
   }
 
-  Widget _buildHints() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.pan_tool, color: Colors.orange, size: 16),
-            SizedBox(width: 4),
-            Expanded(child: Text('提示：双击行，可查看该月都有谁的课费没付清', style: TextStyle(fontSize: 12))),
-          ],
-        ),
-        Row(
-          children: [
-            Icon(Icons.pan_tool, color: Colors.orange, size: 16),
-            SizedBox(width: 4),
-            Expanded(child: Text('课时结算的未支付不在此统计，请在他们的课费支付明细那里查看。', style: TextStyle(fontSize: 12))),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildTotalAmounts() {
-    return const Column(
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text('应支付总额：'), Text('0.00')],
+          children: [const Text('应支付总额：'), Text(totalShouldPay.toStringAsFixed(2))],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text('已支付总额：'), Text('0.00')],
+          children: [const Text('已支付总额：'), Text(totalHasPaid.toStringAsFixed(2))],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text('未支付总额：'), Text('0.00')],
+          children: [const Text('未支付总额：'), Text(totalUnpaid.toStringAsFixed(2))],
         ),
       ],
     );
@@ -192,17 +217,29 @@ void _navigateToUnpaidFeesPage(BuildContext context, String month) {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
-        height: 300,
+        height: 350,
         color: const Color.fromARGB(255, 255, 255, 255),
         child: Column(
           children: [
-            SizedBox(
-              height: 40,
+            Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CupertinoButton(child: const Text('取消'), onPressed: () => Navigator.of(context).pop()),
-                  CupertinoButton(child: const Text('确定'), onPressed: () => Navigator.of(context).pop()),
+                  CupertinoButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    child: const Text('取消'),
+                  ),
+                  CupertinoButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      fetchMonthlyReport();
+                    },
+                    padding: EdgeInsets.zero,
+                    child: const Text('确定'),
+                  ),
                 ],
               ),
             ),
