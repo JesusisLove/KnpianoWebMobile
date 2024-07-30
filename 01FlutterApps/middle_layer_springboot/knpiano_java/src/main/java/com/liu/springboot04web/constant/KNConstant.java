@@ -14,9 +14,9 @@ public final class KNConstant {
     /* 授業番号自動採番 */
     public static final String CONSTANT_KN_LSN_SEQ = "kn-lsn-";
     /* 課費番号自動採番 */
-    public static final String CONSTANT_KN_LSN_FEE_SEQ = "kn-lsn-fee-";
+    public static final String CONSTANT_KN_LSN_FEE_SEQ = "kn-fee-";
     /* 精算番号自動採番 */
-    public static final String CONSTANT_KN_LSN_PAY_SEQ = "kn-lsn-pay-";
+    public static final String CONSTANT_KN_LSN_PAY_SEQ = "kn-pay-";
 
     // 0：按课时计算
     public static final Integer CONSTANT_LESSON_TYPE_TIAMLY = 0; 
