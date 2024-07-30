@@ -79,7 +79,6 @@ public class Kn02F003LsnFeeAdvcPayController {
         params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
         String stuId = (String) queryParams.get("stuId");
 
-
         if (!validateHasError(model,queryParams,null)) {
             // 根据课费编号，取得未支付的课费信息
             List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId);
@@ -107,7 +106,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         // 处理多个对象的逻辑
         for (Kn02F003LsnFeeAdvcPayBean bean : beans) {
             // 对每个bean进行处理
-            // 例如：保存到数据库，执行业务逻辑等
+            kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
         }
         String stuName = beans.get(0).getStuName();
         // 添加成功消息
@@ -150,7 +149,6 @@ public class Kn02F003LsnFeeAdvcPayController {
         if (hasError == true) {
             // 将学生交费信息响应送给前端
             model.addAttribute("selectedinfo", bean);
-
 
             // 将错误消息显示在画面上
             model.addAttribute("errorMessageList", msgList);
