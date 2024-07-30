@@ -13,11 +13,27 @@ https://mybatis.org/mybatis-3/getting-started.html
     <!-- 获得该生要预支付学费的课程信息 -->
     <select id="getAdvcFeePayLsnInfo" statementType="CALLABLE" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
         {call sp_get_advance_pay_subjects_and_lsnschedual_info (
-            #{stuId,        mode=IN, jdbcType=VARCHAR},
-            #{yearMonth,    mode=IN, jdbcType=VARCHAR}
+            #{stuId,        mode=IN, jdbcType=VARCHAR}
         )}
     </select>
 
-
+    <!-- 获得该生要预支付学费的课程信息 -->
+    <select id="executeAdvcLsnFeePay" statementType="CALLABLE">
+        {call sp_execute_advc_lsn_fee_pay(
+            #{stuId,                    mode=IN, jdbcType=VARCHAR},
+            #{subjectId,                mode=IN, jdbcType=VARCHAR},
+            #{subjectSubId,             mode=IN, jdbcType=VARCHAR},
+            #{lessonType,               mode=IN, jdbcType=INTEGER},
+            #{schedualType,             mode=IN, jdbcType=INTEGER},
+            #{minutesPerLsn,            mode=IN, jdbcType=INTEGER},
+            #{subjectPrice,             mode=IN, jdbcType=DECIMAL},
+            #{schedualDate,             mode=IN, jdbcType=DATE},
+            #{bankId,                   mode=IN, jdbcType=VARCHAR},
+            #{lsnSeqCode,               mode=IN, jdbcType=VARCHAR},
+            #{feeSeqCode,               mode=IN, jdbcType=VARCHAR},
+            #{paySeqCode,               mode=IN, jdbcType=VARCHAR},
+            #{paramMap.result,          mode=OUT, jdbcType=INTEGER}
+        )}
+    </select>
 
 </mapper>

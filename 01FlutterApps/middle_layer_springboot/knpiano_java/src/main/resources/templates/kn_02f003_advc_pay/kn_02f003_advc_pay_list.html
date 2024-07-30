@@ -34,6 +34,25 @@
         .no-info-message {
             font-size: 18px;
         }
+        .form-group + .form-group {
+            margin-left: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .bank-select {
+            width: 200px;
+        }
+        .payment-controls {
+            display: flex;
+            align-items: center;
+        }
+        .payment-controls .form-group {
+            margin-bottom: 0;
+        }
+        #prepayButton {
+            height: 38px; /* 调整按钮高度以匹配下拉框 */
+        }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
 </head>
@@ -47,30 +66,32 @@
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_advc_pay_lsn/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label>年度</label>
-                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
-                            <option th:each="year : ${knyearlist}" 
-                                    th:value="${year}" 
-                                    th:text="${year}" 
-                                    th:selected="${year == (payMap!= null ? payMap['selectedyear'] : '')}"></option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-left: 20px;">
-                        <label>月份</label>
-                        <select class="form-control" id="monthSelect" name="selectedmonth">
-                            <option th:each="month : ${knmonthlist}" 
-                                    th:value="${month}" 
-                                    th:text="${month}" 
-                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : currentmonth)}"></option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-left: 20px;">
+                    <div class="form-group">
                         <label>学生姓名</label> 
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (advcPayMap!= null ? advcPayMap['selectedyear'] : '')}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>月份</label>
+                        <select class="form-control" id="monthSelect" name="selectedmonth">
+                            <option th:each="month : ${knmonthlist}" 
+                                    th:value="${month}" 
+                                    th:text="${month}" 
+                                    th:selected="${month == (advcPayMap!= null ? advcPayMap['selectedmonth'] : currentmonth)}"></option>
+                        </select>
+                    </div>
+                    <hr>
+                    说明： 课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。
                 </div>
                 
                 <button type="submit" class="btn btn-primary">検 索</button>
@@ -82,6 +103,10 @@
                 </div>
             </form> 
             <!-- 显示错误消息 -->
+             <!-- 添加这个部分来显示成功消息 -->
+            <div id="successMessageDiv" th:if="${successMessage}" class="alert alert-success mt-3" role="alert">
+                <p th:text="${successMessage}"></p>
+            </div>
             <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
                 <p th:text="${errorMessage}"></p>
             </div>
@@ -98,38 +123,70 @@
                         <th>科目支番</th>
                         <th>支番名称</th>
                         <th>课程种别</th>
+                        <th>课程单价</th>
+                        <th>上课时长（分钟）</th>
+                        <th>计划排课种别</th>
                         <th>排课计划</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="info:${infoList}">
-                        <td><input type="checkbox" class="row-checkbox" th:data-subject-id="${info.subjectId}"></td>
+                    <tr th:each="info, stat:${infoList}">
+                        <td><input type="checkbox" class="row-checkbox" th:data-index="${stat.index}"></td>
                         <td>[[${info.stuId}]]</td>
                         <td>[[${info.stuName}]]</td>
                         <td>[[${info.subjectId}]]</td>
                         <td>[[${info.subjectName}]]</td>
                         <td>[[${info.subjectSubId}]]</td>
                         <td>[[${info.subjectSubName}]]</td>
-                        <td>[[${info.lessonType}]]</td>
-                        <td th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td>[[${info.lessonType== 1 ? '月计划课':''}]]</td>
+                        <td>[[${info.subjectPrice}]]</td>
+                        <td>[[${info.minutesPerLsn}]]</td>
+                        <td>[[${info.schedualDate != null ? '1' : '0'}]]</td>
+                        <td>
+                            <span th:if="${info.schedualDate != null}" th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            <input th:if="${info.schedualDate == null}" type="text" class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <!-- 课费预支付按钮 -->
-            <div class="mt-3">
+            <!-- 课费预支付按钮和银行选择 -->
+            <div class="mt-3 payment-controls">
+                <div class="form-group d-flex align-items-center mr-3 mb-0">
+                    <label for="bankSelect" class="mr-2 mb-0">银行名称</label>
+                    <select class="form-control bank-select" id="bankSelect" name="bankId">
+                        <option value="">请选择</option>
+                        <option th:each="element,iterStat : ${bankMap}" 
+                                th:value="${element.key}"
+                                th:utext="${element.value}"
+                                th:selected="${element.key == (selectedinfo != null ? selectedinfo.bankId : iterStat.index == 0)}">
+                        </option>
+                    </select>
+                </div>
                 <button type="button" id="prepayButton" class="btn btn-green">课费预支付</button>
             </div>
         </main>
     </div>
 </div>
-<!--Bootstrap core JavaScript
-=============================-->
+<!--Bootstrap core JavaScript-->
 <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
 
 <script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    var successMessageDiv = document.getElementById('successMessageDiv');
+        if (successMessageDiv) {
+            // 确保消息可见
+            successMessageDiv.style.display = 'block';
+            
+            // 防止页面刷新或其他操作立即隐藏消息
+            setTimeout(function() {
+                successMessageDiv.style.display = 'none';
+            }, 5000); // 5秒后隐藏消息
+        }
+    });
+
     // 从后端传递的要付费的学生数据
     var jsonStuSubList = [[${lsnfeestuList}]];
     
@@ -137,7 +194,7 @@
     window.onload = function() {
         // 初期化结算课程的学生
         var studentSelect = document.getElementById('studentSelect');
-        var selectedStuId = [[${payMap != null ? payMap['stuId'] : ''}]];
+        var selectedStuId = [[${advcPayMap != null ? advcPayMap['stuId'] : ''}]];
         var uniqueStudentIds = new Set(); // 使用集合来避免重复
     
         // 从stuSubList添加学生姓名到下拉列表，确保不重复
@@ -153,14 +210,157 @@
         });
     };
 
-    // 课费预支付按钮点击事件
-    document.getElementById('prepayButton').addEventListener('click', function() {
-        var selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-        selectedCheckboxes.forEach(function(checkbox) {
-            var studentName = checkbox.getAttribute('data-subject-id');
-            console.log('Selected student: ' + studentName);
+    // 处理复选框改变事件
+    document.querySelectorAll('.row-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var row = this.closest('tr');
+            var scheduleInput = row.querySelector('.schedule-input');
+            if (scheduleInput) {
+                scheduleInput.classList.toggle('hidden', !this.checked);
+            }
         });
     });
+
+    // 课费预支付按钮点击事件
+    document.getElementById('prepayButton').addEventListener('click', function() {
+        var selectedRows = [];
+        var bankId = document.getElementById('bankSelect').value;
+
+        if (!bankId) {
+            alert('请选择银行');
+            return;
+        }
+
+        document.querySelectorAll('.row-checkbox:checked').forEach(function(checkbox) {
+            var row = checkbox.closest('tr');
+            var scheduleType = parseInt(row.cells[10].textContent);
+            var schedulePlan = scheduleType === 1 ? row.cells[11].querySelector('span').textContent : row.cells[11].querySelector('input').value;
+            
+            if (scheduleType === 0 && !isValidDateFormat(schedulePlan)) {
+                alert('请输入"yyyy-MM-dd HH:mm"格式的日期。');
+                return;
+            }
+
+            selectedRows.push({
+                subjectId: row.cells[3].textContent,
+                subjectSubId: row.cells[5].textContent,
+                subjectName: row.cells[4].textContent,
+                subjectSubName: row.cells[6].textContent,
+                stuId: row.cells[1].textContent,
+                stuName: row.cells[2].textContent,
+                classDuration: parseInt(row.cells[9].textContent),
+                lessonType: 1,
+                schedualType: scheduleType,
+                schedualDate: schedulePlan,
+                subjectPrice: parseFloat(row.cells[8].textContent),
+                minutesPerLsn: parseInt(row.cells[9].textContent)
+            });
+        });
+
+        if (selectedRows.length > 0) {
+            sendDataToServer(selectedRows, bankId);
+        } else {
+            alert('请选择至少一行数据。');
+        }
+    });
+
+    function isValidDateFormat(dateString) {
+        var regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        return regex.test(dateString);
+    }
+
+    // function sendDataToServer(selectedRows, bankId) {
+    //     var dataToSend = selectedRows.map(row => ({
+    //         ...row,
+    //         bankId: bankId
+    //     }));
+
+    //     fetch('/liu/kn_advc_pay_lsn', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(dataToSend),
+    //     })
+    //     .then(response => {
+    //         if (response.redirected) {
+    //             // 使用 replace 而不是 assign，防止浏览器历史堆栈出现问题
+    //             window.location.replace(response.url);
+    //         } else if (!response.ok) {
+    //             throw new Error('Server response was not ok.');
+    //         }
+    //     })
+    //     .catch((error) => {
+    //         console.error('Error:', error);
+    //         alert('课费预支付失败，请重试。错误详情：' + error.message);
+    //     });
+    // }
+
+    // function sendDataToServer(selectedRows, bankId) {
+    //     var dataToSend = selectedRows.map(row => ({
+    //         ...row,
+    //         bankId: bankId
+    //     }));
+
+    //     fetch('/liu/kn_advc_pay_lsn', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(dataToSend),
+    //     })
+    //     .then(response => {
+    //         if (response.redirected) {
+    //             window.location.href = response.url;
+    //         } else if (response.ok) {
+    //             return response.json();
+    //         } else {
+    //             throw new Error('Server response was not ok.');
+    //         }
+    //     })
+    //     .then(data => {
+    //         if (data && data.successMessage) {
+    //             // 如果服务器返回了成功消息，刷新页面以显示消息
+    //             location.reload();
+    //         }
+    //     })
+    //     .catch((error) => {
+    //         console.error('Error:', error);
+    //         alert('课费预支付失败，请重试。错误详情：' + error.message);
+    //     });
+    // }
+
+    // 这少这个方法执行时，在chrome的控制台上还能闪现一下成功消息，上两个都不能。继续调查
+    function sendDataToServer(selectedRows, bankId) {
+        var dataToSend = selectedRows.map(row => ({
+            ...row,
+            bankId: bankId
+        }));
+
+        fetch('/liu/kn_advc_pay_lsn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend),
+        })
+        .then(response => {
+            console.log("Response status:", response.status);
+            console.log("Response redirected:", response.redirected);
+
+            if (response.redirected) {
+                console.log("Redirecting to:", response.url);
+                // 使用 replace 而不是 assign，防止浏览器历史堆栈出现问题
+                window.location.replace(response.url);
+            } else if (!response.ok) {
+                throw new Error('Server response was not ok.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('课费预支付失败，请重试。错误详情：' + error.message);
+        });
+    }
 </script>
 </body>
 </html>

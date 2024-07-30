@@ -21,6 +21,12 @@ public class Kn02F003LsnFeeAdvcPayBean {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date scanQrDate;
     protected Integer payStyle;
+    // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
+    protected float     subjectPrice;
+    protected Integer   minutesPerLsn;
+    protected String  bankId;
+    
+
     public String getSubjectId() {
         return subjectId;
     }
@@ -93,6 +99,23 @@ public class Kn02F003LsnFeeAdvcPayBean {
     public void setPayStyle(Integer payStyle) {
         this.payStyle = payStyle;
     }
+    public float getSubjectPrice() {
+        return subjectPrice;
+    }
+    public void setSubjectPrice(float subjectPrice) {
+        this.subjectPrice = subjectPrice;
+    }
+    public Integer getMinutesPerLsn() {
+        return minutesPerLsn;
+    }
+    public void setMinutesPerLsn(Integer minutesPerLsn) {
+        this.minutesPerLsn = minutesPerLsn;
+    }
+    public String getBankId() {
+        return bankId;
+    }
+    public void setBankId(String bankId) {
+        this.bankId = bankId;
+    }
 
-    
 }
