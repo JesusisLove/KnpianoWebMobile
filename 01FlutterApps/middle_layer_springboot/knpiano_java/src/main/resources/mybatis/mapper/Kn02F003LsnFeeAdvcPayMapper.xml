@@ -28,7 +28,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             #{schedualType,             mode=IN, jdbcType=INTEGER},
             #{minutesPerLsn,            mode=IN, jdbcType=INTEGER},
             #{subjectPrice,             mode=IN, jdbcType=DECIMAL},
-            #{schedualDate,             mode=IN, jdbcType=DATE},
+            #{schedualDate,             mode=IN, jdbcType=TIMESTAMP},
             #{bankId,                   mode=IN, jdbcType=VARCHAR},
             #{lsnSeqCode,               mode=IN, jdbcType=VARCHAR},
             #{feeSeqCode,               mode=IN, jdbcType=VARCHAR},
