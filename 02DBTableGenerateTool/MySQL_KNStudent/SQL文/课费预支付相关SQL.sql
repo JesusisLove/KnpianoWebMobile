@@ -67,3 +67,8 @@ GROUP BY
     subject_sub_id,
     lesson_type,
     subject_sub_name);
+    
+    DELETE FROM KNStudent.t_info_lesson_pay WHERE lsn_pay_id IS NOT NULL LIMIT 1000000;
+    DELETE FROM KNStudent.t_info_lesson_fee WHERE lsn_fee_id IS NOT NULL LIMIT 1000000;
+    DELETE FROM KNStudent.t_info_lesson WHERE lesson_id IS NOT NULL LIMIT 1000000;
+    DELETE FROM KNStudent.t_sp_execution_log where id is not null limit 1000000;

@@ -44,7 +44,7 @@ BEGIN
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, '成功');
 
     -- 插入数据
-    SET v_current_step = '向临时表插入数据';
+    SET v_current_step = '生成日期和星期关系数据';
     INSERT INTO temp_date_range (date_column, weekday_column)
     SELECT 
         STR_TO_DATE(date_column, '%Y-%m-%d') AS date_column,
@@ -65,31 +65,56 @@ BEGIN
     INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
-    -- 显示结果
-    -- SELECT * FROM temp_date_range;
-    -- 根据关联表，将制定日期范围的学生排课信息直接插入到上课信息表【t_info_lesson】的数据
-    SET v_current_step = '向t_info_lesson表插入数据';
-	INSERT INTO t_info_lesson (lesson_id,subject_id,subject_sub_id,stu_id,class_duration,lesson_type,schedual_type,schedual_date)
+    -- 创建临时表存储新的课程安排
+    SET v_current_step = '创建临时表存储新的课程安排';
+    -- 创建了一个临时表 temp_new_lessons 来存储所有可能的新课程安排。
+    CREATE TEMPORARY TABLE temp_new_lessons AS
     SELECT 
-		CONCAT(SEQCode, nextval(SEQCode)) as lesson_id,
         fix.subject_id,
         doc.subject_sub_id,
-		fix.stu_id,
-		doc.minutes_per_lsn as class_duration,
-		CASE 
-			WHEN doc.pay_style = 0 THEN 0
-			WHEN doc.pay_style = 1 THEN 1
-		END AS lesson_type,
+        fix.stu_id,
+        doc.minutes_per_lsn as class_duration,
+        CASE 
+            WHEN doc.pay_style = 0 THEN 0
+            WHEN doc.pay_style = 1 THEN 1
+        END AS lesson_type,
         1 as schedual_type,
-		CONCAT(cdr.date_column, ' ', LPAD(fix.fixed_hour, 2, '0'), ':', LPAD(fix.fixed_minute, 2, '0')) as schedual_date
-	FROM 
-		t_info_fixedlesson fix -- 一周排课的日期范围
-	LEFT JOIN 
-		v_latest_subject_info_from_student_document doc -- 学生档案最新正在上课的科目信息
-		ON fix.stu_id = doc.stu_id AND fix.subject_id = doc.subject_id
-	INNER JOIN 
-		temp_date_range cdr
-		ON cdr.weekday_column = fix.fixed_week; -- 学生固定排课表
+        CONCAT(cdr.date_column, ' ', LPAD(fix.fixed_hour, 2, '0'), ':', LPAD(fix.fixed_minute, 2, '0')) as schedual_date
+    FROM 
+        t_info_fixedlesson fix
+    LEFT JOIN 
+        v_latest_subject_info_from_student_document doc
+        ON fix.stu_id = doc.stu_id AND fix.subject_id = doc.subject_id
+    INNER JOIN 
+        temp_date_range cdr
+        ON cdr.weekday_column = fix.fixed_week;
+
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, '成功');
+
+    -- 插入新的课程安排，排除已存在的课程 ：使用了 NOT EXISTS 子查询来确保只插入尚未存在的课程。
+    SET v_current_step = '向t_info_lesson表插入新的课程安排';
+    INSERT INTO t_info_lesson (lesson_id, subject_id, subject_sub_id, stu_id, class_duration, lesson_type, schedual_type, schedual_date)
+    SELECT 
+        CONCAT(SEQCode, nextval(SEQCode)) as lesson_id,
+        tnl.subject_id,
+        tnl.subject_sub_id,
+        tnl.stu_id,
+        tnl.class_duration,
+        tnl.lesson_type,
+        tnl.schedual_type,
+        tnl.schedual_date
+    FROM 
+        temp_new_lessons tnl
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM t_info_lesson til
+        WHERE til.stu_id = tnl.stu_id
+        AND til.subject_id = tnl.subject_id
+        AND til.subject_sub_id = tnl.subject_sub_id
+        AND til.schedual_date = tnl.schedual_date
+        AND til.schedual_type = 1
+    );
 
     SET v_affected_rows = ROW_COUNT();
     SET v_step_result = IF(v_affected_rows > 0, CONCAT('成功: 插入 ', v_affected_rows, ' 行'), '未插入任何行');
@@ -99,6 +124,7 @@ BEGIN
     -- 删除临时表
     SET v_current_step = '删除临时表';
     DROP TEMPORARY TABLE IF EXISTS temp_date_range;
+    DROP TEMPORARY TABLE IF EXISTS temp_new_lessons;
     
     INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, '成功');
