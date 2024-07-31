@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean;
-import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.dao.Kn02F003LsnFeeAdvcPayDao;
@@ -80,8 +79,9 @@ public class Kn02F003LsnFeeAdvcPayController {
         String stuId = (String) queryParams.get("stuId");
 
         if (!validateHasError(model,queryParams,null)) {
+            String yearMonth = queryParams.get("selectedyear") + "-" + lsnMonth;
             // 根据课费编号，取得未支付的课费信息
-            List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId);
+            List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             // 将学生交费信息响应送给前端
             model.addAttribute("infoList", list);
             // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）

@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(50))
+CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
 BEGIN
     DECLARE v_year INT;
     DECLARE v_month INT;
@@ -26,7 +26,7 @@ BEGIN
         -- 根据支付方式设置课程类型
         CASE 
             WHEN doc.pay_style = 1 THEN 1  -- 1表示按月付费的情况下，有月计划课和月加课，月加课是此次处理的对象外课程
-           --  WHEN doc.pay_style = 0 THEN 0  -- 0表示课时结算的课程
+            --  WHEN doc.pay_style = 0 THEN 0  -- 0表示课时结算的课程
         END as lesson_type,
         NULL AS schedual_date
     FROM (
@@ -86,15 +86,23 @@ BEGIN
         subject_sub_name);
 
     -- 从schedual_date中提取年月信息，并计算下一个月
-    SELECT 
-        YEAR(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
-        MONTH(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
-        DATE(DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m-01')),
-        DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m')
-    INTO
-        v_year, v_month, v_first_day, v_yearMonth
-    FROM temp_result
-    WHERE schedual_date IS NOT NULL;
+    -- 如果schedual_date为空，则使用传入的p_yearMonth参数
+    IF EXISTS (SELECT 1 FROM temp_result WHERE schedual_date IS NOT NULL) THEN
+        SELECT 
+            YEAR(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
+            MONTH(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
+            DATE(DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m-01')),
+            DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m')
+        INTO
+            v_year, v_month, v_first_day, v_yearMonth
+        FROM temp_result
+        WHERE schedual_date IS NOT NULL;
+    ELSE
+        SET v_year = SUBSTRING(p_yearMonth, 1, 4);
+        SET v_month = SUBSTRING(p_yearMonth, 6, 2);
+        SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
+        SET v_yearMonth = p_yearMonth;
+    END IF;
 
     -- 更新临时表中的排课计划日期
     UPDATE temp_result tr
@@ -175,4 +183,4 @@ END //
 DELIMITER ;
 
 -- 调用存储过程的示例
- CALL sp_get_advance_pay_subjects_and_lsnschedual_info('kn-stu-3');
+-- CALL sp_get_advance_pay_subjects_and_lsnschedual_info('kn-stu-3', '2024-08');

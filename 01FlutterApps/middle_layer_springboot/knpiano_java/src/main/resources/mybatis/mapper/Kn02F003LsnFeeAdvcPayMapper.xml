@@ -13,7 +13,8 @@ https://mybatis.org/mybatis-3/getting-started.html
     <!-- 获得该生要预支付学费的课程信息 -->
     <select id="getAdvcFeePayLsnInfo" statementType="CALLABLE" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
         {call sp_get_advance_pay_subjects_and_lsnschedual_info (
-            #{stuId,        mode=IN, jdbcType=VARCHAR}
+            #{stuId,        mode=IN, jdbcType=VARCHAR},
+            #{yearMonth,    mode=IN, jdbcType=VARCHAR}
         )}
     </select>
 
