@@ -18,6 +18,10 @@ CREATE PROCEDURE sp_execute_advc_lsn_fee_pay(
     OUT p_result INT
 )
 BEGIN
+    -- 声明常量
+    DECLARE PROCEDURE_NAME VARCHAR(100) DEFAULT 'sp_execute_advc_lsn_fee_pay';
+    DECLARE PROCEDURE_ALIAS_NAME VARCHAR(100) DEFAULT '执行课费预支付处理';
+
     DECLARE v_lesson_id VARCHAR(50);
     DECLARE v_lsn_fee_id VARCHAR(50);
     DECLARE v_lsn_pay_id VARCHAR(50);
@@ -36,8 +40,8 @@ BEGIN
         SET p_result = 0;
         ROLLBACK;
         
-        INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-        VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, 
+        INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+        VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, 
                 CONCAT('Error occurred: ', v_error_message));
     END;
 
@@ -75,8 +79,8 @@ BEGIN
         SET v_step_result = 'New lesson_id generated';
     END IF;
 
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, v_step_result);
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- Step 2: Insert into t_info_lesson
     SET v_current_step = 'Insert into t_info_lesson';
@@ -89,8 +93,8 @@ BEGIN
     );
 
     SET v_step_result = IF(ROW_COUNT() > 0, 'Success', 'Insert failed');
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, v_step_result);
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- Step 3: Insert into t_info_lesson_fee
     SET v_current_step = 'Insert into t_info_lesson_fee';
@@ -104,8 +108,8 @@ BEGIN
     );
 
     SET v_step_result = IF(ROW_COUNT() > 0, 'Success', 'Insert failed');
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, v_step_result);
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- Step 4: Insert into t_info_lesson_pay
     SET v_current_step = 'Insert into t_info_lesson_pay';
@@ -123,8 +127,8 @@ BEGIN
     );
 
     SET v_step_result = IF(ROW_COUNT() > 0, 'Success', 'Insert failed');
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, v_step_result);
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- Step 5: Insert into t_info_lsn_fee_advc_pay
     SET v_current_step = 'Insert into t_info_lsn_fee_advc_pay';
@@ -138,15 +142,15 @@ BEGIN
     );
 
     SET v_step_result = IF(ROW_COUNT() > 0, 'Success', 'Insert failed');
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, v_step_result);
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     COMMIT;
     SET p_result = 1;
 
     SET v_current_step = 'Procedure Completion';
-    INSERT INTO t_sp_execution_log (procedure_name, step_name, result)
-    VALUES ('sp_execute_advc_lsn_fee_pay', v_current_step, 'Success');
+    INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
+    VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, 'Success');
 
 END //
 

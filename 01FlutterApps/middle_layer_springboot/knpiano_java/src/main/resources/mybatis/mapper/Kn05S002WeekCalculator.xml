@@ -23,7 +23,7 @@
 
     <!-- 执行一周计划排课的Batch处理 -->
     <select id="doLsnWeeklySchedual" statementType="CALLABLE">
-        {call sp_weekly_batch_lsn_schedule_process (
+        {call sp_execute_weekly_batch_lsn_schedule (
             #{weekStart, mode=IN, jdbcType=VARCHAR},
             #{weekEnd,   mode=IN, jdbcType=VARCHAR},
             #{SEQCode,   mode=IN, jdbcType=VARCHAR}
