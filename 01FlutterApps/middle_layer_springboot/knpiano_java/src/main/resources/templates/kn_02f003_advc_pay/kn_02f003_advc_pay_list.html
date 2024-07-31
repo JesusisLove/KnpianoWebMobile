@@ -51,7 +51,28 @@
             margin-bottom: 0;
         }
         #prepayButton {
-            height: 38px; /* 调整按钮高度以匹配下拉框 */
+            height: 38px;/* 调整按钮高度以匹配下拉框 */
+        }
+        .business-description {
+            margin-top: 20px;
+        }
+        .business-description dl {
+            margin-bottom: 0;
+        }
+        .business-description dt {
+            float: left;
+            clear: left;
+            font-weight: bold;
+        }
+        .business-description dd {
+            margin-left: 100px;
+            white-space: pre;
+        }
+        .business-description dd::before {
+            content: "    ";
+        }
+        .past-date {
+            color: red;
         }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
@@ -90,26 +111,37 @@
                                     th:selected="${month == (advcPayMap!= null ? advcPayMap['selectedmonth'] : currentmonth)}"></option>
                         </select>
                     </div>
-                    <hr>
-                    说明： 课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。
                 </div>
                 
                 <button type="submit" class="btn btn-primary">検 索</button>
                 <hr/>
                 
+                <!-- 业务说明部分 -->
+                <div class="business-description">
+                    <dl>
+                        <dt>业务说明：</dt>
+                        <dd class="indented">①课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。</dd>
+                        <dd class="indented">②先参照该生最后一次签到日期为参考，在下个月的第一个星期的日期作为该科目的计划排课日期。</dd>
+                        <dd class="indented">③如果该生连最后一次签到的日期都没有，则以当前的系统月份为参照为该科目安排该月的第一周的日期为计划排课日期。</dd>
+                        <dd class="indented">④注意：如果发现排课日期字体显示红色，就表示该日期与系统当前日期相比已经过期了，请选择系统当前月份的下一个月份进行课费预支付。</dd>
+                        <dd class="indented">⑤注意：当你看到排课计划是空值的时候，就表示这个科目没有在固定排课里做固定排课登记，所以需要你手动来安排排课日期。</dd>
+                    </dl>
+                </div>
+
                 <!-- 如果没有学生的未支付信息，显示提示信息 -->
                 <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
                     <p class="no-info-message">目前没有学生的未支付信息！</p>
                 </div>
             </form> 
+
             <!-- 显示错误消息 -->
-             <!-- 添加这个部分来显示成功消息 -->
             <div id="successMessageDiv" th:if="${successMessage}" class="alert alert-success mt-3" role="alert">
                 <p th:text="${successMessage}"></p>
             </div>
             <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
                 <p th:text="${errorMessage}"></p>
             </div>
+
             <!-- 明細部 -->
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
@@ -143,13 +175,16 @@
                         <td>[[${info.minutesPerLsn}]]</td>
                         <td>[[${info.schedualDate != null ? '1' : '0'}]]</td>
                         <td>
-                            <span th:if="${info.schedualDate != null}" th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span th:if="${info.schedualDate != null}" 
+                                  th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                  th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
                             <input th:if="${info.schedualDate == null}" type="text" class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+
             <!-- 课费预支付按钮和银行选择 -->
             <div class="mt-3 payment-controls">
                 <div class="form-group d-flex align-items-center mr-3 mb-0">

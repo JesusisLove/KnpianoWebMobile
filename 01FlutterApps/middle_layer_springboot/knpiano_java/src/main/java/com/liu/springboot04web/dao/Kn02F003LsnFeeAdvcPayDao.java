@@ -21,8 +21,8 @@ public class Kn02F003LsnFeeAdvcPayDao {
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
-    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePayLsnInfo(String stuId) {
-        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayLsnInfo(stuId);
+    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePayLsnInfo (String stuId, String yearMonth) {
+        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayLsnInfo(stuId, yearMonth);
     }
 
     public Integer executeAdvcLsnFeePay(Kn02F003LsnFeeAdvcPayBean bean) {
