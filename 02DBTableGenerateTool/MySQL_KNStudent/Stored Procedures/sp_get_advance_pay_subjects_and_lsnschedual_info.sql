@@ -87,7 +87,7 @@ BEGIN
 
     -- 从schedual_date中提取年月信息，并计算下一个月
     -- 如果schedual_date为空，则使用传入的p_yearMonth参数
-    IF EXISTS (SELECT 1 FROM temp_result WHERE schedual_date IS NOT NULL) THEN
+    IF EXISTS (SELECT 1 FROM temp_result WHERE schedual_date IS NOT NULL AND schedual_date >= CURDATE()) THEN
         SELECT 
             YEAR(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
             MONTH(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),

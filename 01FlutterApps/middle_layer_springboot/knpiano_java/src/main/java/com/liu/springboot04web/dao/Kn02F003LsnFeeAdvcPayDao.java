@@ -25,6 +25,11 @@ public class Kn02F003LsnFeeAdvcPayDao {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayLsnInfo(stuId, yearMonth);
     }
 
+    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePaidInfoByCondition(String stuId,
+                                                                         String yearMonth) {
+        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidInfoByCondition(stuId, yearMonth);
+    }
+
     public Integer executeAdvcLsnFeePay(Kn02F003LsnFeeAdvcPayBean bean) {
         SqlSession session = sqlSessionFactory.openSession();
         try {
