@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.WatchDataBaseMapper">
+    <select id="searcSpExecutionLog" resultType="com.liu.springboot04web.bean.WatchDataBaseBean">
+        SELECT *
+        FROM t_sp_execution_log
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where>
+        order by id desc
+    </select> 
+    
+    <delete id="deleteAll">
+        <!-- MySQL Workbench 出于安全考虑，默认不允许执行没有 WHERE 子句的 DELETE 语句。这是为了防止意外删除整个表的数据。
+         然而，如果您确实需要删除表中的所有数据，有几种方法可以实现 
+         delete from t_fixedlesson_status where 1=1;
+         -->
+        TRUNCATE TABLE t_sp_execution_log
+    </delete>
+
+</mapper>
