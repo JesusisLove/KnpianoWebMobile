@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn_watch_db_log_link_active')}"></div>
+       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <hr/>
+                <h2>后台数据库存储过程执行监视日志</h2>
+           <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_watch_db_log}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="procedureName" name="procedureName" th:value="${watchLogMap != null ? watchLogMap['procedureName'] : ''}" placeholder="存储过程物理名">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="procedureAliasName" name="procedureAliasName" th:value="${watchLogMap != null ? watchLogMap['procedureAliasName'] : ''}" placeholder="存储过程伦理名">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="date" class="form-control" id="executionTime" name="executionTime" th:value="${watchLogMap != null ? watchLogMap['executionTime'] : ''}" placeholder="存储过程执行日期">
+                    </div>
+
+                </div>
+
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2><button type="submit" class="btn btn-primary">検索</button></h2>
+                    <h2><button class="btn btn-sm btn-danger deleteAllBtn" th:attr="del_uri=@{/kn_watch_db_log_deleteAll}">全部削除</button></h2>
+                </div>
+
+            </form> 
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <!-- 明細部 -->
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>存储过程物理名</th>
+                        <th>存储过程伦理名</th>
+                        <th>执行步骤</th>
+                        <th>执行结果</th>
+                        <th>执行日期</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="info, iterStat : ${infoList}">
+                            <td th:text="${iterStat.index + 1}"></td> <!-- 自动加1的计数器 -->
+                            <td>[[${info.procedureName}]]</td>
+                            <td>[[${info.procedureAliasName}]]</td>
+                            <td>[[${info.stepName}]]</td>
+                            <td>[[${info.result}]]</td>
+                            <td th:text="${#dates.format(info.executionTime, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                            <td>
+                                <!-- 可以在这里添加更多内容 -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        <!-- 削除処理-->
+        <form id="deleteStudentForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<!-- 削除プロセス -->
+<script>
+    $(document).ready(function() {
+        // 点击全部删除按钮
+        $(".deleteAllBtn").click(function() {
+            if (confirm('本当に全てのデータを削除しますか？')) {
+                var del_uri = $(this).attr("del_uri");
+                $.ajax({
+                    url: del_uri,
+                    type: 'DELETE',
+                    success: function(result) {
+                        // 清空表格内容
+                        $("table tbody").empty();
+                        // 可以在这里添加代码来更新其他页面元素，如计数器等
+                    },
+                    error: function(xhr, status, error) {
+                        alert('削除中にエラーが発生しました。');
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
