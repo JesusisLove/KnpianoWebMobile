@@ -71,4 +71,30 @@ GROUP BY
     DELETE FROM KNStudent.t_info_lesson_pay WHERE lsn_pay_id IS NOT NULL LIMIT 1000000;
     DELETE FROM KNStudent.t_info_lesson_fee WHERE lsn_fee_id IS NOT NULL LIMIT 1000000;
     DELETE FROM KNStudent.t_info_lesson WHERE lesson_id IS NOT NULL LIMIT 1000000;
-    DELETE FROM KNStudent.t_sp_execution_log where id is not null limit 1000000;
+    DELETE FROM KNStudent.t_info_lsn_fee_advc_pay WHERE lesson_id IS NOT NULL LIMIT 1000000;
+    DELETE FROM KNStudent.t_fixedlesson_status  limit 1000000;
+	DELETE FROM KNStudent.t_sp_execution_log where id is not null limit 1000000;
+    
+
+/*
+遇到 "Error Code: 1175" 错误是因为 MySQL 的安全更新模式（safe update mode）启用了此保护，
+防止在没有使用主键或唯一索引的 WHERE 子句的情况下更新或删除数据。这是为了避免意外修改或删除过多的数据。
+*/
+-- 创建临时表以存储需要保留的 lesson_id
+CREATE TEMPORARY TABLE temp_valid_lessons AS
+SELECT a.lesson_id
+FROM KNStudent.t_info_lsn_fee_advc_pay a
+INNER JOIN KNStudent.t_info_lesson b
+ON a.lesson_id = b.lesson_id;
+SET SQL_SAFE_UPDATES = 0;
+-- 删除 t_info_lsn_fee_advc_pay 表中不在临时表中的记录
+DELETE FROM KNStudent.t_info_lsn_fee_advc_pay
+WHERE lesson_id NOT IN (
+    SELECT lesson_id
+    FROM temp_valid_lessons
+);
+SET SQL_SAFE_UPDATES = 1;
+-- 删除临时表
+DROP TEMPORARY TABLE temp_valid_lessons;
+
+select * from t_info_lsn_fee_advc_pay;

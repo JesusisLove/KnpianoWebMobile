@@ -81,9 +81,16 @@
 <div th:replace="~{commons/bar::topbar}"></div>
 <div class="container-fluid">
     <div class="row">
+
+        
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_pay_lsn_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <hr/>
+            <div id="successMessageDiv" class="alert alert-success mt-3" style="display: none;" role="alert">
+                <p id="successMessageContent"></p>
+            </div>
+
+            
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_advc_pay_lsn/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
@@ -91,6 +98,11 @@
                         <label>学生姓名</label> 
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
+                            <option th:each="student : ${lsnfeestuList}" 
+                                    th:value="${student.stuId}" 
+                                    th:text="${student.stuName}"
+                                    th:selected="${student.stuId == (advcPayMap != null ? advcPayMap['stuId'] : '')}">
+                            </option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -112,8 +124,21 @@
                         </select>
                     </div>
                 </div>
-                
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                 <button type="submit" class="btn btn-primary">検 索</button>
+
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    错误信息：[[${errorMessage}]]
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    错误信息长度：[[${#strings.length(errorMessage)}]]
+                    错误信息内容：[[${errorMessage}]]
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger" style="color: black !important; display: block !important;">
+                    [[${errorMessage}]]
+                </div>
+                <div id="errorMessageDiv" th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
                 <hr/>
                 
                 <!-- 业务说明部分 -->
@@ -133,14 +158,6 @@
                     <p class="no-info-message">目前没有学生的未支付信息！</p>
                 </div>
             </form> 
-
-            <!-- 显示错误消息 -->
-            <div id="successMessageDiv" th:if="${successMessage}" class="alert alert-success mt-3" role="alert">
-                <p th:text="${successMessage}"></p>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-                <p th:text="${errorMessage}"></p>
-            </div>
 
             <!-- 明細部 -->
             <div class="table-responsive">
@@ -209,41 +226,26 @@
 <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
 
 <script th:inline="javascript">
-document.addEventListener('DOMContentLoaded', function() {
-    var successMessageDiv = document.getElementById('successMessageDiv');
-        if (successMessageDiv) {
-            // 确保消息可见
-            successMessageDiv.style.display = 'block';
-            
-            // 防止页面刷新或其他操作立即隐藏消息
-            setTimeout(function() {
-                successMessageDiv.style.display = 'none';
-            }, 5000); // 5秒后隐藏消息
+/*<![CDATA[*/
+    // 使用Thymeleaf内联方式获取消息
+    var successMessage = /*[[${successMessage}]]*/ null;
+    var errorMessage = /*[[${errorMessage}]]*/ null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOMContentLoaded event fired");
+        console.log("Success Message:", successMessage);
+        console.log("Error Message:", errorMessage);
+
+        if (successMessage && successMessage !== 'null') {
+            document.getElementById('successMessageContent').textContent = successMessage;
+            document.getElementById('successMessageDiv').style.display = 'block';
+        }
+        
+        if (errorMessage && errorMessage !== 'null') {
+            document.getElementById('errorMessageContent').textContent = errorMessage;
+            document.getElementById('errorMessageDiv').style.display = 'block';
         }
     });
-
-    // 从后端传递的要付费的学生数据
-    var jsonStuSubList = [[${lsnfeestuList}]];
-    
-    // 页面加载完成后，初始化学生下拉列表
-    window.onload = function() {
-        // 初期化结算课程的学生
-        var studentSelect = document.getElementById('studentSelect');
-        var selectedStuId = [[${advcPayMap != null ? advcPayMap['stuId'] : ''}]];
-        var uniqueStudentIds = new Set(); // 使用集合来避免重复
-    
-        // 从stuSubList添加学生姓名到下拉列表，确保不重复
-        jsonStuSubList.forEach(function(item) {
-            if (!uniqueStudentIds.has(item.stuId)) {
-                uniqueStudentIds.add(item.stuId);
-                var option = new Option(item.stuName, item.stuId);
-                if (item.stuId == selectedStuId) {
-                    option.selected = true;
-                }
-                studentSelect.add(option);
-            }
-        });
-    };
 
     // 处理复选框改变事件
     document.querySelectorAll('.row-checkbox').forEach(function(checkbox) {
@@ -304,75 +306,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return regex.test(dateString);
     }
 
-    // function sendDataToServer(selectedRows, bankId) {
-    //     var dataToSend = selectedRows.map(row => ({
-    //         ...row,
-    //         bankId: bankId
-    //     }));
-
-    //     fetch('/liu/kn_advc_pay_lsn', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(dataToSend),
-    //     })
-    //     .then(response => {
-    //         if (response.redirected) {
-    //             // 使用 replace 而不是 assign，防止浏览器历史堆栈出现问题
-    //             window.location.replace(response.url);
-    //         } else if (!response.ok) {
-    //             throw new Error('Server response was not ok.');
-    //         }
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error:', error);
-    //         alert('课费预支付失败，请重试。错误详情：' + error.message);
-    //     });
-    // }
-
-    // function sendDataToServer(selectedRows, bankId) {
-    //     var dataToSend = selectedRows.map(row => ({
-    //         ...row,
-    //         bankId: bankId
-    //     }));
-
-    //     fetch('/liu/kn_advc_pay_lsn', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(dataToSend),
-    //     })
-    //     .then(response => {
-    //         if (response.redirected) {
-    //             window.location.href = response.url;
-    //         } else if (response.ok) {
-    //             return response.json();
-    //         } else {
-    //             throw new Error('Server response was not ok.');
-    //         }
-    //     })
-    //     .then(data => {
-    //         if (data && data.successMessage) {
-    //             // 如果服务器返回了成功消息，刷新页面以显示消息
-    //             location.reload();
-    //         }
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error:', error);
-    //         alert('课费预支付失败，请重试。错误详情：' + error.message);
-    //     });
-    // }
-
-    // 这少这个方法执行时，在chrome的控制台上还能闪现一下成功消息，上两个都不能。继续调查
     function sendDataToServer(selectedRows, bankId) {
         var dataToSend = selectedRows.map(row => ({
             ...row,
             bankId: bankId
         }));
 
-        fetch('/liu/kn_advc_pay_lsn', {
+        fetch('/liu/kn_advc_pay_lsn_execute', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -385,7 +325,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.redirected) {
                 console.log("Redirecting to:", response.url);
-                // 使用 replace 而不是 assign，防止浏览器历史堆栈出现问题
                 window.location.replace(response.url);
             } else if (!response.ok) {
                 throw new Error('Server response was not ok.');
@@ -396,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('课费预支付失败，请重试。错误详情：' + error.message);
         });
     }
+/*]]>*/
 </script>
 </body>
 </html>

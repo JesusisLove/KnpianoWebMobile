@@ -27,6 +27,7 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 
 @Controller
 public class Kn02F003LsnFeeAdvcPayController {
@@ -98,17 +99,30 @@ public class Kn02F003LsnFeeAdvcPayController {
         return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
     }
     
-    @PostMapping("/kn_advc_pay_lsn")
+    @PostMapping("/kn_advc_pay_lsn_execute")
     public String executeAdvanceLsnFeePay(@RequestParam Map<String, Object> queryParams, 
                                           @RequestBody List<Kn02F003LsnFeeAdvcPayBean> beans,
                                           RedirectAttributes redirectAttributes,
                                           Model model) {
+
+        // 执行之前先做check：是否同一个月的课费预支付在重复执行（查看课费预支付表）
+        String stuId = beans.get(0).getStuId();
+        String stuName = beans.get(0).getStuName();
+        String yearMonth = new SimpleDateFormat("yyyy-MM").format(beans.get(0).getSchedualDate());
+
+        List<Kn02F003LsnFeeAdvcPayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth);
+        if (advcPaidList.size() > 0) {
+            // 添加更新不可消息
+            redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
+            return "redirect:/kn_advc_pay_lsn";
+        }
+
         // 处理多个对象的逻辑
         for (Kn02F003LsnFeeAdvcPayBean bean : beans) {
             // 对每个bean进行处理
             kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
         }
-        String stuName = beans.get(0).getStuName();
+        
         // 添加成功消息
         redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费成功预支付。");
         return "redirect:/kn_advc_pay_lsn";
