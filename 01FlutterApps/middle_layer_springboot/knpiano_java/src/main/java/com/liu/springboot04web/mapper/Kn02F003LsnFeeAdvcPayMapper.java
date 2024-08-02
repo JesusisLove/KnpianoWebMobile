@@ -17,6 +17,12 @@ public interface Kn02F003LsnFeeAdvcPayMapper {
                                                                          @Param("year") String year,
                                                                          @Param("yearMonth") String yearMonth);
                                                                          
+    public Kn02F003LsnFeeAdvcPayBean getAdvcFeePaidyInfoByIds(@Param("lessonId") String lessonId,
+                                                                    @Param("lsnFeeId") String lsnFeeId,
+                                                                    @Param("lsnPayId") String lsnPayId);
+
+    public void updateInfo(Kn02F003LsnFeeAdvcPayBean bean);
+
     void executeAdvcLsnFeePay(
         @Param("stuId") String stuId,
         @Param("subjectId") String subjectId,
