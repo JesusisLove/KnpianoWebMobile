@@ -14,6 +14,7 @@ public interface Kn02F003LsnFeeAdvcPayMapper {
                                                                 @Param("yearMonth") String yearMonth);
 
     public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePaidInfoByCondition(@Param("stuId") String stuId,
+                                                                         @Param("year") String year,
                                                                          @Param("yearMonth") String yearMonth);
                                                                          
     void executeAdvcLsnFeePay(

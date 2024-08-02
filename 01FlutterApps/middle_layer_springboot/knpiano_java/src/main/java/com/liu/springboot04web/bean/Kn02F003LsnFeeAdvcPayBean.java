@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 
 public class Kn02F003LsnFeeAdvcPayBean {
+    protected String lessonId;
+    protected String lsnFeeId;
+    protected String lsnPayId;
     protected String subjectId;
     protected String subjectSubId;
     protected String subjectName;
@@ -42,7 +45,10 @@ public class Kn02F003LsnFeeAdvcPayBean {
     // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
     protected float     subjectPrice;
     protected Integer   minutesPerLsn;
+    protected float     lsnPay;
     protected String  bankId;
+    protected String  bankName;
+    protected Integer advcFlg;
     
 
     public String getSubjectId() {
@@ -129,6 +135,42 @@ public class Kn02F003LsnFeeAdvcPayBean {
     }
     public void setBankId(String bankId) {
         this.bankId = bankId;
+    }
+    public String getLessonId() {
+        return lessonId;
+    }
+    public void setLessonId(String lessonId) {
+        this.lessonId = lessonId;
+    }
+    public String getLsnFeeId() {
+        return lsnFeeId;
+    }
+    public void setLsnFeeId(String lsnFeeId) {
+        this.lsnFeeId = lsnFeeId;
+    }
+    public String getLsnPayId() {
+        return lsnPayId;
+    }
+    public void setLsnPayId(String lsnPayId) {
+        this.lsnPayId = lsnPayId;
+    }
+    public String getBankName() {
+        return bankName;
+    }
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+    public float getLsnPay() {
+        return lsnPay;
+    }
+    public void setLsnPay(float lsnPay) {
+        this.lsnPay = lsnPay;
+    }
+    public Integer getAdvcFlg() {
+        return advcFlg;
+    }
+    public void setAdvcFlg(Integer advcFlg) {
+        this.advcFlg = advcFlg;
     }
 
 }

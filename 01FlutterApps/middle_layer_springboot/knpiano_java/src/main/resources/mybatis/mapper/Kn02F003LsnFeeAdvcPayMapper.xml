@@ -19,18 +19,49 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <select id="getAdvcFeePaidInfoByCondition" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
-        SELECT 
+        SELECT
+            advc.lesson_id,
+            advc.lsn_fee_id,
+            advc.lsn_pay_id,
             lsn.stu_id,
-            lsn.schedual_date
+            lsn.stu_name,
+            lsn.subject_id,
+            lsn.subject_name,
+            lsn.subject_sub_id,
+            lsn.subject_sub_name,
+            lsn.schedual_date,
+            pay.lsn_pay,
+            pay.bank_id,
+            bnk.bank_Name,
+            advc.advc_flg
         FROM
             v_info_lesson lsn
         INNER JOIN 
             t_info_lsn_fee_advc_pay advc
         ON 
             lsn.lesson_id = advc.lesson_id
-        WHERE stu_id = #{stuId}
-          AND substring(schedual_date,1,7) = #{yearMonth}
+        INNER JOIN
+            t_info_lesson_pay pay
+        ON
+            advc.lsn_pay_id = pay.lsn_pay_id
+        INNER JOIN
+            t_mst_bank bnk
+        ON
+            pay.bank_id = bnk.bank_id
+        <where>
+            <if test="stuId != null and stuId != ''">
+                AND stu_id = #{stuId}
+            </if>
+            <if test="yearMonth != null and yearMonth != ''">
+                AND substring(schedual_date,1,7) = #{yearMonth}
+            </if>
+            <if test="year != null and year != ''">
+                AND substring(schedual_date,1,4) = #{year}
+            </if>
+        </where>
+        ORDER BY schedual_date DESC
     </select>
+    
 
     <!-- 获得该生要预支付学费的课程信息 -->
     <select id="executeAdvcLsnFeePay" statementType="CALLABLE">
