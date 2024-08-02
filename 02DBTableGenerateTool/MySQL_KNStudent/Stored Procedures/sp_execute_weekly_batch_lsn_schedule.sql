@@ -1,5 +1,7 @@
 DELIMITER //
 
+DROP PROCEDURE IF EXISTS sp_execute_weekly_batch_lsn_schedule //
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_execute_weekly_batch_lsn_schedule`(IN start_date_str VARCHAR(10), IN end_date_str VARCHAR(10), IN SEQCode VARCHAR(20))
 BEGIN
     -- 声明常量

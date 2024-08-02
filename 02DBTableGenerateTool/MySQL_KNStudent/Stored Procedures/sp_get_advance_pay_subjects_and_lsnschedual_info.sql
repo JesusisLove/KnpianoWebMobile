@@ -1,5 +1,7 @@
 DELIMITER //
 
+DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
+
 CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
 BEGIN
     DECLARE v_year INT;
