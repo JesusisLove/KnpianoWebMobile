@@ -26,8 +26,9 @@ public class Kn02F003LsnFeeAdvcPayDao {
     }
 
     public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePaidInfoByCondition(String stuId,
+                                                                         String year,
                                                                          String yearMonth) {
-        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidInfoByCondition(stuId, yearMonth);
+        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidInfoByCondition(stuId, year, yearMonth);
     }
 
     public Integer executeAdvcLsnFeePay(Kn02F003LsnFeeAdvcPayBean bean) {

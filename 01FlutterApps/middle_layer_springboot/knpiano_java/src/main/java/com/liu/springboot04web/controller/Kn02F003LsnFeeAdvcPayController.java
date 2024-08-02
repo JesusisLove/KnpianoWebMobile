@@ -60,7 +60,7 @@ public class Kn02F003LsnFeeAdvcPayController {
     @GetMapping("/kn_advc_pay_lsn")
     public String list(Model model, @ModelAttribute("successMessage") String successMessage) {
 
-        // 空一览
+        // 画面初期化基本设定
         setModel(model);
         System.out.println("Received successMessage: " + successMessage); 
         if (!successMessage.isEmpty()) {
@@ -81,10 +81,14 @@ public class Kn02F003LsnFeeAdvcPayController {
 
         if (!validateHasError(model,queryParams,null)) {
             String yearMonth = queryParams.get("selectedyear") + "-" + lsnMonth;
-            // 根据课费编号，取得未支付的课费信息
-            List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             // 将学生交费信息响应送给前端
+            List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             model.addAttribute("infoList", list);
+
+            // 提取该生当前月份的预支付历史情况
+            List<Kn02F003LsnFeeAdvcPayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0,4) ,null);
+            model.addAttribute("historyList", advcPaidHistorylist);
+
             // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
             Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
             model.addAttribute("bankMap", stuBankMap);
@@ -94,6 +98,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         backForwordMap.putAll(queryParams);
         model.addAttribute("advcPayMap", backForwordMap);
 
+        // 画面初期化基本设定
         setModel(model);
 
         return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
@@ -110,7 +115,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         String stuName = beans.get(0).getStuName();
         String yearMonth = new SimpleDateFormat("yyyy-MM").format(beans.get(0).getSchedualDate());
 
-        List<Kn02F003LsnFeeAdvcPayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth);
+        List<Kn02F003LsnFeeAdvcPayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
         if (advcPaidList.size() > 0) {
             // 添加更新不可消息
             redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
