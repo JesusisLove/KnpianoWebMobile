@@ -31,6 +31,18 @@ public class Kn02F003LsnFeeAdvcPayDao {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidInfoByCondition(stuId, year, yearMonth);
     }
 
+    // 确认课程Id，课费Id，支付Id在课费预支付表里是否存在
+    public Kn02F003LsnFeeAdvcPayBean getAdvcFeePaidyInfoByIds(String lessonId,
+                                                                    String lsnFeeId,
+                                                                    String lsnPayId) {
+        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidyInfoByIds(lessonId, lsnFeeId, lsnPayId);
+    }
+
+    // 课程签到/撤销时，用到该处理
+    public void update(Kn02F003LsnFeeAdvcPayBean bean) {
+        kn02F003LsnFeeAdvcPayMapper.updateInfo(bean);
+    }
+
     public Integer executeAdvcLsnFeePay(Kn02F003LsnFeeAdvcPayBean bean) {
         SqlSession session = sqlSessionFactory.openSession();
         try {

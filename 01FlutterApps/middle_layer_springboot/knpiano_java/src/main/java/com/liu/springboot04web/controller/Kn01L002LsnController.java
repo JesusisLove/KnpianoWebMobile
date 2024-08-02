@@ -126,17 +126,19 @@ public class Kn01L002LsnController{
     }
 
     // 【一覧画面明细部】签到ボタンを押下
-    @GetMapping("/kn_lsn_001_lsn_sign/{id}")
-    public String lessonSign(@PathVariable("id") String id, Model model) {
+    @GetMapping("/kn_lsn_001_lsn_sign/{lessonid}")
+    public String lessonSign(@PathVariable("lessonid") String id, Model model) {
         // 拿到该课程信息
         Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
+        
+        // 执行签到
         knLsn001Dao.excuteSign(knLsn001Bean);
         return "redirect:/kn_lsn_001_all";
     }
 
     // 【一覧画面明细部】撤销ボタンを押下
-    @GetMapping("/kn_lsn_001_lsn_undo/{id}")
-    public String lessonUndo(@PathVariable("id") String id, Model model) {
+    @GetMapping("/kn_lsn_001_lsn_undo/{lessonid}")
+    public String lessonUndo(@PathVariable("lessonid") String id, Model model) {
     
         // 拿到该课程信息
         Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
