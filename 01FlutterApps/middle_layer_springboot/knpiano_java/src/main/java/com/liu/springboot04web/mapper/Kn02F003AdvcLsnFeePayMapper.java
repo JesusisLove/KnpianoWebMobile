@@ -2,26 +2,26 @@ package com.liu.springboot04web.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean;
+import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public interface Kn02F003LsnFeeAdvcPayMapper {
+public interface Kn02F003AdvcLsnFeePayMapper {
 
-    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePayLsnInfo(@Param("stuId") String stuId,
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayLsnInfo(@Param("stuId") String stuId,
                                                                 @Param("yearMonth") String yearMonth);
 
-    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePaidInfoByCondition(@Param("stuId") String stuId,
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePaidInfoByCondition(@Param("stuId") String stuId,
                                                                          @Param("year") String year,
                                                                          @Param("yearMonth") String yearMonth);
                                                                          
-    public Kn02F003LsnFeeAdvcPayBean getAdvcFeePaidyInfoByIds(@Param("lessonId") String lessonId,
+    public Kn02F003AdvcLsnFeePayBean getAdvcFeePaidyInfoByIds(@Param("lessonId") String lessonId,
                                                                     @Param("lsnFeeId") String lsnFeeId,
                                                                     @Param("lsnPayId") String lsnPayId);
 
-    public void updateInfo(Kn02F003LsnFeeAdvcPayBean bean);
+    public void updateInfo(Kn02F003AdvcLsnFeePayBean bean);
 
     void executeAdvcLsnFeePay(
         @Param("stuId") String stuId,

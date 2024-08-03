@@ -67,6 +67,16 @@ static const String apiFeeMonthlyReport = '/liu/mb_kn02f005_all';
 static const String apiFeeUnpaidReport = '/liu/mb_kn02f005_unpaid_details';
 
 
+// 取得预支付科目信息
+static const String apiAdvcLsnFeePayInfo = '/liu/mb_kn_advc_pay_lsn';
+
+// 未缴纳学费明细
+static const String apiAdvcLsnPaidHistory = '/liu/mb_kn_advc_paid_history';
+
+// 未缴纳学费明细
+static const String apiExecuteAdvcLsnPay = '/liu/mb_kn_advc_pay_lsn_execute';
+
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
@@ -147,6 +157,8 @@ static const String stuDocLsnDuration = '/liu/mb_kn_duration';
 
 // 学生档案一览画面，点击“删除”按钮的url请求
 static const String stuDocInfoDelete = '/liu/mb_kn_studoc_001_delete';
+
+
 
 
 //.......设置................................................................................

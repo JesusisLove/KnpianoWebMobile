@@ -5,22 +5,22 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 
-public class Kn02F003LsnFeeAdvcPayBean {
-    protected String lessonId;
-    protected String lsnFeeId;
-    protected String lsnPayId;
-    protected String subjectId;
-    protected String subjectSubId;
-    protected String subjectName;
-    protected String subjectSubName;
-    protected String stuId;
-    protected String stuName;
-    protected Integer classDuration;
-    protected Integer lessonType;
-    protected Integer schedualType;
+public class Kn02F003AdvcLsnFeePayBean {
+    protected String    lessonId;
+    protected String    lsnFeeId;
+    protected String    lsnPayId;
+    protected String    subjectId;
+    protected String    subjectSubId;
+    protected String    subjectName;
+    protected String    subjectSubName;
+    protected String    stuId;
+    protected String    stuName;
+    protected Integer   classDuration;
+    protected Integer   lessonType;
+    protected Integer   schedualType;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 接受手机前端的请求时接纳前端String类型的日期值
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
-    protected Date schedualDate;
+    protected Date      schedualDate;
     /* GMT 
      * 详细解释：
      *      GMT（格林威治标准时间）:
@@ -41,14 +41,14 @@ public class Kn02F003LsnFeeAdvcPayBean {
      * 东京时间（Japan Standard Time, JST）是 GMT+9，即比 GMT 时间快 9 小时。
      * 
     */
-    protected Integer payStyle;
+    protected Integer   payStyle;
     // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
     protected float     subjectPrice;
     protected Integer   minutesPerLsn;
     protected float     lsnPay;
-    protected String  bankId;
-    protected String  bankName;
-    protected Integer advcFlg;
+    protected String    bankId;
+    protected String    bankName;
+    protected Integer   advcFlg;
     
 
     public String getSubjectId() {

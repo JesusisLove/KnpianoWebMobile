@@ -5,45 +5,45 @@ import org.springframework.stereotype.Repository;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
-import com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean;
+import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
 import com.liu.springboot04web.constant.KNConstant;
-import com.liu.springboot04web.mapper.Kn02F003LsnFeeAdvcPayMapper;
+import com.liu.springboot04web.mapper.Kn02F003AdvcLsnFeePayMapper;
 
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-public class Kn02F003LsnFeeAdvcPayDao {
+public class Kn02F003AdvcLsnFeePayDao {
     @Autowired
-    private Kn02F003LsnFeeAdvcPayMapper kn02F003LsnFeeAdvcPayMapper;
+    private Kn02F003AdvcLsnFeePayMapper kn02F003LsnFeeAdvcPayMapper;
 
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
-    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePayLsnInfo (String stuId, String yearMonth) {
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayLsnInfo (String stuId, String yearMonth) {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayLsnInfo(stuId, yearMonth);
     }
 
-    public List<Kn02F003LsnFeeAdvcPayBean> getAdvcFeePaidInfoByCondition(String stuId,
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePaidInfoByCondition(String stuId,
                                                                          String year,
                                                                          String yearMonth) {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidInfoByCondition(stuId, year, yearMonth);
     }
 
     // 确认课程Id，课费Id，支付Id在课费预支付表里是否存在
-    public Kn02F003LsnFeeAdvcPayBean getAdvcFeePaidyInfoByIds(String lessonId,
+    public Kn02F003AdvcLsnFeePayBean getAdvcFeePaidyInfoByIds(String lessonId,
                                                                     String lsnFeeId,
                                                                     String lsnPayId) {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePaidyInfoByIds(lessonId, lsnFeeId, lsnPayId);
     }
 
     // 课程签到/撤销时，用到该处理
-    public void update(Kn02F003LsnFeeAdvcPayBean bean) {
+    public void update(Kn02F003AdvcLsnFeePayBean bean) {
         kn02F003LsnFeeAdvcPayMapper.updateInfo(bean);
     }
 
-    public Integer executeAdvcLsnFeePay(Kn02F003LsnFeeAdvcPayBean bean) {
+    public Integer executeAdvcLsnFeePay(Kn02F003AdvcLsnFeePayBean bean) {
         SqlSession session = sqlSessionFactory.openSession();
         try {
             // 创建 Map 对象来接收输出参数
