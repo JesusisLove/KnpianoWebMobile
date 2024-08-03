@@ -8,6 +8,7 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
+import 'Kn02F003AdvcLsnFeePayPage.dart';
 import 'Kn02F003LsnPay.dart';
 
 // ignore: must_be_immutable
@@ -143,6 +144,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             onSelected: (String result) {
               if (result == 'prepay') {
                 print('预支付学费被选中');
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Kn02F003AdvcLsnFeePayPage(stuId: widget.stuId, stuName: widget.stuName,)));
+
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

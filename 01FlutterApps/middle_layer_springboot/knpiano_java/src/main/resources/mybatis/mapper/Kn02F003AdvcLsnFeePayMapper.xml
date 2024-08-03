@@ -9,9 +9,9 @@ https://mybatis.org/mybatis-3/getting-started.html
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.liu.springboot04web.mapper.Kn02F003LsnFeeAdvcPayMapper">
+<mapper namespace="com.liu.springboot04web.mapper.Kn02F003AdvcLsnFeePayMapper">
     <!-- 获得该生要预支付学费的课程信息 -->
-    <select id="getAdvcFeePayLsnInfo" statementType="CALLABLE" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
+    <select id="getAdvcFeePayLsnInfo" statementType="CALLABLE" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean">
         {call sp_get_advance_pay_subjects_and_lsnschedual_info (
             #{stuId,        mode=IN, jdbcType=VARCHAR},
             #{yearMonth,    mode=IN, jdbcType=VARCHAR}
@@ -19,7 +19,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 检查课程Id，课费Id，支付Id 在课费预支付表里是否存在 -->
-    <select id="getAdvcFeePaidyInfoByIds" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
+    <select id="getAdvcFeePaidyInfoByIds" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean">
         select * from t_info_lsn_fee_advc_pay
         <where>
             <if test="lessonId != null and lessonId != ''">
@@ -34,7 +34,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
     </select>
 
-    <select id="getAdvcFeePaidInfoByCondition" resultType="com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean">
+    <select id="getAdvcFeePaidInfoByCondition" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean">
         SELECT
             advc.lesson_id,
             advc.lsn_fee_id,

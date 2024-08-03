@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean;
+import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
 import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
-import com.liu.springboot04web.dao.Kn02F003LsnFeeAdvcPayDao;
+import com.liu.springboot04web.dao.Kn02F003AdvcLsnFeePayDao;
 import com.liu.springboot04web.dao.Kn03D003StubnkDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
 import com.liu.springboot04web.othercommon.DateUtils;
@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 
 @Controller
-public class Kn02F003LsnFeeAdvcPayController {
+public class Kn02F003AdvcLsnFeePayController {
     List<String> knYear = null; 
     List<String> knMonth = null;
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
@@ -39,13 +39,13 @@ public class Kn02F003LsnFeeAdvcPayController {
     Map<String, Object> backForwordMap;
 
     @Autowired
-    Kn02F003LsnFeeAdvcPayDao kn02F003LsnFeeAdvcPayDao;
+    Kn02F003AdvcLsnFeePayDao kn02F003LsnFeeAdvcPayDao;
     @Autowired
     Kn03D004StuDocDao kn03D004StuDocDao;
     @Autowired
     Kn03D003StubnkDao kn05S002StubnkDao;
 
-    public Kn02F003LsnFeeAdvcPayController(ComboListInfoService combListInfo) {
+    public Kn02F003AdvcLsnFeePayController(ComboListInfoService combListInfo) {
         // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
         // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
         backForwordMap = new HashMap<>();
@@ -82,11 +82,11 @@ public class Kn02F003LsnFeeAdvcPayController {
         if (!validateHasError(model,queryParams,null)) {
             String yearMonth = queryParams.get("selectedyear") + "-" + lsnMonth;
             // 将学生交费信息响应送给前端
-            List<Kn02F003LsnFeeAdvcPayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
+            List<Kn02F003AdvcLsnFeePayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             model.addAttribute("infoList", list);
 
             // 提取该生当前月份的预支付历史情况
-            List<Kn02F003LsnFeeAdvcPayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0,4) ,null);
+            List<Kn02F003AdvcLsnFeePayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0,4) ,null);
             model.addAttribute("historyList", advcPaidHistorylist);
 
             // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
@@ -106,7 +106,7 @@ public class Kn02F003LsnFeeAdvcPayController {
     
     @PostMapping("/kn_advc_pay_lsn_execute")
     public String executeAdvanceLsnFeePay(@RequestParam Map<String, Object> queryParams, 
-                                          @RequestBody List<Kn02F003LsnFeeAdvcPayBean> beans,
+                                          @RequestBody List<Kn02F003AdvcLsnFeePayBean> beans,
                                           RedirectAttributes redirectAttributes,
                                           Model model) {
 
@@ -115,7 +115,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         String stuName = beans.get(0).getStuName();
         String yearMonth = new SimpleDateFormat("yyyy-MM").format(beans.get(0).getSchedualDate());
 
-        List<Kn02F003LsnFeeAdvcPayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
+        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
         if (advcPaidList.size() > 0) {
             // 添加更新不可消息
             redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
@@ -123,7 +123,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         }
 
         // 处理多个对象的逻辑
-        for (Kn02F003LsnFeeAdvcPayBean bean : beans) {
+        for (Kn02F003AdvcLsnFeePayBean bean : beans) {
             // 对每个bean进行处理
             kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
         }
@@ -161,7 +161,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         model.addAttribute("knmonthlist", knMonth);
     }
 
-    private boolean validateHasError(Model model, Map<String, Object> queryParams, Kn02F003LsnFeeAdvcPayBean bean) {
+    private boolean validateHasError(Model model, Map<String, Object> queryParams, Kn02F003AdvcLsnFeePayBean bean) {
         boolean hasError = false;
         List<String> msgList = new ArrayList<String>();
         hasError = inputDataHasError(queryParams, bean, msgList);
@@ -177,7 +177,7 @@ public class Kn02F003LsnFeeAdvcPayController {
         return hasError;
     }
 
-    private boolean inputDataHasError(Map<String, Object> queryParams,Kn02F003LsnFeeAdvcPayBean bean, List<String> msgList) {
+    private boolean inputDataHasError(Map<String, Object> queryParams,Kn02F003AdvcLsnFeePayBean bean, List<String> msgList) {
         
         if (queryParams != null) {
             String stuId = (String)queryParams.get("stuId");

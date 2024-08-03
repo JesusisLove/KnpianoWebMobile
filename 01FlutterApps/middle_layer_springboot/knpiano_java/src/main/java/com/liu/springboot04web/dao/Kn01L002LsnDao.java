@@ -2,7 +2,7 @@ package com.liu.springboot04web.dao;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
-import com.liu.springboot04web.bean.Kn02F003LsnFeeAdvcPayBean;
+import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
 import com.liu.springboot04web.bean.Kn02F004PayBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
@@ -29,7 +29,7 @@ public class Kn01L002LsnDao {
     @Autowired
     private Kn02F004PayDao    kn02f004PayDao;
     @Autowired
-    Kn02F003LsnFeeAdvcPayDao  kn02F003LsnFeeAdvcPayDao;
+    Kn02F003AdvcLsnFeePayDao  kn02F003LsnFeeAdvcPayDao;
 
     public List<Kn01L002LsnBean> getInfoList(String year) {
         List<Kn01L002LsnBean> list =knLsn001Mapper.getInfoList(year);
@@ -81,7 +81,7 @@ public class Kn01L002LsnDao {
 
             // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往课费表里进行插入操作，否则会发生主键冲突
             String lessonId = knLsn001Bean.getLessonId();
-            Kn02F003LsnFeeAdvcPayBean advcPaidBean = 
+            Kn02F003AdvcLsnFeePayBean advcPaidBean = 
                         kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidyInfoByIds(lessonId, null, null);
             if (knLsn001Bean.getLessonType() == 1 && advcPaidBean != null) {
                 // 对课费预支付表里的该当lesson_id的advc_flg值做更新操作（advc_flg值，从0更新为1）
@@ -185,7 +185,7 @@ public class Kn01L002LsnDao {
 
         // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往课费表里进行插入操作，否则会发生主键冲突
         String lessonId = knLsn001Bean.getLessonId();
-        Kn02F003LsnFeeAdvcPayBean advcPaidBean = 
+        Kn02F003AdvcLsnFeePayBean advcPaidBean = 
                     kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidyInfoByIds(lessonId, null, null);
         if (knLsn001Bean.getLessonType() == 1 && advcPaidBean != null) {
             // 对课费预支付表里的该当lesson_id的advc_flg值做更新操作（advc_flg值，从1还原为0）

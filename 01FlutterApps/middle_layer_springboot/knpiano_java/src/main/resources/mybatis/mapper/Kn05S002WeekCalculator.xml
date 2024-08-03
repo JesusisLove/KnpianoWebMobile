@@ -35,6 +35,7 @@
         SET fixed_status= #{lsnStatus}
         WHERE start_week_date=#{weekStart}
           AND end_week_date=#{weekEnd}
+          LIMIT 1
     </update>
 
     <!-- 只撤销Batch排课部分，手动排课保留 -->
