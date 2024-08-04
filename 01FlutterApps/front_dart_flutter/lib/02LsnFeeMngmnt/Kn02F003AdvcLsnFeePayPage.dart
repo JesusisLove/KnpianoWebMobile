@@ -7,14 +7,26 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F003AdvcLsnFeePayBean.dart';
 
+// ignore: must_be_immutable
 class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
   final String stuId;
   final String stuName;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
 
-  const Kn02F003AdvcLsnFeePayPage({super.key, required this.stuId, required this.stuName});
+  Kn02F003AdvcLsnFeePayPage({
+    super.key, 
+    required this.stuId, 
+    required this.stuName,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   _Kn02F003AdvcLsnFeePayPageState createState() => _Kn02F003AdvcLsnFeePayPageState();
@@ -26,14 +38,17 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   List<Kn02F003AdvcLsnFeePayBean> stuFeeDetailList = [];
   int stuFeeDetailCount = 0;
   List<Map<String, dynamic>> bankList = [];
+  late List<int> years;
   String? selectedBank;
+  String titleName = "的课费预支付";
 
-  List<int> years = List.generate(7, (index) => DateTime.now().year - 3 + index);
   List<int> months = List.generate(12, (index) => index + 1);
 
   @override
   void initState() {
     super.initState();
+    int currentYear = DateTime.now().year;
+    years = List.generate(currentYear - 2017, (index) => currentYear - index);
     fetchBankList();
   }
 
@@ -77,17 +92,24 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SizedBox(
+        return Container(
           height: 250,
+          decoration: BoxDecoration(
+            color: Colors.pink[50],
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Column(
             children: [
               Container(
                 height: 40,
-                color: Colors.grey[200],
+                decoration: BoxDecoration(
+                  color: Colors.pink[100],
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                ),
                 child: const Center(
                   child: Text(
                     '选择年份',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
                   ),
                 ),
               ),
@@ -99,7 +121,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       selectedYear = years[index];
                     });
                   },
-                  children: years.map((year) => Center(child: Text(year.toString()))).toList(),
+                  children: years.map((year) => Center(child: Text(year.toString(), style: const TextStyle(color: Colors.red)))).toList(),
                 ),
               ),
             ],
@@ -114,17 +136,24 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SizedBox(
+        return Container(
           height: 250,
+          decoration: BoxDecoration(
+            color: Colors.pink[50],
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Column(
             children: [
               Container(
                 height: 40,
-                color: Colors.grey[200],
+                decoration: BoxDecoration(
+                  color: Colors.pink[100],
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                ),
                 child: const Center(
                   child: Text(
                     '选择月份',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
                   ),
                 ),
               ),
@@ -136,7 +165,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       selectedMonth = months[index];
                     });
                   },
-                  children: months.map((month) => Center(child: Text(month.toString().padLeft(2, '0')))).toList(),
+                  children: months.map((month) => Center(child: Text(month.toString().padLeft(2, '0'), style: const TextStyle(color: Colors.red)))).toList(),
                 ),
               ),
             ],
@@ -146,117 +175,274 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
     );
   }
 
+  // 新增：显示错误消息的方法
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('错误'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 新增：执行课费预支付的方法
+  Future<void> executeAdvcLsnPay() async {
+    // 检查是否有选中的科目
+    List<Kn02F003AdvcLsnFeePayBean> selectedItems = stuFeeDetailList.where((item) => item.isChecked).toList();
+    if (selectedItems.isEmpty) {
+      showErrorDialog('执行预支付，至少选择一个科目。');
+      return;
+    }
+
+    // 检查选中的科目是否都有排课日期
+    if (selectedItems.any((item) => item.schedualDate.isEmpty)) {
+      showErrorDialog('请输入您要排课的日期：yyyy-MM-dd hh:mm');
+      return;
+    }
+
+    // 检查是否选择了银行
+    if (selectedBank == null) {
+      showErrorDialog('请选择要存入的银行。');
+      return;
+    }
+
+    // 更新选中项目的银行ID
+    for (var item in selectedItems) {
+      item.bankId = selectedBank!;
+    }
+
+    final String yearMonth = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
+    // 发送数据到后端
+    final String apiExecuteAdvcLsnPayUrl = '${KnConfig.apiBaseUrl}${Constants.apiExecuteAdvcLsnPay}/${widget.stuId}/$yearMonth';
+    try {
+      final response = await http.post(
+        Uri.parse(apiExecuteAdvcLsnPayUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(selectedItems),
+      );
+
+      if (response.statusCode == 200) {
+        // 支付成功
+        if (mounted) {
+          // 显示绿底白字的成功消息
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                utf8.decode(response.bodyBytes),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                ),
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 5),
+              // behavior: SnackBarBehavior.floating, // 使 SnackBar 浮动 // 此代码保留不要删除，这是设置showSnackBar的显示风格
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          );
+          
+          // 延迟一小段时间后关闭当前页面
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.of(context).pop(true); // 关闭当前页面，返回上一级
+          });
+        }
+      } else {
+        // 显示错误信息
+        showErrorDialog(utf8.decode(response.bodyBytes));
+      }
+    } catch (e) {
+      print('Error details: $e');
+      showErrorDialog('网络错误：$e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.stuName}的课费预支付'),
+      appBar: KnAppBar(
+        title: widget.stuName + titleName,
+        subtitle: "${widget.pagePath} >> 课费预支付",
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red - 20, 
+                                   widget.knFontColor.green - 20, 
+                                   widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+                                   widget.knFontColor.red + 20, 
+                                   widget.knFontColor.green + 20, 
+                                   widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
       ),
-      body: Column(
-        children: [
-          // 年月选择和检索按钮
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                onTap: _showYearPicker,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(5),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // 年月选择和检索按钮
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: _showYearPicker,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.pink[50],
+                      ),
+                      child: Row(
+                        children: [
+                          Text('$selectedYear年', style: const TextStyle(color: Colors.red)),
+                          const Icon(Icons.arrow_drop_down, color: Colors.red),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Text('$selectedYear年'),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
+                  GestureDetector(
+                    onTap: _showMonthPicker,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.pink[50],
+                      ),
+                      child: Row(
+                        children: [
+                          Text('${selectedMonth.toString().padLeft(2, '0')}月', style: const TextStyle(color: Colors.red)),
+                          const Icon(Icons.arrow_drop_down, color: Colors.red),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              GestureDetector(
-                onTap: _showMonthPicker,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(5),
+                  ElevatedButton(
+                    onPressed: fetchAdvcLsnInfoDetails,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[500],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      '检索',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Text('${selectedMonth.toString().padLeft(2, '0')}月'),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
-                ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: fetchAdvcLsnInfoDetails,
-                child: const Text('检索'),
-              ),
-            ],
-          ),
-          // 费用详情列表
-          Expanded(
-            child: ListView.separated(
-              itemCount: stuFeeDetailCount,
-              separatorBuilder: (context, index) => const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Divider(color: Colors.grey),
-              ),
-              itemBuilder: (context, index) {
-                final item = stuFeeDetailList[index];
-                return FeeDetailItem(item: item);
-              },
             ),
-          ),
-          // 银行选择和支付按钮
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: selectedBank,
-                    items: bankList.map((bank) => DropdownMenuItem<String>(
-                      value: bank['bankId'],
-                      child: Text(bank['bankName']),
-                    )).toList(),
-                    onChanged: (value) {
+            // 费用详情列表
+            Container(
+              color: Colors.grey[200],
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                itemCount: stuFeeDetailCount,
+                separatorBuilder: (context, index) => const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Divider(color: Colors.grey),
+                ),
+                itemBuilder: (context, index) {
+                  final kn02F003AdvcLsnFeePayBean = stuFeeDetailList[index];
+                  return AdvcLsnDetails(
+                    item: kn02F003AdvcLsnFeePayBean,
+                    onChanged: (bool? value) {
                       setState(() {
-                        selectedBank = value;
+                        kn02F003AdvcLsnFeePayBean.isChecked = value!;
                       });
                     },
-                    hint: const Text('请选择银行名称'),
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: 实现课费预支付逻辑
-                  },
-                  child: const Text('课费预支付'),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            // 银行选择和支付按钮
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.pink[50],
+                      ),
+                      child: DropdownButton<String>(
+                        value: selectedBank,
+                        items: bankList.map((bank) => DropdownMenuItem<String>(
+                          value: bank['bankId'],
+                          child: Text(bank['bankName'], style: const TextStyle(color: Colors.red)),
+                        )).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedBank = value;
+                          });
+                        },
+                        hint: const Text('请选择银行名称', style: TextStyle(color: Colors.red)),
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        icon: const Icon(Icons.arrow_drop_down, color: Colors.red),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  ElevatedButton(
+                    onPressed: executeAdvcLsnPay,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[800],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ), // 修改：使用新的executeAdvcLsnPay方法
+                    child: const Text(
+                      '课费预支付',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class FeeDetailItem extends StatefulWidget {
+// AdvcLsnDetails 类修改
+class AdvcLsnDetails extends StatefulWidget {
   final Kn02F003AdvcLsnFeePayBean item;
+  final Function(bool?) onChanged; // 新增：回调函数
 
-  const FeeDetailItem({super.key, required this.item});
+  const AdvcLsnDetails({super.key, required this.item, required this.onChanged});
 
   @override
-  _FeeDetailItemState createState() => _FeeDetailItemState();
+  _AdvcLsnDetailsState createState() => _AdvcLsnDetailsState();
 }
 
-class _FeeDetailItemState extends State<FeeDetailItem> {
-  bool isChecked = false;
+class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
@@ -266,7 +452,7 @@ class _FeeDetailItemState extends State<FeeDetailItem> {
       return false;
     }
     try {
-      DateTime scheduleDate = DateFormat('yyyy-MM-dd HH:mm').parse(widget.item.schedualDate!);
+      DateTime scheduleDate = DateFormat('yyyy-MM-dd HH:mm').parse(widget.item.schedualDate);
       return scheduleDate.isBefore(DateTime.now());
     } catch (e) {
       print('日期解析错误: ${widget.item.schedualDate}');
@@ -301,6 +487,10 @@ class _FeeDetailItemState extends State<FeeDetailItem> {
       setState(() {
         selectedTime = picked;
       });
+      // 更新schedualDate
+      if (selectedDate != null) {
+        widget.item.schedualDate = "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${picked.format(context)}";
+      }
     }
   }
 
@@ -314,17 +504,19 @@ class _FeeDetailItemState extends State<FeeDetailItem> {
             : "");
 
     return CheckboxListTile(
-      value: isChecked,
+      value: widget.item.isChecked,
       onChanged: (value) {
         setState(() {
-          isChecked = value!;
-          if (isChecked && displayDate.isEmpty) {
+          widget.item.isChecked = value!;
+          if (widget.item.isChecked && displayDate.isEmpty) {
             _selectDate(context);
-          } else if (!isChecked) {
+          } else if (!widget.item.isChecked) {
             selectedDate = null;
             selectedTime = null;
+            widget.item.schedualDate = "";
           }
         });
+        widget.onChanged(value); // 调用回调函数
       },
       title: Text('${widget.item.subjectName} ${widget.item.subjectSubName}'),
       subtitle: Column(
@@ -345,12 +537,12 @@ class _FeeDetailItemState extends State<FeeDetailItem> {
               ],
             ),
           ),
-          if (displayDate.isEmpty && isChecked)
+          if (displayDate.isEmpty && widget.item.isChecked)
             Row(
               children: [
                 TextButton(
                   onPressed: () => _selectDate(context),
-                  child: Text('选择日期和时间'),
+                  child: const Text('选择日期和时间', style: TextStyle(color: Colors.red)),
                 ),
               ],
             ),

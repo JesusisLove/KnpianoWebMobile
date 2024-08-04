@@ -70,10 +70,10 @@ static const String apiFeeUnpaidReport = '/liu/mb_kn02f005_unpaid_details';
 // 取得预支付科目信息
 static const String apiAdvcLsnFeePayInfo = '/liu/mb_kn_advc_pay_lsn';
 
-// 未缴纳学费明细
+// 取得预支付科目记录的历史信息
 static const String apiAdvcLsnPaidHistory = '/liu/mb_kn_advc_paid_history';
 
-// 未缴纳学费明细
+// 执行课费预支付处理
 static const String apiExecuteAdvcLsnPay = '/liu/mb_kn_advc_pay_lsn_execute';
 
 

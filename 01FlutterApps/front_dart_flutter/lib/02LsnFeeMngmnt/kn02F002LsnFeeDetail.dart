@@ -141,11 +141,24 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                   actions: [
           PopupMenuButton<String>(
             icon: Icon(Icons.more_horiz, color:widget.knFontColor),
-            onSelected: (String result) {
+            onSelected: (String result) async {
               if (result == 'prepay') {
-                print('预支付学费被选中');
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Kn02F003AdvcLsnFeePayPage(stuId: widget.stuId, stuName: widget.stuName,)));
-
+                final bool? success = await Navigator.push<bool>(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => Kn02F003AdvcLsnFeePayPage(
+                      stuId: widget.stuId,
+                      stuName: widget.stuName,
+                      knBgColor: widget.knBgColor,
+                      knFontColor: widget.knFontColor,
+                      pagePath: widget.pagePath,
+                    )
+                  )
+                );
+                if (success == true) {
+                  // 如果预支付成功，刷新页面数据
+                  fetchFeeDetails();
+                }
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -360,7 +373,7 @@ class MonthLineItem extends StatelessWidget {
                                   fetchFeeDetails();
                                 });
                               } 
-                              // 新增：处理查看学费按钮
+                              // 处理查看学费按钮
                               else if (result == 'view') {
                                 Navigator.push(
                                   context,
@@ -376,6 +389,25 @@ class MonthLineItem extends StatelessWidget {
                                   // 在此处执行页面刷新（画面重现加载处理）
                                   fetchFeeDetails();
                                 });;
+                              }
+                              // 课费预支付
+                              if (result == 'prepay') {
+                                // final bool? success = await Navigator.push<bool>(
+                                //   context, 
+                                //   MaterialPageRoute(
+                                //     builder: (context) => Kn02F003AdvcLsnFeePayPage(
+                                //       stuId: widget.stuId,
+                                //       stuName: widget.stuName,
+                                //       knBgColor: widget.knBgColor,
+                                //       knFontColor: widget.knFontColor,
+                                //       pagePath: widget.pagePath,
+                                //     )
+                                //   )
+                                // );
+                                // if (success == true) {
+                                //   // 如果预支付成功，刷新页面数据
+                                //   fetchFeeDetails();
+                                // }
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

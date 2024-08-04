@@ -13,14 +13,15 @@ class Kn02F003AdvcLsnFeePayBean {
   final int classDuration;
   final int lessonType;
   final int schedualType;
-  final String schedualDate;
+  late  String schedualDate;
   final int payStyle;
   final double subjectPrice;
   final int minutesPerLsn;
   final double lsnPay;
-  final String bankId;
+  late String bankId;
   final String bankName;
   final int advcFlg;
+  late bool isChecked;
 
   Kn02F003AdvcLsnFeePayBean({
     required this.lessonId,
@@ -43,6 +44,7 @@ class Kn02F003AdvcLsnFeePayBean {
     required this.bankId,
     required this.bankName,
     required this.advcFlg,
+    required this.isChecked
   });
 
   factory Kn02F003AdvcLsnFeePayBean.fromJson(Map<String, dynamic> json) {
@@ -69,7 +71,7 @@ class Kn02F003AdvcLsnFeePayBean {
       stuName: json['stuName'] ?? '',
       classDuration: json['classDuration'] ?? 0,
       lessonType: json['lessonType'] ?? 0,
-      schedualType: json['schedualType'] ?? 0,
+      schedualType: (formattedSchedualDate.isEmpty ? 0 : 1),
       schedualDate: formattedSchedualDate,
       payStyle: json['payStyle'] ?? 0,
       subjectPrice: json['subjectPrice']?.toDouble() ?? 0.0,
@@ -78,6 +80,30 @@ class Kn02F003AdvcLsnFeePayBean {
       bankId: json['bankId'] ?? '',
       bankName: json['bankName'] ?? '',
       advcFlg: json['advcFlg'] ?? 0,
+      isChecked: false,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'lessonId': lessonId,
+    'lsnFeeId': lsnFeeId,
+    'lsnPayId': lsnPayId,
+    'subjectId': subjectId,
+    'subjectSubId': subjectSubId,
+    'subjectName': subjectName,
+    'subjectSubName': subjectSubName,
+    'stuId': stuId,
+    'stuName': stuName,
+    'classDuration': classDuration,
+    'lessonType': lessonType,
+    'schedualType': schedualType,
+    'schedualDate': schedualDate,
+    'payStyle': payStyle,
+    'subjectPrice': subjectPrice,
+    'minutesPerLsn': minutesPerLsn,
+    'lsnPay': lsnPay,
+    'bankId': bankId,
+    'bankName': bankName,
+    'advcFlg': advcFlg,
+  };
 }
