@@ -24,6 +24,8 @@ class Kn02F002FeeBean {
   final double totalLsnCount2;
     // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
   final double? subjectPrice;
+  // 新增：识别该精算课费是不是预支付的课费（只有advcFlg=0 是预支付课费）
+  final int     advcFlg;
 
   Kn02F002FeeBean({
     required this.lsnPayId,
@@ -47,6 +49,7 @@ class Kn02F002FeeBean {
     required this.totalLsnCount1,
     required this.totalLsnCount2,
     required this.subjectPrice,
+    required this.advcFlg
   });
 
   factory Kn02F002FeeBean.fromJson(Map<String, dynamic> json) {
@@ -94,6 +97,7 @@ class Kn02F002FeeBean {
       totalLsnCount1:json['totalLsnCount1']?.toDouble() ?? 0.0,
       totalLsnCount2:json['totalLsnCount2']?.toDouble() ?? 0.0,
       subjectPrice  :json['subjectPrice']?.toDouble() ?? 0.0,
+      advcFlg       :json['advcFlg'] == 0 ? 0 : 1, // 只有advcFlg=0 才是预支付费用
     );
   }
 }

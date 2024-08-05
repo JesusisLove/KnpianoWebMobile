@@ -2,21 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F004PayMapper">
     <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
-        select * from v_info_lesson_pay_fee_lsn
+        select paid.*, lfap.advc_flg
+         from
+         v_info_lesson_pay_over paid
+        left join
+         t_info_lsn_fee_advc_pay lfap
+        on paid.lsn_pay_id = lfap.lsn_pay_id
     </select>
 
     <!-- 根据相应条件抽出已支付的学费信息 -->
     <select id="searchLsnPay" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
-        SELECT * FROM KNStudent.v_info_lesson_pay_over
-            <where>
-                <foreach item="value" index="key" collection="params">
-                    <if test="value != null and value != ''">
-                        <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
-                        AND ${key} like CONCAT('%', #{value}, '%')
-                    </if>
-                </foreach>
-            </where>
-            order by stu_name,pay_month desc, lsn_pay_id desc, subject_id, subject_sub_id desc
+        select paid.*, lfap.advc_flg
+         from
+         v_info_lesson_pay_over paid
+        left join
+         t_info_lsn_fee_advc_pay lfap
+        on paid.lsn_pay_id = lfap.lsn_pay_id
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} = #{value}
+                </if>
+            </foreach>
+        </where>
+        order by stu_name,pay_month desc, lsn_pay_id desc, subject_id, subject_sub_id desc
     </select>
 
     <!-- 在课程管理模块里，当执行“签到”时，查看按月付费的科目有没有已经执行了月费结算处理

@@ -1,5 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
-
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -32,6 +31,7 @@ class LsnFeeDetail extends StatefulWidget {
 
 
   @override
+  // ignore: library_private_types_in_public_api
   _LsnFeeDetailState createState() => _LsnFeeDetailState();
 }
 
@@ -76,75 +76,76 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     }
   }
 
-  // 年度选择器
   void _showYearPicker() {
-    showCupertinoModalPopup<void>(
+    showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) => Container(
-        //点击年份选择器，弹出的滑轮高度
-        height: 160,
-        padding: const EdgeInsets.only(top: 6.0),
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        child: SafeArea(
-          top: false,
-          child: CupertinoPicker(
-            magnification: 1.22,
-            squeeze: 1.2,
-            useMagnifier: true,
-            itemExtent: 32.0,
-            scrollController: FixedExtentScrollController(
-              initialItem: years.indexOf(selectedYear),
-            ),
-            onSelectedItemChanged: (int selectedItem) {
-              setState(() {
-                selectedYear = years[selectedItem];
-                fetchFeeDetails();
-              });
-            },
-            children: List<Widget>.generate(years.length, (int index) {
-              return Center(
-                child: Text(
-                  years[index].toString(),
-                ),
-              );
-            }),
+      builder: (BuildContext context) {
+        return Container(
+          height: 250,
+          decoration: BoxDecoration(
+            color: Colors.pink[50],
+            borderRadius: BorderRadius.circular(10),
           ),
-        ),
-      ),
+          child: Column(
+            children: [
+              Container(
+                height: 40.0,
+                decoration: BoxDecoration(
+                  color: Colors.pink[100],
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                ),
+                child: const Center(
+                  child: Text(
+                    '选择年份',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 32.0,
+                  onSelectedItemChanged: (int index) {
+                    setState(() {
+                      selectedYear = years[index];
+                    });
+                  },
+                  children: years.map((year) => Center(child: Text(year.toString(), style: const TextStyle(color: Colors.red)))).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-          title: titleName,
-          subtitle: widget.pagePath,
-          context: context,
-          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
-                                     widget.knFontColor.red - 20, 
-                                     widget.knFontColor.green - 20, 
-                                     widget.knFontColor.blue - 20),
-
-          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
-                                     widget.knFontColor.red + 20, 
-                                     widget.knFontColor.green + 20, 
-                                     widget.knFontColor.blue + 20),
-
-          subtitleTextColor: Colors.white, // 自定义底部文本颜色
-          titleFontSize: 20.0, // 自定义标题字体大小
-          subtitleFontSize: 12.0, // 自定义底部文本字体大小
-                  actions: [
+        title: titleName,
+        subtitle: widget.pagePath,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_horiz, color:widget.knFontColor),
+            icon: Icon(Icons.more_horiz, color: widget.knFontColor),
             onSelected: (String result) async {
               if (result == 'prepay') {
                 final bool? success = await Navigator.push<bool>(
-                  context, 
+                  context,
                   MaterialPageRoute(
                     builder: (context) => Kn02F003AdvcLsnFeePayPage(
                       stuId: widget.stuId,
@@ -170,7 +171,6 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
           ),
         ],
       ),
-
       body: Column(
         children: [
           Padding(
@@ -248,9 +248,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                 if (feeDetailList.isEmpty) {
                   return const Center(child: Text('No fee details available'));
                 }
-                final months = feeDetailList.map((detail) => detail.month).where((month) 
-                                                              => month > 0).toSet().toList()..sort();
-                print('Available months: $months');
+                final months = feeDetailList.map((detail) => detail.month).where((month) => month > 0).toSet().toList()..sort();
                 
                 return ListView.builder(
                   itemCount: months.length,
@@ -260,10 +258,12 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                     monthData.first.stuId = widget.stuId;
                     monthData.first.stuName = widget.stuName;
                     // 修改：传递fetchFeeDetails函数给MonthLineItem
-                    return MonthLineItem(month: month, 
-                                     monthData: monthData, 
-                               fetchFeeDetails: fetchFeeDetails,
-                                      pagePath: widget.pagePath, );
+                    return MonthLineItem(
+                      month: month,
+                      monthData: monthData,
+                      fetchFeeDetails: fetchFeeDetails,
+                      pagePath: widget.pagePath,
+                    );
                   },
                 );
               },
@@ -295,15 +295,53 @@ class MonthLineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     double totalFee = monthData.fold(0, (sum, item) => sum + item.lsnFee);
     final currentMonth = DateTime.now().month;
+    final bool isAdvancePay = monthData.any((item) => item.advcFlg == 0);
 
     // 计算蓝色边框的高度
     double recordHeight = 15.0; // 每条记录的高度
     double spaceHeight = 15.0;
     double orangeAreaHeight = 30.0; // 橙色区域的高度
+    // 修改：减少高度计算，因为我们不再需要额外的空间来容纳单独的预付费标签行
     double blueContainerHeight = monthData.length * recordHeight + spaceHeight + orangeAreaHeight + 16.0; // 16.0 for padding
 
     // 修改：检查是否所有的ownFlg都是1
     bool allPaid = monthData.every((item) => item.ownFlg == 1);
+
+    Color borderColor;
+    Color monthColor;
+    Color backgroundColorTotal;
+    Color textColorTotal;
+
+    if (month < currentMonth) {
+      if (isAdvancePay) {
+        borderColor = Colors.red;
+        monthColor = Colors.black;
+        backgroundColorTotal = Colors.lightBlue[100]!;
+        textColorTotal = Colors.blue[800]!;
+      } else {
+        borderColor = Colors.red;
+        monthColor = Colors.red;
+        backgroundColorTotal = Colors.red[100]!;
+        textColorTotal = Colors.red;
+      }
+    } else if (month == currentMonth) {
+      borderColor = Colors.green[200]!;
+      monthColor = Colors.green;
+      backgroundColorTotal = Colors.green[800]!;
+      textColorTotal = Colors.white;
+    } else {
+      if (isAdvancePay) {
+        borderColor = Colors.red;
+        monthColor = Colors.blue[800]!;
+        backgroundColorTotal = Colors.lightBlue[100]!;
+        textColorTotal = Colors.blue[800]!;
+      } else {
+        borderColor = Colors.red;
+        monthColor = Colors.red;
+        backgroundColorTotal = Colors.red[100]!;
+        textColorTotal = Colors.red;
+      }
+    }
 
     return IntrinsicHeight(
       // ListView控件的一个Cell行
@@ -318,7 +356,7 @@ class MonthLineItem extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     // 给系统当前月设置字体颜色
-                    color: month == currentMonth ? Colors.red : Colors.black,
+                    color: monthColor,
                   ),
                 ),
                 const Expanded(
@@ -339,8 +377,8 @@ class MonthLineItem extends StatelessWidget {
                   Container(
                     height: 30, // 固定红色边框容器的高度
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red, width: 0.4), // 调整为原来的60%
-                      color: Colors.red.shade100,
+                      border: Border.all(color: Colors.red, width: 0.4),// 调整为原来的60%
+                      color: backgroundColorTotal,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                     ),
                     child: Padding(
@@ -350,68 +388,34 @@ class MonthLineItem extends StatelessWidget {
                         children: [
                           Text(
                             '课费总计: \$${totalFee.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 14, 
-                                                   fontWeight: FontWeight.bold,
-                                                   color: Colors.red),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: textColorTotal,
+                            ),
                           ),
                           PopupMenuButton<String>(
                             onSelected: (String result) {
-                              if (result == 'record') {
-                                // 迁移至课费记账画面
+                              if (result == 'record' || result == 'view') {
+                                // 迁移至课费记账
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, 
-                                                                           allPaid: allPaid,
-                                                                         knBgColor: Constants.lsnfeeThemeColor,
-                                                                       knFontColor: Colors.white,
-                                                                          pagePath: pagePath,
-                                                                           ),
+                                    builder: (context) => Kn02F003LsnPay(
+                                      monthData: monthData, 
+                                      allPaid: allPaid,
+                                      knBgColor: Constants.lsnfeeThemeColor,
+                                      knFontColor: Colors.white,
+                                      pagePath: pagePath,
+                                    ),
                                   ),
                                 ).then((value) {
                                   // 在此处执行页面刷新（画面重现加载处理）
                                   fetchFeeDetails();
                                 });
-                              } 
-                              // 处理查看学费按钮
-                              else if (result == 'view') {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Kn02F003LsnPay(monthData: monthData, 
-                                                                           allPaid: allPaid,
-                                                                         knBgColor: Constants.lsnfeeThemeColor,
-                                                                       knFontColor: Colors.white,
-                                                                          pagePath: pagePath,
-                                                                           ),
-                                  ),
-                                ).then((value) {
-                                  // 在此处执行页面刷新（画面重现加载处理）
-                                  fetchFeeDetails();
-                                });;
-                              }
-                              // 课费预支付
-                              if (result == 'prepay') {
-                                // final bool? success = await Navigator.push<bool>(
-                                //   context, 
-                                //   MaterialPageRoute(
-                                //     builder: (context) => Kn02F003AdvcLsnFeePayPage(
-                                //       stuId: widget.stuId,
-                                //       stuName: widget.stuName,
-                                //       knBgColor: widget.knBgColor,
-                                //       knFontColor: widget.knFontColor,
-                                //       pagePath: widget.pagePath,
-                                //     )
-                                //   )
-                                // );
-                                // if (success == true) {
-                                //   // 如果预支付成功，刷新页面数据
-                                //   fetchFeeDetails();
-                                // }
                               }
                             },
                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                              // 修改：根据allPaid的值决定显示哪个按钮
                               if (!allPaid)
                                 const PopupMenuItem<String>(
                                   value: 'record',
@@ -461,17 +465,30 @@ class MonthLineItem extends StatelessWidget {
                                   lessonTypeText = '月加课';
                                   break;
                               }
-                              // 修改：根据ownFlg决定文本样式
+                              // 修改：根据ownFlg和advcFlg决定文本样式
                               TextStyle textStyle = TextStyle(
                                 fontSize: 12,
-                                color: item.ownFlg == 1 ? Colors.black : Colors.blue,
-                                decoration: item.ownFlg == 1 ? TextDecoration.lineThrough : TextDecoration.none,
+                                color: item.advcFlg == 0 ? Colors.blue : (item.ownFlg == 1 ? Colors.black : Colors.blue),
+                                decoration: item.advcFlg == 0 ? TextDecoration.none : (item.ownFlg == 1 ? TextDecoration.lineThrough : TextDecoration.none),
                               );
+                              // 修改：将科目信息和预付费标签放在同一行
                               return SizedBox(
                                 height: recordHeight,
-                                child: Text(
-                                  '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     $lsnFeeText：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',
-                                  style: textStyle,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${item.subjectName}   $lessonTypeText: ${item.lsnCount}节     $lsnFeeText：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',
+                                        style: textStyle,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (item.advcFlg == 0)
+                                      const Text(
+                                        '【预付费】',
+                                        style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.bold),
+                                      ),
+                                  ],
                                 ),
                               );
                             }).toList(),

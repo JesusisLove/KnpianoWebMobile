@@ -43,6 +43,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   String titleName = "的课费预支付";
 
   List<int> months = List.generate(12, (index) => index + 1);
+  static const double controlHeight = 40.0;
 
   @override
   void initState() {
@@ -101,7 +102,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
           child: Column(
             children: [
               Container(
-                height: 40,
+                height: controlHeight,
                 decoration: BoxDecoration(
                   color: Colors.pink[100],
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
@@ -301,6 +302,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                   GestureDetector(
                     onTap: _showYearPicker,
                     child: Container(
+                      height: controlHeight,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.red),
@@ -339,6 +341,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      minimumSize: const Size(80, controlHeight),
                     ),
                     child: const Text(
                       '检索',
@@ -383,6 +386,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                 children: [
                   Expanded(
                     child: Container(
+                      height: controlHeight,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.red),
@@ -415,6 +419,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                       minimumSize: const Size(120, controlHeight),
                     ), // 修改：使用新的executeAdvcLsnPay方法
                     child: const Text(
                       '课费预支付',
