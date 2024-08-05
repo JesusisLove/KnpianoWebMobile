@@ -10,7 +10,7 @@ public class Kn02F004FeePaid4MobileBean implements KnPianoBean {
     protected String lsnFeeId;
     protected float lsnPay;
     protected String payMonth;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")// 接受手机前端的请求时接纳前端String类型的日期值
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
     protected Date payDate;
     protected String bankId;
     protected Integer delFlg;
@@ -33,6 +33,8 @@ public class Kn02F004FeePaid4MobileBean implements KnPianoBean {
     protected Integer   ownFlg;
     // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
     protected float     subjectPrice;
+    // 新增：识别该精算课费是不是预支付的课费（只有advcFlg=0 是预支付课费）
+    protected Integer   advcFlg;
 
     public float getSubjectPrice() {
         return subjectPrice;
@@ -171,6 +173,12 @@ public class Kn02F004FeePaid4MobileBean implements KnPianoBean {
     }
     public void setOwnFlg(Integer ownFlg) {
         this.ownFlg = ownFlg;
+    }
+    public Integer getAdvcFlg() {
+        return advcFlg;
+    }
+    public void setAdvcFlg(Integer advcFlg) {
+        this.advcFlg = advcFlg;
     }
     
 }

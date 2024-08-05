@@ -75,9 +75,8 @@ public class Kn02F004PayController{
         String lsnMonth = (String) queryParams.get("selectedmonth");
         int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
         lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
-        params.put("pay_month", queryParams.get("selectedyear") + "-" + lsnMonth);
-        // params.put("lsnfee.stu_id", queryParams.get("stuId"));
-        params.put("stu_id", queryParams.get("stuId"));
+        params.put("paid.pay_month", queryParams.get("selectedyear") + "-" + lsnMonth);
+        params.put("paid.stu_id", queryParams.get("stuId"));
 
         // 精算済一览
         Map<String, Object> collectionparams = CommonProcess.convertToSnakeCase(params);

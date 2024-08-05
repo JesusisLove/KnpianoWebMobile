@@ -41,7 +41,8 @@
                         <td>[[${info.subjectSubName}]]</td>
                         <td>[[${info.lsnCount}]]</td>
                         <td>[[${info.lsnFee}]]</td>
-                        <td>[[${info.lsnPay}]]</td>
+                        <!-- <td>[[${info.lsnPay}]]</td> -->
+                        <td th:text="${info.advcFlg == 0 ? info.lsnPay+'(预支付)' :  info.lsnPay}"></td>
                         <td th:text="${info.payStyle == 0 ? '课支付' :  '月支付'}"></td>
                         <td>[[${info.bankId}]]</td>
                         <td>[[${info.bankName}]]</td>

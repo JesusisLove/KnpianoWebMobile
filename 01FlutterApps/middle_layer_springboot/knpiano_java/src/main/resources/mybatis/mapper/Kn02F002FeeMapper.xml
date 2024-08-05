@@ -71,25 +71,29 @@ https://mybatis.org/mybatis-3/getting-started.html
                 ,lsn_month
                 ,pay_date
                 ,own_flg
+                ,1 as advc_flg
             from v_info_lesson_sum_fee_unpaid_yet
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
         union all
-        select   stu_id
-                ,lsn_pay_id
-                ,lsn_fee_id
-                ,subject_id
-                ,subject_name
-                ,subject_sub_name
-                ,subject_price
-                ,pay_style
-                ,lesson_type
-                ,lsn_count
-                ,lsn_fee
-                ,lsn_month
-                ,pay_date
+        select   paid.stu_id
+                ,paid.lsn_pay_id
+                ,paid.lsn_fee_id
+                ,paid.subject_id
+                ,paid.subject_name
+                ,paid.subject_sub_name
+                ,paid.subject_price
+                ,paid.pay_style
+                ,paid.lesson_type
+                ,paid.lsn_count
+                ,paid.lsn_fee
+                ,paid.lsn_month
+                ,paid.pay_date
                 ,1 as own_flg
-            from v_info_lesson_sum_fee_pay_over
+                ,lfap.advc_flg
+            from v_info_lesson_sum_fee_pay_over paid
+            left join t_info_lsn_fee_advc_pay lfap
+            on paid.lsn_pay_id = lfap.lsn_pay_id
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
         order by lsn_month, subject_id;
