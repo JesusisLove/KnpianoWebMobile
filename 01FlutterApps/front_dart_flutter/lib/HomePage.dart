@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
@@ -104,7 +105,9 @@ class HomePageState extends State<HomePage> {
       case 3:
         // 综合管理页面（假设暂无特定按钮）
         return [
-          setButton(iconData: Icons.person_off, text: "学生休学退学", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
+          setButton(iconData: Icons.person_off, text: "学生休学退学", onPressed: () {
+             Navigator.push(context, MaterialPageRoute(builder: (context) => StudentLeaveListPage()));
+          }, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.score, text: "学生考试管理", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
