@@ -108,7 +108,7 @@ public class Kn03D001StuController{
         }
     }
     // 这是为knstu001_list.html页面里的 AJAX 请求提供一个专门的处理器方法
-    // 在执行删除学生之前，前确认该生目前有没有固定排课几率
+    // 在执行删除学生之前，前确认该生目前有没有固定排课记录
     @GetMapping("/kn_fixlsn_check/search")
     @ResponseBody
     public Map<String, Object> searchFixedLessons(@RequestParam String stuId) {
