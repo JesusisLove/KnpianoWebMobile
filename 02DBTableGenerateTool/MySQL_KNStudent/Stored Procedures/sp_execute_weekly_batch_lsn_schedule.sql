@@ -83,10 +83,11 @@ BEGIN
         1 as schedual_type,
         CONCAT(cdr.date_column, ' ', LPAD(fix.fixed_hour, 2, '0'), ':', LPAD(fix.fixed_minute, 2, '0')) as schedual_date
     FROM 
-        t_info_fixedlesson fix
+        v_info_fixedlesson fix
     LEFT JOIN 
         v_latest_subject_info_from_student_document doc
         ON fix.stu_id = doc.stu_id AND fix.subject_id = doc.subject_id
+	   AND fix.del_flg = 0 -- 已退学的学生除外
     INNER JOIN 
         temp_date_range cdr
         ON cdr.weekday_column = fix.fixed_week;
