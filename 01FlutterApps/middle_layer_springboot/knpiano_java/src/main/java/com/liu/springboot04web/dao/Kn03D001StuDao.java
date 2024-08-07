@@ -58,6 +58,16 @@ public class Kn03D001StuDao implements InterfaceKnPianoDao {
         knStu001Mapper.updateInfo(knStu001Bean);
     }
 
+    // 休学/退学处理
+    public void stuWithdraw(String stuId) {
+        knStu001Mapper.stuWithdraw(stuId);
+    }
+
+    // 复学处理
+    public void stuReinstatement(String stuId) {
+        knStu001Mapper.stuReinstatement(stuId);
+    }
+
     // 削除
     public void delete(String id) { 
         knStu001Mapper.deleteInfo(id); 
