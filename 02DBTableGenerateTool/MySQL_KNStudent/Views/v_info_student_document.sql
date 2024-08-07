@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS v_info_student_document;
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 
@@ -25,5 +26,3 @@ VIEW v_info_student_document AS
         LEFT JOIN v_info_subject_edaban sub 
                ON doc.subject_id = sub.subject_id
               AND doc.subject_sub_id = sub.subject_sub_id;
-              
-SELECT * FROM KNStudent.t_mst_student;
