@@ -24,13 +24,4 @@ public interface Kn03D001StuMapper {
     // DB関数を行う
     public void getNextSequence(Map<String, Object> map);
 
-    // 取得在课记录或休学的学生记录
-    public List<Kn03D001StuBean> getInfoById(String id,Integer delFlg);
-
-    // 休学/复学处理
-    public void stuWithdraw (@Param("stuId") String stuId);
-
-    // 复学处理
-    public void stuReinstatement (@Param("stuId") String stuId);
-
 }
