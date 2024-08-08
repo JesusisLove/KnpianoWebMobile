@@ -12,14 +12,6 @@ https://mybatis.org/mybatis-3/getting-started.html
 <mapper namespace="com.liu.springboot04web.mapper.Kn03D001StuMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn03D001StuBean">
         select * from t_mst_student
-        <where>
-            <if test="stuId != null and stuId != ''">
-                AND stu_id = #{stuId}
-            </if>
-            <if test="defFlg != null">
-                AND def_flg = #{defFlg}
-            </if>
-        </where>
     </select>
 
     <select id="searchStudents" resultType="com.liu.springboot04web.bean.Kn03D001StuBean">
@@ -56,20 +48,6 @@ https://mybatis.org/mybatis-3/getting-started.html
             post_code = #{postCode},
             introducer = #{introducer},
             del_flg = #{delFlg}
-        where stu_id = #{stuId}
-    </update>
-
-    <!-- 休学/退学 -->
-    <update id="stuWithdraw">
-        update t_mst_student set
-               del_flg = 1
-        where stu_id = #{stuId}
-    </update>
-
-    <!-- 复学 -->
-    <update id="stuReinstatement">
-        update t_mst_student set
-               del_flg = 0
         where stu_id = #{stuId}
     </update>
 

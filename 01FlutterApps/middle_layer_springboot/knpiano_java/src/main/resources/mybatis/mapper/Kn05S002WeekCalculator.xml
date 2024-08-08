@@ -32,9 +32,9 @@
 
     <update id="updateWeeklyBatchStatus" >
         UPDATE t_fixedlesson_status
-        SET fixed_status= #{lsnStatus}
-        WHERE start_week_date=#{weekStart}
-          AND end_week_date=#{weekEnd}
+           SET fixed_status= #{lsnStatus}
+         WHERE start_week_date=#{weekStart}
+           AND end_week_date=#{weekEnd}
           LIMIT 1
     </update>
 

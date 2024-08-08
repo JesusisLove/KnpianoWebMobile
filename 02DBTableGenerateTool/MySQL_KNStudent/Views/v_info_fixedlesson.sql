@@ -14,7 +14,8 @@ VIEW v_info_fixedlesson AS
         c.subject_name AS subject_name,
         a.fixed_week AS fixed_week,
         a.fixed_hour AS fixed_hour,
-        a.fixed_minute AS fixed_minute
+        a.fixed_minute AS fixed_minute,
+        b.del_flg as del_flg
     FROM
         ((t_info_fixedlesson a
         JOIN t_mst_student b ON ((a.stu_id = b.stu_id)))
