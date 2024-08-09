@@ -35,7 +35,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <update id="stuWithdrawProcessList" parameterType="java.util.List">
         update t_mst_student set del_flg = 1
         where stu_id in
-        <foreach item="bean" index="index" collection="list" open="(" separator="," close=")">
+        <foreach item="bean" index="index" collection="beans" open="(" separator="," close=")">
             #{bean.stuId}
         </foreach>
     </update>
