@@ -106,7 +106,14 @@ class HomePageState extends State<HomePage> {
         // 综合管理页面（假设暂无特定按钮）
         return [
           setButton(iconData: Icons.person_off, text: "学生休学退学", onPressed: () {
-             Navigator.push(context, MaterialPageRoute(builder: (context) => StudentLeaveListPage()));
+             Navigator.push(context, MaterialPageRoute(builder: (context) => StudentLeaveListPage(
+                                  knBgColor: consts.Constants.ingergThemeColor,
+                                  knFontColor: Colors.white,
+                                  pagePath: "综合管理",)
+
+
+              
+             ));
           }, bgcolor: consts.Constants.ingergThemeColor,),
           const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(iconData: Icons.score, text: "学生考试管理", onPressed: () {}, bgcolor: consts.Constants.ingergThemeColor,),
