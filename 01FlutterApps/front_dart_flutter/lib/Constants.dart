@@ -74,7 +74,7 @@ class Constants {
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
-  static const String studentInfoView = '/liu/mb_kn_studoced_all';
+  static const String studentInfoView = '/liu/mb_kn_stu_001_all';
 
 // 学生一览画面，点击“保存”按钮的url请求
   static const String studentInfoAdd = '/liu/mb_kn_stu_001_add';
@@ -201,8 +201,8 @@ class Constants {
 
 // 画面控件背景颜色主题
   static const Color lessonThemeColor = Color.fromARGB(255, 57, 150, 50);
-  static const Color lsnfeeThemeColor = Color.fromARGB(255, 229, 53, 191);
-  static const Color stuDocThemeColor = Color.fromARGB(255, 250, 153, 88);
+  static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
+  static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
   static const Color ingergThemeColor = Color.fromARGB(255, 41, 170, 235);
   static const Color settngThemeColor = Color.fromARGB(255, 20, 110, 170);
 

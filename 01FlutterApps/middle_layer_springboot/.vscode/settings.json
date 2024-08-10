@@ -12,5 +12,6 @@
         "javascript",
         "javascriptreact",
         "html"
-    ]
+    ],
+    "java.debug.settings.onBuildFailureProceed": true
 }

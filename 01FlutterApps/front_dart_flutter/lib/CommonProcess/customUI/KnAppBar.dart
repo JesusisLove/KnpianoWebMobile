@@ -13,14 +13,16 @@ PreferredSizeWidget KnAppBar({
   double subtitleFontSize = 9.0,
   List<Widget>? actions,
   bool refreshPreviousPage = false,
-  TabBar? bottom,// 修改为可选参数
+  TabBar? bottom, // 修改为可选参数
   bool addInvisibleRightButton = false, // 新增参数：是否添加不可见的右侧按钮，使AppBar的布局左右对称
 }) {
   final double topPadding = MediaQuery.of(context).padding.top;
   const double sidePadding = 16.0; // 侧边距
 
   return PreferredSize(
-    preferredSize: Size.fromHeight(kToolbarHeight + kToolbarHeight / 3 + (bottom?.preferredSize.height ?? 0)),
+    preferredSize: Size.fromHeight(kToolbarHeight +
+        kToolbarHeight / 3 +
+        (bottom?.preferredSize.height ?? 0)),
     child: Container(
       padding: EdgeInsets.only(top: topPadding),
       child: AppBar(
@@ -48,13 +50,19 @@ PreferredSizeWidget KnAppBar({
                     child: Center(
                       child: Text(
                         title,
-                        style: TextStyle(fontSize: titleFontSize, color: titleColor),
+                        style: TextStyle(
+                          fontSize: titleFontSize,
+                          color: titleColor,
+                          // fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700, // 比 FontWeight.bold 还粗一点
+                        ),
                       ),
                     ),
                   ),
                   if (actions != null) ...actions,
                   // 此处是在KnAppBar右侧添加了隐藏的按钮，为了使Title内容的布局可以在Bar里剧中显示。
-                  if (addInvisibleRightButton && (actions == null || actions.isEmpty))
+                  if (addInvisibleRightButton &&
+                      (actions == null || actions.isEmpty))
                     const IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.transparent),
                       onPressed: null,
@@ -73,7 +81,8 @@ PreferredSizeWidget KnAppBar({
                   padding: const EdgeInsets.only(left: sidePadding),
                   child: Text(
                     subtitle,
-                    style: TextStyle(fontSize: subtitleFontSize, color: subtitleTextColor),
+                    style: TextStyle(
+                        fontSize: subtitleFontSize, color: subtitleTextColor),
                   ),
                 ),
               ),

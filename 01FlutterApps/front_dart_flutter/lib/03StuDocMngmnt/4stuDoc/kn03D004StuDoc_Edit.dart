@@ -5,28 +5,38 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'DurationBean.dart';
 
+// ignore: must_be_immutable
 class StudentDocumentEditPage extends StatefulWidget {
   final String stuId;
   final String subjectId;
   final String subjectSubId;
   final String adjustedDate;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
 
-  const StudentDocumentEditPage({
+  StudentDocumentEditPage({
     Key? key,
     required this.stuId,
     required this.subjectId,
     required this.subjectSubId,
     required this.adjustedDate,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
   }) : super(key: key);
 
   @override
-  _StudentDocumentEditPageState createState() => _StudentDocumentEditPageState();
+  _StudentDocumentEditPageState createState() =>
+      _StudentDocumentEditPageState();
 }
 
 class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
+  final String titleName = "学生档案编辑";
   late Future<void> _initialData;
   String stuName = '';
   String subjectName = '';
@@ -74,14 +84,18 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
   }
 
   Future<void> fetchDurations() async {
-    final String apiLsnDurationUrl = '${KnConfig.apiBaseUrl}${Constants.stuDocLsnDuration}';
+    final String apiLsnDurationUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuDocLsnDuration}';
     final responseDuration = await http.get(Uri.parse(apiLsnDurationUrl));
 
     if (responseDuration.statusCode == 200) {
       final decodedBody = utf8.decode(responseDuration.bodyBytes);
       List<dynamic> durationJson = json.decode(decodedBody);
       setState(() {
-        duration = durationJson.map((durationString) => DurationBean.fromString(durationString as String)).toList();
+        duration = durationJson
+            .map((durationString) =>
+                DurationBean.fromString(durationString as String))
+            .toList();
       });
     } else {
       throw Exception('Failed to load duration');
@@ -91,7 +105,26 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('学生档案编辑')),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: "${widget.pagePath} >> $titleName",
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
+      ),
       body: FutureBuilder<void>(
         future: _initialData,
         builder: (context, snapshot) {
@@ -171,7 +204,6 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
                     ],
                   ),
                   const SizedBox(height: 8),
-
                   DropdownButtonFormField<int>(
                     decoration: const InputDecoration(
                       labelText: '课程时长',
@@ -191,7 +223,6 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
                     },
                   ),
                   const SizedBox(height: 8),
-
                   TextFormField(
                     initialValue: standardPrice.toStringAsFixed(2),
                     readOnly: true,
@@ -201,7 +232,6 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-
                   TextFormField(
                     controller: adjustedPriceController,
                     decoration: const InputDecoration(
@@ -273,7 +303,7 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
       'payStyle': payStyle,
       'lessonFee': standardPrice,
       'lessonFeeAdjusted': adjustedPriceValue,
-      'minutesPerLsn':selectedDuration,
+      'minutesPerLsn': selectedDuration,
     };
 
     try {

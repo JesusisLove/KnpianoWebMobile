@@ -5,13 +5,27 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import '../2subjectBasic/kn05S003SubEda_list.dart';
 import 'KnSub001Bean.dart';
 import 'knsub001_add_edit.dart';
 
+// ignore: must_be_immutable
 class SubjectViewPage extends StatefulWidget {
-  const SubjectViewPage({super.key});
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  late String subtitle;
+  final String titleName = "科目基本信息";
+  SubjectViewPage({
+    super.key,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  }) {
+    subtitle = "$pagePath >> $titleName";
+  }
 
   @override
   _SubjectViewPageState createState() => _SubjectViewPageState();
@@ -44,8 +58,24 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('科目信息一览'),
+      appBar: KnAppBar(
+        title: widget.titleName,
+        subtitle: widget.subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
@@ -53,14 +83,18 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
             onPressed: () {
               // Navigate to add subject page or handle add operation
               Navigator.push<bool>(
-                context, 
-                MaterialPageRoute(
-                  builder: (context) => const SubjectAddEdit(showMode: '新規')
-                )
-              ).then((value) => {
-                setState(() {
-                futureSubjects = fetchSubjects();
-              })});
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SubjectAddEdit(
+                            showMode: '新規',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: widget.subtitle,
+                          ))).then((value) => {
+                    setState(() {
+                      futureSubjects = fetchSubjects();
+                    })
+                  });
             },
           ),
         ],
@@ -91,15 +125,15 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(
-        // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
-        // 如果没有图像URL，可以使用一个本地的占位符图像
+          // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
+          // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
-        ), 
+        ),
         title: Text(subject.subjectName),
         // subtitle: Row(
         //     children: <Widget>[
         //       // 为科目编号设置像素的左间距
-        //       const SizedBox(width: 10 ), 
+        //       const SizedBox(width: 10 ),
         //       Expanded(
         //         child: Text(
         //           subject.subjectId,
@@ -108,7 +142,7 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
         //       ),
         //       Container(
         //         // 为科目名称设置像素的右间距
-        //         padding: const EdgeInsets.only(right: 16), 
+        //         padding: const EdgeInsets.only(right: 16),
         //         child: Text(
         //           '科目名称: ${subject.subjectName}',
         //           style: const TextStyle(fontSize: 14),
@@ -128,13 +162,19 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
                 Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SubjectAddEdit(subject: subject, showMode: '編集'),
+                    builder: (context) => SubjectAddEdit(
+                      subject: subject,
+                      showMode: '編集',
+                      knBgColor: widget.knBgColor,
+                      knFontColor: widget.knFontColor,
+                      pagePath: widget.subtitle,
+                    ),
                   ),
                 ).then((value) {
                   // 检查返回值，如果为true，则重新加载数据
                   if (value == true) {
                     setState(() {
-                        futureSubjects = fetchSubjects();
+                      futureSubjects = fetchSubjects();
                     });
                   }
                 });
@@ -180,13 +220,19 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
                 Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Kn05S003SubEdaView(subjectName: subject.subjectName, subjectId: subject.subjectId),
+                    builder: (context) => Kn05S003SubEdaView(
+                      subjectName: subject.subjectName,
+                      subjectId: subject.subjectId,
+                      knBgColor: widget.knBgColor,
+                      knFontColor: widget.knFontColor,
+                      pagePath: widget.subtitle,
+                    ),
                   ),
                 ).then((value) {
                   // 检查返回值，如果为true，则重新加载数据
                   if (value == true) {
                     setState(() {
-                        futureSubjects = fetchSubjects();
+                      futureSubjects = fetchSubjects();
                     });
                   }
                 });
@@ -199,15 +245,15 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
   }
 
   deleteSubject(KnSub001Bean subject) {
-  final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.subjectInfoDelete}/${subject.subjectId}';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.subjectInfoDelete}/${subject.subjectId}';
     try {
       http.delete(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json', // 添加内容类型头
         },
-      )
-      .then((response) {
+      ).then((response) {
         if (response.statusCode == 200) {
           reloadData();
         } else {
@@ -252,9 +298,7 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
     futureSubjects = fetchSubjects();
     // 更新状态以重建UI
     futureSubjects.whenComplete(() {
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
 }

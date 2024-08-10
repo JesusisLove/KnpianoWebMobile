@@ -17,7 +17,7 @@ import 'RescheduleLessonDialog.dart';
 class CalendarPage extends StatefulWidget {
   final String focusedDay;
   // [修改] 构造函数参数类型修改为String
-  const CalendarPage({Key? key, required this.focusedDay}) : super(key: key);
+  const CalendarPage({super.key, required this.focusedDay});
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -368,6 +368,7 @@ class _CalendarPageState extends State<CalendarPage> {
           subtitleTextColor: Colors.white, // 自定义底部文本颜色
           titleFontSize: 20.0, // 自定义标题字体大小
           subtitleFontSize: 12.0, // 自定义底部文本字体大小
+          addInvisibleRightButton: true,
           actions: [
             // 如果需要，可以在这里添加额外的操作按钮
           ],
@@ -557,12 +558,12 @@ class TimeTile extends StatelessWidget {
     // 调课元未签到
     if (isAdjustedUnSignedLsnFrom) {
       backgroundColor = Colors.grey.shade300;
-      additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
+      additionalInfo = '调课To：${event.lsnAdjustedDate}';
     } 
     // 调课元已签到
     else if (isAdjustedSignedLsnFrom) {
       backgroundColor = Colors.grey.shade300;
-      additionalInfo = '调课To：${event.lsnAdjustedDate ?? ''}';
+      additionalInfo = '调课To：${event.lsnAdjustedDate}';
     } 
     // 调课先未签到
     else if (isAdjustedUnSignedLsnTo) {

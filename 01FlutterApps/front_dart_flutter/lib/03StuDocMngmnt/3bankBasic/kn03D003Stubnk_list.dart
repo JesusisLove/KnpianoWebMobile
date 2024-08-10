@@ -5,23 +5,35 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'Kn03D003StubnkBean.dart';
 import 'kn03D003BankStu_add_edit.dart';
 
+// ignore: must_be_immutable
 class BankStuPageView extends StatefulWidget {
   final String bankName;
   final String bankId;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
 
-  const BankStuPageView(
-    {super.key, required this.bankName, required this.bankId}
-    );
+  BankStuPageView({
+    super.key,
+    required this.bankName,
+    required this.bankId,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   _BankStuPageViewState createState() => _BankStuPageViewState();
 }
 
 class _BankStuPageViewState extends State<BankStuPageView> {
+  final String titleName = "用该银行的学生一览";
+  late  String subtitle;
   List<dynamic> bankStuBanBean = [];
   late Future<List<Kn03D003StubnkBean>> futureBanStu;
 
@@ -36,13 +48,16 @@ class _BankStuPageViewState extends State<BankStuPageView> {
   // 画面初期化：取得使用该银行的所有学生信息一览
   Future<List<Kn03D003StubnkBean>> fetchBnkStu() async {
     // 上课管理菜单画面，点击“学生银行信息管理”按钮的url请求
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankView}/${widget.bankId}';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuBankView}/${widget.bankId}';
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> banksJson = json.decode(decodedBody);
-      return banksJson.map((json) => Kn03D003StubnkBean.fromJson(json)).toList();
+      return banksJson
+          .map((json) => Kn03D003StubnkBean.fromJson(json))
+          .toList();
     } else {
       throw Exception('Failed to load banks');
     }
@@ -50,9 +65,26 @@ class _BankStuPageViewState extends State<BankStuPageView> {
 
   @override
   Widget build(BuildContext context) {
+    subtitle = "${widget.pagePath} >> $titleName";
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('用该银行的学生一览'),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
@@ -60,18 +92,22 @@ class _BankStuPageViewState extends State<BankStuPageView> {
             onPressed: () {
               // Navigate to add bankStu page or handle add operation
               Navigator.push<bool>(
-                context, 
-                MaterialPageRoute(
-                  builder: (context) => BankStuAddEdit(bankId: widget.bankId, showMode: '新規')
-                )
-              ).then((value) => {
-                setState(() {
-                futureBanStu = fetchBnkStu();
-              })});
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BankStuAddEdit(
+                            bankId: widget.bankId,
+                            showMode: '新規',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: subtitle,
+                          ))).then((value) => {
+                    setState(() {
+                      futureBanStu = fetchBnkStu();
+                    })
+                  });
             },
           ),
         ],
-
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -124,10 +160,10 @@ class _BankStuPageViewState extends State<BankStuPageView> {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(
-        // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
-        // 如果没有图像URL，可以使用一个本地的占位符图像
+          // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
+          // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
-        ), 
+        ),
         title: Text(bankStu.stuName),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -149,7 +185,6 @@ class _BankStuPageViewState extends State<BankStuPageView> {
                             Navigator.of(context).pop(); // 关闭对话框
                           },
                         ),
-
                         TextButton(
                           child: const Text('确定'),
                           onPressed: () {
@@ -171,16 +206,16 @@ class _BankStuPageViewState extends State<BankStuPageView> {
 
   // 学生的银行一览里的删除按钮按下事件
   void _deletebankStuBan(String bankId, String stuId) async {
-    final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankDelete}/$stuId/$bankId';
+    final String deleteUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuBankDelete}/$stuId/$bankId';
 
- try {
+    try {
       http.delete(
         Uri.parse(deleteUrl),
         headers: {
           'Content-Type': 'application/json', // 添加内容类型头
         },
-      )
-      .then((response) {
+      ).then((response) {
         if (response.statusCode == 200) {
           reloadData();
         } else {
@@ -219,14 +254,13 @@ class _BankStuPageViewState extends State<BankStuPageView> {
       );
     }
   }
+
   void reloadData() {
     // 重新加载数据
     futureBanStu = fetchBnkStu();
     // 更新状态以重建UI
     futureBanStu.whenComplete(() {
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
 }

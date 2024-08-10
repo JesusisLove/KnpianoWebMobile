@@ -5,19 +5,33 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'Kn03D003BnkBean.dart';
 import 'kn03D003Bank_add_edit.dart';
 import 'kn03D003Stubnk_list.dart';
 
+// ignore: must_be_immutable
 class BankViewPage extends StatefulWidget {
-  const BankViewPage({super.key});
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  // titleName を追加
+  late final String titleName;
+  BankViewPage({
+    super.key,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   _BankViewPageState createState() => _BankViewPageState();
 }
 
 class _BankViewPageState extends State<BankViewPage> {
+  final String titleName = "银行信息一览";
+  late  String subtitle;
   late Future<List<Kn03D003BnkBean>> futureBanks;
 
   @override
@@ -43,9 +57,26 @@ class _BankViewPageState extends State<BankViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    subtitle = "${widget.pagePath} >> $titleName";
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('银行信息一览'),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
@@ -53,14 +84,18 @@ class _BankViewPageState extends State<BankViewPage> {
             onPressed: () {
               // Navigate to add bank page or handle add operation
               Navigator.push<bool>(
-                context, 
-                MaterialPageRoute(
-                  builder: (context) => const BankAddEdit(showMode: '新規')
-                )
-              ).then((value) => {
-                setState(() {
-                futureBanks = fetchBanks();
-              })});
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BankAddEdit(
+                            showMode: '新規',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: subtitle,
+                          ))).then((value) => {
+                    setState(() {
+                      futureBanks = fetchBanks();
+                    })
+                  });
             },
           ),
         ],
@@ -91,12 +126,11 @@ class _BankViewPageState extends State<BankViewPage> {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(
-        // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
-        // 如果没有图像URL，可以使用一个本地的占位符图像
+          // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
+          // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
-        ), 
+        ),
         title: Text(bank.bankName),
-
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -108,13 +142,19 @@ class _BankViewPageState extends State<BankViewPage> {
                 Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BankAddEdit(bank: bank, showMode: '編集'),
+                    builder: (context) => BankAddEdit(
+                      bank: bank,
+                      showMode: '編集',
+                      knBgColor: widget.knBgColor,
+                      knFontColor: widget.knFontColor,
+                      pagePath: subtitle,
+                    ),
                   ),
                 ).then((value) {
                   // 检查返回值，如果为true，则重新加载数据
                   if (value == true) {
                     setState(() {
-                        futureBanks = fetchBanks();
+                      futureBanks = fetchBanks();
                     });
                   }
                 });
@@ -160,13 +200,19 @@ class _BankViewPageState extends State<BankViewPage> {
                 Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BankStuPageView(bankName: bank.bankName, bankId: bank.bankId),
+                    builder: (context) => BankStuPageView(
+                      bankName: bank.bankName,
+                      bankId: bank.bankId,
+                      knBgColor: widget.knBgColor,
+                      knFontColor: widget.knFontColor,
+                      pagePath: subtitle,
+                    ),
                   ),
                 ).then((value) {
                   // 检查返回值，如果为true，则重新加载数据
                   if (value == true) {
                     setState(() {
-                        futureBanks = fetchBanks();
+                      futureBanks = fetchBanks();
                     });
                   }
                 });
@@ -179,15 +225,15 @@ class _BankViewPageState extends State<BankViewPage> {
   }
 
   deleteBank(Kn03D003BnkBean bank) {
-  final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankDelete}/${bank.bankId}';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuBankDelete}/${bank.bankId}';
     try {
       http.delete(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json', // 添加内容类型头
         },
-      )
-      .then((response) {
+      ).then((response) {
         if (response.statusCode == 200) {
           reloadData();
         } else {
@@ -232,9 +278,7 @@ class _BankViewPageState extends State<BankViewPage> {
     futureBanks = fetchBanks();
     // 更新状态以重建UI
     futureBanks.whenComplete(() {
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
 }

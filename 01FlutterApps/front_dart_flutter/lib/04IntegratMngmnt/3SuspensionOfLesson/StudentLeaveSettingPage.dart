@@ -9,6 +9,7 @@ import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 
+// ignore: must_be_immutable
 class StudentLeaveSettingPage extends StatefulWidget {
   // AppBar背景颜色
   final Color knBgColor;

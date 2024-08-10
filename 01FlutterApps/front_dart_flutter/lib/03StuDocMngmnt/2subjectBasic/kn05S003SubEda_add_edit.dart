@@ -7,32 +7,56 @@ import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'package:kn_piano/Constants.dart';
 import 'package:kn_piano/CommonProcess/customUI/FormFields.dart';
 
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import 'Kn05S003SubjectEdabnBean.dart';
 
+// ignore: must_be_immutable
 class SubjectEdaAddEdit extends StatefulWidget {
-  const SubjectEdaAddEdit({super.key, this.subjectId, this.subjectEda, this.showMode});
-  final String                    ? subjectId;
-  final Kn05S003SubjectEdabnBean  ? subjectEda;
-  final String                    ? showMode;
+  final String? subjectId;
+  final Kn05S003SubjectEdabnBean? subjectEda;
+  final String? showMode;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+
+  // titleName を追加
+  late final String titleName;
+  late final String subtitle;
+  SubjectEdaAddEdit({
+    super.key,
+    this.subjectId,
+    this.subjectEda,
+    this.showMode,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  }) {
+    // 在构造体内将 titleName 初期化
+    titleName = "科目級別情報（$showMode）";
+    subtitle = '$pagePath >> $titleName';
+  }
+
   @override
   _SubjectEdaAddEditState createState() => _SubjectEdaAddEditState();
 }
 
 class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
-
+  String? titleName;
   String? subjectId;
   String? subjectSubId;
   String? subjectSubName;
   double? subjectPrice;
-  int   ? delFlg;
+  int? delFlg;
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _subjectEdaSubNameController  = TextEditingController();
-  final TextEditingController _subjectEdaPriceController    = TextEditingController();
-  final FocusNode _subjectEdaSubNameFocusNode               = FocusNode();
-  final FocusNode _subjectEdaPriceFocusNode                 = FocusNode();
-  Color _subjectEdaSubNameColor                             = Colors.black;
-  Color _subjectEdaPriceColor                               = Colors.black;
+  final TextEditingController _subjectEdaSubNameController =
+      TextEditingController();
+  final TextEditingController _subjectEdaPriceController =
+      TextEditingController();
+  final FocusNode _subjectEdaSubNameFocusNode = FocusNode();
+  final FocusNode _subjectEdaPriceFocusNode = FocusNode();
+  Color _subjectEdaSubNameColor = Colors.black;
+  Color _subjectEdaPriceColor = Colors.black;
 
   @override
   void initState() {
@@ -42,31 +66,33 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
       // 上一级画面传递进来的数据，初始化该页面模块变量
       subjectId = widget.subjectEda!.subjectId;
 
-      subjectSubId    = widget.subjectEda!.subjectSubId;
-      subjectSubName  = widget.subjectEda!.subjectId;
-      subjectPrice    = widget.subjectEda!.subjectPrice;
+      subjectSubId = widget.subjectEda!.subjectSubId;
+      subjectSubName = widget.subjectEda!.subjectId;
+      subjectPrice = widget.subjectEda!.subjectPrice;
 
       delFlg = widget.subjectEda!.delFlg;
-      _subjectEdaSubNameController.text   = widget.subjectEda!.subjectSubName;
-      _subjectEdaPriceController.text     = widget.subjectEda!.subjectPrice.toStringAsFixed(2);
-    } 
+      _subjectEdaSubNameController.text = widget.subjectEda!.subjectSubName;
+      _subjectEdaPriceController.text =
+          widget.subjectEda!.subjectPrice.toStringAsFixed(2);
+    }
     // 新规模式下的变量初期化
     else {
-      subjectId= widget.subjectId;
+      subjectId = widget.subjectId;
     }
 
     _subjectEdaSubNameFocusNode.addListener(() {
-      setState(() => _subjectEdaSubNameColor = _subjectEdaSubNameFocusNode.hasFocus 
-                                             ? Constants.stuDocThemeColor 
-                                             : Colors.black);
+      setState(() => _subjectEdaSubNameColor =
+          _subjectEdaSubNameFocusNode.hasFocus
+              ? Constants.stuDocThemeColor
+              : Colors.black);
     });
 
     _subjectEdaPriceFocusNode.addListener(() {
-      setState(() => _subjectEdaPriceColor = _subjectEdaPriceFocusNode.hasFocus 
-                                           ? Constants.stuDocThemeColor 
-                                           : Colors.black);
+      setState(() => _subjectEdaPriceColor = _subjectEdaPriceFocusNode.hasFocus
+          ? Constants.stuDocThemeColor
+          : Colors.black);
     });
-   }
+  }
 
   @override
   void dispose() {
@@ -81,8 +107,25 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('科目级别信息（${widget.showMode}）'),
+      appBar: KnAppBar(
+        title: widget.titleName,
+        subtitle: widget.subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
       ),
       body: Form(
         key: _formKey,
@@ -91,14 +134,14 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
           child: Column(
             children: [
               FormFields.createTextFormField(
-                inputFocusNode          : _subjectEdaSubNameFocusNode,
-                inputLabelText          : '科目级别名称',
-                inputLabelColor         : _subjectEdaSubNameColor,
-                inputController         : _subjectEdaSubNameController,
-                themeColor              : Constants.stuDocThemeColor,
-                enabledBorderSideWidth  : Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth  : Constants.focusedBorderSideWidth,
-                onSave: (value) =>  subjectSubName = value,
+                inputFocusNode: _subjectEdaSubNameFocusNode,
+                inputLabelText: '科目级别名称',
+                inputLabelColor: _subjectEdaSubNameColor,
+                inputController: _subjectEdaSubNameController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                onSave: (value) => subjectSubName = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '请输入科目级别名称';
@@ -106,15 +149,14 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
                   return null;
                 },
               ),
-
               FormFields.createTextFormField(
-                inputFocusNode          : _subjectEdaPriceFocusNode,
-                inputLabelText          : '科目价格',
-                inputLabelColor         : _subjectEdaPriceColor,
-                inputController         : _subjectEdaPriceController,
-                themeColor              : Constants.stuDocThemeColor,
-                enabledBorderSideWidth  : Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth  : Constants.focusedBorderSideWidth,
+                inputFocusNode: _subjectEdaPriceFocusNode,
+                inputLabelText: '科目价格',
+                inputLabelColor: _subjectEdaPriceColor,
+                inputController: _subjectEdaPriceController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
                 // onSave: (value) =>  subjectPrice = value as double?,
                 onSave: (value) {
                   if (value != null && value.isNotEmpty) {
@@ -131,7 +173,6 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
                   return null;
                 },
               ),
-
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: ElevatedButton(
@@ -158,11 +199,11 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'subjectId'     : subjectId,
-          'subjectSubId'  : subjectSubId,
+          'subjectId': subjectId,
+          'subjectSubId': subjectSubId,
           'subjectSubName': subjectSubName,
-          'subjectPrice'  : subjectPrice,
-          'delFlg'        : delFlg,
+          'subjectPrice': subjectPrice,
+          'delFlg': delFlg,
         }),
       );
 
@@ -201,7 +242,4 @@ class _SubjectEdaAddEditState extends State<SubjectEdaAddEdit> {
       }
     }
   }
-}
-
-mixin toDouble {
 }

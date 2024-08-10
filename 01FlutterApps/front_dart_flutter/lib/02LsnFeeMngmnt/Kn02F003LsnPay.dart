@@ -19,14 +19,13 @@ class Kn02F003LsnPay extends StatefulWidget {
   // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
   late String pagePath;
 
-   Kn02F003LsnPay({
-    super.key, 
-      required this.monthData, 
-      required this.allPaid, 
-      required this.knBgColor, 
-      required this.knFontColor, 
-      required this.pagePath
-    });
+  Kn02F003LsnPay(
+      {super.key,
+      required this.monthData,
+      required this.allPaid,
+      required this.knBgColor,
+      required this.knFontColor,
+      required this.pagePath});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -46,10 +45,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   void initState() {
     super.initState();
     widget.pagePath = '${widget.pagePath} >> $titleName';
-    selectedSubjects = List.generate(widget.monthData.length, (index) => widget.monthData[index].ownFlg == 1);
+    selectedSubjects = List.generate(widget.monthData.length,
+        (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     fetchBankList();
-    
+
     ////////////  调试代码 //////////////
     // for (var fee in widget.monthData) {
     //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
@@ -59,7 +59,10 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
   void calculateTotalFee() {
     // totalFee = widget.monthData.fold(0, (sum, fee) => sum + fee.lsnFee);
-    totalFee = widget.monthData.fold(0, (sum, fee) => sum + (fee.lessonType == 1 ? (fee.subjectPrice! * 4) : fee.lsnFee));
+    totalFee = widget.monthData.fold(
+        0,
+        (sum, fee) =>
+            sum + (fee.lessonType == 1 ? (fee.subjectPrice! * 4) : fee.lsnFee));
   }
 
   void updatePaymentAmount() {
@@ -67,23 +70,28 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     for (int i = 0; i < widget.monthData.length; i++) {
       if (selectedSubjects[i]) {
         // paymentAmount += widget.monthData[i].lsnFee;
-        paymentAmount +=   widget.monthData[i].lessonType == 1 ? (widget.monthData[i].subjectPrice! * 4) : widget.monthData[i].lsnFee;
+        paymentAmount += widget.monthData[i].lessonType == 1
+            ? (widget.monthData[i].subjectPrice! * 4)
+            : widget.monthData[i].lsnFee;
       }
     }
     setState(() {});
   }
 
   Future<void> fetchBankList() async {
-    final String apiGetBnkUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.monthData.first.stuId}';
+    final String apiGetBnkUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.monthData.first.stuId}';
     final response = await http.get(Uri.parse(apiGetBnkUrl));
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> data = json.decode(decodedBody);
       setState(() {
-        bankList = data.map((item) => {
-          'bankId': item['bankId'],
-          'bankName': item['bankName'],
-        }).toList();
+        bankList = data
+            .map((item) => {
+                  'bankId': item['bankId'],
+                  'bankName': item['bankName'],
+                })
+            .toList();
       });
     } else {
       // Handle error
@@ -92,7 +100,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   }
 
   Future<void> saveLsnPay() async {
-    final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}';
+    final String apiLsnSaveUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}';
     List<Kn02F004UnpaidBean> selectedFees = [];
 
     for (int i = 0; i < widget.monthData.length; i++) {
@@ -186,12 +195,14 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   }
 
   Future<void> restorePayment(String lsnPayId, String lsnFeeId) async {
-    final String apiStuPayRestoreUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuPayRestore}/$lsnPayId/$lsnFeeId';
+    final String apiStuPayRestoreUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiStuPayRestore}/$lsnPayId/$lsnFeeId';
     try {
       final response = await http.delete(Uri.parse(apiStuPayRestoreUrl));
       if (response.statusCode == 200) {
         setState(() {
-          int index = widget.monthData.indexWhere((element) => element.lsnFeeId == lsnFeeId);
+          int index = widget.monthData
+              .indexWhere((element) => element.lsnFeeId == lsnFeeId);
           if (index != -1) {
             widget.monthData[index].ownFlg = 0;
             selectedSubjects[index] = false;
@@ -208,27 +219,30 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
   @override
   Widget build(BuildContext context) {
-  ////////////  调试代码 //////////////
+    ////////////  调试代码 //////////////
     // print('Building Kn02F003LsnPay widget');
     // widget.monthData.forEach((fee) {
     //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
     // });
-  ////////////////////////////////////
+    ////////////////////////////////////
     return Scaffold(
       appBar: KnAppBar(
-        title: '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
-        subtitle: widget.pagePath,
+        title:
+            '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
+        subtitle: "${widget.pagePath} >> $titleName",
         context: context,
         appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-        titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
-                                    widget.knFontColor.red - 20, 
-                                    widget.knFontColor.green - 20, 
-                                    widget.knFontColor.blue - 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
 
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
-                                    widget.knFontColor.red + 20, 
-                                    widget.knFontColor.green + 20, 
-                                    widget.knFontColor.blue + 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         addInvisibleRightButton: true,
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小
@@ -243,15 +257,19 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
               itemCount: widget.monthData.length,
               itemBuilder: (context, index) {
                 final fee = widget.monthData[index];
-                final lessonTypeText = fee.lessonType == 0 ? '结算课' : 
-                                       fee.lessonType == 1 ? '月计划' : '月加课';
+                final lessonTypeText = fee.lessonType == 0
+                    ? '结算课'
+                    : fee.lessonType == 1
+                        ? '月计划'
+                        : '月加课';
                 // 修改：检查支付日期是否等于系统当前日期
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
                     final paymentDate = DateTime.parse(fee.payDate!);
-                    isPaymentToday = DateFormat('yyyy-MM-dd').format(paymentDate) == 
-                                    DateFormat('yyyy-MM-dd').format(DateTime.now());
+                    isPaymentToday =
+                        DateFormat('yyyy-MM-dd').format(paymentDate) ==
+                            DateFormat('yyyy-MM-dd').format(DateTime.now());
                   } catch (e) {
                     print('Invalid date format: ${fee.payDate}');
                     // 可以在这里添加更多的错误处理逻辑
@@ -276,7 +294,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${fee.subjectName}($lessonTypeText:${fee.subjectPrice}/节)',
+                          Text(
+                              '${fee.subjectName}($lessonTypeText:${fee.subjectPrice}/节)',
                               style: const TextStyle(fontSize: 12)),
                           Text('上课节数: ${fee.lsnCount}',
                               style: const TextStyle(fontSize: 12)),
@@ -289,10 +308,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       ? PopupMenuButton<String>(
                           onSelected: (String result) {
                             if (result == 'restore') {
-                              showConfirmDialog(fee.lsnPayId!, fee.lsnFeeId);
+                              showConfirmDialog(fee.lsnPayId, fee.lsnFeeId);
                             }
                           },
-                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry<String>>[
                             const PopupMenuItem<String>(
                               value: 'restore',
                               child: Text('撤销'),
@@ -315,7 +335,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                       children: [
                         Text('合计: \$${totalFee.toStringAsFixed(2)}'),
                         Text('支付: \$${paymentAmount.toStringAsFixed(2)}'),
-                        Text('剩余: \$${(totalFee - paymentAmount).toStringAsFixed(2)}'),
+                        Text(
+                            '剩余: \$${(totalFee - paymentAmount).toStringAsFixed(2)}'),
                       ],
                     ),
                     const Divider(thickness: 1, height: 20),
@@ -331,7 +352,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                                 selectedBankId = newValue;
                               });
                             },
-                            items: bankList.map<DropdownMenuItem<String>>((Map<String, dynamic> bank) {
+                            items: bankList.map<DropdownMenuItem<String>>(
+                                (Map<String, dynamic> bank) {
                               return DropdownMenuItem<String>(
                                 value: bank['bankId'],
                                 child: Text(bank['bankName']),
@@ -353,13 +375,14 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                               });
                             }
                           },
-                          child: Text('入账日期: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
+                          child: Text(
+                              '入账日期: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                    onPressed: !widget.allPaid ? validateAndSave : null,
+                      onPressed: !widget.allPaid ? validateAndSave : null,
                       child: const Text('学费入账'),
                     ),
                   ],

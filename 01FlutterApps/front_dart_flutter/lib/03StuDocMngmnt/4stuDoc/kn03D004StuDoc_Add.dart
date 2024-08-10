@@ -4,15 +4,27 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import '../2subjectBasic/Kn05S003SubjectEdabnBean.dart';
 import '../2subjectBasic/KnSub001Bean.dart';
 import 'DurationBean.dart';
 
+// ignore: must_be_immutable
 class StudentDocumentPage extends StatefulWidget {
   final String? stuId;
   final String? stuName;
-  const StudentDocumentPage({super.key, required this.stuId, required this.stuName});
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  StudentDocumentPage({
+    super.key,
+    required this.stuId,
+    required this.stuName,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -20,18 +32,18 @@ class StudentDocumentPage extends StatefulWidget {
 }
 
 class _StudentDocumentPageState extends State<StudentDocumentPage> {
-
-  List<KnSub001Bean>              subjects = [];
-  List<Kn05S003SubjectEdabnBean>  subjectSubs = [];
-  List<DurationBean> ?            duration = [];
-  KnSub001Bean?                   selectedSubject;
-  Kn05S003SubjectEdabnBean ?       selectedSubjectSub;
-  DateTime ?                      adjustmentDate = DateTime.now();
-  bool                            isMonthlyPayment = true;
-  int ?                           payStyle = 1;
-  int ?                           selectedDuration;
-  double                          standardPrice = 0.0;
-  TextEditingController           adjustedPriceController = TextEditingController();
+  final String titleName = "学生档案新增";
+  List<KnSub001Bean> subjects = [];
+  List<Kn05S003SubjectEdabnBean> subjectSubs = [];
+  List<DurationBean>? duration = [];
+  KnSub001Bean? selectedSubject;
+  Kn05S003SubjectEdabnBean? selectedSubjectSub;
+  DateTime? adjustmentDate = DateTime.now();
+  bool isMonthlyPayment = true;
+  int? payStyle = 1;
+  int? selectedDuration;
+  double standardPrice = 0.0;
+  TextEditingController adjustedPriceController = TextEditingController();
 
   @override
   void initState() {
@@ -40,25 +52,28 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     fetchDurations();
   }
 
-  // 获取科目信息，初始化下拉列表框 
+  // 获取科目信息，初始化下拉列表框
   Future<void> fetchSubjects() async {
-    final String apiStuDocUrl = '${KnConfig.apiBaseUrl}${Constants.subjectView}';
+    final String apiStuDocUrl =
+        '${KnConfig.apiBaseUrl}${Constants.subjectView}';
     final responseSubject = await http.get(Uri.parse(apiStuDocUrl));
 
     if (responseSubject.statusCode == 200) {
       final decodedBody = utf8.decode(responseSubject.bodyBytes);
       List<dynamic> subjectJson = json.decode(decodedBody);
       setState(() {
-        subjects = subjectJson.map((json) => KnSub001Bean.fromJson(json)).toList();
+        subjects =
+            subjectJson.map((json) => KnSub001Bean.fromJson(json)).toList();
       });
     } else {
       throw Exception('Failed to load subjects');
     }
   }
 
-  // 获取科目下的科目级别信息，初始化下拉列表框 
+  // 获取科目下的科目级别信息，初始化下拉列表框
   Future<void> fetchSubjectSubs(String subjectId) async {
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.subjectEdaView}/$subjectId';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.subjectEdaView}/$subjectId';
     final responseSubject = await http.get(Uri.parse(apiUrl));
 
     if (responseSubject.statusCode == 200) {
@@ -66,7 +81,9 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
       final List<dynamic> subjectSubsJson = json.decode(decodedBody);
 
       setState(() {
-        subjectSubs = subjectSubsJson.map((json) => Kn05S003SubjectEdabnBean.fromJson(json)).toList();
+        subjectSubs = subjectSubsJson
+            .map((json) => Kn05S003SubjectEdabnBean.fromJson(json))
+            .toList();
         selectedSubjectSub = null;
       });
     } else {
@@ -74,9 +91,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     }
   }
 
-  // 取得学生上1节课的分钟时长，初始化下拉列表框 
+  // 取得学生上1节课的分钟时长，初始化下拉列表框
   Future<void> fetchDurations() async {
-    final String apiLsnDruationUrl = '${KnConfig.apiBaseUrl}${Constants.stuDocLsnDuration}';
+    final String apiLsnDruationUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuDocLsnDuration}';
     final responseDuration = await http.get(Uri.parse(apiLsnDruationUrl));
 
     if (responseDuration.statusCode == 200) {
@@ -86,7 +104,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         /* 后端Java层的duration的数据类型时List<Stirng>,而此处的前端的duration的数据类型时List<DurationBean>,
            为了保持前端与后端实体Bean对象的一致性做了特殊处理
         */
-        duration = durationJson.map((durationString) => DurationBean.fromString(durationString as String)).toList();
+        duration = durationJson
+            .map((durationString) =>
+                DurationBean.fromString(durationString as String))
+            .toList();
       });
     } else {
       throw Exception('Failed to load duration');
@@ -142,7 +163,26 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('学生档案追加')),
+      appBar: KnAppBar(
+        title: titleName,
+        subtitle: "${widget.pagePath} >> $titleName",
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -163,10 +203,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
             const SizedBox(height: 8),
             _buildSubjectSubDropdown(),
             const SizedBox(height: 8),
-
             TextFormField(
               readOnly: true,
-              controller: TextEditingController(text: adjustmentDate.toString().split(' ')[0]),
+              controller: TextEditingController(
+                  text: adjustmentDate.toString().split(' ')[0]),
               decoration: const InputDecoration(
                 labelText: '调整日付',
                 border: OutlineInputBorder(),
@@ -190,7 +230,6 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
             ),
             const SizedBox(height: 8),
             const Text('科目支付区分'),
-
             Row(
               children: [
                 Expanded(
@@ -220,7 +259,6 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               ],
             ),
             const SizedBox(height: 8),
-
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(
                 labelText: '课程时长',
@@ -240,10 +278,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               },
             ),
             const SizedBox(height: 8),
-
             TextFormField(
               readOnly: true,
-              controller: TextEditingController(text: standardPrice.toStringAsFixed(2)),
+              controller:
+                  TextEditingController(text: standardPrice.toStringAsFixed(2)),
               decoration: const InputDecoration(
                 labelText: '标准价格',
                 border: OutlineInputBorder(),
@@ -252,7 +290,6 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               minLines: 1,
             ),
             const SizedBox(height: 8),
-
             TextFormField(
               controller: adjustedPriceController,
               decoration: const InputDecoration(
@@ -264,7 +301,6 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               minLines: 1,
             ),
             const SizedBox(height: 8),
-
             ElevatedButton(
               child: const Text('保存'),
               onPressed: () {
@@ -296,7 +332,9 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                           children: [
                             const Text('请填写以下必填项:'),
                             const SizedBox(height: 10),
-                            ...missingFields.map((field) => Text('• $field')).toList(),
+                            ...missingFields
+                                .map((field) => Text('• $field'))
+                                .toList(),
                           ],
                         ),
                         actions: <Widget>[
@@ -322,61 +360,83 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     );
   }
 
-Future<void> saveData() async {
-  // 准备要发送的数据
-  Map<String, dynamic> data = {
-    'stuId': widget.stuId,
-    'subjectId': selectedSubject?.subjectId,
-    'subjectSubId': selectedSubjectSub?.subjectSubId,
-    'adjustedDate': adjustmentDate?.toIso8601String().split('T')[0], // 格式化为 YYYY-MM-DD
-    'payStyle': payStyle,
-    'minutesPerLsn': selectedDuration,
-    'lessonFee': standardPrice,
-    'lessonFeeAdjusted': double.tryParse(adjustedPriceController.text) ?? 0.0,
-  };
+  Future<void> saveData() async {
+    // 准备要发送的数据
+    Map<String, dynamic> data = {
+      'stuId': widget.stuId,
+      'subjectId': selectedSubject?.subjectId,
+      'subjectSubId': selectedSubjectSub?.subjectSubId,
+      'adjustedDate':
+          adjustmentDate?.toIso8601String().split('T')[0], // 格式化为 YYYY-MM-DD
+      'payStyle': payStyle,
+      'minutesPerLsn': selectedDuration,
+      'lessonFee': standardPrice,
+      'lessonFeeAdjusted': double.tryParse(adjustedPriceController.text) ?? 0.0,
+    };
 
-  try {
-    final response = await http.post(
-      Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200) {
-      // 保存成功
-      showDialog(
-        // ignore: use_build_context_synchronously
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('成功'),
-            content: const Text('学生档案已成功保存。'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('确定'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // 可以选择返回上一页或清空表单
-                  Navigator.of(context).pop(true); // 关闭当前页面并返回成功标识
-                  // 或者清空表单
-                  resetForm();
-                },
-              ),
-            ],
-          );
+    try {
+      final response = await http.post(
+        Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
         },
+        body: jsonEncode(data),
       );
-    } else {
-      // 保存失败
+
+      if (response.statusCode == 200) {
+        // 保存成功
+        showDialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('成功'),
+              content: const Text('学生档案已成功保存。'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // 可以选择返回上一页或清空表单
+                    Navigator.of(context).pop(true); // 关闭当前页面并返回成功标识
+                    // 或者清空表单
+                    resetForm();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // 保存失败
+        showDialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('错误'),
+              content: Text('保存失败: ${response.body}'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // 捕获网络错误等异常
       showDialog(
         // ignore: use_build_context_synchronously
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('错误'),
-            content: Text('保存失败: ${response.body}'),
+            content: Text('发生错误: $e'),
             actions: <Widget>[
               TextButton(
                 child: const Text('确定'),
@@ -389,40 +449,19 @@ Future<void> saveData() async {
         },
       );
     }
-  } catch (e) {
-    // 捕获网络错误等异常
-    showDialog(
-      // ignore: use_build_context_synchronously
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('错误'),
-          content: Text('发生错误: $e'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('确定'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
-}
 
 // 重置表单的辅助方法
-void resetForm() {
-  setState(() {
-    selectedSubject = null;
-    selectedSubjectSub = null;
-    subjectSubs.clear();
-    adjustmentDate = DateTime.now();
-    isMonthlyPayment = true;
-    selectedDuration = null;
-    standardPrice = 0.0;
-    adjustedPriceController.clear();
-  });
-}
+  void resetForm() {
+    setState(() {
+      selectedSubject = null;
+      selectedSubjectSub = null;
+      subjectSubs.clear();
+      adjustmentDate = DateTime.now();
+      isMonthlyPayment = true;
+      selectedDuration = null;
+      standardPrice = 0.0;
+      adjustedPriceController.clear();
+    });
+  }
 }
