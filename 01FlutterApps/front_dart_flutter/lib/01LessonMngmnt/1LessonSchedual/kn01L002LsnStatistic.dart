@@ -18,8 +18,8 @@ import 'Kn01L002LsnBean.dart';
 // ignore: must_be_immutable
 class Kn01L002LsnStatistic extends StatefulWidget {
   Kn01L002LsnStatistic({
-    super.key, 
-    required this.stuId, 
+    super.key,
+    required this.stuId,
     required this.stuName,
     required this.knBgColor,
     required this.knFontColor,
@@ -32,14 +32,15 @@ class Kn01L002LsnStatistic extends StatefulWidget {
   // 字体颜色
   final Color knFontColor;
   // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
-  late String pagePath ;
+  late String pagePath;
 
   @override
   // ignore: library_private_types_in_public_api
   _Kn01L002LsnStatisticState createState() => _Kn01L002LsnStatisticState();
 }
 
-class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with SingleTickerProviderStateMixin {
+class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   Map<String, List<LessonCount>> subjectsScanedLsnData = {};
   final String titleName = '课程进度统计';
@@ -70,14 +71,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   // 修改：_fetchData方法
   Future<void> _fetchData() async {
     // 已上完课的结果集取得
-    final String apiLsnScanedStatisticUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+    final String apiLsnScanedStatisticUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
     try {
       final response = await http.get(Uri.parse(apiLsnScanedStatisticUrl));
       if (response.statusCode == 200) {
         // 使用 utf8.decode 来正确处理字符编码
         final String decodedBody = utf8.decode(response.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
-        staticScanedLsnList = jsonData.map((item) => Kn02F002FeeBean.fromJson(item)).toList();
+        staticScanedLsnList =
+            jsonData.map((item) => Kn02F002FeeBean.fromJson(item)).toList();
         _processScanedLsnData();
       } else {
         // 处理错误情况
@@ -94,14 +97,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
     }
 
     // 新增：未上课的结果集取得
-    final String apiLsnUnScanedStatisticUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
+    final String apiLsnUnScanedStatisticUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
     try {
       final response = await http.get(Uri.parse(apiLsnUnScanedStatisticUrl));
       if (response.statusCode == 200) {
         // 使用 utf8.decode 来正确处理字符编码
         final String decodedBody = utf8.decode(response.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
-        staticUnScanedLsnList = jsonData.map((item) => Kn01L002LsnBean.fromJson(item)).toList();
+        staticUnScanedLsnList =
+            jsonData.map((item) => Kn01L002LsnBean.fromJson(item)).toList();
         _processUnScanedLsnData();
       } else {
         // 处理错误情况
@@ -122,25 +127,29 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   void _processScanedLsnData() {
     subjectsScanedLsnData.clear();
     List<String> uniqueSubjects = getUniqueSubjectNames(staticScanedLsnList);
-    
+
     for (var subjectName in uniqueSubjects) {
-      List<LessonCount> monthlyData = List.generate(12, (_) => LessonCount(monthRegular: 0, monthPlan: 0, monthExtra: 0));
-      
-      for (var item in staticScanedLsnList.where((item) => item.subjectName == subjectName)) {
+      List<LessonCount> monthlyData = List.generate(
+          12, (_) => LessonCount(monthRegular: 0, monthPlan: 0, monthExtra: 0));
+
+      for (var item in staticScanedLsnList
+          .where((item) => item.subjectName == subjectName)) {
         List<String> dateParts = item.lsnMonth.split('-');
         if (dateParts.length == 2) {
           int monthIndex = int.parse(dateParts[1]) - 1; // 将月份转换为0-11的索引
           if (monthIndex >= 0 && monthIndex < 12) {
             LessonCount newCount = convertToLessonCount(item);
             monthlyData[monthIndex] = LessonCount(
-              monthRegular: monthlyData[monthIndex].monthRegular + newCount.monthRegular,
-              monthPlan: monthlyData[monthIndex].monthPlan + newCount.monthPlan,
-              monthExtra: monthlyData[monthIndex].monthExtra + newCount.monthExtra
-            );
+                monthRegular: monthlyData[monthIndex].monthRegular +
+                    newCount.monthRegular,
+                monthPlan:
+                    monthlyData[monthIndex].monthPlan + newCount.monthPlan,
+                monthExtra:
+                    monthlyData[monthIndex].monthExtra + newCount.monthExtra);
           }
         }
       }
-      
+
       subjectsScanedLsnData[subjectName] = monthlyData;
     }
 
@@ -148,22 +157,26 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic> with Single
   }
 
 // 新增：未上课的结果集取得
-void _processUnScanedLsnData() {
-  // 从后端取出未上课的结果集后，在此处理数据，把未上课的信息显示在ListView上，
-  // ListView上显示课程名（subjectName），上课日期（注意如果调课日期不为空，上课日期就是调课日期（lsnAdjustedDate），
-  // 如果调课日期（lsnAdjustedDate）为空，则上课日期就是schedualDate），然后在显示数据的每一行上加一个"查看"按钮
-  setState(() {
-    staticUnScanedLsnList.sort((a, b) {
-      int dateComparison = (a.lsnAdjustedDate.isNotEmpty ? a.lsnAdjustedDate : a.schedualDate)
-          .compareTo(b.lsnAdjustedDate.isNotEmpty ? b.lsnAdjustedDate : b.schedualDate);
-      if (dateComparison != 0) return dateComparison;
-      return a.subjectName.compareTo(b.subjectName);
+  void _processUnScanedLsnData() {
+    // 从后端取出未上课的结果集后，在此处理数据，把未上课的信息显示在ListView上，
+    // ListView上显示课程名（subjectName），上课日期（注意如果调课日期不为空，上课日期就是调课日期（lsnAdjustedDate），
+    // 如果调课日期（lsnAdjustedDate）为空，则上课日期就是schedualDate），然后在显示数据的每一行上加一个"查看"按钮
+    setState(() {
+      staticUnScanedLsnList.sort((a, b) {
+        int dateComparison =
+            (a.lsnAdjustedDate.isNotEmpty ? a.lsnAdjustedDate : a.schedualDate)
+                .compareTo(b.lsnAdjustedDate.isNotEmpty
+                    ? b.lsnAdjustedDate
+                    : b.schedualDate);
+        if (dateComparison != 0) return dateComparison;
+        return a.subjectName.compareTo(b.subjectName);
+      });
     });
-  });
-}
-  
+  }
+
   // 把从后端取出来的结果集，对科目名称去掉重复处理
-  List<String> getUniqueSubjectNames(List<Kn02F002FeeBean> staticScanedLsnList) {
+  List<String> getUniqueSubjectNames(
+      List<Kn02F002FeeBean> staticScanedLsnList) {
     Set<String> uniqueSubjects = <String>{};
     for (var lesson in staticScanedLsnList) {
       uniqueSubjects.add(lesson.subjectName);
@@ -171,6 +184,7 @@ void _processUnScanedLsnData() {
     List<String> sortedUniqueSubjects = uniqueSubjects.toList()..sort();
     return sortedUniqueSubjects;
   }
+
   // 显示年份选择器
   void _showYearPicker() {
     showCupertinoModalPopup<void>(
@@ -216,17 +230,19 @@ void _processUnScanedLsnData() {
     return Scaffold(
       appBar: KnAppBar(
         title: '${widget.stuName}的$titleName',
-        subtitle: widget.pagePath,
+        subtitle: "${widget.pagePath} >> $titleName",
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red - 20, 
-                                   widget.knFontColor.green - 20, 
-                                   widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red + 20, 
-                                   widget.knFontColor.green + 20, 
-                                   widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: true,
         titleFontSize: 20.0,
@@ -237,8 +253,8 @@ void _processUnScanedLsnData() {
           Container(
             decoration: const BoxDecoration(
               border: Border(
-                // bottom: BorderSide(color: Colors.grey[300]!, width: 1),
-              ),
+                  // bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+                  ),
             ),
             child: Row(
               children: [
@@ -303,7 +319,8 @@ void _processUnScanedLsnData() {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 subject,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(
@@ -371,7 +388,7 @@ void _processUnScanedLsnData() {
     double extraTotal = 0;
 
     for (int i = 0; i < lessonCounts.length; i++) {
-      double month = i.toDouble();// 使用索引作为月份（0-11）
+      double month = i.toDouble(); // 使用索引作为月份（0-11）
       regularTotal += lessonCounts[i].monthRegular;
       planTotal += lessonCounts[i].monthPlan;
       extraTotal += lessonCounts[i].monthExtra;
@@ -433,38 +450,43 @@ void _processUnScanedLsnData() {
   }
 
 // 还未上课统计
- Widget _buildPendingLessonsView() {
-  return ListView.builder(
-    itemCount: staticUnScanedLsnList.length,
-    itemBuilder: (context, index) {
-      final lesson = staticUnScanedLsnList[index];
-      final lessonDate = lesson.lsnAdjustedDate.isNotEmpty ? lesson.lsnAdjustedDate : lesson.schedualDate;
-      return Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: ListTile(
-          title: Text(lesson.subjectName),
-          subtitle: Text('上课日期: $lessonDate'),
-          trailing: ElevatedButton(
-            child: const Text('查看'),
-            onPressed: () async {  // 将 onPressed 改为异步函数
-              String targetDateTime = lessonDate.substring(0, 10);
-              // 等待 CalendarPage 返回
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CalendarPage(focusedDay: targetDateTime)),
-              );
-              // 当 CalendarPage 关闭并返回到此页面时，刷新数据
-              setState(() {
-                // 重新加载您的数据
-                _fetchData();
-              });
-            },
+  Widget _buildPendingLessonsView() {
+    return ListView.builder(
+      itemCount: staticUnScanedLsnList.length,
+      itemBuilder: (context, index) {
+        final lesson = staticUnScanedLsnList[index];
+        final lessonDate = lesson.lsnAdjustedDate.isNotEmpty
+            ? lesson.lsnAdjustedDate
+            : lesson.schedualDate;
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ListTile(
+            title: Text(lesson.subjectName),
+            subtitle: Text('上课日期: $lessonDate'),
+            trailing: ElevatedButton(
+              child: const Text('查看'),
+              onPressed: () async {
+                // 将 onPressed 改为异步函数
+                String targetDateTime = lessonDate.substring(0, 10);
+                // 等待 CalendarPage 返回
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          CalendarPage(focusedDay: targetDateTime)),
+                );
+                // 当 CalendarPage 关闭并返回到此页面时，刷新数据
+                setState(() {
+                  // 重新加载您的数据
+                  _fetchData();
+                });
+              },
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   // 创建一个转换函数
   LessonCount convertToLessonCount(Kn02F002FeeBean feeBean) {

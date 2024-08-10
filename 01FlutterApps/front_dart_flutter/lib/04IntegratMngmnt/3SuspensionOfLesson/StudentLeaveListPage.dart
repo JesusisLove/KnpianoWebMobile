@@ -10,6 +10,7 @@ import 'StudentLeaveSettingPage.dart';
 import 'dart:convert';
 import 'dart:async'; // 新增导入
 
+// ignore: must_be_immutable
 class StudentLeaveListPage extends StatefulWidget {
   // AppBar背景颜色
   final Color knBgColor;

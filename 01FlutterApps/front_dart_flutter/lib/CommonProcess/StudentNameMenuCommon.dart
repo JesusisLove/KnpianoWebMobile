@@ -48,7 +48,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        
+
         // 使用 Set 来去重
         final Set<String> uniqueIds = {};
         final List<Map<String, dynamic>> uniqueStudents = [];
@@ -77,12 +77,14 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
 
   void _onStudentTap(String stuId, String stuName, String pageId) {
     // 导航到页面ID的Mapping文件，根据相应的PageId跳转至PageId对应的业务画面。
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) => PageIdMapping(
-        pageId: pageId, 
-        stuId: stuId,
-        stuName: stuName,))
-    );
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PageIdMapping(
+                  pageId: pageId,
+                  stuId: stuId,
+                  stuName: stuName,
+                )));
   }
 
   @override
@@ -93,14 +95,16 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
         subtitle: widget.pagePath,
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red - 20, 
-                                   widget.knFontColor.green - 20, 
-                                   widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red + 20, 
-                                   widget.knFontColor.green + 20, 
-                                   widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
@@ -112,7 +116,8 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
                 _displayMode = result;
               });
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<DisplayMode>>[
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<DisplayMode>>[
               const PopupMenuItem<DisplayMode>(
                 value: DisplayMode.small,
                 child: Text('小'),
@@ -149,27 +154,28 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(48.0),  // 增加整体内边距
+      padding: const EdgeInsets.all(48.0), // 增加整体内边距
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
           childAspectRatio: 1,
-          crossAxisSpacing: 24,  // 增加水平间距
-          mainAxisSpacing: 24,   // 增加垂直间距
+          crossAxisSpacing: 24, // 增加水平间距
+          mainAxisSpacing: 24, // 增加垂直间距
         ),
         itemCount: students.length,
         itemBuilder: (context, index) {
           final student = students[index];
           return ElevatedButton(
-            onPressed: () => _onStudentTap(student['id'], student['name'], widget.pageId),
+            onPressed: () =>
+                _onStudentTap(student['id'], student['name'], widget.pageId),
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
               padding: EdgeInsets.zero,
-              backgroundColor: Colors.white,  // 设置按钮背景色为白色
-              foregroundColor: Colors.indigo,  // 设置文字颜色
-              elevation: 2,  // 添加轻微阴影效果R
+              backgroundColor: Colors.white, // 设置按钮背景色为白色
+              foregroundColor: Colors.indigo, // 设置文字颜色
+              elevation: 2, // 添加轻微阴影效果R
             ),
             child: Center(
               child: Text(

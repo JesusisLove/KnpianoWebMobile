@@ -6,10 +6,32 @@ import 'dart:convert';
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'package:kn_piano/Constants.dart';
 
+import '../../CommonProcess/customUI/KnAppBar.dart';
+
+// ignore: must_be_immutable
 class BankStuAddEdit extends StatefulWidget {
-  const BankStuAddEdit({super.key, this.bankId, this.showMode});
+  BankStuAddEdit({
+    super.key,
+    this.bankId,
+    this.showMode,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  }) {
+    // 在构造体内将 titleName 初期化
+    titleName = "科目級別情報（$showMode）";
+    subtitle = '$pagePath >> $titleName';
+  }
+
   final String? bankId;
   final String? showMode;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  // titleName を追加
+  late final String titleName;
+  late final String subtitle;
+
   @override
   _BankStuAddEditState createState() => _BankStuAddEditState();
 }
@@ -36,7 +58,8 @@ class _BankStuAddEditState extends State<BankStuAddEdit> {
     var response = await http.get(Uri.parse(apiUrl));
     if (response.statusCode == 200) {
       setState(() {
-        _students = List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
+        _students = List<Map<String, dynamic>>.from(
+            json.decode(utf8.decode(response.bodyBytes)));
       });
     } else {
       // Handle error
@@ -47,8 +70,25 @@ class _BankStuAddEditState extends State<BankStuAddEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('使用该银行学生（${widget.showMode}）'),
+      appBar: KnAppBar(
+        title: widget.titleName,
+        subtitle: widget.subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
       ),
       body: Form(
         key: _formKey,
@@ -68,7 +108,8 @@ class _BankStuAddEditState extends State<BankStuAddEdit> {
                   setState(() {
                     _selectedStudent = value;
                     stuId = value?['stuId']; // Set the selected student ID
-                    stuName = value?['stuName']; // Set the selected student name
+                    stuName =
+                        value?['stuName']; // Set the selected student name
                   });
                 },
                 decoration: const InputDecoration(
@@ -163,5 +204,3 @@ class _BankStuAddEditState extends State<BankStuAddEdit> {
     }
   }
 }
-
-mixin toDouble {}

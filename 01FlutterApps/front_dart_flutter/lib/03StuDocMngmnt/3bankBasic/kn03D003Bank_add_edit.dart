@@ -7,18 +7,37 @@ import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'package:kn_piano/Constants.dart';
 import 'package:kn_piano/CommonProcess/customUI/FormFields.dart';
 
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import 'Kn03D003BnkBean.dart';
 
+// ignore: must_be_immutable
 class BankAddEdit extends StatefulWidget {
-  const BankAddEdit({super.key, this.bank, this.showMode});
   final Kn03D003BnkBean? bank;
   final String? showMode;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  // titleName を追加
+  late final String titleName;
+  late final String subtitle;
+  BankAddEdit({
+    super.key,
+    this.bank,
+    this.showMode,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  }) {
+    // 在构造体内将 titleName 初期化
+    titleName = "科目級別情報（$showMode）";
+    subtitle = '$pagePath >> $titleName';
+  }
+
   @override
   _BankAddEditState createState() => _BankAddEditState();
 }
 
 class _BankAddEditState extends State<BankAddEdit> {
-  
   String? bankId;
   String? bankName;
   int? delFlg;
@@ -37,11 +56,11 @@ class _BankAddEditState extends State<BankAddEdit> {
       _bankNameController.text = widget.bank!.bankName;
     }
     _bankNameFocusNode.addListener(() {
-      setState(() => _bankNameColor = _bankNameFocusNode.hasFocus 
-                                       ? Constants.stuDocThemeColor 
-                                       : Colors.black);
+      setState(() => _bankNameColor = _bankNameFocusNode.hasFocus
+          ? Constants.stuDocThemeColor
+          : Colors.black);
     });
-   }
+  }
 
   @override
   void dispose() {
@@ -53,8 +72,25 @@ class _BankAddEditState extends State<BankAddEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('银行信息（${widget.showMode}）'),
+      appBar: KnAppBar(
+        title: widget.titleName,
+        subtitle: widget.subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
       ),
       body: Form(
         key: _formKey,
@@ -63,14 +99,14 @@ class _BankAddEditState extends State<BankAddEdit> {
           child: Column(
             children: [
               FormFields.createTextFormField(
-                inputFocusNode          : _bankNameFocusNode,
-                inputLabelText          : '银行名称',
-                inputLabelColor         : _bankNameColor,
-                inputController         : _bankNameController,
-                themeColor              : Constants.stuDocThemeColor,
-                enabledBorderSideWidth  : Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth  : Constants.focusedBorderSideWidth,
-                onSave: (value) =>  bankName = value,
+                inputFocusNode: _bankNameFocusNode,
+                inputLabelText: '银行名称',
+                inputLabelColor: _bankNameColor,
+                inputController: _bankNameController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                onSave: (value) => bankName = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '请输入银行名称';

@@ -7,21 +7,39 @@ import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'package:kn_piano/Constants.dart';
 import 'package:kn_piano/CommonProcess/customUI/FormFields.dart';
 
+import '../../CommonProcess/customUI/KnAppBar.dart';
 import 'KnSub001Bean.dart';
 
+// ignore: must_be_immutable
 class SubjectAddEdit extends StatefulWidget {
-  const SubjectAddEdit({super.key, this.subject, this.showMode});
   final KnSub001Bean? subject;
   final String? showMode;
+  final Color knBgColor;
+  final Color knFontColor;
+  late String pagePath;
+  // titleName を追加
+  late final String titleName;
+  SubjectAddEdit({
+    super.key,
+    this.subject,
+    this.showMode,
+    required this.knBgColor,
+    required this.knFontColor,
+    required this.pagePath,
+  }) {
+    // 在构造体内将 titleName 初期化
+    titleName = '科目級別情報（$showMode）';
+  }
+
   @override
   _SubjectAddEditState createState() => _SubjectAddEditState();
 }
 
 class _SubjectAddEditState extends State<SubjectAddEdit> {
-  
   String? subjectId;
   String? subjectName;
   int? delFlg;
+  late  String subtitle;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _subjectNameController = TextEditingController();
@@ -37,11 +55,11 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
       _subjectNameController.text = widget.subject!.subjectName;
     }
     _subjectNameFocusNode.addListener(() {
-      setState(() => _subjectNameColor = _subjectNameFocusNode.hasFocus 
-                                       ? Constants.stuDocThemeColor 
-                                       : Colors.black);
+      setState(() => _subjectNameColor = _subjectNameFocusNode.hasFocus
+          ? Constants.stuDocThemeColor
+          : Colors.black);
     });
-   }
+  }
 
   @override
   void dispose() {
@@ -52,9 +70,27 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
 
   @override
   Widget build(BuildContext context) {
+    subtitle =  '${widget.pagePath} >> ${widget.titleName}';
     return Scaffold(
-      appBar: AppBar(
-        title: Text('科目信息（${widget.showMode}）'),
+      appBar: KnAppBar(
+        title: widget.titleName,
+        subtitle: subtitle,
+        context: context,
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义AppBar背景颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
       ),
       body: Form(
         key: _formKey,
@@ -63,14 +99,14 @@ class _SubjectAddEditState extends State<SubjectAddEdit> {
           child: Column(
             children: [
               FormFields.createTextFormField(
-                inputFocusNode          : _subjectNameFocusNode,
-                inputLabelText          : '科目名称',
-                inputLabelColor         : _subjectNameColor,
-                inputController         : _subjectNameController,
-                themeColor              : Constants.stuDocThemeColor,
-                enabledBorderSideWidth  : Constants.enabledBorderSideWidth,
-                focusedBorderSideWidth  : Constants.focusedBorderSideWidth,
-                onSave: (value) =>  subjectName = value,
+                inputFocusNode: _subjectNameFocusNode,
+                inputLabelText: '科目名称',
+                inputLabelColor: _subjectNameColor,
+                inputController: _subjectNameController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                onSave: (value) => subjectName = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '请输入科目名称';
