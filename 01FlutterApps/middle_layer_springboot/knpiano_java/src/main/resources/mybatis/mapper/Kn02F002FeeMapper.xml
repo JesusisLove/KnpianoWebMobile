@@ -167,7 +167,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END AS lsn_count2,
                lsn_month
            FROM 
-               KNStudent.v_info_lsn_statistics_by_stuid 
+               v_info_lsn_statistics_by_stuid 
            WHERE stu_id = #{stuId}
              AND substring(lsn_month,1,4) = #{year}
            ) AS derived_table

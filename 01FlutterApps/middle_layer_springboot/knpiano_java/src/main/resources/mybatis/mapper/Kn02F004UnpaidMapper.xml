@@ -18,9 +18,9 @@
               ,sum(lsnfee.lsn_count) as lsn_count
               ,sum(lsnfee.lsn_fee) as lsn_fee
             from (
-                KNStudent.v_info_lesson_fee_connect_lsn lsnfee
+                v_info_lesson_fee_connect_lsn lsnfee
                 inner join 
-                KNStudent.v_info_lesson lesson
+                v_info_lesson lesson
                 on lsnfee.lesson_id = lesson.lesson_id
                 <!--未精算のデータ -->
                 and lsnfee.own_flg = 0 
@@ -62,9 +62,9 @@
                 ,sum(lsnfee.lsn_count) as lsn_count
                 ,sum(lsnfee.lsn_fee) as lsn_fee
             from (
-                KNStudent.v_info_lesson_fee_connect_lsn lsnfee
+                v_info_lesson_fee_connect_lsn lsnfee
                 inner join 
-                KNStudent.v_info_lesson lesson
+                v_info_lesson lesson
                 on lsnfee.lesson_id = lesson.lesson_id
                 <!--未精算のデータ -->
                 and lsnfee.own_flg = 0 

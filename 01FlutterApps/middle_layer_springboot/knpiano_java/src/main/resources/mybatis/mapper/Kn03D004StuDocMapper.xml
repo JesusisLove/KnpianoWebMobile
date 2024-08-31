@@ -10,7 +10,7 @@
     <select id="getDocedStuList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
         <!-- select distinct stu_id, stu_name from v_info_student_document order by stu_name; -->
         SELECT stu_id, stu_name, count(stu_name) as subjectCount 
-        FROM KNStudent.v_info_student_document 
+        FROM v_info_student_document 
         group by stu_id
         order by stu_name;
     </select>
@@ -35,7 +35,7 @@
 
     <!-- 还未建档的学生姓名一览取得 -->
     <select id="getUnDocedList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
-        SELECT stu_id,stu_name FROM KNStudent.t_mst_student
+        SELECT stu_id,stu_name FROM t_mst_student
         WHERE stu_id NOT IN (select stu_id from t_info_student_document)
     </select>
 
@@ -121,7 +121,7 @@
 
     <select id="getLsnPrice" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
         SELECT pay_style, adjusted_date, minutes_per_lsn, lesson_fee, lesson_fee_adjusted
-          FROM KNStudent.t_info_student_document 
+          FROM t_info_student_document 
          WHERE stu_id = #{stuId} 
            AND subject_id = #{subjectId} 
            AND subject_sub_id = #{subjectSubId}

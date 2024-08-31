@@ -150,7 +150,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <!-- 手机前端：课程进度统计【还未上课统计】Tab，提取未上课（未签到）的 处理-->
     <select id= "getUnScanSQDateLsnInfoByYear" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        SELECT * FROM KNStudent.v_info_lesson 
+        SELECT * FROM v_info_lesson 
          WHERE scanQR_date is null 
            AND stu_id = #{stuId}
            AND substring(schedual_date,1,4) = #{year};
