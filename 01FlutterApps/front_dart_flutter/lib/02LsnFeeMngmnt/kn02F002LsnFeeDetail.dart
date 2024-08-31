@@ -112,6 +112,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                   onSelectedItemChanged: (int index) {
                     setState(() {
                       selectedYear = years[index];
+                      fetchFeeDetails();
                     });
                   },
                   children: years

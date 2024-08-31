@@ -22,6 +22,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 AND del_flg = #{delFlg}
             </if>
         </where>
+        order by stu_name
     </select>
 
     <!-- 后端维护的Web页面里的休学/退学处理-->
