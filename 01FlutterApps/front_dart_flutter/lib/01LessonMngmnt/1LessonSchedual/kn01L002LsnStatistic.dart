@@ -305,6 +305,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     );
   }
 
+  // 在 _Kn01L002LsnStatisticState 类中添加这个新方法
+  double _getMaxLessonCount(List<LessonCount> lessonCounts) {
+    double maxCount = 0;
+    for (var count in lessonCounts) {
+      double total = count.monthRegular + count.monthPlan + count.monthExtra;
+      if (total > maxCount) maxCount = total;
+    }
+    return maxCount;
+  }
+
   // 修改：_buildCompletedLessonsView方法
   Widget _buildCompletedLessonsView() {
     return ListView.builder(
@@ -312,6 +322,19 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
       itemBuilder: (context, index) {
         String subject = subjectsScanedLsnData.keys.elementAt(index);
         List<LessonCount> lessonCounts = subjectsScanedLsnData[subject]!;
+
+        // 计算最大课时
+        double maxLessonCount = _getMaxLessonCount(lessonCounts);
+
+        // 根据最大课时决定图表高度
+        double chartHeight = maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 200.0 : 250.0) : 150;
+
+        // 计算计划课时合计和额外加课合计
+        double totalPlanned =
+            lessonCounts.fold(0, (sum, count) => sum + count.monthPlan);
+        double totalExtra =
+            lessonCounts.fold(0, (sum, count) => sum + count.monthExtra);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -323,8 +346,25 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, bottom: 12.0),
+              child: Row(
+                children: [
+                  Text(
+                    '计划课时合计: ${totalPlanned.toStringAsFixed(1)}',
+                    style: const TextStyle(color: Colors.blue),
+                  ),
+                  const SizedBox(width: 16), // 在两个文本之间添加间距
+                  if (totalExtra > 0)
+                    Text(
+                      '额外加课合计: ${totalExtra.toStringAsFixed(1)}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                ],
+              ),
+            ),
             SizedBox(
-              height: 300,
+              height: chartHeight, // Chart图的高度
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Container(

@@ -18,7 +18,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 substring(schedual_date, 1, 4) = #{year}
             </if>
         </where>
-        order by stu_id, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
+        order by stu_name, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
     </select>
 
     <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->
