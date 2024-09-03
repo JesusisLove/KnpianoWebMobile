@@ -187,38 +187,76 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
   // 显示年份选择器
   void _showYearPicker() {
+    int tempSelectedYear = _selectedYear;
     showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
+        height: 250, // 减小高度以去除顶部空白
         margin: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        child: SafeArea(
-          top: false,
-          child: CupertinoPicker(
-            magnification: 1.22,
-            squeeze: 1.2,
-            useMagnifier: true,
-            itemExtent: 32.0,
-            scrollController: FixedExtentScrollController(
-              initialItem: _years.indexOf(_selectedYear),
-            ),
-            onSelectedItemChanged: (int selectedItem) {
-              setState(() {
-                _selectedYear = _years[selectedItem];
-                _fetchData(); // 修改：在年份改变时重新获取数据
-              });
-            },
-            children: List<Widget>.generate(_years.length, (int index) {
-              return Center(
-                child: Text(
-                  _years[index].toString(),
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemBackground.resolveFrom(context),
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(20)), // 添加顶部圆角
+        ),
+        child: ClipRRect(
+          // 使用ClipRRect来裁剪内容，确保圆角效果
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: Column(
+            children: [
+              Container(
+                height: 54, // 设置固定高度，您可以根据需要调整这个值
+                padding: const EdgeInsets.symmetric(horizontal: 8), // 添加水平内边距
+                color: const Color(0xFFE8F5E9), // 浅绿色背景
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      child: const Text('取消',
+                          style: TextStyle(color: Colors.black)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    CupertinoButton(
+                      child: const Text('确定',
+                          style: TextStyle(color: Colors.black)),
+                      onPressed: () {
+                        setState(() {
+                          _selectedYear = tempSelectedYear;
+                          _fetchData(); // 在点击确定按钮后，重新获取数据
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
-              );
-            }),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  magnification: 1.22,
+                  squeeze: 1.2,
+                  useMagnifier: true,
+                  itemExtent: 32.0,
+                  scrollController: FixedExtentScrollController(
+                    initialItem: _years.indexOf(_selectedYear),
+                  ),
+                  onSelectedItemChanged: (int selectedItem) {
+                    tempSelectedYear = _years[selectedItem];
+                  },
+                  children: List<Widget>.generate(_years.length, (int index) {
+                    return Center(
+                      child: Text(
+                        _years[index].toString(),
+                        style: const TextStyle(
+                          color: Color(0xFF1B5E20), // 年度的深绿色字体
+                          fontSize: 20,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -315,7 +353,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     return maxCount;
   }
 
-  // 修改：_buildCompletedLessonsView方法
+  // 根据课程种别和上完的课程画线
   Widget _buildCompletedLessonsView() {
     return ListView.builder(
       itemCount: subjectsScanedLsnData.length,
@@ -327,7 +365,8 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
         double maxLessonCount = _getMaxLessonCount(lessonCounts);
 
         // 根据最大课时决定图表高度
-        double chartHeight = maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 200.0 : 250.0) : 150;
+        double chartHeight =
+            maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 200.0 : 250.0) : 150;
 
         // 计算计划课时合计和额外加课合计
         double totalPlanned =
@@ -417,7 +456,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     );
   }
 
-  // 修改：_generateLineBarsData方法
+  /// 修改：_generateLineBarsData方法
+  /// 允许月计划课和课结算课的点和线（即，蓝点和蓝色以及绿点和绿线）落在横轴上
+  /// 月加课的点和线不落在横轴上（即，当该月份的月加课和是零的时候，横轴上不显示）
   List<LineChartBarData> _generateLineBarsData(List<LessonCount> lessonCounts) {
     List<FlSpot> regularSpots = [];
     List<FlSpot> planSpots = [];
@@ -435,11 +476,15 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
       regularSpots.add(FlSpot(month, lessonCounts[i].monthRegular));
       planSpots.add(FlSpot(month, lessonCounts[i].monthPlan));
-      extraSpots.add(FlSpot(month, lessonCounts[i].monthExtra));
+      // 只有当 monthExtra 不为 0 时才添加点
+      if (lessonCounts[i].monthExtra > 0) {
+        extraSpots.add(FlSpot(month, lessonCounts[i].monthExtra));
+      }
     }
 
     List<LineChartBarData> lineBarsData = [];
 
+    // 课结算的情况下
     if (regularTotal > 0) {
       lineBarsData.add(LineChartBarData(
         spots: regularSpots,
@@ -452,23 +497,25 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
       ));
     }
 
+    // 月计划的情况下
     if (planTotal > 0) {
       lineBarsData.add(LineChartBarData(
         spots: planSpots,
         isCurved: false,
         color: Colors.blue,
-        barWidth: 1, // 调整曲线的粗细
+        barWidth: 1,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(show: false),
       ));
     }
 
+    // 月加课的情况下
     if (extraTotal > 0) {
       lineBarsData.add(LineChartBarData(
         spots: extraSpots,
         isCurved: false,
-        color: Colors.red,
+        color: Colors.red.withOpacity(0.6),
         barWidth: 1,
         isStrokeCapRound: true,
         dotData: const FlDotData(show: true),
