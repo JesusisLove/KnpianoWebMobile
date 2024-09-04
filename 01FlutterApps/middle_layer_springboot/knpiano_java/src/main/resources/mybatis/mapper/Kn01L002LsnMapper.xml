@@ -63,6 +63,14 @@ https://mybatis.org/mybatis-3/getting-started.html
         where lesson_id = #{lessonId}
     </select>
 
+    <!-- 手机前端： XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息 -->
+    <select id="getScanSQLsnInfoByYear" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        select * from v_info_lesson
+        where stu_id = #{stuId}
+        and substring(schedual_date,1,4) = #{year}
+        and scanQR_date is not null;
+    </select>
+
     <select id="searchLessons" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         SELECT
             *

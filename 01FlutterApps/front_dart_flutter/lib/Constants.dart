@@ -37,11 +37,14 @@ class Constants {
 // 删除排课信息
   static const String apiLsnDelete = '/liu/mb_kn_lsn_001_delete';
 
-// 课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）
+// XXXX的课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算）
   static const String apiLsnSignedStatistic = '/liu/mb_kn_lsn_signed_total';
 
-// 课程进度统计页面的还未上课统计Tab页（统计指定年度中已经排课了却还没有上的课程
+// XXXX的课程进度统计页面的还未上课统计Tab页（统计指定年度中已经排课了却还没有上的课程
   static const String apiLsnUnSignedStatistic = '/liu/mb_kn_lsn_unsigned_list';
+
+// XXXX的课程进度统计页面 查询谋学生该年度所有月份已经上完课的详细信息
+  static const String apiLsnScanedLsnStatistic = '/liu/mb_kn_lsn_scaned_lsns';
 
 // ******* 課費管理模块 *******//
 //.......当前的学生课程费用详细................................................................
