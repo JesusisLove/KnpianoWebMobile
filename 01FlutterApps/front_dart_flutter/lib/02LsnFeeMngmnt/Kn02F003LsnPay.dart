@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,7 +31,6 @@ class Kn02F003LsnPay extends StatefulWidget {
       required this.pagePath});
 
   @override
-  // ignore: library_private_types_in_public_api
   _Kn02F003LsnPayState createState() => _Kn02F003LsnPayState();
 }
 
@@ -49,16 +51,9 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
         (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     fetchBankList();
-
-    ////////////  调试代码 //////////////
-    // for (var fee in widget.monthData) {
-    //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
-    // }
-    ////////////////////////////////////
   }
 
   void calculateTotalFee() {
-    // totalFee = widget.monthData.fold(0, (sum, fee) => sum + fee.lsnFee);
     totalFee = widget.monthData.fold(
         0,
         (sum, fee) =>
@@ -69,7 +64,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     paymentAmount = 0;
     for (int i = 0; i < widget.monthData.length; i++) {
       if (selectedSubjects[i]) {
-        // paymentAmount += widget.monthData[i].lsnFee;
         paymentAmount += widget.monthData[i].lessonType == 1
             ? (widget.monthData[i].subjectPrice! * 4)
             : widget.monthData[i].lsnFee;
@@ -95,7 +89,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
       });
     } else {
       // Handle error
-      // print('Failed to load bank list');
     }
   }
 
@@ -217,42 +210,88 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
+  // 修改: 添加显示银行选择器的方法
+  void _showBankPicker() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 250,
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              color: widget.knBgColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CupertinoButton(
+                    child:
+                        Text('取消', style: TextStyle(color: widget.knFontColor)),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  Text('选择银行',
+                      style: TextStyle(
+                          color: widget.knFontColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
+                  CupertinoButton(
+                    child:
+                        Text('确定', style: TextStyle(color: widget.knFontColor)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: CupertinoPicker(
+                itemExtent: 32.0,
+                onSelectedItemChanged: (int index) {
+                  setState(() {
+                    selectedBankId = bankList[index]['bankId'];
+                  });
+                },
+                children:
+                    bankList.map((bank) => Text(bank['bankName'])).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ////////////  调试代码 //////////////
-    // print('Building Kn02F003LsnPay widget');
-    // widget.monthData.forEach((fee) {
-    //   print('Fee: ${fee.lsnFee}, PayDate: ${fee.payDate}, OwnFlg: ${fee.ownFlg}');
-    // });
-    ////////////////////////////////////
     return Scaffold(
       appBar: KnAppBar(
         title:
             '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
         subtitle: "${widget.pagePath} >> $titleName",
         context: context,
-        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        appBarBackgroundColor: widget.knBgColor,
         titleColor: Color.fromARGB(
-            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.alpha,
             widget.knFontColor.red - 20,
             widget.knFontColor.green - 20,
             widget.knFontColor.blue - 20),
-
         subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+            widget.knFontColor.alpha,
             widget.knFontColor.red + 20,
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
         addInvisibleRightButton: true,
-        subtitleTextColor: Colors.white, // 自定义底部文本颜色
-        titleFontSize: 20.0, // 自定义标题字体大小
-        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
       ),
+      // 修改: 更新body部分的布局和样式
       body: Column(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.3,
-            color: Colors.lightBlue[100],
+          // 修改: 调整课程列表的样式
+          Expanded(
             child: ListView.builder(
               itemCount: widget.monthData.length,
               itemBuilder: (context, index) {
@@ -262,7 +301,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                     : fee.lessonType == 1
                         ? '月计划'
                         : '月加课';
-                // 修改：检查支付日期是否等于系统当前日期
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
@@ -272,122 +310,128 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                             DateFormat('yyyy-MM-dd').format(DateTime.now());
                   } catch (e) {
                     print('Invalid date format: ${fee.payDate}');
-                    // 可以在这里添加更多的错误处理逻辑
                   }
                 }
-                return ListTile(
-                  title: Row(
-                    children: [
-                      Checkbox(
-                        value: selectedSubjects[index],
-                        onChanged: fee.ownFlg == 0
-                            ? (bool? value) {
-                                setState(() {
-                                  selectedSubjects[index] = value!;
-                                  updatePaymentAmount();
-                                });
-                              }
-                            : null,
-                      ),
-                      Text('课费: \$${fee.lsnFee.toStringAsFixed(2)}'),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              '${fee.subjectName}($lessonTypeText:${fee.subjectPrice}/节)',
-                              style: const TextStyle(fontSize: 12)),
-                          Text('上课节数: ${fee.lsnCount}',
-                              style: const TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  // 修改：根据支付日期控制PopupMenuButton的可见性
-                  trailing: fee.ownFlg == 1 && isPaymentToday
-                      ? PopupMenuButton<String>(
-                          onSelected: (String result) {
-                            if (result == 'restore') {
-                              showConfirmDialog(fee.lsnPayId, fee.lsnFeeId);
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: selectedSubjects[index],
+                      onChanged: fee.ownFlg == 0
+                          ? (bool? value) {
+                              setState(() {
+                                selectedSubjects[index] = value!;
+                                updatePaymentAmount();
+                              });
                             }
-                          },
-                          itemBuilder: (BuildContext context) =>
-                              <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'restore',
-                              child: Text('撤销'),
-                            ),
-                          ],
-                        )
-                      : null,
+                          : null,
+                    ),
+                    title: Text('${fee.subjectName} ($lessonTypeText)'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('课费: \$${fee.lsnFee.toStringAsFixed(2)}'),
+                        Text('单价: \$${fee.subjectPrice}/节'),
+                        Text('上课节数: ${fee.lsnCount}'),
+                      ],
+                    ),
+                    trailing: fee.ownFlg == 1 && isPaymentToday
+                        ? IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: () {
+                              showConfirmDialog(fee.lsnPayId, fee.lsnFeeId);
+                            },
+                          )
+                        : null,
+                  ),
                 );
               },
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
+          // 修改: 调整底部结算区域的样式
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.grey[200],
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('合计: \$${totalFee.toStringAsFixed(2)}'),
-                        Text('支付: \$${paymentAmount.toStringAsFixed(2)}'),
-                        Text(
-                            '剩余: \$${(totalFee - paymentAmount).toStringAsFixed(2)}'),
-                      ],
-                    ),
-                    const Divider(thickness: 1, height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: DropdownButton<String>(
-                            hint: const Text('存入银行'),
-                            value: selectedBankId,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedBankId = newValue;
-                              });
-                            },
-                            items: bankList.map<DropdownMenuItem<String>>(
-                                (Map<String, dynamic> bank) {
-                              return DropdownMenuItem<String>(
-                                value: bank['bankId'],
-                                child: Text(bank['bankName']),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2025),
-                            );
-                            if (picked != null && picked != selectedDate) {
-                              setState(() {
-                                selectedDate = picked;
-                              });
-                            }
-                          },
-                          child: Text(
-                              '入账日期: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: !widget.allPaid ? validateAndSave : null,
-                      child: const Text('学费入账'),
-                    ),
+                    Text('合计: \$${totalFee.toStringAsFixed(2)}'),
+                    Text('支付: \$${paymentAmount.toStringAsFixed(2)}'),
+                    Text(
+                        '剩余: \$${(totalFee - paymentAmount).toStringAsFixed(2)}'),
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                // 修改: 使用GestureDetector来触发银行选择器
+                GestureDetector(
+                  onTap: _showBankPicker,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(selectedBankId != null
+                            ? bankList.firstWhere((bank) =>
+                                bank['bankId'] == selectedBankId)['bankName']
+                            : '选择银行'),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 修改: 调整日期选择器的样式
+                GestureDetector(
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2025),
+                    );
+                    if (picked != null && picked != selectedDate) {
+                      setState(() {
+                        selectedDate = picked;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            '入账日期: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
+                        const Icon(Icons.calendar_today),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 修改: 调整学费入账按钮的样式
+                ElevatedButton(
+                  onPressed: !widget.allPaid ? validateAndSave : null,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: widget.knFontColor,
+                    backgroundColor: widget.knBgColor,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text('学费入账'),
+                ),
+              ],
             ),
           ),
         ],
