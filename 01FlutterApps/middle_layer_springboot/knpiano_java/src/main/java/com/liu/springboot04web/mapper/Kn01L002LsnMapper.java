@@ -38,11 +38,15 @@ public interface Kn01L002LsnMapper  {
 
     // 执行数据库存储过程
     public void callProcedure(Map<String, Integer> map);
+
     // 获取下一个序列值
     public void getNextSequence(Map<String, Object> map);
 
     // 手机前端：课程进度统计--【还未上课统计】Tab，提取未上课（未签到）的 处理
     public List<Kn01L002LsnBean> getUnScanSQDateLsnInfoByYear(@Param("stuId") String stuId,
-                                                              @Param("year") String year);
+            @Param("year") String year);
 
+    // 手机前端：XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息
+    public List<Kn01L002LsnBean> getScanSQLsnInfoByYear(@Param("stuId") String stuId,
+            @Param("year") String year);
 }
