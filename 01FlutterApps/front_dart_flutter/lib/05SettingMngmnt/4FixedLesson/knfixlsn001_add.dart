@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -96,124 +98,137 @@ class ScheduleFormState extends State<ScheduleForm> {
         title: titleName,
         subtitle: '${widget.pagePath} >> $titleName',
         context: context,
-        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-        titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
+        appBarBackgroundColor: widget.knBgColor,
+        titleColor: Color.fromARGB(widget.knFontColor.alpha,
                                     widget.knFontColor.red - 20, 
                                     widget.knFontColor.green - 20, 
                                     widget.knFontColor.blue - 20),
-
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
                                     widget.knFontColor.red + 20, 
                                     widget.knFontColor.green + 20, 
                                     widget.knFontColor.blue + 20),
-
-        subtitleTextColor: Colors.white, // 自定义底部文本颜色
-        titleFontSize: 20.0, // 自定义标题字体大小
-        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
-    ),
-
+      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               DropdownButtonFormField<String>(
                 value: selectedStuId,
-                hint: const Text('学生姓名'),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedStuId = newValue;
-                    selectedSubId = null;  // Reset subject when student changes
-                  });
-                },
-                validator: (value) => value == null ? '请选择要排课的学生' : null,
-                items: stuNameList.entries
-                .map<DropdownMenuItem<String>>((MapEntry<String, String> entry) {
+                decoration: const InputDecoration(labelText: '学生姓名'),
+                items: stuNameList.entries.map((entry) {
                   return DropdownMenuItem<String>(
                     value: entry.key,
                     child: Text(entry.value),
                   );
                 }).toList(),
-              ),
-
-              DropdownButtonFormField<String>(
-                value: selectedSubId,
-                hint: const Text('科目名称'),
                 onChanged: (newValue) {
                   setState(() {
-                    // selectedSubject = newValue;
-                    selectedSubId = newValue;
+                    selectedStuId = newValue;
+                    selectedStudent = stuNameList[newValue];
+                    selectedSubId = null;
+                    selectedSubject = null;
                   });
                 },
-                validator: (value) => value == null ? '请选择要排课的科目' : null,
-                items: selectedStuId == null
-                ? []
-                : subjectsByStudent[selectedStuId]!.map<DropdownMenuItem<String>>((Map<String, String> subject) {
-                    return DropdownMenuItem<String>(
-                      value: subject['subjectId'],
-                      child: Text(subject['subjectName']!),
-                    );
-                  }
-                ).toList(),
+                validator: (value) => value == null ? '请选择学生' : null,
               ),
-
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedSubId,
+                decoration: const InputDecoration(labelText: '科目名称'),
+                items: selectedStuId != null
+                    ? subjectsByStudent[selectedStuId]?.map((subject) {
+                        return DropdownMenuItem<String>(
+                          value: subject['subjectId'],
+                          child: Text(subject['subjectName']!),
+                        );
+                      }).toList()
+                    : [],
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedSubId = newValue;
+                    selectedSubject = subjectsByStudent[selectedStuId]
+                        ?.firstWhere((subject) => subject['subjectId'] == newValue)['subjectName'];
+                  });
+                },
+                validator: (value) => value == null ? '请选择科目' : null,
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: selectedDay,
-                hint: const Text('固定星期几'),
+                decoration: const InputDecoration(labelText: '固定星期几'),
+                items: days.map((String day) {
+                  return DropdownMenuItem<String>(
+                    value: day,
+                    child: Text(day),
+                  );
+                }).toList(),
                 onChanged: (newValue) {
                   setState(() {
                     selectedDay = newValue;
                   });
                 },
-                validator: (value) => value == null ? '请选择星期几' : null,
-                items: days.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+                validator: (value) => value == null ? '请选择星期' : null,
               ),
-
-              DropdownButtonFormField<String>(
-                value: selectedHour,
-                hint: const Text('固定在几点'),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedHour = newValue;
-                  });
-                },
-                validator: (value) => value == null ? '请选择几点' : null,
-                items: hours.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: selectedHour,
+                      decoration: const InputDecoration(labelText: '固定在几点'),
+                      items: hours.map((String hour) {
+                        return DropdownMenuItem<String>(
+                          value: hour,
+                          child: Text(hour),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedHour = newValue;
+                        });
+                      },
+                      validator: (value) => value == null ? '请选择小时' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: selectedMinute,
+                      decoration: const InputDecoration(labelText: '固定在几分'),
+                      items: minutes.map((String minute) {
+                        return DropdownMenuItem<String>(
+                          value: minute,
+                          child: Text(minute),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedMinute = newValue;
+                        });
+                      },
+                      validator: (value) => value == null ? '请选择分钟' : null,
+                    ),
+                  ),
+                ],
               ),
-            
-              DropdownButtonFormField<String>(
-                value: selectedMinute,
-                hint: const Text('固定在几分'),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedMinute = newValue;
-                  });
-                },
-                validator: (value) => value == null ? '请选择几分' : null,
-                items: minutes.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+              const SizedBox(height: 32),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: widget.knBgColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  child: const Text('保存'),
+                ),
               ),
-
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('保存'),
-              )
             ],
           ),
         ),
@@ -227,44 +242,47 @@ class ScheduleFormState extends State<ScheduleForm> {
       // 学生固定排课新规登录画面，点击“保存”按钮的url请求
       final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoAdd}';
     
-      var response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, dynamic>{
-          'stuId'       : selectedStuId,
-          'subjectId'   : selectedSubId,
-          'fixedWeek'   : selectedDay,
-          'fixedHour'   : selectedHour,
-          'fixedMinute' : selectedMinute,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('提交成功'),
-            content: const Text('固定排课时间已提交'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  // 直接退回到一览画面
-                  Navigator.of(context).pop(); // 关闭对话框
-                  Navigator.of(context).pop(true); // 关闭当前页面并返回成功标识
-                },
-                child: const Text('确定'),
-              ),
-            ],
-          ),
+      try {
+        var response = await http.post(
+          Uri.parse(apiUrl),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, dynamic>{
+            'stuId'       : selectedStuId,
+            'subjectId'   : selectedSubId,
+            'fixedWeek'   : selectedDay,
+            'fixedHour'   : selectedHour,
+            'fixedMinute' : selectedMinute,
+          }),
         );
-      } else {
+
+        if (response.statusCode == 200) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('提交成功'),
+              content: const Text('固定排课时间已提交'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('确定'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          throw Exception('Failed to submit data');
+        }
+      } catch (e) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('提交失败'),
-            content: Text('错误: ${response.body}'),
+            content: Text('发生错误: $e'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -277,4 +295,3 @@ class ScheduleFormState extends State<ScheduleForm> {
     }
   }
 }
-   
