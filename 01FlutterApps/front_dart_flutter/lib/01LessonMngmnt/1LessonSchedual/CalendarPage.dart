@@ -112,7 +112,7 @@ class _CalendarPageState extends State<CalendarPage> {
           });
         }
       });
-}
+    }
   }
   
   // 迁移到排课的编辑画面
@@ -221,7 +221,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
         );
       },
-);
+    );
   }
 
   // 迁移调课画面
@@ -375,54 +375,88 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       body: Column(
         children: [
-          TableCalendar(
-            firstDay: DateTime.utc(2010, 10, 16),
-            lastDay: DateTime.utc(2030, 3, 14),
-            // [修改] 使用 _focusedDay
-            focusedDay: _focusedDay,
-            calendarFormat: _calendarFormat,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            // [修改] 更新 onDaySelected 回调
-            onDaySelected: (selectedDay, focusedDay,) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-              // 点击课程表日期，获取该日期的当日上课的学生课程信息
-              _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
-            },
-            onFormatChanged: (format) {
-              if (_calendarFormat != format) {
+          // [新增] 为日历添加阴影效果
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: TableCalendar(
+              firstDay: DateTime.utc(2010, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              // [修改] 使用 _focusedDay
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) {
+                return isSameDay(_selectedDay, day);
+              },
+              // [修改] 更新 onDaySelected 回调
+              onDaySelected: (selectedDay, focusedDay,) {
                 setState(() {
-                  _calendarFormat = format;
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
                 });
-              }
-            },
+                // 点击课程表日期，获取该日期的当日上课的学生课程信息
+                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
+              },
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              // [新增] 自定义日历样式
+              calendarStyle: CalendarStyle(
+                selectedDecoration: const BoxDecoration(
+                  color: Constants.lessonThemeColor,
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: Constants.lessonThemeColor.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
+          // [新增] 显示选中日期
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Text(
+              DateFormat('yyyy年MM月dd日').format(_selectedDay),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(
             // 当日的学生上课信息排列在ListView控件上
-            child: ListView(
-              children: [
-                for (var i = 8; i <= 22; i++)
-                  for (var j = 0; j < 60; j += 15) ...[
-                    TimeTile(
-                      time        : '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}',
-                      events      : getSchedualLessonForTime('${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
-                      onTap       : () => _handleTimeSelection(context, '${i.toString().padLeft(2, '0')}:${j.toString().padLeft(2, '0')}'),
-                      onSign      : _handleSignCourse,
-                      onRestore   : _handleRestoreCourse,
-                      onEdit      : _handleEditCourse,
-                      onDelete    : _handleDeleteCourse,
-                      onReschLsn  : _handleReschLsnCourse,
-                      onCancel    : _handleCancelRescheCourse,
-                      // [修改] 使用 _selectedDay
-                      selectedDay : _selectedDay,
-                    ),
-                  ],
-              ],
+            // [修改] 使用ListView.builder提高性能
+            child: ListView.builder(
+              itemCount: 15 * 4, // 8:00 到 22:00，每15分钟一个时间段
+              itemBuilder: (context, index) {
+                int hour = 8 + index ~/ 4;
+                int minute = (index % 4) * 15;
+                String time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+                return TimeTile(
+                  time        : time,
+                  events      : getSchedualLessonForTime(time),
+                  onTap       : () => _handleTimeSelection(context, time),
+                  onSign      : _handleSignCourse,
+                  onRestore   : _handleRestoreCourse,
+                  onEdit      : _handleEditCourse,
+                  onDelete    : _handleDeleteCourse,
+                  onReschLsn  : _handleReschLsnCourse,
+                  onCancel    : _handleCancelRescheCourse,
+                  // [修改] 使用 _selectedDay
+                  selectedDay : _selectedDay,
+                );
+              },
             ),
           ),
         ],
@@ -508,6 +542,7 @@ class TimeTile extends StatelessWidget {
     );
   }
 
+  // [修改] 使用Card来改善视觉效果
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(selectedDay);
 
@@ -572,7 +607,6 @@ class TimeTile extends StatelessWidget {
     } 
     // 调课先已签到
     else if (isAdjustedSignedLsnTo) {
-      // backgroundColor = Colors.green.shade100;
       backgroundColor = Colors.grey.shade500;
       additionalInfo = '调课From：${event.schedualDate}';
     } 
@@ -582,56 +616,45 @@ class TimeTile extends StatelessWidget {
     }
     // 计划课已签到
     else if (isScheduledSignedLsn) {
-      // backgroundColor = Colors.green.shade100;
       backgroundColor = Colors.grey.shade500;
     } else {
       backgroundColor = Colors.black12;
     }
 
- TextDecoration textDecoration = TextDecoration.none;
- if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
-    textDecoration = TextDecoration.lineThrough;
-  }
+    TextDecoration textDecoration = TextDecoration.none;
+    if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
+      textDecoration = TextDecoration.lineThrough;
+    }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 56, top: 4, bottom: 4),
-      child: Container(
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
+      color: backgroundColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Padding(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(4),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         event.stuName,
-                        style: TextStyle(fontSize: 13, color: textColor, decoration: textDecoration,),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor, decoration: textDecoration),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(height: 4),
                       Text(
-                        event.subjectName,
-                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
+                        '${event.subjectName} - ${event.subjectSubName}',
+                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        event.subjectSubName,
-                        style: TextStyle(fontSize: 9, color: textColor, decoration: textDecoration,),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${event.classDuration}分钟',
-                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课',
-                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration,),
+                        '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
+                        style: TextStyle(fontSize: 11, color: textColor, decoration: textDecoration),
                       ),
                     ],
                   ),

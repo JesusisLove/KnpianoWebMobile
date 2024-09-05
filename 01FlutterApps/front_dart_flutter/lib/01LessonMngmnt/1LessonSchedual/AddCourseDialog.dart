@@ -168,7 +168,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       'lessonType': lessonType,
       'classDuration': selectedDuration,
       'schedualDate': '${widget.scheduleDate} ${widget.scheduleTime}',
-
     };
 
     try {
@@ -191,135 +190,236 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Colors.green.shade600;
+    final backgroundColor = Colors.green.shade50;
+
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '添加课程:${widget.scheduleDate} ${widget.scheduleTime}', 
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 0),
-
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: '学生姓名'),
-              value: selectedStudent,
-              onChanged: (value) {
-                setState(() {
-                  selectedStudent = value;
-                  selectedSubject = null;
-                  subjectLevel = null;
-                  courseType = null;
-                  isRadioEnabled = false;
-                });
-                if (value != null) {
-                  final selectedStudentDoc = stuDocList.firstWhere((student) => student.stuName == value);
-                  _fetchStudentSubjects(selectedStudentDoc.stuId);
-                }
-              },
-              items: stuDocList.map((student) => DropdownMenuItem(
-                value: student.stuName,
-                child: Text(student.stuName),
-              )).toList(),
-            ),
-            const SizedBox(height: 0),
-
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: '科目名称'),
-              value: selectedSubject,
-              onChanged: (value) {
-                setState(() => selectedSubject = value);
-                if (value != null) {
-                  final selectedSubjectInfo = stuSubjectsList.firstWhere(
-                    (subject) => subject['subjectName'] == value,
-                    orElse: () => null,
-                  );
-                  if (selectedSubjectInfo != null) {
-                    _updateSubjectInfo(selectedSubjectInfo);
-                  }
-                }
-              },
-              items: stuSubjectsList.map((subject) => DropdownMenuItem(
-                value: subject['subjectName'] as String,
-                child: Text(subject['subjectName'] as String),
-              )).toList(),
-            ),
-            const SizedBox(height: 0),
-
-            TextFormField(
-              decoration: const InputDecoration(labelText: '科目级别名称'),
-              controller: TextEditingController(text: subjectLevel),
-              readOnly: true,
-            ),
-            const SizedBox(height: 16),
-
-            const Text('上课种别', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: ['课结算', '月计划', '月加课'].map((type) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Radio<String>(
-                      value: type,
-                      groupValue: courseType,
-                      onChanged: (isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')
-                          ? (String? value) {
-                              setState(() {
-                                courseType = value!;
-                                // 根据上课种别设定该当值
-                                if (type == '课结算') {
-                                  lessonType = 0;
-                                } else if (type == '月计划') {
-                                  lessonType = 1;
-                                } else if (type == '月加课') {
-                                  lessonType = 2;
-                                }
-                              });
-                            }
-                          : null,
-                    ),
-                    Text(type),
-                  ],
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 0),
-
-            DropdownButtonFormField<int>(
-              decoration: const InputDecoration(labelText: '上课时长'),
-              value: selectedDuration,
-              onChanged: (value) => setState(() => selectedDuration = value),
-              items: durationList.map((DurationBean durationBean) => DropdownMenuItem(
-                value: durationBean.minutesPerLsn,
-                child: Text('${durationBean.minutesPerLsn} 分钟'),
-              )).toList(),
-            ),
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                // ignore: sort_child_properties_last
-                child: const Text('保存'),
-                onPressed: _saveCourse,
-              ),
-            ),
-          ],
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: backgroundColor,
         ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      '添加课程:${widget.scheduleDate} ${widget.scheduleTime}',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: primaryColor, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+
+              _buildDropdown(
+                label: '学生姓名',
+                value: selectedStudent,
+                items: stuDocList.map((student) => DropdownMenuItem(
+                  value: student.stuName,
+                  child: Text(student.stuName),
+                )).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedStudent = value as String?;
+                    selectedSubject = null;
+                    subjectLevel = null;
+                    courseType = null;
+                    isRadioEnabled = false;
+                  });
+                  if (value != null) {
+                    final selectedStudentDoc = stuDocList.firstWhere((student) => student.stuName == value);
+                    _fetchStudentSubjects(selectedStudentDoc.stuId);
+                  }
+                },
+              ),
+
+              _buildDropdown(
+                label: '科目名称',
+                value: selectedSubject,
+                items: stuSubjectsList.map((subject) => DropdownMenuItem(
+                  value: subject['subjectName'] as String,
+                  child: Text(subject['subjectName'] as String),
+                )).toList(),
+                onChanged: (value) {
+                  setState(() => selectedSubject = value as String?);
+                  if (value != null) {
+                    final selectedSubjectInfo = stuSubjectsList.firstWhere(
+                      (subject) => subject['subjectName'] == value,
+                      orElse: () => null,
+                    );
+                    if (selectedSubjectInfo != null) {
+                      _updateSubjectInfo(selectedSubjectInfo);
+                    }
+                  }
+                },
+              ),
+
+              _buildTextField(
+                label: '科目级别名称',
+                controller: TextEditingController(text: subjectLevel),
+                readOnly: true,
+              ),
+
+              const SizedBox(height: 10),
+              Text('上课种别', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
+              const SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: ['课结算', '月计划', '月加课'].map((type) {
+                  return _buildRadioButton(type, primaryColor);
+                }).toList(),
+              ),
+
+              const SizedBox(height: 10),
+              _buildDropdown(
+                label: '上课时长',
+                value: selectedDuration,
+                items: durationList.map((DurationBean durationBean) => DropdownMenuItem(
+                  value: durationBean.minutesPerLsn,
+                  child: Text('${durationBean.minutesPerLsn} 分钟'),
+                )).toList(),
+                onChanged: (value) => setState(() => selectedDuration = value as int?),
+              ),
+
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: _saveCourse,
+                  child: const Text('保存', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required dynamic value,
+    required List<DropdownMenuItem<dynamic>> items,
+    required Function(dynamic) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
+        const SizedBox(height: 5),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.green.shade300),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<dynamic>(
+              value: value,
+              isExpanded: true,
+              items: items,
+              onChanged: onChanged,
+              icon: Icon(Icons.arrow_drop_down, color: Colors.green.shade700),
+              dropdownColor: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    bool readOnly = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          readOnly: readOnly,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.green.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.green.shade600),
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
+    );
+  }
+
+  Widget _buildRadioButton(String type, Color primaryColor) {
+    return InkWell(
+      onTap: () {
+        if ((isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')) {
+          setState(() {
+            courseType = type;
+            if (type == '课结算') {
+              lessonType = 0;
+            } else if (type == '月计划') {
+              lessonType = 1;
+            } else if (type == '月加课') {
+              lessonType = 2;
+            }
+          });
+        }
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Radio<String>(
+            value: type,
+            groupValue: courseType,
+            onChanged: (isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')
+                ? (String? value) {
+                    setState(() {
+                      courseType = value!;
+                      if (type == '课结算') {
+                        lessonType = 0;
+                      } else if (type == '月计划') {
+                        lessonType = 1;
+                        } else if (type == '月加课') {
+                        lessonType = 2;
+                      }
+                    });
+                  }
+                : null,
+            activeColor: primaryColor,
+          ),
+          Text(type, style: TextStyle(color: Colors.green.shade700)),
+        ],
       ),
     );
   }
