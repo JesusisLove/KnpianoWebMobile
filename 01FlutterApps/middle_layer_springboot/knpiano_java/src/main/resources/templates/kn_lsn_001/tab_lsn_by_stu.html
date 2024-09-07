@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Fragments</title>
 </head>
+
 <body>
     <div th:fragment="lessonTable(stuid, stuName)">
         <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'">
@@ -29,7 +31,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}">
+                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
+                                   info.lessonType == 1 ? 'color: #2196F3;' : 
+                                   info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
                         <td>[[${info.lessonId}]]</td>
                         <td>[[${info.subjectId}]]</td>
                         <td>[[${info.subjectSubId}]]</td>
@@ -39,36 +43,37 @@
                         <td>[[${info.stuName}]]</td>
                         <td>[[${info.classDuration}]]</td>
                         <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
-                        <td th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}"></td>
-                        <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
+                        </td>
+                        <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]
+                        </td>
+                        <td>[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') :
+                            ''}]]</td>
+                        <td>[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]
+                        </td>
                         <td>[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
-                        <td>[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
-                        <td>[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                        <td>[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]
+                        </td>
+                        <td>[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]
+                        </td>
                         <td>
-                            <td>
-                                <a class="btn btn-sm btn-primary" 
-                                    th:href="@{/kn_lsn_001/}+${info.lessonId}" 
-                                    th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" 
-                                    methods="GET">変更</a> 
+                        <td>
+                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
+                                th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
 
-                                <!-- 如果 info.isUsableDelete 为 true，那么 button 将会有 disabled 属性，否则没有这个属性 -->
-                                <button type="button"   class="btn btn-sm btn-danger deleteBtn" 
-                                        th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}" 
-                                        th:classappend="${info.isUsableDelete ? ''  : 'disabled'}" 
-                                        th:disabled="${!info.isUsableDelete}" >削除</button>
+                            <!-- 如果 info.isUsableDelete 为 true，那么 button 将会有 disabled 属性，否则没有这个属性 -->
+                            <button type="button" class="btn btn-sm btn-danger deleteBtn"
+                                th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}"
+                                th:classappend="${info.isUsableDelete ? ''  : 'disabled'}"
+                                th:disabled="${!info.isUsableDelete}">削除</button>
 
-                                <a class="btn btn-sm btn-success" 
-                                    th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}" 
-                                    th:classappend="${info.isUsableSign ? ''  : 'disabled'}" 
-                                    methods="GET">签到</a>
+                            <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
+                                th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
 
-                                <a class="btn btn-sm btn-danger" 
-                                    th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}" 
-                                    th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
-                                    th:method="GET">[[${btnUsable != null ? btnUsable.cancel : ''}]]撤销</a>
-                            </td>
+                            <a class="btn btn-sm btn-danger" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
+                                th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" th:method="GET">[[${btnUsable
+                                != null ? btnUsable.cancel : ''}]]撤销</a>
+                        </td>
                         </td>
                     </tr>
                 </tbody>
@@ -76,7 +81,7 @@
         </div>
         <!-- 削除処理的表单提交 -->
         <form id="deleteSubjectForm" action="" method="post">
-            <input type="hidden" name="_method" value="Delete"/>
+            <input type="hidden" name="_method" value="Delete" />
         </form>
     </div>
 </body>
