@@ -2,15 +2,18 @@ spring:
   #数据源基本配置
   datasource:
     #访问本地MySQL数据库使用的用户名和密码
-    username: root
-    password: 
-    # url: jdbc:mysql://127.0.0.1:3306/bzlDev
-    url: jdbc:mysql://127.0.0.1:3306/KNStudent
+    #username: root
+    #password: 
+    #url: jdbc:mysql://127.0.0.1:3306/KNStudent
 
     #访问NAS服务器上的MySQL数据库使用的用户名和密码
-    #username: root
-    #password: 7654321
-    #url: jdbc:mysql://192.168.3.8:49168/bzlDev
+    username: root
+    password: 7654321
+    #東京
+    #url: jdbc:mysql://192.168.3.8:49168/KNStudent
+    #シンガポール
+    url: jdbc:mysql://192.168.50.101:49168/KNStudent
+
 
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
