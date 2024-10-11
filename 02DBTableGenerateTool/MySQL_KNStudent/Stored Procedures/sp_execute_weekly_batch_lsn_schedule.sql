@@ -87,7 +87,7 @@ BEGIN
     LEFT JOIN 
         v_latest_subject_info_from_student_document doc
         ON fix.stu_id = doc.stu_id AND fix.subject_id = doc.subject_id
-	   AND fix.del_flg = 0 -- 已退学的学生除外
+	   -- AND fix.del_flg = 0 -- 已暂时停课的学生除外(目前该表无此字段)
     INNER JOIN 
         temp_date_range cdr
         ON cdr.weekday_column = fix.fixed_week;

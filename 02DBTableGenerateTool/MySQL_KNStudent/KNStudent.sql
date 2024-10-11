@@ -1,5 +1,5 @@
 -- /////TABFLE///////////////////////////////////////////////////////////////////////////////
-USE IM_KNStudent;
+USE KNStudent;
 -- Tables
 DROP TABLE IF EXISTS `sequence`;
 DROP TABLE IF EXISTS `t_sp_execution_log`;
@@ -60,7 +60,7 @@ DROP PROCEDURE IF EXISTS `sp_execute_weekly_batch_lsn_schedule`;
 DROP PROCEDURE IF EXISTS `sp_execute_advc_lsn_fee_pay`;
 
 -- 00採番テーブル定義
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `sequence`;
 CREATE TABLE `sequence` (
   `seqid` varchar(255) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE `sequence` (
   PRIMARY KEY (`seqid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-USE IM_KNStudent;
+USE KNStudent;
 INSERT INTO sequence VALUES ('kn-stu-','学生番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-sub-','学科番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-sub-eda-','学科枝番',   0, 1);
@@ -80,7 +80,7 @@ INSERT INTO sequence VALUES ('kn-fee-','課費番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-pay-','精算番号',   0, 1);
 
 -- 01学生基本情報マスタ
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_mst_student`;
 CREATE TABLE `t_mst_student` (
   `stu_id` varchar(255) NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE `t_mst_student` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 02学科基本情報マスタ
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_mst_subject`;
 CREATE TABLE `t_mst_subject` (
   `subject_id` varchar(255) NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE `t_mst_subject` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 科目子表
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_subject_edaban`;
 CREATE TABLE `t_info_subject_edaban` (
   `subject_id` varchar(255) NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE `t_info_subject_edaban` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 03銀行基本情報マスタ
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_mst_bank`;
 CREATE TABLE `t_mst_bank` (
   `bank_id` varchar(255) NOT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE `t_mst_bank` (
   PRIMARY KEY (`bank_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_student_bank`;
 CREATE TABLE `t_info_student_bank` (
   `bank_id` varchar(255) NOT NULL,
@@ -153,7 +153,7 @@ CREATE TABLE `t_info_student_bank` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 10学生固定授業計画管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_fixedlesson`;
 CREATE TABLE `t_info_fixedlesson` (
   `stu_id` varchar(255) NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE `t_info_fixedlesson` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 11学生歴史ドキュメント情報
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_student_document`;
 CREATE TABLE `t_info_student_document` (
   `stu_id` varchar(32) NOT NULL,
@@ -194,7 +194,7 @@ CREATE TABLE `t_info_student_document` (
 -- 用foreign key来保证因从表有记录而不能随便删除主表与从表有关联关系的数据
 
 -- 12学生授業情報管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_lesson`;
 CREATE TABLE `t_info_lesson` (
   `lesson_id` varchar(32) NOT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE `t_info_lesson` (
 ;
 
 -- 21授業料金情報管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_lesson_fee`;
  CREATE TABLE `t_info_lesson_fee` (
   `lsn_fee_id` varchar(255) NOT NULL,
@@ -239,7 +239,7 @@ USE IM_KNStudent;
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 22授業課費精算管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_lesson_pay`;
 CREATE TABLE `t_info_lesson_pay` (
   `lsn_pay_id` varchar(255) NOT NULL,
@@ -254,12 +254,19 @@ CREATE TABLE `t_info_lesson_pay` (
   PRIMARY KEY (`lsn_pay_id`,`lsn_fee_id`),
   KEY `fk_bank_id` (`bank_id`),
   KEY `fk_lsn_fee_id` (`lsn_fee_id`),
-  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_lsn_fee_id` FOREIGN KEY (`lsn_fee_id`) REFERENCES `t_info_lesson_fee` (`lsn_fee_id`) ON DELETE RESTRICT
+  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT
+  /*
+   CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT,
+   CONSTRAINT `fk_lsn_fee_id` FOREIGN KEY (`lsn_fee_id`) REFERENCES `t_info_lesson_fee` (`lsn_fee_id`) ON DELETE RESTRICT
+   Error Code: 6125. Failed to add the foreign key constraint. Missing unique key for constraint 'fk_lsn_fee_id' in the referenced table 't_info_lesson_fee
+   因为lsn_fee_id不是t_info_lesson_fee表里的唯一主键，所以设置外健约束会出错号是6125的错误。
+   对策：暂时先把它comment out。
+  */
+  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 23年度星期生成表
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_fixedlesson_status`;
 CREATE TABLE `t_fixedlesson_status` (
   `week_number` int NOT NULL,
@@ -269,7 +276,7 @@ CREATE TABLE `t_fixedlesson_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 24课费预支付管理表
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_info_lsn_fee_advc_pay`;
 CREATE TABLE `t_info_lsn_fee_advc_pay` (
   `lesson_id` varchar(32) NOT NULL,
@@ -285,7 +292,7 @@ CREATE TABLE `t_info_lsn_fee_advc_pay` (
 
 
 -- 建立调用课费预支付存储过程日志表
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TABLE IF EXISTS `t_sp_execution_log`;
 CREATE TABLE t_sp_execution_log (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -298,7 +305,7 @@ CREATE TABLE t_sp_execution_log (
 
 -- ///// VIEW ///////////////////////////////////////////////////////////////////////////////
 -- 02学科基本情報マスタ
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_subject_edaban`;
 -- 视图-- 不要做驼峰命名变更，为了java程序处理的统一性。
 CREATE 
@@ -324,7 +331,7 @@ VIEW `v_info_subject_edaban` AS
 		;
 
 -- 03銀行基本情報マスタ
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_student_bank`;
 -- 视图
 CREATE 
@@ -353,7 +360,7 @@ and stu.del_flg = 0
 ;
 
 -- 10学生固定授業計画管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_fixedlesson`;
 -- 不要做驼峰命名变更，为了java程序处理的统一性。
 CREATE 
@@ -376,7 +383,7 @@ VIEW `v_info_fixedlesson` AS
 ;
 
 -- 11学生歴史ドキュメント情報
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_student_document`;
 -- 视图 不要做驼峰命名变更，为了java程序处理的统一性。
 CREATE 
@@ -410,7 +417,7 @@ VIEW `v_info_student_document` AS
 	);
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_earliest_fixed_week_info`;
 /* 给AI的提示词：
 这是t_info_fixedlesson中stu_id是，'kn-stu-3'的结果集，这个条件下的结果集里，
@@ -450,7 +457,7 @@ END = t2.min_day_num
 ORDER BY t1.stu_id, t1.subject_id;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_latest_subject_info_from_student_document`;
 -- 视图 从v_info_student_document里抽出学生最新正在上课的科目信息
 CREATE 
@@ -469,7 +476,7 @@ WHERE subquery.rn = 1 and del_flg = 0;
 
 
 -- 12学生授業情報管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_lesson`;
 -- 视图
 CREATE VIEW v_info_lesson AS
@@ -497,40 +504,9 @@ FROM
         LEFT JOIN `v_info_subject_edaban` `c` ON (`a`.`subject_id` = `c`.`subject_id` and `a`.`subject_sub_id` = `c`.`subject_sub_id`);
 
 
--- 📱手机端用视图 课程进度统计，用该视图取出的数据初期化手机页面的graph图
-USE IM_KNStudent;
--- DROP VIEW IF EXISTS `v_info_lsn_statistics_by_stuid`;
-CREATE
- 	ALGORITHM=UNDEFINED 
-	DEFINER=`root`@`localhost` 
-	SQL SECURITY DEFINER 
-VIEW `v_info_lsn_statistics_by_stuid`
-AS 
-SELECT 
-	stu_id 
-   ,stu_name
-   ,subject_name
-   ,subject_id
-   ,subject_sub_id
-   ,subject_sub_name
-   ,lesson_type
-   ,sum(lsn_count) as lsn_count
-   ,lsn_month
-FROM v_info_lesson_fee_connect_lsn 
-GROUP BY
-   stu_id
-   ,stu_name
-   ,subject_name
-   ,subject_id
-   ,subject_sub_id
-   ,subject_sub_name
-   ,lesson_type
-   ,lsn_month
-ORDER BY lsn_month,subject_id,subject_sub_id;
-
 
 -- 21授業料金情報管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_lesson_fee_connect_lsn`;
 -- 视图 从t_info_lesson_fee表里抽出学生各自科目的费用信息
 -- 这里的课程都是已经签到完了的课程记录
@@ -586,7 +562,39 @@ left join
         )
 order by fee.lsn_month;
 
-USE IM_KNStudent;
+-- 📱手机端用视图 课程进度统计，用该视图取出的数据初期化手机页面的graph图
+USE KNStudent;
+-- DROP VIEW IF EXISTS `v_info_lsn_statistics_by_stuid`;
+CREATE
+ 	ALGORITHM=UNDEFINED 
+	DEFINER=`root`@`localhost` 
+	SQL SECURITY DEFINER 
+VIEW `v_info_lsn_statistics_by_stuid`
+AS 
+SELECT 
+	stu_id 
+   ,stu_name
+   ,subject_name
+   ,subject_id
+   ,subject_sub_id
+   ,subject_sub_name
+   ,lesson_type
+   ,sum(lsn_count) as lsn_count
+   ,lsn_month
+FROM v_info_lesson_fee_connect_lsn 
+GROUP BY
+   stu_id
+   ,stu_name
+   ,subject_name
+   ,subject_id
+   ,subject_sub_id
+   ,subject_sub_name
+   ,lesson_type
+   ,lsn_month
+ORDER BY lsn_month,subject_id,subject_sub_id;
+
+
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_lesson_sum_fee_unpaid_yet`;
 -- 📱视图 从v_info_lesson_fee_connect_lsn表里每个每月上完每个科目的课数和未支付课费做统计
 -- 手机前端页面使用
@@ -673,7 +681,7 @@ lsn_month,
 own_flg;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_lesson_sum_fee_pay_over`;
 -- 📱视图 从v_info_lesson_fee_connect_lsn表里每月上完的课数和已支付课费做统计
 -- 手机前端页面使用
@@ -775,7 +783,7 @@ GROUP BY
 
 
 -- 22授業課費精算管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_info_lesson_pay_over`;
 -- 视图 从t_info_lesson_pay表里抽取精算完了的学生课程信息
 -- 后台维护用
@@ -817,7 +825,7 @@ left join
 
 -- 23学费月度报告的分组查询 
 -- ①未支付学费统计（分组查询学生，月份）
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_sum_unpaid_lsnfee_by_stu_and_month`;
 -- 后台维护用
 -- 本视图被下列视图单独调用
@@ -837,7 +845,7 @@ group by stu_id
 
 -- ②未支付学费统计（分组查询月份Only）
 -- ③已支付学费统计（分组查询学生，月份）
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_sum_haspaid_lsnfee_by_stu_and_month`;
 
 -- 后台维护用
@@ -857,7 +865,7 @@ group by stu_id
 ;
 
 -- ④对课费管理视图的学费（已支付未支付都包括在内）的总计算按学生按月的分组查询
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month`;
 
 -- 后台维护用
@@ -913,7 +921,7 @@ GROUP BY lsn_fee_id,stu_id,stu_name,
 ;
 
 -- (学生总综合)所有学生当前年度每月总课费的总支付，未支付状况查询
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_total_lsnfee_with_paid_unpaid_every_month`;
 -- 后台维护用
 -- 所有在课学生的每个月总课费，已支付，未支付状况 v_total_lsnfee_with_paid_unpaid_every_month
@@ -954,7 +962,7 @@ FROM (
 GROUP BY lsn_month;
 
 -- （学生明细综合）每个学生当前年度每月总课费的总支付，未支付状况查询
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP VIEW IF EXISTS `v_total_lsnfee_with_paid_unpaid_every_month_every_student`;
 -- 后台维护用
 -- 每个学生当前年度每月总课费的总支付，未支付状况查询 v_total_lsnfee_with_paid_unpaid_every_month_every_student
@@ -998,9 +1006,65 @@ from (
 ) lsn_fee_status_by_stu_and_month
 group by stu_id, stu_name, lsn_month;
 
+use KNStudent;
+-- DROP VIEW IF EXISTS v_info_all_extra_lsns;
+-- 前提条件，加课都已经签到完了，找出那些已经结算和还未结算的加课信息
+-- 已经结算的加课费
+CREATE VIEW v_info_all_extra_lsns AS 
+SELECT 
+	-- pay.lsn_pay_id, 
+    -- fee.lsn_fee_id, 
+    lsn.lesson_id,
+    lsn.stu_id,
+    lsn.subject_id,
+    lsn.subject_sub_id,
+    lsn.class_duration,
+    lsn.lesson_type,
+    lsn.schedual_type,
+    lsn.schedual_date,
+    lsn.lsn_adjusted_date,
+    lsn.extra_to_dur_date,
+    lsn.scanqr_date,
+    1 as pay_flg 
+FROM 
+	t_info_lesson lsn
+	inner join 
+	t_info_lesson_fee fee
+	on lsn.lesson_id = fee.lesson_id
+	inner join
+	t_info_lesson_pay pay
+	on fee.lsn_fee_id = pay.lsn_fee_id
+	where lsn.scanqr_date is not null 
+	and lsn.lesson_type = 2 -- 加课课程标识
+union all
+-- 已经结算的加课费
+SELECT 
+    main.lesson_id,
+    main.stu_id,
+    main.subject_id,
+    main.subject_sub_id,
+    main.class_duration,
+    main.lesson_type,
+    main.schedual_type,
+    main.schedual_date,
+    main.lsn_adjusted_date,
+    main.extra_to_dur_date,
+    main.scanqr_date,
+    0 as pay_flg 
+FROM t_info_lesson main
+WHERE main.scanqr_date IS NOT NULL 
+  AND main.lesson_type = 2
+  AND NOT EXISTS (
+    SELECT 1 
+    FROM t_info_lesson lsn
+    INNER JOIN t_info_lesson_fee fee ON lsn.lesson_id = fee.lesson_id
+    INNER JOIN t_info_lesson_pay pay ON fee.lsn_fee_id = pay.lsn_fee_id
+    WHERE lsn.lesson_id = main.lesson_id
+  );
+
 
 -- ///// FUNCTION ///////////////////////////////////////////////////////////////////////////////
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP FUNCTION IF EXISTS `currval`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `currval`(seq_id VARCHAR(50))
@@ -1016,7 +1080,7 @@ BEGIN
 END//
 DELIMITER ;
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP FUNCTION IF EXISTS `nextval`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `nextval`(seq_id VARCHAR(50)) RETURNS int
@@ -1029,7 +1093,7 @@ BEGIN
 END//
 DELIMITER ;
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP FUNCTION IF EXISTS `setval`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `setval`(seq_id VARCHAR(50), value INTEGER) RETURNS int
@@ -1045,7 +1109,7 @@ DELIMITER ;
 
 -- ///// TRIGGER ///////////////////////////////////////////////////////////////////////////////
 -- 01学生基本情報マスタ：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_mst_student`;
 -- 更新t_mst_student表update_date字段的触发器
 DELIMITER $$
@@ -1058,7 +1122,7 @@ END$$
 DELIMITER ;
 
 -- 02学科基本情報マスタ：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_mst_subject`;
 -- 更新t_mst_subject表update_date字段的触发器
 DELIMITER $$
@@ -1071,7 +1135,7 @@ END$$
 DELIMITER ;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_subject_edaban`;
 -- 更新t_info_subject_edaban表update_date字段的触发器
 DELIMITER $$
@@ -1085,7 +1149,7 @@ DELIMITER ;
 
 
 -- 03銀行基本情報マスタ：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_mst_bank`;
 -- 更新t_mst_bank表update_date字段的触发器
 DELIMITER $$
@@ -1098,7 +1162,7 @@ END$$
 DELIMITER ;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_student_bank`;
 -- 更新t_info_student_bank表update_date字段的触发器
 DELIMITER $$
@@ -1112,7 +1176,7 @@ DELIMITER ;
 
 
 -- 11学生歴史ドキュメント情報：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_student_document`;
 -- 更新t_info_student_document表update_date字段的触发器
 DELIMITER $$
@@ -1126,7 +1190,7 @@ DELIMITER ;
 
 
 -- 12学生授業情報管理：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_lesson`;
 -- 更新t_info_lesson表update_date字段的触发器
 DELIMITER $$
@@ -1139,7 +1203,7 @@ END$$
 DELIMITER ;
 
 -- 21授業料金情報管理：创建更新日触发器
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_lesson_fee`;
 -- 更新t_info_lesson_fee表update_date字段的触发器
 DELIMITER $$
@@ -1153,7 +1217,7 @@ DELIMITER ;
 
 
 -- 22授業課費精算管理
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP TRIGGER IF EXISTS `before_update_t_info_lesson_pay`;
 -- 更新t_info_lesson_pay表update_date字段的触发器
 DELIMITER $$
@@ -1168,7 +1232,7 @@ DELIMITER ;
 
 -- ///// PROCEDURE ///////////////////////////////////////////////////////////////////////////////
 -- 1.年利用度星期生成表结合学生固定排课表，对学生进行一星期自动化排课
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP FUNCTION IF EXISTS `generate_weekly_date_series`;
 -- 保持日期序列生成函数不变只要一周的表数据信息
 DELIMITER //
@@ -1197,7 +1261,7 @@ END //
 DELIMITER ;
 
 -- 创建一个存储过程来生成日期范围
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP PROCEDURE IF EXISTS `sp_weekly_batch_lsn_schedule_process`;
 /**
 INPUT：一周的开始日期和一周的结束日期
@@ -1262,7 +1326,7 @@ DELIMITER ;
 
 
 -- 2.在课学生课程费用按照学生和月的分组合计
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP PROCEDURE IF EXISTS `sp_sum_unpaid_lsnfee_by_stu_and_month`;
 DELIMITER //
 -- 每个学生每个月未支付状况的分组合计 sp_sum_unpaid_lsnfee_by_stu_and_month
@@ -1290,7 +1354,7 @@ END //
 DELIMITER ;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP PROCEDURE IF EXISTS `sp_get_advance_pay_subjects_and_lsnschedual_info`;
 DELIMITER //
 CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(50), IN p_yearMonth VARCHAR(7))
@@ -1450,7 +1514,7 @@ END //
 DELIMITER ;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP PROCEDURE IF EXISTS `sp_execute_weekly_batch_lsn_schedule`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_execute_weekly_batch_lsn_schedule`(IN start_date_str VARCHAR(10), IN end_date_str VARCHAR(10), IN SEQCode VARCHAR(20))
@@ -1538,7 +1602,7 @@ BEGIN
     LEFT JOIN 
         v_latest_subject_info_from_student_document doc
         ON fix.stu_id = doc.stu_id AND fix.subject_id = doc.subject_id
-	   AND fix.del_flg = 0 -- 已退学的学生除外
+	   -- AND fix.del_flg = 0 -- 已暂时停课的学生除外(目前该表无此字段)
     INNER JOIN 
         temp_date_range cdr
         ON cdr.weekday_column = fix.fixed_week;
@@ -1591,7 +1655,7 @@ END //
 DELIMITER ;
 
 
-USE IM_KNStudent;
+USE KNStudent;
 -- DROP PROCEDURE IF EXISTS `sp_execute_advc_lsn_fee_pay`;
 DELIMITER //
 CREATE PROCEDURE sp_execute_advc_lsn_fee_pay(
