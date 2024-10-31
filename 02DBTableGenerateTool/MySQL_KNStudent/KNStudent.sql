@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS `t_info_subject_edaban`;
 DROP TABLE IF EXISTS `t_mst_bank`;
 DROP TABLE IF EXISTS `t_mst_subject`;
 DROP TABLE IF EXISTS `t_mst_student`;
+DROP TABLE IF EXISTS `t_info_lesson_extra_to_sche`;
 
 -- Views
 DROP VIEW IF EXISTS `v_info_subject_edaban`;
@@ -302,6 +303,15 @@ CREATE TABLE t_sp_execution_log (
     result VARCHAR(255),
     execution_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 建立加课换正课中间表
+USE KNStudent;
+-- DROP TABLE IF EXISTS `t_info_lesson_extra_to_sche`;
+CREATE TABLE `t_info_lesson_extra_to_sche` (
+  `lesson_id` varchar(45) NOT NULL,
+  `old_lsn_fee_id` varchar(255) NOT NULL,
+  `new_lsn_fee_id` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ///// VIEW ///////////////////////////////////////////////////////////////////////////////
 -- 02学科基本情報マスタ
@@ -1030,12 +1040,12 @@ FROM
 	t_info_lesson lsn
 	inner join 
 	t_info_lesson_fee fee
-	on lsn.lesson_id = fee.lesson_id
+	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0
 	inner join
 	t_info_lesson_pay pay
 	on fee.lsn_fee_id = pay.lsn_fee_id
 	where lsn.scanqr_date is not null 
-	and lsn.lesson_type = 2 -- 加课课程标识
+	and lsn.lesson_type = 2 -- 2是加课课程的标识数字
 union all
 -- 已经结算的加课费
 SELECT 

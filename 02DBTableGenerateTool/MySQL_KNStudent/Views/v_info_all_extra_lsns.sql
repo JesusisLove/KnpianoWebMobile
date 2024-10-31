@@ -22,14 +22,14 @@ FROM
 	t_info_lesson lsn
 	inner join 
 	t_info_lesson_fee fee
-	on lsn.lesson_id = fee.lesson_id
+	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0
 	inner join
 	t_info_lesson_pay pay
 	on fee.lsn_fee_id = pay.lsn_fee_id
 	where lsn.scanqr_date is not null 
-	and lsn.lesson_type = 2 -- 加课课程标识
+	and lsn.lesson_type = 2 -- 2是加课课程的标识数字
 union all
--- 已经结算的加课费
+-- 还未结算的加课费
 SELECT 
     main.lesson_id,
     main.stu_id,
@@ -49,7 +49,7 @@ WHERE main.scanqr_date IS NOT NULL
   AND NOT EXISTS (
     SELECT 1 
     FROM t_info_lesson lsn
-    INNER JOIN t_info_lesson_fee fee ON lsn.lesson_id = fee.lesson_id
+    INNER JOIN t_info_lesson_fee fee ON lsn.lesson_id = fee.lesson_id AND fee.del_flg = 0
     INNER JOIN t_info_lesson_pay pay ON fee.lsn_fee_id = pay.lsn_fee_id
     WHERE lsn.lesson_id = main.lesson_id
   );

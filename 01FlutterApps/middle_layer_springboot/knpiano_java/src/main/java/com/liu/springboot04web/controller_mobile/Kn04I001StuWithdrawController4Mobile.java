@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
 import com.liu.springboot04web.bean.Kn03D001StuBean;
-import com.liu.springboot04web.dao.Kn03D001StuDao;
 import com.liu.springboot04web.dao.Kn04I001StuWithdrawDao;
 
 @RestController
