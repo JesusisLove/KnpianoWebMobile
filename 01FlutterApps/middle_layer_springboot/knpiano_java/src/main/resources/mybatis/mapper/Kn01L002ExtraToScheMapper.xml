@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01L002ExtraToScheMapper">
+    <!-- 后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
+    <select id="getInfoListExtraCanBeSche" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select stu.stu_name
+            ,sub.subject_name
+            ,eda.subject_sub_name
+            ,allextra.* 
+        from v_info_all_extra_lsns allextra 
+        inner join t_mst_student stu
+           on allextra.stu_id = stu.stu_id
+        inner join t_mst_subject sub
+           on allextra.subject_id = sub.subject_id
+        inner join t_info_subject_edaban eda
+           on allextra.subject_id = eda.subject_id
+          and allextra.subject_sub_id = eda.subject_sub_id
+          <where>
+             substring(schedual_date,1,4) = #{year}
+        </where>
+    </select>
+
+
+    <select id="searchUnpaidExtraLessons" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select stu.stu_name
+            ,sub.subject_name
+            ,eda.subject_sub_name
+            ,allextra.* 
+        from v_info_all_extra_lsns allextra 
+        inner join t_mst_student stu
+           on allextra.stu_id = stu.stu_id
+        inner join t_mst_subject sub
+           on allextra.subject_id = sub.subject_id
+        inner join t_info_subject_edaban eda
+           on allextra.subject_id = eda.subject_id
+          and allextra.subject_sub_id = eda.subject_sub_id
+          <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
+                    AND ${key} like CONCAT('%', #{value}, '%')
+                </if>
+            </foreach>
+        </where>
+    </select>
+
+
+    <select id="getInfoListExtraCanBeScheDetail" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select stu.stu_name
+            ,sub.subject_name
+            ,eda.subject_sub_name
+            ,allextra.* 
+        from v_info_all_extra_lsns allextra 
+        inner join t_mst_student stu
+           on allextra.stu_id = stu.stu_id
+        inner join t_mst_subject sub
+           on allextra.subject_id = sub.subject_id
+        inner join t_info_subject_edaban eda
+           on allextra.subject_id = eda.subject_id
+          and allextra.subject_sub_id = eda.subject_sub_id
+          <where>
+            lesson_id = #{lessonId}
+          </where>
+    </select>
+
+    <!-- 将原加课产生的课费“废除/恢复” -->
+    <update id="updateLsnFeeFlg">
+        <!-- 通过使用动态 SQL 的方式来实现根据参数是否为 null 或空来决定是否更新对应的字 -->
+        update t_info_lesson_fee
+        <set>
+            del_flg = #{delFlg}
+        </set>
+        where lesson_id = #{lessonId}
+    </update>
+
+    <!-- 取得要换正课前的lsn_fee_id，取得条件：课程Id（lessonId) -->
+    <select id="getOldLessonIdInfo" resultType="java.lang.String">
+        select lsn_fee_id
+        from v_info_lesson_fee_connect_lsn
+          <where>
+            lesson_id = #{lessonId}
+          </where>
+          limit 1
+    </select>
+
+    <!-- 取得要换正课后的lsn_fee_id，取得条件：换正课的月份 -->
+    <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select lsn_fee_id as new_lsn_fee_id
+        from v_info_lesson_fee_connect_lsn
+          <where>
+            lesson_id = #{lessonId}
+            and lsn_month = #{lsnMonth}
+          </where>
+          limit 1
+    </select>
+
+    <!-- 执行保存加课换正课的处理的新旧课费ID保存 -->
+    <insert id="insertExtraToScheInfo" >
+        insert into t_info_lesson_extra_to_sche (
+            lesson_id,
+            old_lsn_fee_id,
+            new_lsn_fee_id
+            ) values (
+            #{lessonId},
+            #{oldLsnFeeId},
+            #{newLsnFeeId}
+        )
+    </insert>
+
+    <!-- 课程表里的课程记录，还原为原来的月加课状态 -->
+    <update id="updateExtraDateIsNull">
+        update t_info_lesson
+        <set>
+            extra_to_dur_date = null
+        </set>
+        where lesson_id = #{lessonId}
+    </update>
+
+    <!-- 删除加课换正课中间表的记录，删除条件：lessonId -->
+    <delete id="deleteOldNewLsnFeeId" parameterType="String">
+        DELETE FROM t_info_lesson_extra_to_sche WHERE lesson_id = #{lessonId}
+    </delete>
+</mapper>
