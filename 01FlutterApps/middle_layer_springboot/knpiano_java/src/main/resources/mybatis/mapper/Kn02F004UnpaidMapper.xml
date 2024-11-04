@@ -16,11 +16,17 @@
               ,lsnfee.lsn_month
               ,lsnfee.own_flg
               ,sum(lsnfee.lsn_count) as lsn_count
-              ,sum(lsnfee.lsn_fee) as lsn_fee
+              ,CASE 
+                    WHEN SUM(lsnfee.lsn_count) > 4
+                    <!-- 月计划，且是正课的情况下，超过4节课的情况下走该分支 -->
+                    THEN subject_price * 4 
+                    <!-- 月计划()，且是正课小于等于4节课的情况下，月加课的情况下，课结算的情况下走该分支 -->
+                    ELSE SUM(lsnfee.lsn_fee) 
+                END AS lsn_fee
             from (
                 v_info_lesson_fee_connect_lsn lsnfee
                 inner join 
-                v_info_lesson lesson
+                v_info_lesson_include_extra2sche lesson
                 on lsnfee.lesson_id = lesson.lesson_id
                 <!--未精算のデータ -->
                 and lsnfee.own_flg = 0 
@@ -43,6 +49,7 @@
                     ,lesson.lesson_type
                     ,lsnfee.pay_style
                     ,lsnfee.lsn_month
+                    ,lsnfee.subject_price 
           order by stu_name,lsn_month desc, subject_id, subject_sub_id desc
     </select> 
 
@@ -60,11 +67,15 @@
                 <!-- 已经处理了有调整价格用调整价格，没调整价格使用原价格 -->
                 ,lsnfee.subject_price
                 ,sum(lsnfee.lsn_count) as lsn_count
-                ,sum(lsnfee.lsn_fee) as lsn_fee
+                ,CASE 
+                    WHEN SUM(lsnfee.lsn_count) > 4
+                    THEN lsnfee.subject_price * 4
+                    ELSE SUM(lsnfee.lsn_fee) 
+                END AS lsn_fee
             from (
                 v_info_lesson_fee_connect_lsn lsnfee
                 inner join 
-                v_info_lesson lesson
+                v_info_lesson_include_extra2sche lesson
                 on lsnfee.lesson_id = lesson.lesson_id
                 <!--未精算のデータ -->
                 and lsnfee.own_flg = 0 
