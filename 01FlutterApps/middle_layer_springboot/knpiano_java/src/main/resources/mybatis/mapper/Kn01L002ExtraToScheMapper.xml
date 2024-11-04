@@ -91,11 +91,11 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 取得要换正课后的lsn_fee_id，取得条件：换正课的月份 -->
-    <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+    <select id="getNewLessonIdInfo" resultType="java.lang.String">
         select lsn_fee_id as new_lsn_fee_id
         from v_info_lesson_fee_connect_lsn
           <where>
-            lesson_id = #{lessonId}
+            stu_id = #{stuId}
             and lsn_month = #{lsnMonth}
           </where>
           limit 1
@@ -106,11 +106,13 @@ https://mybatis.org/mybatis-3/getting-started.html
         insert into t_info_lesson_extra_to_sche (
             lesson_id,
             old_lsn_fee_id,
-            new_lsn_fee_id
+            new_lsn_fee_id,
+            new_scanqr_date
             ) values (
             #{lessonId},
             #{oldLsnFeeId},
-            #{newLsnFeeId}
+            #{newLsnFeeId},
+            #{newScanQrDate}
         )
     </insert>
 

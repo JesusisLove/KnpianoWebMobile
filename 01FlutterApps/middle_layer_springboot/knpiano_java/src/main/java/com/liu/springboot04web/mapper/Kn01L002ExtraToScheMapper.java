@@ -1,8 +1,7 @@
 package com.liu.springboot04web.mapper;
 
 import com.liu.springboot04web.bean.Kn01L002ExtraToScheBean;
-import com.liu.springboot04web.bean.Kn02F002FeeBean;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +22,10 @@ public interface Kn01L002ExtraToScheMapper {
         public String getOldLessonIdInfo(String lessonId);
 
         // 取得要换正课后的lsn_fee_id，取得条件：换正课的月份
-        public Kn02F002FeeBean getNewLessonIdInfo(String lsnMonth);
+        public String getNewLessonIdInfo(String stuId, String lsnMonth);
 
         // 执行加课换正课的信息保存
-        public void insertExtraToScheInfo(String lessonId, String oldLsnFeeId, String newLsnFeeId);
+        public void insertExtraToScheInfo(String lessonId, String oldLsnFeeId, String newLsnFeeId, Date newScanQrDate);
 
         // 课程表里的课程记录，还原为原来的月加课状态 
         public void updateExtraDateIsNull(String lessonId);

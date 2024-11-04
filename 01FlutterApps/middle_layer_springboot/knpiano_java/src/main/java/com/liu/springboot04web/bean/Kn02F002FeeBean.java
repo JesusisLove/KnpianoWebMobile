@@ -23,6 +23,7 @@ public class Kn02F002FeeBean implements KnPianoBean{
     protected float     totalLsnCount0;
     protected float     totalLsnCount1;;
     protected float     totalLsnCount2;;
+    protected Integer   extra2scheFlg; // 0:正常课程标识    1:加课换正课标识
 
     public String getLsnFeeId() {
         return lsnFeeId;
@@ -131,5 +132,11 @@ public class Kn02F002FeeBean implements KnPianoBean{
     }
     public void setTotalLsnCount2(float totalLsnCount2) {
         this.totalLsnCount2 = totalLsnCount2;
+    }
+    public Integer getExtra2scheFlg() {
+        return extra2scheFlg;
+    }
+    public void setExtra2scheFlg(Integer extra2scheFlg) {
+        this.extra2scheFlg = extra2scheFlg;
     }
 }

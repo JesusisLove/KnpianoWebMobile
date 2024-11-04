@@ -26,11 +26,13 @@ VIEW v_info_lesson_fee_connect_lsn AS
         fee.lsn_month AS lsn_month,
         fee.own_flg AS own_flg,
         fee.del_flg AS del_flg,
+        fee.extra2sche_flg,
         fee.create_date AS create_date,
         fee.update_date AS update_date
     FROM
-        ((t_info_lesson_fee fee
-        JOIN t_info_lesson lsn ON (((fee.lesson_id = lsn.lesson_id)
+        ((v_info_lesson_fee_include_extra2sche fee　-- 包含了加课换正课后的记录
+        JOIN v_info_lesson_include_extra2sche lsn   -- 包含了加课换正课后的记录
+        ON (((fee.lesson_id = lsn.lesson_id)
             AND (fee.del_flg = 0)
             AND (lsn.del_flg = 0))))
         LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)

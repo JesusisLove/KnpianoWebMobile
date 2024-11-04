@@ -24,7 +24,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="info:${infoList}" th:if="${info.stuName == stuName}">
+                    <tr th:each="info:${infoList}" th:if="${info.stuName == stuName}"
+                        th:style="${info.lessonType == 2 ? 'color: #FF69B4; font-weight: bold;' : ''}">
                         <td>[[${info.lsnFeeId}]]</td>
                         <td>[[${info.stuId}]]</td>
                         <td>[[${info.stuName}]]</td>

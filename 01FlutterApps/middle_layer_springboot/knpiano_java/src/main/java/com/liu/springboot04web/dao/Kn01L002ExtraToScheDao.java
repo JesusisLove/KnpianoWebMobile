@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,13 +32,12 @@ public class Kn01L002ExtraToScheDao {
     @Autowired
     private Kn02F002FeeMapper knLsnFee001Mapper;
 
-    @Autowired
-    private TInfoLessonExtraToScheBean tblBean;
+    // @Autowired
+    // private TInfoLessonExtraToScheBean tblBean;
+    private TInfoLessonExtraToScheBean tblBean = new TInfoLessonExtraToScheBean();
 
-    @Autowired(required=false)
-    private Kn02F002FeeBean feeBean;
-
-
+    // @Autowired(required=true)
+    // private Kn02F002FeeBean feeBean;
 
     public List<Kn01L002ExtraToScheBean> getInfoList(String year) {
         List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(year);
@@ -78,28 +78,34 @@ public class Kn01L002ExtraToScheDao {
         String targetLsnMonth = new java.text.SimpleDateFormat("yyyy-MM-dd")
                                         .format(kn01L002ExtraToScheBean.getExtraToDurDate())
                                         .substring(0, 7);
-        feeBean = kn01l002ExtraToScheMapper.getNewLessonIdInfo(targetLsnMonth);
+        String studentId = kn01L002ExtraToScheBean.getStuId();
+
+        String newLsnFeeId = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, targetLsnMonth);
 
         // ⑤加课换正课情報作成
         // ⑤-1:oldLsnFeeId的设置
-        tblBean.setLessonId(lessonId);tblBean.setOldLsnFeeId(oldLsnFeeId);tblBean.setLessonId(lessonId);
+        tblBean.setLessonId(lessonId);tblBean.setOldLsnFeeId(oldLsnFeeId);
+        tblBean.setNewScanQrDate(kn01L002ExtraToScheBean.getExtraToDurDate());
         // ⑤-2:newLsnFeeId的设置
-        if (feeBean == null) {
+        if (newLsnFeeId == null || newLsnFeeId.isEmpty()) {
             // lsn_fee_idを採番
             Map<String, Object> map = new HashMap<>();
                 map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);
                 // 课程费用的自動採番:採番番号 = new_lsn_fee_id = origin_lsn_fee_id 
                 knLsnFee001Mapper.getNextSequence(map);
-                String newLsnFeeId = KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out");
+                newLsnFeeId = KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out");
                 tblBean.setNewLsnFeeId(newLsnFeeId);
 
         } else {
             // 设置换正课后的lsn_fee_id
-            tblBean.setNewLsnFeeId(feeBean.getLsnFeeId());
+            tblBean.setNewLsnFeeId(newLsnFeeId);
         }
 
         // ⑥执行保存加课换正课的处理（其实处理的是课费的结算，即原来准备按加课费收费，由于换成其他月份的正课，就不在当前月收取加课费了）
-        kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),tblBean.getOldLsnFeeId(),tblBean.getNewLsnFeeId());
+        kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),
+                                                        tblBean.getOldLsnFeeId(),
+                                                        tblBean.getNewLsnFeeId(),
+                                                        tblBean.getNewScanQrDate());
     }
 
     // 撤销加课换正课处理
@@ -123,7 +129,6 @@ public class Kn01L002ExtraToScheDao {
  * 加课换正课情報作成
  * 数据库t_info_lesson_extra_to_sche表的Bean类
 */ 
-@Repository
 class TInfoLessonExtraToScheBean {
 
     // 课程ID
@@ -134,6 +139,10 @@ class TInfoLessonExtraToScheBean {
 
     // 换正课之前的课费ID
     String oldLsnFeeId;
+
+    // @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9") // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // @DateTimeFormat(pattern = "yyyy-MM-dd")
+    protected Date newScanQrDate;
 
     public String getLessonId() {
         return lessonId;
@@ -157,5 +166,13 @@ class TInfoLessonExtraToScheBean {
 
     public void setOldLsnFeeId(String oldLsnFeeId) {
         this.oldLsnFeeId = oldLsnFeeId;
+    }
+
+    public Date getNewScanQrDate() {
+        return newScanQrDate;
+    }
+
+    public void setNewScanQrDate(Date newScanQrDate) {
+        this.newScanQrDate = newScanQrDate;
     }
 }
