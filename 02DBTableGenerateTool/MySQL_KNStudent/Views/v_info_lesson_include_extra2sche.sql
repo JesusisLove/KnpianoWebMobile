@@ -23,19 +23,28 @@ VIEW v_info_lesson_include_extra2sche AS
         end AS stu_name,
         lsn.class_duration AS class_duration,
         lsn.schedual_type AS schedual_type,
-        lsn.schedual_date AS schedual_date,
-        lsn.lsn_adjusted_date AS lsn_adjusted_date,
         case 
-			when lsn.extra_to_dur_date is not null 
-            then lsn.extra_to_dur_date -- 加课换正课的场合，加课转正课的那个日期成为，换正课日期的签到日期
-            else lsn.scanqr_date -- 上记以外的场合，原来的签到日期还是原来的签到日期
-        end AS scanQR_date,
+			when lsn.extra_to_dur_date is not null -- 如果该记录是加课换正课记录
+            then  lsn.extra_to_dur_date
+            else lsn.schedual_date
+        end as schedual_date,
         case 
-			when lsn.extra_to_dur_date is not null 
-			then lsn.scanqr_date -- 加课换正课的场合，记住原来真正签到的日期
-        end as original_scanqr_date,
+			when lsn.extra_to_dur_date is not null -- 如果该记录是加课换正课记录
+            then null -- 成了正课记录的情况下，就让调课日期为null，这样手机页面的加课换正课记录就不会再显示调课日期了👍
+            else lsn.lsn_adjusted_date
+		end AS lsn_adjusted_date,
+        lsn.scanqr_date,
+		case 
+			when lsn.extra_to_dur_date is not null  -- 如果该记录是加课换正课记录 -- 加课换正课的场合，记住原来真正签到的日期
+            then 
+				case
+					when lsn.lsn_adjusted_date is not null
+                    then lsn.lsn_adjusted_date -- 调课日期是原来实际的上课日期
+                    else lsn.schedual_date     -- 计划日期是原来实际的上课日期
+				end
+        end as original_schedual_date,
         case 
-			when extra_to_dur_date is not null 
+			when extra_to_dur_date is not null  -- 如果该记录是加课换正课记录
             then 1 -- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
             else lsn.lesson_type -- 上记以外的场合
         end AS lesson_type,

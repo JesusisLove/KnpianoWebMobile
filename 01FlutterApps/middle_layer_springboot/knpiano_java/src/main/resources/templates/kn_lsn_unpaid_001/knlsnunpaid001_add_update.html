@@ -118,7 +118,7 @@
                 <div class="form-group"><br>
                     <label>精算月</label>
                     <input name="payMonth" type="month" class="form-control" placeholder="" 
-                    th:value="${#dates.format(#dates.createNow(), 'yyyy-MM')}">
+                    th:value="${selectedinfo.lsnMonth}">
                 </div>
                 <div class="form-group"><br>
                     <label>支払日付</label>

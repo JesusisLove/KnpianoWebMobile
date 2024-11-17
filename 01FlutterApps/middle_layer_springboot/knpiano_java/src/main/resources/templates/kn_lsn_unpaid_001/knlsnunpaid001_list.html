@@ -131,23 +131,23 @@
     });
 </script>
 <script th:inline="javascript">
-    // 从后端传递的要付费的学生数据
-    var jsonStuSubList = [[${lsnfeestuList}]];
+    // 从后端传递的学生数据
+    var jsonStuSubList = /*[[${lsnfeestuList}]]*/ [];
     
     // 页面加载完成后，初始化学生下拉列表
     window.onload = function() {
-        // 初期化结算课程的学生
+        // 初始化已结算课程的学生
         var studentSelect = document.getElementById('studentSelect');
-        var selectedStuId = [[${payMap != null ? payMap['stuId'] : ''}]];
+        var selectedStuId = /*[[${payMap != null ? payMap['stuId'] : ''}]]*/ '';
         var uniqueStudentIds = new Set(); // 使用集合来避免重复
-    
+        
         // 从stuSubList添加学生姓名到下拉列表，确保不重复
         jsonStuSubList.forEach(function(item) {
             if (!uniqueStudentIds.has(item.stuId)) {
                 uniqueStudentIds.add(item.stuId);
                 var option = new Option(item.stuName, item.stuId);
-                // 问ChatGPT，此处用stuId特定stuName赋值给下拉列表框
-                if (item.stuId == selectedStuId) {
+                // 向ChatGPT，此处用stuId特定stuName赋值给下拉列框
+                if (item.stuId === selectedStuId) {
                     option.selected = true;
                 }
                 studentSelect.add(option);

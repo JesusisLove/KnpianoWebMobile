@@ -122,7 +122,7 @@
 <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
 <script>
     $(".deleteBtn").click(function() {
-        if (confirm('本当に削除しますか？')) {
+        if (confirm('真的要撤销吗？')) {
             //thisが削除ボタンである
             let del_uri = $(this).attr("liu_del_uri");
             //対象フォームのsubmitを実行する
@@ -133,13 +133,13 @@
 </script>
 <script th:inline="javascript">
     // 从后端传递的要付费的学生数据
-    var jsonStuSubList = [[${lsnfeestuList}]];
+    var jsonStuSubList = /*[[${lsnfeestuList}]]*/ [];
     
     // 页面加载完成后，初始化学生下拉列表
     window.onload = function() {
         // 初期化结算课程的学生
         var studentSelect = document.getElementById('studentSelect');
-        var selectedStuId = [[${payMap != null ? payMap['stuId'] : ''}]];
+        var selectedStuId = /*[[${payMap != null ? payMap['stuId'] : ''}]]*/ '';
         var uniqueStudentIds = new Set(); // 使用集合来避免重复
     
         // 从stuSubList添加学生姓名到下拉列表，确保不重复
@@ -147,8 +147,8 @@
             if (!uniqueStudentIds.has(item.stuId)) {
                 uniqueStudentIds.add(item.stuId);
                 var option = new Option(item.stuName, item.stuId);
-                // 问ChatGPT，此处用stuId特定stuName赋值给下拉列表框
-                if (item.stuId == selectedStuId) {
+                // 设置选中项
+                if (item.stuId === selectedStuId) {  // 使用严格等于
                     option.selected = true;
                 }
                 studentSelect.add(option);

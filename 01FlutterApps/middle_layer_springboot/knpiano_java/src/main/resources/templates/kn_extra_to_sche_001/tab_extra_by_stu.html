@@ -19,20 +19,23 @@
                         <th>科目<br>级别</th>
                         <th>学生<br>姓名</th>
                         <th>上课时长<br>（分钟）</th>
-                        <th>授業<br>種別</th>
+                        <th>课程<br>種別</th>
                         <th>計画<br>手段</th>
-                        <th>計画授業<br>日付</th>
-                        <th>調整授業<br>日付</th>
-                        <th>授業変換<br>日付</th>
-                        <th>実績授業 <br>日付</th>
+                        <th>计划课<br>日期</th>
+                        <th>调课<br>日期</th>
+                        <th>加课换正课<br>日期</th>
+                        <th>上课签到 <br>日期</th>
                         <th>支付状况</th>
+                        <th>换正课果效</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
-                                   info.lessonType == 1 ? 'color: #2196F3;' : 
-                                   info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
+                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
+                        th:style="${info.extraToDurDate != null ? 'color: black;' : 
+                                  info.lessonType == 0 ? 'color: #4CAF50;' : 
+                                  info.lessonType == 1 ? 'color: #2196F3;' : 
+                                  info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
                         <td>[[${info.lessonId}]]</td>
                         <td>[[${info.subjectId}]]</td>
                         <td>[[${info.subjectSubId}]]</td>
@@ -41,7 +44,9 @@
                         <td>[[${info.subjectSubName}]]</td>
                         <td>[[${info.stuName}]]</td>
                         <td>[[${info.classDuration}]]</td>
-                        <td th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                        <td th:text="${info.lessonType == 0 ? '课结算' : 
+                                      info.lessonType == 1 ? '月计划' : 
+                                      info.extraToDurDate != null ? '已换正课' : '月加课'}"></td>
                         <td th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
                         </td>
                         <td>[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]
@@ -52,6 +57,25 @@
                         </td>
                         <td>[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
                         <td>[[${info.payFlg}]]
+                        <td>
+                            <!-- 未支付费状态(payFlg == 0)时，不显示任何内容 -->
+                            <span th:if="${info.payFlg == 0 && info.extraToDurDate == null}"></span>
+
+                            <!-- 未支付费状态(payFlg == 0)时，根据isGoodChange显示有效或无效 -->
+                            <span th:if="${info.payFlg == 0 && info.extraToDurDate != null}"
+                                    th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
+                                    th:style="${info.isGoodChange == 1 ? 
+                                            'color: #4CAF50; font-weight: bold;' : 
+                                            'color: #FF0000; font-weight: bold;'}">
+                            </span>
+                            
+                            <!-- 已付费状态(payFlg == 1)时，根据isGoodChange显示有效或无效 -->
+                            <span th:if="${info.payFlg == 1}"
+                                    th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
+                                    th:style="${info.isGoodChange == 1 ? 
+                                            'color: #4CAF50; font-weight: bold;' : 
+                                            'color: #FF0000; font-weight: bold;'}">
+                            </span>
                         </td>
                         <!-- 大前提是加课费在未支付的情况下，即【info.payFlg == 0】的情况下才可以执行加课换正课及它的撤销操作-->
                         <td th:if="${info.payFlg == 0}">
@@ -69,9 +93,8 @@
                         <td th:if="${info.payFlg == 1}">
                             <a class="btn btn-sm btn-secondary disabled" 
                                style="cursor: not-allowed; opacity: 0.65;" 
-                               role="button">精算済み</a>
+                               role="button">已结算完了</a>
                         </td>
-
                     </tr>
                 </tbody>
             </table>
