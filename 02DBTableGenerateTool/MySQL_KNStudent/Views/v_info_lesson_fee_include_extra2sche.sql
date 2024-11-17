@@ -23,7 +23,7 @@ select
     fee.pay_style,
     fee.lsn_fee,
     substring(ext.new_scanqr_date,1,7) as lsn_month,
-    fee.own_flg,
+    ext.new_own_flg as own_flg,
     0 as del_flg,
     1 as extra2sche_flg, -- 加课换正课标识
     fee.create_date,

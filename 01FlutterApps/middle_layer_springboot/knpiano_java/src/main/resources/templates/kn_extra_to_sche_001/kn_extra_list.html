@@ -71,31 +71,6 @@
                             <input type="text" class="form-control" id="subjectName" name="subjectName"
                                 th:value="${lsnMap != null ? lsnMap['subjectName'] : ''}" placeholder="科目名称">
                         </div>
-                        <!-- <div class="form-group col-md-1.2">
-                            <input id="classDuration" name="classDuration" type="text" class="form-control"
-                                th:value="${lsnMap != null ? lsnMap['classDuration'] : ''}" placeholder="授業時間">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="lessonType" name="lessonType"
-                                th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="授業種別">
-                        </div> 
-                        <div class="form-group col-md-1.2">
-                            <input id="schedualDate" name="schedualDate" type="date" class="form-control"
-                                th:value="${lsnMap != null ? #dates.format(['schedualDate'], 'yyyy-MM-dd HH:mm') : ''}"
-                                placeholder="計画授業日付">
-                        </div>
-                        <div class="form-group col-md-1.2">
-                            <input id="scanQrDate" name="scanQrDate" type="date" class="form-control"
-                                th:value="${lsnMap != null ? lsnMap['scanQrDate'] : ''}" placeholder="計画授業日付">
-                        </div>
-                        <div class="form-group col-md-1.2">
-                            <input id="lsnAdjustedDate" name="lsnAdjustedDate" type="date" class="form-control"
-                                th:value="${lsnMap != null ? lsnMap['lsnAdjustedDate'] : ''}" placeholder="計画授業日付">
-                        </div>
-                        <div class="form-group col-md-1.2">
-                            <input id="extraToDurDate" name="extraToDurDate" type="date" class="form-control"
-                                th:value="${lsnMap != null ? lsnMap['extraToDurDate'] : ''}" placeholder="計画授業日付">
-                        </div>-->
                         <div class="form-group col-md-2">
                             <input type="date" class="form-control" id="payFlg" name="payFlg"
                                 th:value="${lsnMap != null ? lsnMap['payFlg'] : ''}" placeholder="支付完了或未支付：0/1 ">
@@ -104,6 +79,16 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">検索</button>
+                    <div class="business-description">
+                        <dl>
+                            <dt>业务说明：</dt>
+                            <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
+                            <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
+                            <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
+                            <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
+                            <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮 </dd>
+                        </dl>
+                    </div>
                 </form>
                 <hr />
                 <!-- 明細部 Tab 以学生为单位的 Tab导航 -->

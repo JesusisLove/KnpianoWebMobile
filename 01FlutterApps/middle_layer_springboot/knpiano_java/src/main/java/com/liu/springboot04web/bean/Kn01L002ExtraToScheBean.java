@@ -22,6 +22,8 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
     protected Integer schedualType;
     protected Integer payFlg;
     protected String lsnFeeId;
+    protected float lsnFee;
+    protected Integer isGoodChange;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9") // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") // 后台维护页面的请求响应处理
@@ -187,5 +189,21 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
 
     public void setLsnFeeId(String lsnFeeId) {
         this.lsnFeeId = lsnFeeId;
+    }
+
+    public Integer getIsGoodChange() {
+        return isGoodChange;
+    }
+
+    public void setIsGoodChange(Integer isGoodChange) {
+        this.isGoodChange = isGoodChange;
+    }
+
+    public float getLsnFee() {
+        return lsnFee;
+    }
+
+    public void setLsnFee(float lsnFee) {
+        this.lsnFee = lsnFee;
     }
 }

@@ -25,6 +25,9 @@ public interface Kn02F002FeeMapper  {
     public void updateInfo(Kn02F002FeeBean bean);
     // 課費未精算模块里，点击【学費精算】ボタン、精算画面にての【保存】ボタン押下、 own_flgの値を０から１に変更する処理
     public void updateOwnFlg(Kn02F002FeeBean bean);
+
+    // 手机前端的学费账单画面里点击“学费入账”按钮时，对于加课换正课做课费“已支付：1/未支付：0”标识的更新
+    public void updateNewOwnFlg (String lsnFeeId, String payMonth, int newOwnFlg);
     public void insertInfo(Kn02F002FeeBean bean);
     public void deleteInfo(String lsnFeeId, String lessonId);
 

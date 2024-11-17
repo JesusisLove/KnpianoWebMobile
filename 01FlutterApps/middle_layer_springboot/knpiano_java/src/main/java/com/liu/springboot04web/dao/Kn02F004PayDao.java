@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.bean.Kn02F004PayBean;
+import com.liu.springboot04web.mapper.Kn02F002FeeMapper;
 import com.liu.springboot04web.mapper.Kn02F004PayMapper;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ public class Kn02F004PayDao implements InterfaceKnPianoDao {
 
     @Autowired
     private Kn02F004PayMapper knLsnPay001Mapper;
+    @Autowired
+    private Kn02F002FeeMapper kn02F002FeeMapper;
     @Autowired
     private Kn02F002FeeDao kn02F002FeeDao;
 
@@ -39,15 +42,20 @@ public class Kn02F004PayDao implements InterfaceKnPianoDao {
         return null;
     }
 
-    // 削除支付课费
-    public void excuteUndoLsnPay(String lsnPayId, String lsnFeeId) { 
-        // 精算情報を削除
+    // 撤销支付课费
+    public void excuteUndoLsnPay(String lsnPayId, String lsnFeeId, String payMonth) { 
+        // 《结算表》撤销课费结算
         knLsnPay001Mapper.deleteInfo(lsnPayId, lsnFeeId); 
 
-        // 対象課費情報を更新（精算済区分の更新すること：1→0に更新する）
+        // 《课费表》对结算标识own_flg字段做1→0的更新操作
         Kn02F002FeeBean kn02F002FeeBean = new Kn02F002FeeBean();
         kn02F002FeeBean.setLsnFeeId(lsnFeeId);
         kn02F002FeeBean.setOwnFlg(0);
         kn02F002FeeDao.updateOwnFlg(kn02F002FeeBean);
+
+        // 《加课换正课中间表》对换正课的结算标识own_flg字段做1→0的更新操作
+        /* 考虑到加课换正课的情况下，对该课程在《课费表里》显示一支付还是为支付的处理 */
+        // 加课换正课的一支付/未支付的状态，在加课换正课中间表里体现：new_own_flg ０→１
+        kn02F002FeeMapper.updateNewOwnFlg(lsnFeeId, payMonth, 0);
     }
 }

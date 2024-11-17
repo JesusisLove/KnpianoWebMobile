@@ -122,6 +122,16 @@ https://mybatis.org/mybatis-3/getting-started.html
         where lsn_fee_id = #{lsnFeeId}
     </update>
 
+    <!-- 设定或撤销加课换正课时的课程支付未支付标识 -->
+    <update id="updateNewOwnFlg">
+        update t_info_lesson_extra_to_sche
+        <set>
+            new_own_flg = #{newOwnFlg}
+        </set>
+        where new_lsn_fee_id = #{lsnFeeId}
+        and substring(new_scanqr_date,1,7) = #{payMonth}
+    </update>
+
     <insert id="insertInfo" keyColumn="lesson_id">
         insert into t_info_lesson_fee (
             lsn_fee_id,

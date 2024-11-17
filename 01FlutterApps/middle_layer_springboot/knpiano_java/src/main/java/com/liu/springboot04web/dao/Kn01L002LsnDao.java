@@ -76,7 +76,9 @@ public class Kn01L002LsnDao {
         // 检查该课程是否是有效的课程
         if (checkThisLsn(knLsn001Bean)) {
             // 进行签到登记：对knLsn001Bean里的上课日期执行数据库表的更新操作
-            knLsn001Bean.setScanQrDate(new Date());
+            // 签到日期的yyyy/mm/dd，必须和计划课日期或者调课日期的yyyy/mm/dd一致。不一致的情况下，web端（后台维护）放开让其继续执行，手机端则需要check，不能执行，需要通知后台管理人员在web（后台维护）平台替用户执行。
+            Date scanQRDate = knLsn001Bean.getLsnAdjustedDate() == null ? knLsn001Bean.getSchedualDate() : knLsn001Bean.getLsnAdjustedDate();
+            knLsn001Bean.setScanQrDate(scanQRDate);
             save(knLsn001Bean);
 
             // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往课费表里进行插入操作，否则会发生主键冲突

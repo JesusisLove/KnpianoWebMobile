@@ -51,9 +51,11 @@
                         <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td>
-                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}
+                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="liu_del_uri=@{/kn_lsn_pay_001/{lsnPayId}/{lsnFeeId}/{payMonth}
                                                                                                 (lsnPayId=${info.lsnPayId}, 
-                                                                                                lsnFeeId=${info.lsnFeeId})}">撤销</button>
+                                                                                                 lsnFeeId=${info.lsnFeeId},
+                                                                                                 payMonth=${info.payMonth})
+                                                                                            }">撤销</button>
                         </td>
                     </tr>
                     </tbody>

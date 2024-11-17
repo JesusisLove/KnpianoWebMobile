@@ -65,7 +65,6 @@ public class Kn01L002ExtraToScheController {
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
 
         // 回传参数设置（画面检索部的查询参数）
-        // Map<String, Object> backForwordMap = new HashMap<>();
         backForwordMap.putAll(queryParams);
         model.addAttribute("lsnMap", backForwordMap);
 
