@@ -184,6 +184,6 @@ https://mybatis.org/mybatis-3/getting-started.html
        GROUP BY 
            subject_id, subject_name, lsn_month
        ORDER BY 
-           subject_id, subject_name, lsn_month;
+           subject_id, lsn_month;
     </select>
 </mapper>

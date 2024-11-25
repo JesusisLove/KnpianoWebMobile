@@ -67,8 +67,20 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "上课历史记录",
-            onPressed: () {},
+            text: "加课消化管理",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: consts.Constants.lessonThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "加课消化管理>>在课学生一览",
+                            pageId: Constants.kn01L003ExtraToSche,
+                            strUri:
+                                '${Constants.lsnInfoStuName}/${DateTime.now().year}',
+                          )));
+            },
             bgcolor: consts.Constants.lessonThemeColor,
           ),
           const SizedBox(

@@ -46,6 +46,15 @@ class Constants {
 // XXXX的课程进度统计页面 查询谋学生该年度所有月份已经上完课的详细信息
   static const String apiLsnScanedLsnStatistic = '/liu/mb_kn_lsn_scaned_lsns';
 
+// 显示所有的加课信息（包括已支付，未支付，加课换正课）
+  static const String extraToScheView = '/liu/mb_kn_extratosche_all';
+
+  // 执行加课换正课
+  static const String executeExtraToSche = '/liu/mb_kn_extra_tobe_sche';
+
+// 撤销加课换正课
+  static const String undoExtraToSche = '/liu/mb_kn_extra_lsn_undo';
+
 // ******* 課費管理模块 *******//
 //.......当前的学生课程费用详细................................................................
 
@@ -99,8 +108,7 @@ class Constants {
   static const String subjectInfoDelete = '/liu/mb_kn_sub_001';
 
 // 科目级别一览画面，画面初期化的url请求
-  static const String subjectEdaView =
-      '/liu/mb_kn_05s003_subject_edabn_by_subid';
+  static const String subjectEdaView = '/liu/mb_kn_05s003_subject_edabn_by_subid';
 
 // 科目级别新规画面，点击“保存”按钮的url请求
   static const String subjectEdaAdd = '/liu/mb_kn_05s003_subject_edabn';
@@ -182,16 +190,13 @@ class Constants {
   static const String fixedLsnInfoDelete = '/liu/mb_kn_fixlsn_001';
 
 //年度周次排课信息取得的url请求
-  static const String weeklySchedualDateForOneYear =
-      '/liu/mb_kn_calculate_Weeks';
+  static const String weeklySchedualDateForOneYear = '/liu/mb_kn_calculate_Weeks';
 
 //一周排课的url请求
-  static const String weeklySchedualExcute =
-      '/liu/mb_kn_excute_Week_lsn_schedual';
+  static const String weeklySchedualExcute = '/liu/mb_kn_excute_Week_lsn_schedual';
 
 //撤销排课的url请求
-  static const String weeklySchedualCancel =
-      '/liu/mb_kn_cancel_Week_lsn_schedual';
+  static const String weeklySchedualCancel = '/liu/mb_kn_cancel_Week_lsn_schedual';
 
 //.......其他................................................................................
 // 主页面button按钮尺寸
@@ -216,4 +221,6 @@ class Constants {
   static const String stuLsnFeeListPage = 'stuFinacialPage';
 // 课程进度统计页面的pageId
   static const String kn01L002LsnStatistic = 'Kn01L002LsnStatistic';
+// 课程进度统计页面的pageId
+  static const String kn01L003ExtraToSche = 'kn01L003ExtraToSche';
 }
