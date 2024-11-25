@@ -49,9 +49,6 @@
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_extra_lesson_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <hr />
-                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_extra_to_sche_001}">学生授業新規登録</a></h2>
-                <hr />
-
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_extratosche_all/search}" th:object="${searchForm}" method="get">
                     <div class="form-row">

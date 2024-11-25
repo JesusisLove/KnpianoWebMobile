@@ -13,6 +13,8 @@ public interface Kn01L002ExtraToScheMapper {
 
         public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("year") String year);
 
+        public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("stuId") String stuId, @Param("year") String year);
+
         List<Kn01L002ExtraToScheBean> searchUnpaidExtraLessons(@Param("params") Map<String, Object> queryparams);
 
         public Kn01L002ExtraToScheBean getInfoListExtraCanBeScheDetail(@Param("lessonId") String lessonId);
@@ -26,8 +28,6 @@ public interface Kn01L002ExtraToScheMapper {
         public Kn02F002FeeBean getOldLessonIdInfo(String lessonId);
 
         // 取得要换正课后的lsn_fee_id，取得条件：换正课的月份
-        // public String getNewLessonIdInfo(String stuId, String lsnMonth);
-        // public List<String> getNewLessonIdInfo(String stuId, String lsnMonth);
         public List<String> getNewLessonIdInfo(String stuId, String lsnMonth, int lessonType);
 
         // 执行加课换正课的信息保存

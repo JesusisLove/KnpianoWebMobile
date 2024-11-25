@@ -4,8 +4,6 @@ use KNStudent;
 DROP VIEW IF EXISTS v_info_all_extra_lsns;
 CREATE VIEW v_info_all_extra_lsns AS 
 SELECT 
-	-- pay.lsn_pay_id, 
-    -- fee.lsn_fee_id, 
     lsn.lesson_id,
     lsn.stu_id,
     lsn.subject_id,

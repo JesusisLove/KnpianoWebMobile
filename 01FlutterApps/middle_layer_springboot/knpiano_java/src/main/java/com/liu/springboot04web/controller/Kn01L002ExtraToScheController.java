@@ -7,9 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn01L002ExtraToScheBean;
-import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.dao.Kn01L002ExtraToScheDao;
-import com.liu.springboot04web.dao.Kn03D004StuDocDao;
 import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -26,8 +24,6 @@ import java.util.Set;
 public class Kn01L002ExtraToScheController {
     @Autowired
     private Kn01L002ExtraToScheDao kn01L002ExtraToScheDao;
-    @Autowired
-    private Kn03D004StuDocDao kn03D002StuDocDao;
 
     // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
     Map<String, Object> backForwordMap;
@@ -111,8 +107,6 @@ public class Kn01L002ExtraToScheController {
         List<String> msgList = new ArrayList<String>();
         hasError = inputDataHasError(knLsn001Bean, msgList);
         if (hasError == true) {
-            // 新规画面下拉列表框项目内容初始化
-            model.addAttribute("stuSubList", getStuSubList());
 
             // 将错误消息显示在画面上
             model.addAttribute("errorMessageList", msgList);
@@ -132,15 +126,9 @@ public class Kn01L002ExtraToScheController {
     //【一覧画面明细部】加课换正课撤销ボタンを押下
     @GetMapping("/kn_extra_lsn_undo/{lessonid}")
     public String lessonUndo(@PathVariable("lessonid") String lessonId, Model model) {
-        // 执行加课换正课处理
+        // 撤销加课换正课处理
         kn01L002ExtraToScheDao.undoExtraToSche(lessonId);
         return "redirect:/kn_extratosche_all";
-    }
-
-    // 从学生档案信息表里，把已经开课了的学生姓名以及Ta正在上的科目名取出来
-    private List<Kn03D004StuDocBean> getStuSubList() {
-        List<Kn03D004StuDocBean> list = kn03D002StuDocDao.getLatestSubjectList();
-        return list;
     }
 
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名

@@ -16,6 +16,7 @@ class Kn01L002LsnBean {
   final String scanQrDate;
   final String lsnAdjustedDate;
   final String extraToDurDate;
+  final String originalSchedualDate;
 
   // 更新构造函数以正确赋值
   Kn01L002LsnBean({
@@ -33,6 +34,7 @@ class Kn01L002LsnBean {
     required this.scanQrDate,
     required this.lsnAdjustedDate,
     required this.extraToDurDate,
+    required this.originalSchedualDate,
   });
 
   // 更新工厂方法以正确解析和格式化日期
@@ -42,36 +44,48 @@ class Kn01L002LsnBean {
     String formattedScanQrDate = "";
     String formattedLsnAdjustedDate = "";
     String formattedExtraToDurDate = "";
+    String formattedOriginalSchedualDate = "";
 
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['schedualDate']);
-        formattedSchedualDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        formattedSchedualDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
         formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
       }
 
       if (json['scanQrDate'] != null && json['scanQrDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['scanQrDate']);
-        formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        formattedScanQrDate =
+            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
       }
 
       if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
-        formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        formattedLsnAdjustedDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
         formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
       }
-      
+
       if (json['extraToDurDate'] != null && json['extraToDurDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
-        formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        formattedExtraToDurDate =
+            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
       }
 
+      if (json['originalSchedualDate'] != null &&
+          json['originalSchedualDate'] != '') {
+        DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
+        formattedOriginalSchedualDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+      }
     } catch (e) {
       print('Error parsing or formatting schedualDate: $e');
     }
 
     return Kn01L002LsnBean(
-      lessonId:json['lessonId'] as String,
+      lessonId: json['lessonId'] as String,
       stuId: json['stuId'] as String,
       subjectId: json['subjectId'] as String,
       subjectSubId: json['subjectSubId'] as String,
@@ -82,9 +96,10 @@ class Kn01L002LsnBean {
       lessonType: json['lessonType'] as int,
       schedualDate: formattedSchedualDate,
       time: formattedTime,
-      scanQrDate:formattedScanQrDate,
-      lsnAdjustedDate:formattedLsnAdjustedDate,
-      extraToDurDate:formattedExtraToDurDate,
+      scanQrDate: formattedScanQrDate,
+      lsnAdjustedDate: formattedLsnAdjustedDate,
+      extraToDurDate: formattedExtraToDurDate,
+      originalSchedualDate: formattedOriginalSchedualDate,
     );
   }
 }

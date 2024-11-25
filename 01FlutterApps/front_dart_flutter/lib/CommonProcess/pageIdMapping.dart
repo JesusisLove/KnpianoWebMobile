@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
 import '../02LsnFeeMngmnt/kn02F002LsnFeeDetail.dart';
 import '../Constants.dart';
 
@@ -17,7 +18,6 @@ class PageIdMapping extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     // 立即调用导航方法，不能使用 FutureBuilder
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _navigateToPage(context);
@@ -32,23 +32,35 @@ class PageIdMapping extends StatelessWidget {
     switch (pageId) {
       case Constants.kn01L002LsnStatistic: // 迁移至课程进度统计画面
 
-        page = Kn01L002LsnStatistic(stuId:stuId, 
-                            stuName:stuName,
-                            knBgColor: Constants.lessonThemeColor,
-                            knFontColor: Colors.white,
-                            pagePath: "上课进度管理 >> 在课学生一览",
-                            );
+        page = Kn01L002LsnStatistic(
+          stuId: stuId,
+          stuName: stuName,
+          knBgColor: Constants.lessonThemeColor,
+          knFontColor: Colors.white,
+          pagePath: "上课进度管理 >> 在课学生一览",
+        );
+        break;
+
+      case Constants.kn01L003ExtraToSche:
+        page = ExtraToSchePage(
+          stuId: stuId,
+          stuName: stuName,
+          knBgColor: Constants.lessonThemeColor,
+          knFontColor: Colors.white,
+          pagePath: "加课消化管理 >> 在课学生一览",
+        );
         break;
 
       case Constants.stuLsnFeeListPage: // 迁移至课程费用详细画面
-        page = LsnFeeDetail(stuId:stuId, 
-                            stuName:stuName,
-                            knBgColor: Constants.lsnfeeThemeColor,
-                            knFontColor: Colors.white,
-                            pagePath: "学费支付管理 >> 在课学生一览",
-                            );
+        page = LsnFeeDetail(
+          stuId: stuId,
+          stuName: stuName,
+          knBgColor: Constants.lsnfeeThemeColor,
+          knFontColor: Colors.white,
+          pagePath: "学费支付管理 >> 在课学生一览",
+        );
         break;
-        
+
       default:
         page = const Scaffold(body: Center(child: Text('未定义页面')));
         break;

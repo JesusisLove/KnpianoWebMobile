@@ -41,6 +41,10 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date extraToDurDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    protected Date originalSchedualDate; // 加课换正课后记录原来实际的计划上课日期
+
     // 其他
     protected Integer payStyle;
 
@@ -205,5 +209,13 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
 
     public void setLsnFee(float lsnFee) {
         this.lsnFee = lsnFee;
+    }
+
+    public Date getOriginalSchedualDate() {
+        return originalSchedualDate;
+    }
+
+    public void setOriginalSchedualDate(Date originalSchedualDate) {
+        this.originalSchedualDate = originalSchedualDate;
     }
 }

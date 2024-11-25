@@ -32,15 +32,17 @@ public class Kn01L002ExtraToScheDao {
     @Autowired
     private Kn02F002FeeMapper knLsnFee001Mapper;
 
-    // @Autowired
-    // private TInfoLessonExtraToScheBean tblBean;
     private TInfoLessonExtraToScheBean tblBean = new TInfoLessonExtraToScheBean();
 
-    // @Autowired(required=true)
-    // private Kn02F002FeeBean feeBean;
-
+    // Web页面后段维护
     public List<Kn01L002ExtraToScheBean> getInfoList(String year) {
         List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(year);
+        return list;
+    }
+
+    // 手机前端页面
+    public List<Kn01L002ExtraToScheBean> getInfoList(String stuId, String year) {
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(stuId, year);
         return list;
     }
 
