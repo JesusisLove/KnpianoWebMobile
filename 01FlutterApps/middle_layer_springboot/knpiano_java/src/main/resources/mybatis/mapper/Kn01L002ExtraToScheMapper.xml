@@ -8,7 +8,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn01L002ExtraToScheMapper">
-    <!-- 后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
+    <!-- 手机前端/后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
     <select id="getInfoListExtraCanBeSche" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
         SELECT  
             stu.stu_name,
