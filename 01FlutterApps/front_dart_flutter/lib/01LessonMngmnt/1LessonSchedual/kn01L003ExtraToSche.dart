@@ -200,7 +200,14 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
 
   Future<void> _fetchLessonsData() async {
     setState(() {
-      futureLessons = fetchLessons();
+      futureLessons = fetchLessons().then((lessons) {
+        setState(() {
+          paidCount = lessons.where((item) => item.payFlg == 1).length;
+          unpaidCount = lessons.where((item) => item.payFlg == 0).length;
+          convertedCount = lessons.where((item) => item.extraToDurDate.isNotEmpty).length;
+        });
+        return lessons;
+      });
     });
   }
 
@@ -213,11 +220,6 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> lessonsJson = json.decode(decodedBody);
-
-        paidCount = lessonsJson.where((item) => item['payFlg'] == 1).length;
-        unpaidCount = lessonsJson.where((item) => item['payFlg'] == 0).length;
-        convertedCount = lessonsJson.where((item) => item['extraToDurDate'] != null && item['extraToDurDate'].toString().isNotEmpty).length;
-
         return lessonsJson.map((json) => Kn01L003LsnExtraBean.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load lessons');
@@ -394,6 +396,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                             color: isPaidExtraLesson ? greyColor : Colors.black,
                           ),
                         ),
+                        // 在_buildDateInfo调用的地方，修复缩进和括号
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -404,7 +407,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            _buildDateInfo(lesson, isPaidExtraLesson),
+                            _buildDateInfo(lesson, isPaidExtraLesson), // 修复这里的括号
                           ],
                         ),
                         trailing: isPaidExtraLesson
@@ -451,7 +454,6 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                       final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.undoExtraToSche}/${lesson.lessonId}';
 
                                       final response = await http.get(
-                                        // 改为POST请求
                                         Uri.parse(apiUrl),
                                         headers: {
                                           'Content-Type': 'application/json; charset=UTF-8',
