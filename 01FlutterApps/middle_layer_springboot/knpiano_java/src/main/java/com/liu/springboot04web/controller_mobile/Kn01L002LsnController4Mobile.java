@@ -40,7 +40,7 @@ public class Kn01L002LsnController4Mobile {
     // 获取所有学生排课信息
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_lsn_all/{year}")
-    public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnList(@PathVariable("year") Integer year) {
+    public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnList(@PathVariable Integer year) {
         // 获取当前正在上课的所有学生的排课信息
         List<Kn01L002LsnBean> collection = kn01L002LsnDao.getInfoList(Integer.toString(year));
         return ResponseEntity.ok(collection);

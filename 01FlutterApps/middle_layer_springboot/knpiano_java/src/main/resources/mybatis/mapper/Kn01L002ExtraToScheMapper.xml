@@ -144,9 +144,9 @@ https://mybatis.org/mybatis-3/getting-started.html
     <!-- 取得要换正课前的lsn_fee_id，取得条件：课程Id（lessonId) -->
     <select id="getOldLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select
-        lsn_fee_id
-        ,lsn_fee
-        ,lesson_id
+             lsn_fee_id
+            ,lsn_fee
+            ,lesson_id
         from v_info_lesson_fee_connect_lsn
         <where>
             lesson_id = #{lessonId}
@@ -156,8 +156,10 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 取得要换正课后的lsn_fee_id，取得条件：换正课的月份 -->
-    <select id="getNewLessonIdInfo" resultType="java.lang.String">
-        select lsn_fee_id as new_lsn_fee_id
+    <!-- <select id="getNewLessonIdInfo" resultType="java.lang.String"> -->
+    <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        select lsn_fee_id
+              ,own_flg
         from v_info_lesson_fee_connect_lsn
         <where>
             stu_id = #{stuId}
@@ -183,15 +185,16 @@ https://mybatis.org/mybatis-3/getting-started.html
         new_lsn_fee_id,
         new_scanqr_date,
         lsn_fee,
-        is_good_change
+        is_good_change,
+        new_own_flg
         ) values (
         #{lessonId},
         #{oldLsnFeeId},
         #{newLsnFeeId},
         #{newScanQrDate},
         #{lsnFee},
-        #{isGoodChange}
-
+        #{isGoodChange},
+        #{newOwnFlg}
         )
     </insert>
 
