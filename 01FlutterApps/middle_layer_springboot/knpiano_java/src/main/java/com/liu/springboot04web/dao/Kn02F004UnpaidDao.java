@@ -46,13 +46,13 @@ public class Kn02F004UnpaidDao {
         // 课费支付处理
         save(knLsnUnPaid001Bean);
 
-        // 课费支付信息处理完之后，回头把课费表里相应的课费ID的结算区分，即为支付状态更改为支付完了状态：own_flg ０→１
+        // 课费支付信息处理完之后，回头把课费表里相应的课费ID的结算区分，即“未支付”状态更改为“已支付”状态：own_flg ０→１
         Kn02F002FeeBean kn02F002FeeBean = new Kn02F002FeeBean();
         kn02F002FeeBean.setLsnFeeId(knLsnUnPaid001Bean.getLsnFeeId());
         kn02F002FeeBean.setOwnFlg(1);
         kn02F002FeeDao.updateOwnFlg(kn02F002FeeBean);
 
-        /* 考虑到加课换正课的情况下，对该课程在《课费表里》显示一支付还是为支付的处理 */
+        /* 考虑到加课换正课的情况下，对该课程在《课费表里》显示已支付还是未支付的处理 */
         // 加课换正课的一支付/未支付的状态，在加课换正课中间表里体现：new_own_flg ０→１
         kn02F002FeeMapper.updateNewOwnFlg(knLsnUnPaid001Bean.getLsnFeeId(), knLsnUnPaid001Bean.getPayMonth(), 1);
 
