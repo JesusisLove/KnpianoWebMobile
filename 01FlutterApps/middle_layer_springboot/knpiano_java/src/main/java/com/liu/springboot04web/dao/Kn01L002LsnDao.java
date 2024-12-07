@@ -79,9 +79,10 @@ public class Kn01L002LsnDao {
             // 签到日期的yyyy/mm/dd，必须和计划课日期或者调课日期的yyyy/mm/dd一致。不一致的情况下，web端（后台维护）放开让其继续执行，手机端则需要check，不能执行，需要通知后台管理人员在web（后台维护）平台替用户执行。
             Date scanQRDate = knLsn001Bean.getLsnAdjustedDate() == null ? knLsn001Bean.getSchedualDate() : knLsn001Bean.getLsnAdjustedDate();
             knLsn001Bean.setScanQrDate(scanQRDate);
+            // 更新《课程表》
             save(knLsn001Bean);
 
-            // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往课费表里进行插入操作，否则会发生主键冲突
+            // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往《课费表》里进行插入操作，否则会发生主键冲突
             String lessonId = knLsn001Bean.getLessonId();
             Kn02F003AdvcLsnFeePayBean advcPaidBean = 
                         kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidyInfoByIds(lessonId, null, null);
@@ -124,20 +125,20 @@ public class Kn01L002LsnDao {
         return true;
     }
 
-    // 签到时，对课费管理表登录该科目的课费
+    // 将该签到课程新规登录到《课费管理表》里
     private void addNewLsnFee(Kn01L002LsnBean knLsn001Bean) {
-        // 计算该科目最新的费用
+        // 该签到课程的课费信息作成处理
         Kn02F002FeeBean kn02F002FeeBean = setLsnFeeBean(knLsn001Bean);
 
-        // 新规课程费用信息，保存到课费信息表里
+        // 新规课程费信息，保存到《课费管理表》里
         kn02F002FeeDao.save(kn02F002FeeBean);
     }
 
     private Kn02F002FeeBean setLsnFeeBean(Kn01L002LsnBean knLsn001Bean) {
-
+        // 取得该生最新的档案记录信息
         Kn03D004StuDocBean stuDocBean = knStuDoc001Dao.getLsnPrice(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId(), knLsn001Bean.getSubjectSubId());
+
         Kn02F002FeeBean bean = new Kn02F002FeeBean();
-        
         bean.setStuId(knLsn001Bean.getStuId());
         bean.setLessonId(knLsn001Bean.getLessonId());
         // 有调整价格的使用调整价格
@@ -145,7 +146,7 @@ public class Kn01L002LsnDao {
         // 利用计划课取得产生课费的月份
         bean.setLsnMonth(DateUtils.getCurrentDateYearMonth(knLsn001Bean.getSchedualDate()));
 
-        // 课程类型lessonType 0:按课时结算的课程  1:按月结算的课程（计划课）  2:按月结算的课程（加时课）
+        // 课程类型lessonType 0:按课时结算的课程（课结算）  1:按月结算的课程（月计划）  2:按月结算的课程（月加课）
         bean.setLessonType(knLsn001Bean.getLessonType());
         bean.setSubjectId(knLsn001Bean.getSubjectId());
         bean.setPayStyle(stuDocBean.getPayStyle());
@@ -161,8 +162,8 @@ public class Kn01L002LsnDao {
     }
 
     /**
-     * 检测对象：签到按月结算的科目，
-     * 执行条件：该月的计划课时签到未满（一个月4节课或5节课）的情况下，就执行了月精算处理
+     * 检测对象：月计划课在该月是否未满4节课的情况下做了结算操作
+     * 对象场景：该月的计划课时签到未满（一个月4节课或5节课）的情况下，就执行了月精算处理
      *        （也就是说，该月计划课程还没上满4节课（该月有第五周就时5节课）就已经执行了精算处理）
      * 业务场景：签到了1节课，就执行了按月计算处理，这样课费表里只有这一节签到课的ownFlg变更为0了
      * 那么剩下的这3节课，因为是计划课，所以在签到的同时也应当把自身的ownFlg设置为0存到课费金额表里

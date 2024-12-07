@@ -43,8 +43,9 @@ public class Kn02F002FeeDao {
     // 保存
     public void save(Kn02F002FeeBean knLsnFee001Bean) {
         if (knLsnFee001Bean.getLsnFeeId() == null || knLsnFee001Bean.getLsnFeeId().isEmpty()) {
-            // 按月计算科目，按月第五周科目以及按课时计算的 课费计算整理
+            // 该签到课程的课费计算业务逻辑处理
             knLsnFee001Bean = processFeeLsn(knLsnFee001Bean);
+            // 签到课程的课费新规保存
             insert(knLsnFee001Bean);
         } else {
             update(knLsnFee001Bean);
@@ -72,11 +73,10 @@ public class Kn02F002FeeDao {
     }
 
     /*
-     * 根据该当科目是按月交费，还是按课时交费
-     * 只限按月交费的课程（加课除外）：一个月内的所有按计划的上课编号（授業番号）对应一个授業課費採番，是一对多的关系(即lsn_fee_id:
-     * lesson_id是一对多的关系)
-     * 另外如果按月交费的科目该月已经上完了4节课的话，第五周的第5节课不能收钱。
-     * 如果是课时缴费和按月计费的加课的话：lsn_fee_id和lesson_id是一对一的关系
+     * 根据该当科目是按月交费（月课费），还是按课时交费（时课费）
+     * 只限按月交费的课程（加课除外）：一个月内的所有按计划的上课编号（课程id）对应一个课费id，是一对多的关系(即lesson_id:lsn_fee_id是一对多的关系)
+     * 注意，如果月计划课已经上完了4节课的话，第五周的第5节课不能收钱（即，课费应设置为0.0元）。
+     * 另外，课结算和月加课的课程id和课费id（lsn_fee_id和lesson_id）是一对一的关系
      */
     private Kn02F002FeeBean processFeeLsn(Kn02F002FeeBean knLsnFee001Bean) {
         // 按月结算课程且是计划课的场合，lsn_fee_id和lesson_id是一对多的处理
@@ -102,7 +102,7 @@ public class Kn02F002FeeDao {
             }
 
         }
-        // 上课种别是课费结算 或者 按月结算的月加课
+        // 上课种别是“课结算” 或者 “月加课”
         else {
             Map<String, Object> map = new HashMap<>();
             map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);

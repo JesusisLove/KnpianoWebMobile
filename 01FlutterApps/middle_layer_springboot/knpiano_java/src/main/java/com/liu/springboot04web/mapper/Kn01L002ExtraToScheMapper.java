@@ -28,7 +28,7 @@ public interface Kn01L002ExtraToScheMapper {
         public Kn02F002FeeBean getOldLessonIdInfo(String lessonId);
 
         // 取得要换正课后的lsn_fee_id，own_flg 取得条件：换正课的月份
-        public List<Kn02F002FeeBean> getNewLessonIdInfo(String stuId, String lsnMonth, int lessonType);
+        public List<Kn02F002FeeBean> getNewLessonIdInfo(String stuId, String subjectId, String lsnMonth, int lessonType);
 
         // 执行加课换正课的信息保存
         public void insertExtraToScheInfo(String lessonId, String oldLsnFeeId, String newLsnFeeId, Date newScanQrDate, float lsnFee, int isGoodChange, int newOwnFlg);

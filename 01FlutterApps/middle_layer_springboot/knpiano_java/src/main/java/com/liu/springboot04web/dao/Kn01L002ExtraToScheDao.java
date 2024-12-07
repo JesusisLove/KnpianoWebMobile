@@ -80,9 +80,10 @@ public class Kn01L002ExtraToScheDao {
                                         .format(kn01L002ExtraToScheBean.getExtraToDurDate())
                                         .substring(0, 7);
         String studentId = kn01L002ExtraToScheBean.getStuId();
+        String subjectId = kn01L002ExtraToScheBean.getSubjectId();
 
         // List<String> newLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, targetLsnMonth, 1);
-        List<Kn02F002FeeBean> newLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, targetLsnMonth, 1);
+        List<Kn02F002FeeBean> newLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, subjectId, targetLsnMonth, 1);
 
         // ④加课换正课情報作成
         // ④-1:oldLsnFeeId的设置
