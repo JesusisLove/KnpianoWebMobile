@@ -37,6 +37,16 @@
                 font-size: 3.5rem;
             }
         }
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            color: #fff !important;
+            background-color: #ff009d !important;
+            border-color: #ff009d #ff009d #fff !important;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border-color: #ff009d #ff009d #fff;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -134,14 +144,6 @@
             }
         });
     </script>
-    <style>
-        .nav-tabs .nav-link.active {
-            background-color: #28a745;
-            /* 绿色背景 */
-            color: white;
-            /* 白色文字 */
-        }
-    </style>
 </body>
 
 </html>
