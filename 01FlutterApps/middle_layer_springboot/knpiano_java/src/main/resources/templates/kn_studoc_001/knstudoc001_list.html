@@ -13,6 +13,7 @@
     <!-- Bootstrap core CSS -->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
     <style>
+        /* 设置被选中Tab的背景显示橙色 */
         .bd-placeholder-img {
             font-size: 1.125rem;
             text-anchor: middle;
@@ -21,13 +22,25 @@
             -ms-user-select: none;
             user-select: none;
         }
-
+    
         @media (min-width: 768px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
         }
+    
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            color: #fff !important;
+            background-color: #ffa500 !important;
+            border-color: #ffa500 #ffa500 #fff !important;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border-color: #ffa500 #ffa500 #fff;
+        }
     </style>
+    
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
 </head>
