@@ -27,13 +27,15 @@ https://mybatis.org/mybatis-3/getting-started.html
           and lesson_id = #{lessonId}
     </select>
 
-    <!-- 按月结算课程且是计划课的场合，lsn_fee_id和lesson_id是一对多的处理,通过科目和月份取得计划课时用的lsn_fee_id -->
+    <!-- 按月结算课程且是计划课(即，月计划)的场合，lsn_fee_id和lesson_id是一对多的处理,通过科目和月份取得计划课时用的lsn_fee_id -->
     <select id= "checkScheLsnCurrentMonth" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select * from v_info_lesson_fee_connect_lsn
-        where stu_id = #{stuId}
-          and subject_id = #{subjectId}
-          and lesson_type = #{lessonType}
-          and lsn_month = #{lsnMonth}
+        <where>
+            stu_id = #{stuId}
+            and subject_id = #{subjectId}
+            and lsn_month = #{lsnMonth}
+            and lesson_type = #{lessonType}
+        </where>
         <!-- limit 1 -->
     </select>
 

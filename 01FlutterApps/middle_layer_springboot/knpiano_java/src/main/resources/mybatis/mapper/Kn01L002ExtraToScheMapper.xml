@@ -156,15 +156,14 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 取得要换正课后的lsn_fee_id，取得条件：换正课的月份 -->
-    <!-- <select id="getNewLessonIdInfo" resultType="java.lang.String"> -->
     <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select lsn_fee_id
               ,own_flg
         from v_info_lesson_fee_connect_lsn
         <where>
             stu_id = #{stuId}
+            and subject_id = #{subjectId}
             and lsn_month = #{lsnMonth}
-            <!-- and lesson_type = 1; -->
             and lesson_type = #{lessonType}
         </where>
     </select>
