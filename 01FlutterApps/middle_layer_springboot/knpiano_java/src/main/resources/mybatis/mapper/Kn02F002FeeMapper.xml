@@ -3,7 +3,7 @@
 关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
 我们就从GitHub网站去搜索MyBatis的相关资料
 配置的参照例子
-https://mybatis.org/mybatis-3/getting-started.html
+https://mybatis.org/mybatis-3/getting-started.htmlf
 
 -->
 <!DOCTYPE mapper
@@ -48,11 +48,36 @@ https://mybatis.org/mybatis-3/getting-started.html
         SELECT *
         FROM v_info_lesson_fee_connect_lsn
         <where>
-            <foreach item="value" index="key" collection="params">
+        <!-- <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
                     AND ${key} like CONCAT('%', #{value}, '%')
                 </if>
-            </foreach>
+            </foreach> -->
+             <if test="params.lsn_month != null and params.lsn_month != ''">
+                <choose>
+                    <when test="params.lsn_month.length() == 4">
+                        AND substring(lsn_month,1,4) = #{params.lsn_month}
+                    </when>
+                    <otherwise>
+                        AND lsn_month = #{params.lsn_month}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="params.stu_id != null and params.stu_id != ''">
+                AND stu_id = #{params.stu_id}
+            </if>
+            <if test="params.lsn_fee_id != null and params.lsn_fee_id != ''">
+                AND lsn_fee_id = #{params.lsn_fee_id}
+            </if>
+            <if test="params.lesson_id != null and params.lesson_id != ''">
+                AND lesson_id = #{params.lesson_id}
+            </if>
+            <if test="params.lesson_type != null and params.lesson_type != ''">
+                AND lesson_type = #{params.lesson_type}
+            </if>
+            <if test="params.own_flg != null and params.own_flg != ''">
+                AND own_flg = #{params.own_flg}
+            </if>
         </where>
         order by stu_name, lsn_month desc, lsn_fee_id desc, subject_id, subject_sub_id desc, lesson_type
     </select> 

@@ -80,9 +80,11 @@
                             <option value="">请选择</option>
                         </select>
                     </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">検 索</button>
+                   </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">検 索</button><hr/>
                 <!-- 如果没有学生的已支付信息，显示提示信息 -->
                 <style>
                     .no-info-message {
@@ -142,7 +144,7 @@
 </script>
 <script th:inline="javascript">
     // 从后端传递的要付费的学生数据
-    var jsonStuSubList = /*[[${lsnfeestuList}]]*/ [];
+    var jsonStuSubList = /*[[${paidStuList}]]*/ [];
     
     // 页面加载完成后，初始化学生下拉列表
     window.onload = function() {

@@ -60,11 +60,39 @@
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_001/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="stuId" name="stuId" th:value="${lsnMap != null ? lsnMap['stuId'] : ''}" placeholder="学生番号">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (lsnMap!= null ? lsnMap['selectedyear'] : '')}"></option>
+                        </select>
                     </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>月份</label>
+                        <select class="form-control" id="monthSelect" name="selectedmonth">
+                            <!-- 默认选项由JavaScript动态生成 -->
+                            <option th:each="month : ${knmonthlist}" 
+                                    th:value="${month}" 
+                                    th:text="${month}" 
+                                    th:selected="${month == (lsnMap!= null ? lsnMap['selectedmonth'] : currentmonth)}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>学生姓名</label> 
+                        <select class="form-control" id="studentSelect" name="stuId">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">検 索</button>
+                   </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="stuName" name="stuName" th:value="${lsnMap != null ? lsnMap['stuName'] : ''}" placeholder="学生姓名">
+                        <input type="text" class="form-control" id="lessonId" name="lessonId" th:value="${lsnMap != null ? lsnMap['lessonId'] : ''}" placeholder="课程番号">
                     </div>
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${lsnMap != null ? lsnMap['subjectId'] : ''}" placeholder="科目番号">
@@ -72,33 +100,20 @@
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${lsnMap != null ? lsnMap['subjectName'] : ''}" placeholder="科目名称">
                     </div>
-                    <div class="form-group col-md-1.2">
-                        <input id="classDuration" name="classDuration" type="text" class="form-control"  th:value="${lsnMap != null ? lsnMap['classDuration'] : ''}" placeholder="授業時間">
-                    </div>
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="授業種別">
                     </div>
-                    <div class="form-group col-md-1.2">
-                        <input id="schedualDate" name="schedualDate" type="date" class="form-control"  th:value="${lsnMap != null ? #dates.format(['schedualDate'], 'yyyy-MM-dd HH:mm') : ''}" placeholder="計画授業日付">
-                    </div>
-                    <div class="form-group col-md-1.2">
-                        <input id="scanQrDate" name="scanQrDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['scanQrDate'] : ''}" placeholder="計画授業日付">
-                    </div>
-                    <div class="form-group col-md-1.2">
-                        <input id="lsnAdjustedDate" name="lsnAdjustedDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['lsnAdjustedDate'] : ''}" placeholder="計画授業日付">
-                    </div>
-                    <div class="form-group col-md-1.2">
-                        <input id="extraToDurDate" name="extraToDurDate" type="date" class="form-control"  th:value="${lsnMap != null ? lsnMap['extraToDurDate'] : ''}" placeholder="計画授業日付">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="date" class="form-control" id="createDate" name="createDate" th:value="${lsnMap != null ? lsnMap['createDate'] : ''}" placeholder="作成日">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${lsnMap != null ? lsnMap['updateDate'] : ''}" placeholder="更新日">
-                    </div>
                 </div>
+                <!-- 如果没有学生的未支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
                 
-                <button type="submit" class="btn btn-primary">検索</button>
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有学生的课程信息！</p>
+                </div>
             </form> 
             <hr/>
             <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
@@ -144,6 +159,33 @@
             return false;
         }
     });
+</script>
+
+<!-- 初期话学生下拉列表框 -->
+<script th:inline="javascript">
+    // 从后端传递的学生数据
+    var jsonStuSubList = /*[[${lsnStuList}]]*/ [];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        // 初始化已结算课程的学生
+        var studentSelect = document.getElementById('studentSelect');
+        var selectedStuId = /*[[${lsnMap != null ? lsnMap['stuId'] : ''}]]*/ '';
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+        
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                // 向ChatGPT，此处用stuId特定stuName赋值给下拉列框
+                if (item.stuId === selectedStuId) {
+                    option.selected = true;
+                }
+                studentSelect.add(option);
+            }
+        });
+    };
 </script>
 </body>
 </html>

@@ -25,6 +25,11 @@ public class Kn02F004UnpaidDao {
     @Autowired
     Kn02F002FeeDao kn02F002FeeDao;
 
+    // 所有未支付学生信息
+    public List<Kn02F004UnpaidBean> getInfoList(String year) {
+        return knLsnUnpaid001Mapper.getInfoList(year);
+    }
+
     // 获取所有符合查询条件的支付信息
     public List<Kn02F004UnpaidBean> searchLsnUnpay(Map<String, Object> params) {
         return knLsnUnpaid001Mapper.searchLsnUnpay(params);

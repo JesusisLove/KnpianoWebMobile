@@ -7,46 +7,107 @@ import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F002FeeBean;
 import com.liu.springboot04web.dao.Kn02F002FeeDao;
-import com.liu.springboot04web.othercommon.CommonProcess;
+import com.liu.springboot04web.othercommon.DateUtils;
+import com.liu.springboot04web.service.ComboListInfoService;
 
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 @Controller
 public class Kn02F002FeeController{
+    final List<String> knYear; 
+    final List<String> knMonth;
+    // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
+    Collection<Kn02F002FeeBean> lsnFeeStuList;
 
     @Autowired
     Kn02F002FeeDao knLsnFee001Dao;
 
-    // 【課費情報管理】ボタンをクリックして，全ての情報を表示すること
+    // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
+    public Kn02F002FeeController(ComboListInfoService combListInfo) {
+        // 初期化年度下拉列表框
+        this.knYear = DateUtils.getYearList();
+
+        // 初期化月份下拉列表框
+        this.knMonth = combListInfo.getMonths();
+        this.lsnFeeStuList = null;
+    }
+
+    // 【课程费用管理】ボタンをクリックして，全ての情報を表示すること
     @GetMapping("/kn_lsn_fee_001_all")
     public String list(Model model) {
-        Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList(null);
+        /* 获取课费明细一览 */
+        LocalDate currentDate = LocalDate.now();// 获取当前日期
+
+        // 格式化为 yyyy
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        String year = currentDate.format(formatter);
+        
+        // 课费一览取得
+        Collection<Kn02F002FeeBean> collection = knLsnFee001Dao.getInfoList(year);
+        this.lsnFeeStuList = collection;
         model.addAttribute("infoList",collection);
 
-        // 利用resultsTabStus的学生名，在前端页面做Tab
+        // 用学生名，在前端页面分Tab页
         Map<String, String> resultsTabStus = getResultsTabStus(collection);
         model.addAttribute("resultsTabStus", resultsTabStus);
+
+        /* 初始化画面检索部 */
+        // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
+        model.addAttribute("lsnfeestuList", lsnFeeStuList);
+
+        // 年度下拉列表框初期化前台页面
+        int currentYear = Year.now().getValue();
+        model.addAttribute("currentyear", currentYear);
+        model.addAttribute("knyearlist", knYear);
+
+        // 月份下拉列表框初期化前台页面
+        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MM"));
+        model.addAttribute("currentmonth", currentMonth);
+        model.addAttribute("knmonthlist", knMonth);
 
         return "kn_lsn_fee_001/knlsnfee001_list";
     }
 
-    // 【明细検索一覧】検索ボタンを押下
+    // 【检索部】検索ボタンを押下
     @GetMapping("/kn_lsn_fee_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
+        // 把画面传来的年和月拼接成yyyy-mm的        
+        Map<String, Object> params = new HashMap<>();
+        String lsnMonth = (String) queryParams.get("selectedmonth");
+        String lsnYear = (String) queryParams.get("selectedyear");
+        if ( !("ALL".equals(lsnMonth))) {
+            int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
+            lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
+            params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
+        } else {
+            params.put("lsn_month", queryParams.get("selectedyear"));
+        }
+        
+        // 检索条件
+        params.put("stu_id", queryParams.get("stuId"));
+        params.put("lsn_fee_id", queryParams.get("lsnFeeId"));
+        params.put("lesson_id", queryParams.get("lessonId"));
+        params.put("lesson_type", queryParams.get("lessonType"));
+        params.put("own_flg", queryParams.get("ownFlg"));
+
         // 回传参数设置（画面检索部的查询参数）
         Map<String, Object> backForwordMap = new HashMap<>();
         backForwordMap.putAll(queryParams);
         model.addAttribute("stuLsnFeeMap", backForwordMap);
+        model.addAttribute("currentyear", lsnYear);
+        model.addAttribute("knyearlist", knYear);
+        model.addAttribute("currentmonth", lsnMonth);
+        model.addAttribute("knmonthlist", knMonth);
+        model.addAttribute("lsnfeestuList", lsnFeeStuList);
 
-        /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
-           目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件 */
-        Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
-
-        // 将queryParams传递给Service层或Mapper接口
-        Collection<Kn02F002FeeBean> searchResults = knLsnFee001Dao.searchLsnFee(conditions);
+        Collection<Kn02F002FeeBean> searchResults = knLsnFee001Dao.searchLsnFee(params);
         model.addAttribute("infoList", searchResults);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
