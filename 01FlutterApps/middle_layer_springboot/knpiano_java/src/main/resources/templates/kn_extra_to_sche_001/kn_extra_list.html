@@ -61,15 +61,40 @@
                 <hr />
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_extratosche_all/search}" th:object="${searchForm}" method="get">
+
                     <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="stuId" name="stuId"
-                                th:value="${lsnMap != null ? lsnMap['stuId'] : ''}" placeholder="学生番号">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>年度</label>
+                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                <option th:each="year : ${knyearlist}" 
+                                        th:value="${year}" 
+                                        th:text="${year}" 
+                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                            </select>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="stuName" name="stuName"
-                                th:value="${lsnMap != null ? lsnMap['stuName'] : ''}" placeholder="学生姓名">
+                        <div class="form-group" style="margin-left: 20px;">
+                            <label>月份</label>
+                            <select class="form-control" id="monthSelect" name="selectedmonth">
+                                <!-- 默认选项由JavaScript动态生成 -->
+                                <option th:each="month : ${knmonthlist}" 
+                                        th:value="${month}" 
+                                        th:text="${month}" 
+                                        th:selected="${month == (extra2ScheMap!= null ? extra2ScheMap['selectedmonth'] : currentmonth)}"></option>
+                            </select>
                         </div>
+                        <div class="form-group" style="margin-left: 20px;">
+                            <label>学生姓名</label> 
+                            <select class="form-control" id="studentSelect" name="stuId">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                            <button type="submit" class="btn btn-primary">検 索</button>
+                       </div>
+                    </div>
+
+                    <!-- <div class="form-row">
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="subjectId" name="subjectId"
                                 th:value="${lsnMap != null ? lsnMap['subjectId'] : ''}" placeholder="科目番号">
@@ -82,10 +107,7 @@
                             <input type="date" class="form-control" id="payFlg" name="payFlg"
                                 th:value="${lsnMap != null ? lsnMap['payFlg'] : ''}" placeholder="支付完了或未支付：0/1 ">
                         </div>
-
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">検索</button>
+                    </div> -->
                     <div class="business-description">
                         <dl>
                             <dt>业务说明：</dt>
@@ -95,6 +117,16 @@
                             <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
                             <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮 </dd>
                         </dl>
+                    </div>
+                    <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                    <style>
+                        .no-info-message {
+                            font-size: 18px;
+                        }
+                    </style>
+                    
+                    <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                        <p class="no-info-message">目前没有学生的消化课程信息！</p>
                     </div>
                 </form>
                 <hr />
@@ -143,6 +175,38 @@
                 return false;
             }
         });
+    </script>
+    <!-- 初期话学生下拉列表框 -->
+    <script th:inline="javascript">
+        // 从后端传递的学生数据
+        var jsonStuSubList = /*[[${extra2ScheStuList}]]*/ [];
+        
+        // 页面加载完成后，初始化学生下拉列表
+        window.onload = function() {
+            // 初始化已结算课程的学生
+            var studentSelect = document.getElementById('studentSelect');
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            
+            console.log('完整的extra2ScheMap:', /*[[${extra2ScheMap}]]*/ {});
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            console.log('获取到的selectedStuId:', selectedStuId);
+
+
+            var uniqueStudentIds = new Set(); // 使用集合来避免重复
+            
+            // 从stuSubList添加学生姓名到下拉列表，确保不重复
+            jsonStuSubList.forEach(function(item) {
+                if (!uniqueStudentIds.has(item.stuId)) {
+                    uniqueStudentIds.add(item.stuId);
+                    var option = new Option(item.stuName, item.stuId);
+                    // 向ChatGPT，此处用stuId特定stuName赋值给下拉列框
+                    if (item.stuId === selectedStuId) {
+                        option.selected = true;
+                    }
+                    studentSelect.add(option);
+                }
+            });
+        };
     </script>
 </body>
 

@@ -144,14 +144,13 @@
                         <td class="col-scanQrDate">[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-payFlg">[[${info.payFlg}]]</td>
                         <td class="col-changingEffect">
-                            <span th:if="${info.payFlg == 0 && info.extraToDurDate == null}"></span>
                             <span th:if="${info.payFlg == 0 && info.extraToDurDate != null}"
                                   th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
                                   th:style="${info.isGoodChange == 1 ? 
                                           'color: #4CAF50; font-weight: bold;' : 
                                           'color: #FF0000; font-weight: bold;'}">
                             </span>
-                            <span th:if="${info.payFlg == 1}"
+                            <span th:if="${info.payFlg == 1 && info.extraToDurDate != null }"
                                   th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
                                   th:style="${info.isGoodChange == 1 ? 
                                           'color: #4CAF50; font-weight: bold;' : 

@@ -2,6 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F004UnpaidMapper">
 
+<!-- 根据相应条件抽出未支付的学费信息 -->
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn02F004UnpaidBean">
+        select lsnfee.lsn_fee_id
+              ,lsnfee.stu_id
+              ,lsnfee.stu_name
+              ,lsnfee.subject_id
+              ,lesson.subject_sub_id
+              ,lsnfee.subject_name
+              ,lesson.subject_sub_name
+              ,lesson.lesson_type
+              ,lsnfee.pay_style
+              ,lsnfee.lsn_month
+              ,lsnfee.own_flg
+              ,sum(lsnfee.lsn_count) as lsn_count
+              ,CASE 
+                    WHEN SUM(lsnfee.lsn_count) > 4
+                    <!-- 月计划，且是正课的情况下，超过4节课的情况下走该分支 -->
+                    THEN subject_price * 4 
+                    <!-- 月计划()，且是正课小于等于4节课的情况下，月加课的情况下，课结算的情况下走该分支 -->
+                    ELSE SUM(lsnfee.lsn_fee) 
+                END AS lsn_fee
+            from (
+                v_info_lesson_fee_connect_lsn lsnfee
+                inner join 
+                v_info_lesson_include_extra2sche lesson
+                on lsnfee.lesson_id = lesson.lesson_id
+                <!--未精算のデータ -->
+                and lsnfee.own_flg = 0 
+            )
+            <where>
+                substring(lsnfee.lsn_month,1,4) = #{year}
+            </where>             
+            group by lsnfee.lsn_fee_id
+                    ,lsnfee.stu_id
+                    ,lsnfee.stu_name
+                    ,lsnfee.subject_id
+                    ,lesson.subject_sub_id
+                    ,lsnfee.subject_name
+                    ,lesson.subject_sub_name
+                    ,lesson.lesson_type
+                    ,lsnfee.pay_style
+                    ,lsnfee.lsn_month
+                    ,lsnfee.subject_price 
+          order by stu_name,lsn_month desc, subject_id, subject_sub_id desc
+    </select>
+
+
     <!-- 根据相应条件抽出未支付的学费信息 -->
     <select id="searchLsnUnpay" resultType="com.liu.springboot04web.bean.Kn02F004UnpaidBean">
         select lsnfee.lsn_fee_id
@@ -32,12 +79,26 @@
                 and lsnfee.own_flg = 0 
             )
             <where>
-                <foreach item="value" index="key" collection="params">
-                    <if test="value != null and value != ''">
+                <!-- <foreach item="value" index="key" collection="params">
+                    <if test="value != null and value != ''"> -->
                         <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
-                        AND ${key} = #{value}
+                        <!-- AND ${key} = #{value}
                     </if>
-                </foreach>
+                </foreach> -->
+                <if test="params.lsn_month != null and params.lsn_month != ''">
+                    <choose>
+                        <when test="params.lsn_month.length() == 4">
+                            AND substring(lsnfee.lsn_month,1,4) = #{params.lsn_month}
+                        </when>
+                        <otherwise>
+                            AND lsnfee.lsn_month = #{params.lsn_month}
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.stu_id != null and params.stu_id != ''">
+                    AND lsnfee.stu_id = #{params.stu_id}
+                </if>
+
             </where>             
             group by lsnfee.lsn_fee_id
                     ,lsnfee.stu_id

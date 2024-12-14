@@ -60,7 +60,7 @@
                             <option th:each="year : ${knyearlist}" 
                                     th:value="${year}" 
                                     th:text="${year}" 
-                                    th:selected="${year == (payMap!= null ? payMap['selectedyear'] : '')}"></option>
+                                    th:selected="${year == (unPayMap!= null ? unPayMap['selectedyear'] : '')}"></option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-left: 20px;">
@@ -70,7 +70,7 @@
                             <option th:each="month : ${knmonthlist}" 
                                     th:value="${month}" 
                                     th:text="${month}" 
-                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : currentmonth)}"></option>
+                                    th:selected="${month == (unPayMap!= null ? unPayMap['selectedmonth'] : currentmonth)}"></option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-left: 20px;">
@@ -79,9 +79,11 @@
                             <option value="">请选择</option>
                         </select>
                     </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                         <button type="submit" class="btn btn-primary">検 索</button>
+                    </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">検 索</button><hr/>
                 <!-- 如果没有学生的未支付信息，显示提示信息 -->
                 <style>
                     .no-info-message {
@@ -141,13 +143,13 @@
 </script>
 <script th:inline="javascript">
     // 从后端传递的学生数据
-    var jsonStuSubList = /*[[${lsnfeestuList}]]*/ [];
+    var jsonStuSubList = /*[[${unPaidStuList}]]*/ [];
     
     // 页面加载完成后，初始化学生下拉列表
     window.onload = function() {
         // 初始化已结算课程的学生
         var studentSelect = document.getElementById('studentSelect');
-        var selectedStuId = /*[[${payMap != null ? payMap['stuId'] : ''}]]*/ '';
+        var selectedStuId = /*[[${unPayMap != null ? unPayMap['stuId'] : ''}]]*/ '';
         var uniqueStudentIds = new Set(); // 使用集合来避免重复
         
         // 从stuSubList添加学生姓名到下拉列表，确保不重复

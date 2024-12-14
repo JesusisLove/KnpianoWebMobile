@@ -50,9 +50,37 @@
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_fee_001/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="stuName" name="stuName" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['stuName'] : ''}" placeholder="学生姓名">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (stuLsnFeeMap!= null ? stuLsnFeeMap['selectedyear'] : '')}"></option>
+                        </select>
                     </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>月份</label>
+                        <select class="form-control" id="monthSelect" name="selectedmonth">
+                            <!-- 默认选项由JavaScript动态生成 -->
+                            <option th:each="month : ${knmonthlist}" 
+                                    th:value="${month}" 
+                                    th:text="${month}" 
+                                    th:selected="${month == (stuLsnFeeMap!= null ? stuLsnFeeMap['selectedmonth'] : currentmonth)}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>学生姓名</label> 
+                        <select class="form-control" id="studentSelect" name="stuId">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">検 索</button>
+                   </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="lsnFeeId" name="lsnFeeId" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnFeeId'] : ''}" placeholder="课费番号">
                     </div>
@@ -63,13 +91,20 @@
                         <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lessonType'] : ''}" placeholder="课程种别">
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="lsnMonth" name="lsnMonth" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnMonth'] : ''}" placeholder="课费月份">
-                    </div>
-                    <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="ownFlg" name="ownFlg" th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['ownFlg'] : ''}" placeholder="支付种别（已支付/未支付）">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">検索</button>
+
+                <!-- 如果没有学生的未支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有学生的课费信息！</p>
+                </div>
             </form> 
             <hr/>
             <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
@@ -116,6 +151,33 @@
             return false;
         }
     });
+</script>
+
+<!-- 初期话学生下拉列表框 -->
+<script th:inline="javascript">
+    // 从后端传递的学生数据
+    var jsonStuSubList = /*[[${lsnfeestuList}]]*/ [];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        // 初始化已结算课程的学生
+        var studentSelect = document.getElementById('studentSelect');
+        var selectedStuId = /*[[${stuLsnFeeMap != null ? stuLsnFeeMap['stuId'] : ''}]]*/ '';
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+        
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                // 向ChatGPT，此处用stuId特定stuName赋值给下拉列框
+                if (item.stuId === selectedStuId) {
+                    option.selected = true;
+                }
+                studentSelect.add(option);
+            }
+        });
+    };
 </script>
 </body>
 </html>

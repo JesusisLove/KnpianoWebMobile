@@ -36,7 +36,7 @@ public class Kn01L002ExtraToScheDao {
 
     // Web页面后段维护
     public List<Kn01L002ExtraToScheBean> getInfoList(String year) {
-        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(year);
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(null,year);
         return list;
     }
 

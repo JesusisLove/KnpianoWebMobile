@@ -83,12 +83,25 @@ https://mybatis.org/mybatis-3/getting-started.html
         AND allextra.subject_sub_id = eda.subject_sub_id            
         LEFT JOIN             t_info_lesson_extra_to_sche tosche on allextra.lesson_id = tosche.lesson_id
         <where>
-            <foreach item="value" index="key" collection="params">
-                <if test="value != null and value != ''">
+            <!-- <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''"> -->
                     <!-- 假设key是数据库列名，需要确保key与数据库列名匹配 -->
-                    AND ${key} like CONCAT('%', #{value}, '%')
-                </if>
-            </foreach>
+                    <!-- AND ${key} like CONCAT('%', #{value}, '%') -->
+                <!-- </if>
+            </foreach> -->
+            <if test="params.lsn_month != null and params.lsn_month != ''">
+                <choose>
+                    <when test="params.lsn_month.length() == 4">
+                        AND substring(allextra.schedual_date,1,4) = #{params.lsn_month}
+                    </when>
+                    <otherwise>
+                        AND substring(allextra.schedual_date,1,7) = #{params.lsn_month}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="params.stu_id != null and params.stu_id != ''">
+                AND allextra.stu_id = #{params.stu_id}
+            </if>
         </where>
     </select>
 

@@ -27,35 +27,36 @@ public class Kn02F004UnpaidController{
     final List<String> knYear; 
     final List<String> knMonth;
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
-    Collection<Kn02F004UnpaidBean> lsnFeeStuList;
+    Collection<Kn02F004UnpaidBean> unPaidStuList;
 
     @Autowired
     Kn03D003StubnkDao kn05S002StubnkDao;
     @Autowired
-    Kn02F004UnpaidDao knLsnUnPaid001Dao;
+    Kn02F004UnpaidDao knLsnUnPaid001Dao;  
     
-    
-    // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
-    Map<String, Object> backForwordMap;
+    // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn02F004UnpaidController(ComboListInfoService combListInfo) {
-        // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
-        // 回传参数设置（画面检索部的查询参数）画面检索条件保持变量
-        backForwordMap = new HashMap<>();
-
         // 初期化年度下拉列表框
         this.knYear = DateUtils.getYearList();
 
         // 初期化月份下拉列表框
         this.knMonth = combListInfo.getMonths();
-        this.lsnFeeStuList = null;
+        this.unPaidStuList = null;
     }
 
     // 【課費未支払管理】ボタンをクリックして，全ての情報を表示すること
     @GetMapping("/kn_lsn_unpaid_001_all")
-    public String list(@RequestParam Map<String, Object> queryParams, Model model) {
+    public String list(Model model) {
+        // 获取当前日期
+        LocalDate currentDate = LocalDate.now();
+
+        // 格式化为 yyyy
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        String year = currentDate.format(formatter);
+        
         // 未结算一览
-        Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.searchLsnUnpay(queryParams);
-        this.lsnFeeStuList = unPaiedCollection;  
+        Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.getInfoList(year);
+        this.unPaidStuList = unPaiedCollection;  
 
         for (Kn02F004UnpaidBean kn02f004UnpaidBean : unPaiedCollection) {
             if (kn02f004UnpaidBean.getOwnFlg() == 1) {
@@ -66,54 +67,57 @@ public class Kn02F004UnpaidController{
         model.addAttribute("infoList",unPaiedCollection);
 
         // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
-        model.addAttribute("lsnfeestuList", lsnFeeStuList);
+        model.addAttribute("unPaidStuList", unPaidStuList);
 
         // 年度下拉列表框初期化前台页面
         int currentYear = Year.now().getValue();
         model.addAttribute("currentyear", currentYear);
         model.addAttribute("knyearlist", knYear);
+
         // 月份下拉列表框初期化前台页面
         String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MM"));
         model.addAttribute("currentmonth", currentMonth);
         model.addAttribute("knmonthlist", knMonth);
 
-       // 利用resultsTabStus的学生名，在前端页面做Tab
-       Map<String, String> resultsTabStus = getResultsTabStus(unPaiedCollection);
-       model.addAttribute("resultsTabStus", resultsTabStus);
+        // 利用resultsTabStus的学生名，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(unPaiedCollection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
        
         return "kn_lsn_unpaid_001/knlsnunpaid001_list";
     }
 
+    // 【课费未支付明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_lsn_unpaid_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 把画面传来的年和月拼接成yyyy-mm的        
         Map<String, Object> params = new HashMap<>();
         String lsnMonth = (String) queryParams.get("selectedmonth");
-        int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
-        lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
-        params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
-        params.put("lsnfee.stu_id", queryParams.get("stuId"));
+        String lsnYear = (String) queryParams.get("selectedyear");
+        if ( !("ALL".equals(lsnMonth))) {
+            int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
+            lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
+            params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
+        } else {
+            params.put("lsn_month", queryParams.get("selectedyear"));
+        }
+
+        // 检索条件
+        params.put("stu_id", queryParams.get("stuId"));
+
+        // 回传参数设置（画面检索部的查询参数）
+        Map<String, Object> backForwordMap = new HashMap<>();
+        backForwordMap.putAll(queryParams);
+        model.addAttribute("unPayMap", backForwordMap);
+        model.addAttribute("currentyear", lsnYear);
+        model.addAttribute("knyearlist", knYear);
+        model.addAttribute("currentmonth", lsnMonth);
+        model.addAttribute("knmonthlist", knMonth);
+        // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
+        model.addAttribute("unPaidStuList", unPaidStuList);
 
         // 未结算一览
         Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.searchLsnUnpay(params);      
         model.addAttribute("infoList",unPaiedCollection);
-
-        // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
-        model.addAttribute("lsnfeestuList", lsnFeeStuList);
-
-        // 回传参数设置（画面检索部的查询参数）
-        backForwordMap.putAll(queryParams);
-        model.addAttribute("payMap", backForwordMap);
-
-        // 获取当前系统年份
-        int currentYear = Year.now().getValue();
-        model.addAttribute("currentyear", currentYear);
-        model.addAttribute("knyearlist", knYear);
-
-        // 月份下拉列表框初期化前台页面
-        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MM"));
-        model.addAttribute("currentmonth", currentMonth);
-        model.addAttribute("knmonthlist", knMonth);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
         Map<String, String> resultsTabStus = getResultsTabStus(unPaiedCollection);

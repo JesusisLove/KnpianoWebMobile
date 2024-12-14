@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
 public interface Kn02F004UnpaidMapper  {
 
+    public List<Kn02F004UnpaidBean> getInfoList(String year);
     public List<Kn02F004UnpaidBean> searchLsnUnpay(@Param("params") Map<String, Object> params);
     public Kn02F004UnpaidBean getLsnUnpayByID(@Param("lsnFeeId") String lsnFeeId);
     public void updateInfo(Kn02F004UnpaidBean bean);

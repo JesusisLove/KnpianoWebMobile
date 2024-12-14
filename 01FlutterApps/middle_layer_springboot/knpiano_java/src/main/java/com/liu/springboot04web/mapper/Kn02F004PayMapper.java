@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import com.liu.springboot04web.bean.Kn02F004PayBean;
 public interface Kn02F004PayMapper  {
 
-    public List<Kn02F004PayBean> getInfoList();
+    public List<Kn02F004PayBean> getInfoList(String year);
     public List<Kn02F004PayBean> searchLsnPay(@Param("params") Map<String, Object> params);
     public void deleteInfo(@Param("lsnPayId") String lsnPayId, 
                            @Param("lsnFeeId") String LsnFeeId);

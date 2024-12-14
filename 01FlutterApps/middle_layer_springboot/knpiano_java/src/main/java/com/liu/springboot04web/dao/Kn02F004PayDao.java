@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class Kn02F004PayDao implements InterfaceKnPianoDao {
+public class Kn02F004PayDao {
 
     @Autowired
     private Kn02F004PayMapper knLsnPay001Mapper;
@@ -21,8 +21,8 @@ public class Kn02F004PayDao implements InterfaceKnPianoDao {
     private Kn02F002FeeDao kn02F002FeeDao;
 
     // 画面初期化显示所科目信息
-    public List<Kn02F004PayBean> getInfoList() {
-        List<Kn02F004PayBean> list =knLsnPay001Mapper.getInfoList();
+    public List<Kn02F004PayBean> getInfoList(String year) {
+        List<Kn02F004PayBean> list =knLsnPay001Mapper.getInfoList(year);
         return list;
     }
 

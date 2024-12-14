@@ -8,6 +8,10 @@
         left join
          t_info_lsn_fee_advc_pay lfap
         on paid.lsn_pay_id = lfap.lsn_pay_id
+
+        <where>
+            substring(paid.pay_month,1,4) = #{year}
+        </where>
     </select>
 
     <!-- 根据相应条件抽出已支付的学费信息 -->
@@ -19,12 +23,28 @@
          t_info_lsn_fee_advc_pay lfap
         on paid.lsn_pay_id = lfap.lsn_pay_id
         <where>
-            <foreach item="value" index="key" collection="params">
-                <if test="value != null and value != ''">
+            <!-- <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''"> -->
                     <!-- key是数据库列名，需要确保key与数据库列名匹配 -->
-                    AND ${key} = #{value}
+                    <!-- AND ${key} = #{value}
                 </if>
-            </foreach>
+            </foreach> -->
+
+            <if test="params.pay_month != null and params.pay_month != ''">
+                <choose>
+                    <when test="params.pay_month.length() == 4">
+                        AND substring(paid.pay_month,1,4) = #{params.pay_month}
+                    </when>
+                    <otherwise>
+                        AND paid.pay_month = #{params.pay_month}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="params.stu_id != null and params.stu_id != ''">
+                AND paid.stu_id = #{params.stu_id}
+            </if>
+
+
         </where>
         order by stu_name,pay_month desc, lsn_pay_id desc, subject_id, subject_sub_id desc
     </select>
