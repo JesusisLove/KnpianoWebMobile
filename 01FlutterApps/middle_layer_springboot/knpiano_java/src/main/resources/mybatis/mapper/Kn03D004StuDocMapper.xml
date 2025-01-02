@@ -8,11 +8,17 @@
 
     <!-- 手机端网页提取已经入档的学生名单 -->
     <select id="getDocedStuList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
-        <!-- select distinct stu_id, stu_name from v_info_student_document order by stu_name; -->
-        SELECT stu_id, stu_name, count(stu_name) as subjectCount 
-        FROM v_info_student_document 
-        group by stu_id
-        order by stu_name;
+        SELECT 
+            doc.stu_id, 
+            doc.stu_name, 
+            COUNT(DISTINCT doc.subject_id) as subjectCount
+        FROM v_info_student_document doc
+        INNER JOIN t_mst_student stu 
+            ON doc.stu_id = stu.stu_id 
+            AND stu.del_flg = 0
+        WHERE doc.del_flg = 0
+        GROUP BY doc.stu_id, doc.stu_name
+        ORDER BY doc.stu_name;
     </select>
 
     <!-- 手机端网页提取已经入档的学生他本人的历史档案信息 -->
