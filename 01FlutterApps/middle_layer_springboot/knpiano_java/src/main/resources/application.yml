@@ -5,6 +5,7 @@ spring:
     #username: root
     #password: 
     #url: jdbc:mysql://127.0.0.1:3306/KNStudent
+    #url: jdbc:mysql://127.0.0.1:3306/prod_KNStudent
 
     #访问NAS服务器上的MySQL数据库使用的用户名和密码
     username: root
@@ -12,7 +13,8 @@ spring:
     #東京
     #url: jdbc:mysql://192.168.3.8:49168/KNStudent
     #シンガポール
-    url: jdbc:mysql://192.168.50.101:49168/KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/KNStudent
+    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
 
 
     driver-class-name: com.mysql.cj.jdbc.Driver
