@@ -24,7 +24,6 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
-  
   // [新增] 新增 late 变量声明
   late DateTime _focusedDay;
   late DateTime _selectedDay;
@@ -63,27 +62,17 @@ class _CalendarPageState extends State<CalendarPage> {
     // [修改] 使用 _selectedDay 替代原来的判断
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
     return studentLsns.where((event) {
-      // 计划课日期 yyyy/mm/dd 
-      String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10
-          ? event.schedualDate.substring(0, 10)
-          : '';
+      // 计划课日期 yyyy/mm/dd
+      String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
       // 计划课时间 HH:mm
-      String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16
-          ? event.schedualDate.substring(11, 16)
-          : '';
+      String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16 ? event.schedualDate.substring(11, 16) : '';
 
-      // 调课日期 yyyy/mm/dd 
-      String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
-          ? event.lsnAdjustedDate.substring(0, 10)
-          : '';
+      // 调课日期 yyyy/mm/dd
+      String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
       // 调课时间 HH:mm
-      String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
-          ? event.lsnAdjustedDate.substring(11, 16)
-          : '';
-      
-      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time)
-           ||(eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
+      String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16 ? event.lsnAdjustedDate.substring(11, 16) : '';
 
+      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) || (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
     }).toList();
   }
 
@@ -91,7 +80,7 @@ class _CalendarPageState extends State<CalendarPage> {
   void _handleTimeSelection(BuildContext context, String time) {
     // [修改] 使用 _selectedDay
     String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Date: $formattedDate, Time: $time')),
     );
@@ -107,14 +96,14 @@ class _CalendarPageState extends State<CalendarPage> {
       ).then((result) {
         if (result == true) {
           setState(() {
-          // 排完课后刷新课程表页面
+            // 排完课后刷新课程表页面
             _fetchStudentLsn(formattedDate);
           });
         }
       });
     }
   }
-  
+
   // 迁移到排课的编辑画面
   void _handleEditCourse(Kn01L002LsnBean event) {
     showDialog(
@@ -156,7 +145,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     Uri.parse(signUrl),
                     headers: {
                       'Content-Type': 'application/json',
-                    }, 
+                    },
                   );
                   if (response.statusCode == 200) {
                     setState(() {
@@ -202,7 +191,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     Uri.parse(signUrl),
                     headers: {
                       'Content-Type': 'application/json',
-                    }, 
+                    },
                   );
                   if (response.statusCode == 200) {
                     setState(() {
@@ -233,7 +222,7 @@ class _CalendarPageState extends State<CalendarPage> {
           backgroundColor: Colors.transparent, // 设置为透明以显示自定义背景
           child: Container(
             width: 300, // 设置宽度
-            height: 400,// 设置高度
+            height: 400, // 设置高度
             decoration: BoxDecoration(
               color: Colors.white, // 设置背景色
               borderRadius: BorderRadius.circular(16), // 设置圆角
@@ -355,24 +344,139 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  //  添加备注内容
+  void _handleNoteCourse(Kn01L002LsnBean event) {
+    String noteContent = event.memo ?? '';
+    bool hasContent = noteContent.isNotEmpty;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  const Text('备注'),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                  ),
+                ],
+              ),
+              content: TextField(
+                maxLines: 3,
+                controller: TextEditingController(text: noteContent)
+                  ..selection = TextSelection.fromPosition(
+                    TextPosition(offset: noteContent.length),
+                  ),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: '请输入备注内容',
+                ),
+                onChanged: (value) {
+                  noteContent = value;
+                  setDialogState(() {
+                    hasContent = value.trim().isNotEmpty;
+                  });
+                },
+              ),
+              actions: <Widget>[
+                Container(
+                  width: double.infinity,
+                  height: 40,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: hasContent ? Colors.pink[100] : Colors.grey[300],
+                    ),
+                    onPressed: hasContent
+                        ? () async {
+                            try {
+                              // 构建请求URL
+                              final String memoUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
+
+                              // 发送POST请求到后端
+                              final response = await http.post(
+                                Uri.parse(memoUrl),
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                // 发送备注内容到后端
+                                body: json.encode({
+                                  'memo': noteContent,
+                                  'lessonId': event.lessonId,
+                                }),
+                              );
+
+                              // 解析响应
+                              final responseData = json.decode(utf8.decode(response.bodyBytes));
+
+                              if (response.statusCode == 200 && responseData['status'] == 'success') {
+                                // 成功处理
+                                Navigator.of(dialogContext).pop();
+
+                                // 刷新页面数据
+                                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+
+                                // 显示成功提示
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('备注更新成功'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              } else {
+                                // 显示错误信息
+                                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                  SnackBar(
+                                    content: Text('备注更新失败: ${responseData['message'] ?? '未知错误'}'),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              // 显示异常信息
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text('发生错误: $e'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
+                        : null,
+                    child: const Text('确认'),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-          title: '课程表',
-          subtitle: '学生课程管理 >> 课程表',
-          context: context,
-          appBarBackgroundColor: Constants.lessonThemeColor, // 自定义AppBar背景颜色
-          titleColor: Colors.white, // 自定义标题颜色
-          subtitleBackgroundColor: Colors.blue.shade700, // 自定义底部文本框背景颜色
-          subtitleTextColor: Colors.white, // 自定义底部文本颜色
-          titleFontSize: 20.0, // 自定义标题字体大小
-          subtitleFontSize: 12.0, // 自定义底部文本字体大小
-          addInvisibleRightButton: true,
-          actions: [
-            // 如果需要，可以在这里添加额外的操作按钮
-          ],
-        ),
+        title: '课程表',
+        subtitle: '学生课程管理 >> 课程表',
+        context: context,
+        appBarBackgroundColor: Constants.lessonThemeColor, // 自定义AppBar背景颜色
+        titleColor: Colors.white, // 自定义标题颜色
+        subtitleBackgroundColor: Colors.blue.shade700, // 自定义底部文本框背景颜色
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0, // 自定义标题字体大小
+        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        addInvisibleRightButton: true,
+        actions: [
+          // 如果需要，可以在这里添加额外的操作按钮
+        ],
+      ),
       body: Column(
         children: [
           // [新增] 为日历添加阴影效果
@@ -398,7 +502,10 @@ class _CalendarPageState extends State<CalendarPage> {
                 return isSameDay(_selectedDay, day);
               },
               // [修改] 更新 onDaySelected 回调
-              onDaySelected: (selectedDay, focusedDay,) {
+              onDaySelected: (
+                selectedDay,
+                focusedDay,
+              ) {
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
@@ -453,6 +560,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   onDelete    : _handleDeleteCourse,
                   onReschLsn  : _handleReschLsnCourse,
                   onCancel    : _handleCancelRescheCourse,
+                  onAddmemo   : _handleNoteCourse,
                   // [修改] 使用 _selectedDay
                   selectedDay : _selectedDay,
                 );
@@ -475,6 +583,7 @@ class TimeTile extends StatelessWidget {
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
   final Function(Kn01L002LsnBean) onCancel;
+  final Function(Kn01L002LsnBean) onAddmemo;
   final DateTime selectedDay;
 
   const TimeTile({
@@ -488,6 +597,7 @@ class TimeTile extends StatelessWidget {
     required this.onDelete,
     required this.onReschLsn,
     required this.onCancel,
+    required this.onAddmemo,
     required this.selectedDay,
   });
 
@@ -590,6 +700,7 @@ class TimeTile extends StatelessWidget {
     Color backgroundColor;
     Color textColor = Colors.black;
     String additionalInfo = '';
+
     // 调课元未签到
     if (isAdjustedUnSignedLsnFrom) {
       backgroundColor = Colors.grey.shade300;
@@ -631,179 +742,234 @@ class TimeTile extends StatelessWidget {
       margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
       color: backgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(8),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+            Expanded(
+              flex: 3, // 给左边的内容更多空间
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.stuName,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor, decoration: textDecoration),
+                  ),
+                  const SizedBox(height: 4),
+                  // 第一个需要调整的 Row（课程信息和调课信息所在行）
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        event.stuName,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor, decoration: textDecoration),
+                      Expanded(
+                        /*
+                        flex参数:给左边的内容更多空间，它决定了在 Row 中每个 Expanded 控件占用空间的比例。
+                            比如两个 Expanded，一个 flex: 3，另一个 flex: 4，那么它们会按照 3:4 的比例分配可用空间。
+                            flex 值越大，占用的空间就越多，反之就越少。
+                        举例：
+                          如果左边 flex: 1，右边 flex: 6，那么左边内容会被压缩得很窄
+                          如果左边 flex: 6，右边 flex: 1，那么左边内容会占用更多空间，右边内容会被压缩 */
+                        flex: 2,
+                        child: Text(
+                          '${event.subjectName} - ${event.subjectSubName}',
+                          style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration),
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${event.subjectName} - ${event.subjectSubName}',
-                        style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
-                        style: TextStyle(fontSize: 11, color: textColor, decoration: textDecoration),
-                      ),
+                      if (additionalInfo.isNotEmpty)
+                        Expanded(
+                          flex: 4, // 给右边的内容更多空间，但设置较小的左边距
+                          /*
+                            padding 参数：
+                              EdgeInsets.only(left: 8) 指定了左侧的内边距
+                              值越大，文字离左边的距离就越远（向右移动得越多）
+                              值越小，文字离左边的距离就越近（向左移动得越多）
+                              举例：
+                                left: 20 会让文字明显向右偏移
+                                left: 4 会让文字更靠近左边
+                                left: 0 则没有任何左边距
+
+                              根据您想要的效果：
+                              如果想让"调课..."和"备注..."更靠左，您可以：
+                              减小右边 Expanded 的 flex 值
+                              减小 padding 的 left 值
+                            */
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 0), // 添加少量左边距
+                            child: Text(
+                              additionalInfo,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black54,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
-                ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.black),
-                  onSelected: (String result) {
-                    switch (result) {
-                      case '签到':
-                        onSign(event);
-                        break;
-                      case '撤销':
-                        onRestore(event);
-                        break;
-                      case '修改':
-                        onEdit(event);
-                        break;
-                      case '调课':
-                        onReschLsn(event);
-                        break;
-                      case '取消':
-                        onCancel(event);
-                        break;
-                      case '删除':
-                        onDelete(event);
-                        break;
-                      case '备注':
-                        print('点击了备注按钮');
-                        break;
-                      default:
-                        print('未知按钮被点击');
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
-                      // 签到记录的菜单显示
-                      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
-                        return[
-                          const PopupMenuItem<String>(
-                            value: '撤销',
-                            height: 36,
-                            child: Text('撤销', style:
-                            TextStyle(fontSize: 11.5)),
+                  const SizedBox(height: 2),
+                  // 第二个需要调整的 Row（课程时长和备注信息所在行）
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
+                          style: TextStyle(fontSize: 11, color: textColor, decoration: textDecoration),
+                        ),
+                      ),
+                      if (event.memo != null && event.memo!.isNotEmpty)
+                        Expanded(
+                          flex: 4, // 给右边的内容更多空间，但设置较小的左边距
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 0), // 添加少量左边距
+                            child: Text(
+                              '备注: ${event.memo}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black54,
+                              ),
+                            ),
                           ),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      } else {
-                        // 过了当日，只显示备注按钮
-                        return [
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      }
-                    } else {
-                      // 如果是调课元记录情况下，显示按钮
-                      if (isAdjustedUnSignedLsnFrom) {
-                        return <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: '修改',
-                            height: 36,
-                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '调课',
-                            height: 36,
-                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '取消',
-                            height: 36,
-                            child: Text('取消', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '删除',
-                            height: 36,
-                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      } 
-                      // 计划课和调课记录情况下，显示按钮
-                      else {
-                        // 显示所有按钮
-                        return <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: '签到',
-                            height: 36,
-                            child: Text('签到', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '修改',
-                            height: 36,
-                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '调课',
-                            height: 36,
-                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '删除',
-                            height: 36,
-                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      }
-                    }
-                  },
-                  constraints: const BoxConstraints(
-                    minWidth: 50,
-                    maxWidth: 60,
+                        ),
+                    ],
                   ),
-                  position: PopupMenuPosition.under,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-            if (additionalInfo.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  additionalInfo,
-                  style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.black54),
-                ),
+                ],
               ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
+              onSelected: (String result) {
+                switch (result) {
+                  case '签到':
+                    onSign(event);
+                    break;
+                  case '撤销':
+                    onRestore(event);
+                    break;
+                  case '修改':
+                    onEdit(event);
+                    break;
+                  case '调课':
+                    onReschLsn(event);
+                    break;
+                  case '取消':
+                    onCancel(event);
+                    break;
+                  case '删除':
+                    onDelete(event);
+                    break;
+                  case '备注':
+                    onAddmemo(event);
+                    break;
+                  default:
+                    print('未知按钮被点击');
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
+                  // 签到记录的菜单显示
+                  if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+                    return [
+                      const PopupMenuItem<String>(
+                        value: '撤销',
+                        height: 36,
+                        child: Text('撤销', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: '备注',
+                        height: 36,
+                        child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                      ),
+                    ];
+                  } else {
+                    // 过了当日，只显示备注按钮
+                    return [
+                      const PopupMenuItem<String>(
+                        value: '备注',
+                        height: 36,
+                        child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                      ),
+                    ];
+                  }
+                } else {
+                  // 如果是调课元记录情况下，显示按钮
+                  if (isAdjustedUnSignedLsnFrom) {
+                    return <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: '修改',
+                        height: 36,
+                        child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      const PopupMenuItem<String>(
+                        value: '调课',
+                        height: 36,
+                        child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: '取消',
+                        height: 36,
+                        child: Text('取消', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      const PopupMenuItem<String>(
+                        value: '删除',
+                        height: 36,
+                        child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      const PopupMenuItem<String>(
+                        value: '备注',
+                        height: 36,
+                        child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                      ),
+                    ];
+                  } else {
+                    // 显示所有按钮
+                    return <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: '签到',
+                        height: 36,
+                        child: Text('签到', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      const PopupMenuItem<String>(
+                        value: '修改',
+                        height: 36,
+                        child: Text('修改', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: '调课',
+                        height: 36,
+                        child: Text('调课', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: '删除',
+                        height: 36,
+                        child: Text('删除', style: TextStyle(fontSize: 11.5)),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      const PopupMenuItem<String>(
+                        value: '备注',
+                        height: 36,
+                        child: Text('备注', style: TextStyle(fontSize: 11.5)),
+                      ),
+                    ];
+                  }
+                }
+              },
+              constraints: const BoxConstraints(
+                minWidth: 50,
+                maxWidth: 60,
+              ),
+              position: PopupMenuPosition.under,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: EdgeInsets.zero,
+            ),
           ],
         ),
       ),

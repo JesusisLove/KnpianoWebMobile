@@ -88,14 +88,15 @@
                 </div>
                 
                 <br>
-                <!-- 新規登録 模式下 调整日期用 日期控件显示 -->
-                <div class="form-group"  th:if="${isAddNewMode}">
-                    <label>調整日付</label> 
-                    <input id="adjustedDate" name="adjustedDate" type="date" class="form-control" placeholder=""
-                            th:value="${selectedStuDoc != null && selectedStuDoc.adjustedDate != null ?
-                                 #dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM-dd') 
-                               : #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
-                </div>
+                    <!-- 新規登録 模式下 调整日期用 日期控件显示 -->
+                    <div class="form-group" th:if="${isAddNewMode}">
+                        <label>調整日付(从指定月的1日开始算起)</label>
+                        <input id="adjustedDateMonth" type="month" class="form-control" placeholder=""
+                         th:value="${selectedStuDoc != null && selectedStuDoc.adjustedDate != null ?
+                                    #dates.format(selectedStuDoc.adjustedDate, 'yyyy-MM') 
+                                : #dates.format(#dates.createToday(), 'yyyy-MM')}">
+                        <input id="adjustedDate" name="adjustedDate" type="hidden">
+                    </div>
 
                 <!-- 変更編集 模式下 调整日期用 日期控件显示 -->
                 <div class="form-group"  th:if="${!isAddNewMode}"><br>  
@@ -264,6 +265,23 @@
                 toggleButtonText.innerHTML = '<i class="fas fa-lock-open"></i> 关闭';
             }
         });
+    });
+</script>
+<script th:inline="javascript">
+    document.getElementById('adjustedDateMonth').addEventListener('change', function () {
+        const hiddenInput = document.getElementById('adjustedDate');
+        if (this.value) {
+            hiddenInput.value = this.value + '-01';
+        }
+    });
+
+    // 页面加载时也要设置一次初始值
+    window.addEventListener('load', function () {
+        const monthInput = document.getElementById('adjustedDateMonth');
+        const hiddenInput = document.getElementById('adjustedDate');
+        if (monthInput.value) {
+            hiddenInput.value = monthInput.value + '-01';
+        }
     });
 </script>
 </body>

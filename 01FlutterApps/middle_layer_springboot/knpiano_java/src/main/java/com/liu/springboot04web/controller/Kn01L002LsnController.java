@@ -191,6 +191,17 @@ public class Kn01L002LsnController{
         return "redirect:/kn_lsn_001_all";
     }
 
+    // 【一覧画面明细部】备注ボタンを押下
+    @GetMapping("/kn_lsn_001_lsn_memo/{lessonid}")
+    public String lessonMemo(@PathVariable("lessonid") String id, Model model) {
+
+        // 拿到该课程信息
+        Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
+        // 备注更新
+        
+        return "redirect:/kn_lsn_001_all";
+    }
+
     // 【新規登録】画面にて、【保存】ボタンを押下
     @PostMapping("/kn_lsn_001")
     public String excuteInfoAdd(Model model, Kn01L002LsnBean knLsn001Bean) {

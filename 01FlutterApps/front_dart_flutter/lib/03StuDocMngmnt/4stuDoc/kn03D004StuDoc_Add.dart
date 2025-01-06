@@ -48,6 +48,9 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   @override
   void initState() {
     super.initState();
+    // 获取当前日期并设置为当月1号
+    final now = DateTime.now();
+    adjustmentDate = DateTime(now.year, now.month, 1);
     fetchSubjects();
     fetchDurations();
   }
@@ -215,13 +218,24 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               maxLines: 1,
               minLines: 1,
               onTap: () async {
+                // 获取当前选择的日期，如果没有则使用当前日期
+                DateTime currentDate = adjustmentDate ?? DateTime.now();
+                // 确保初始日期总是月初1号
+                DateTime initialDate = DateTime(currentDate.year, currentDate.month, 1);
+
                 final DateTime? picked = await showDatePicker(
                   context: context,
-                  initialDate: adjustmentDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2025),
+                  initialDate: initialDate,
+                  firstDate: DateTime(2025, 1, 1),
+                  lastDate: DateTime(2025, 12, 31),
+                  selectableDayPredicate: (DateTime date) {
+                    // 只允许选择每月1号
+                    return date.day == 1;
+                  },
+                  initialEntryMode: DatePickerEntryMode.calendarOnly, // 直接显示日历视图
+                  helpText: '选择月份', // 修改标题文字为中文
                 );
-                if (picked != null && picked != adjustmentDate) {
+                if (picked != null) {
                   setState(() {
                     adjustmentDate = picked;
                   });

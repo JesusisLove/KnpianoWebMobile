@@ -4,6 +4,7 @@
 
     <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
         SELECT * FROM v_info_student_document
+        ORDER BY stu_name,adjusted_date desc,subject_id,subject_sub_id
     </select>
 
     <!-- 手机端网页提取已经入档的学生名单 -->
@@ -23,7 +24,8 @@
 
     <!-- 手机端网页提取已经入档的学生他本人的历史档案信息 -->
     <select id="getDocedstuDetailList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
-        select distinct * from v_info_student_document where stu_id = #{stuId} order by adjusted_date;
+        select distinct * from v_info_student_document where stu_id = #{stuId} 
+        order by stu_name, adjusted_date desc, subject_id, subject_sub_id;
     </select>
 
 
@@ -104,8 +106,7 @@
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
                 pay_style = #{payStyle},
                 exam_date = #{examDate},
-                exam_score = #{examDcore},
-                del_flg = #{delFlg}
+                exam_score = #{examDcore}
             WHERE stu_id = #{stuId}
               AND subject_id = #{subjectId}
               AND subject_sub_id = #{subjectSubId} 

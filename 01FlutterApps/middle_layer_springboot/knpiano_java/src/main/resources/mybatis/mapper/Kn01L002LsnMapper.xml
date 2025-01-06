@@ -37,6 +37,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,scanQR_date
             ,lsn_adjusted_date
             ,extra_to_dur_date
+            ,memo
         from v_info_lesson 
         where substring(schedual_date,1,10) = #{schedualDate}
         union all
@@ -54,6 +55,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,scanQR_date
             ,lsn_adjusted_date
             ,extra_to_dur_date
+            ,memo
         from v_info_lesson 
         where substring(lsn_adjusted_date,1,10) = #{schedualDate}
     </select>
@@ -138,6 +140,12 @@ https://mybatis.org/mybatis-3/getting-started.html
     <update id="reScheduleLsnCancel">
         <!-- 取消调课操作 -->
         update t_info_lesson Set lsn_adjusted_date = NULL
+        where lesson_id = #{lessonId}
+    </update>
+
+    <update id="updateMemo">
+        <!-- 更新备注操作 -->
+        update t_info_lesson Set memo = #{memo}
         where lesson_id = #{lessonId}
     </update>
 

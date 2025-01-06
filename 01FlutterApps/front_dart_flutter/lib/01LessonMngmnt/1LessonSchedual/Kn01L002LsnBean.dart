@@ -17,6 +17,7 @@ class Kn01L002LsnBean {
   final String lsnAdjustedDate;
   final String extraToDurDate;
   final String originalSchedualDate;
+  String? memo; //为了可以NULL，不用final关键字
 
   // 更新构造函数以正确赋值
   Kn01L002LsnBean({
@@ -35,6 +36,7 @@ class Kn01L002LsnBean {
     required this.lsnAdjustedDate,
     required this.extraToDurDate,
     required this.originalSchedualDate,
+    this.memo, //为了可以NULL，不用required关键字
   });
 
   // 更新工厂方法以正确解析和格式化日期
@@ -100,6 +102,7 @@ class Kn01L002LsnBean {
       lsnAdjustedDate: formattedLsnAdjustedDate,
       extraToDurDate: formattedExtraToDurDate,
       originalSchedualDate: formattedOriginalSchedualDate,
+      memo: json['memo'] as String?, //为了可以NULL
     );
   }
 }

@@ -22,6 +22,7 @@ VIEW v_info_lesson AS
         a.lsn_adjusted_date AS lsn_adjusted_date,
         a.extra_to_dur_date AS extra_to_dur_date,
         b.del_flg AS del_flg,
+        a.memo AS memo,
         a.create_date AS create_date,
         a.update_date AS update_date
     FROM

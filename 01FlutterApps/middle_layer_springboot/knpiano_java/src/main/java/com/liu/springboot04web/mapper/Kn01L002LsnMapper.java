@@ -36,6 +36,9 @@ public interface Kn01L002LsnMapper  {
     // 删除排课
     public void deleteInfo(String id);
 
+    // 更新备注
+    public int updateMemo(String lessonId, String memo);
+
     // 执行数据库存储过程
     public void callProcedure(Map<String, Integer> map);
 
