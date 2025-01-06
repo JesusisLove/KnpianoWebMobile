@@ -16,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;@Repository
+import java.util.Map;
 
+@Repository
 public class Kn01L002LsnDao {
 
     @Autowired
@@ -226,6 +227,11 @@ public class Kn01L002LsnDao {
     // 削除排课
     public void delete(String id) { 
         knLsn001Mapper.deleteInfo(id); 
+    }
+
+    // 更新备注
+    public int updateMemo(String id, String memo) {
+        return knLsn001Mapper.updateMemo(id, memo);
     }
 
     // 手机前端：课程进度统计--【还未上课统计】Tab，提取未上课（未签到）的 处理

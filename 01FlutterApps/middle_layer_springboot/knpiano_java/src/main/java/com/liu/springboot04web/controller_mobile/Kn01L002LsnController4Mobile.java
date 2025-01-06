@@ -1,6 +1,8 @@
 package com.liu.springboot04web.controller_mobile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -108,6 +110,37 @@ public class Kn01L002LsnController4Mobile {
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)  // 409 Conflict
                     .body("学科编号为【" + lessonId + "】的科目在使用。所以删除不了。");
+        }
+    }
+
+    // 【课程表一覧】更新备注
+    @CrossOrigin(origins = "*")
+    @PostMapping("/mb_kn_lsn_001_lsn_memo/{lessonId}")
+    public ResponseEntity<Map<String, String>> updateInfoMemo(@PathVariable("lessonId") String lessonId,
+            @RequestBody Map<String, String> memoMap) {
+        try {
+            String memo = memoMap.get("memo");
+
+            // 调用服务层更新备注
+            int updatedCnt = kn01L002LsnDao.updateMemo(lessonId, memo);
+
+            if (updatedCnt == 1) {
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "success");
+                response.put("message", "备注更新成功");
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("message", "更新备注失败");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", "系统错误：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

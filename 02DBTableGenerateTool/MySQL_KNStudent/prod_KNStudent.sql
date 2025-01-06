@@ -428,7 +428,7 @@ VIEW `v_info_student_document` AS
         LEFT JOIN `t_mst_student` `stu` ON ((`doc`.`stu_id` = `stu`.`stu_id`)))
         LEFT JOIN `t_mst_subject` `jct` ON ((`doc`.`subject_id` = `jct`.`subject_id`)))
         LEFT JOIN `v_info_subject_edaban` `sub` ON (((`doc`.`subject_sub_id` = `sub`.`subject_sub_id`)
-            AND (`doc`.`subject_id` = `jct`.`subject_id`))))
+            AND (`doc`.`subject_id` = `sub`.`subject_id`))))
     ;
 
 

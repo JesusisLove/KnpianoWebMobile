@@ -35,7 +35,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date originalSchedualDate; // 加课换正课后记录原来实际的计划上课日期
-
+    protected String memo;
     protected Integer delFlg;
     protected Date createDate;
     protected Date updateDate;
@@ -201,5 +201,11 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setOriginalSchedualDate(Date originalSchedualDate) {
         this.originalSchedualDate = originalSchedualDate;
+    }
+    public String getMemo() {
+        return memo;
+    }
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

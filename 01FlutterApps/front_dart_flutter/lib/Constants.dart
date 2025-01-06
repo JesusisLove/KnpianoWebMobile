@@ -25,6 +25,9 @@ class Constants {
 // 课程表画面一览，撤销签到请求
   static const String apiStuLsnRestore = '/liu/mb_kn_lsn_001_lsn_undo';
 
+// 课程表画面一览，发送备注更新请求
+  static const String apiStuLsnMemo = '/liu/mb_kn_lsn_001_lsn_memo';
+
 // 编辑排课页面，从学生档案表视图中取得该学生正在上的某一科目信息
   static const String apiStuLsnEdit = '/liu/mb_kn_lsn_001';
 
