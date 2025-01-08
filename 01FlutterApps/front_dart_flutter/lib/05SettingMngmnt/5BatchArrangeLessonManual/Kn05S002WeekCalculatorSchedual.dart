@@ -11,19 +11,19 @@ import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
 class Kn05S002WeekCalculatorSchedual extends StatefulWidget {
-    // AppBar背景颜色
+  // AppBar背景颜色
   final Color knBgColor;
   // 字体颜色
   final Color knFontColor;
   // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
-  late String pagePath ;
+  late String pagePath;
 
-   Kn05S002WeekCalculatorSchedual({
+  Kn05S002WeekCalculatorSchedual({
     super.key,
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
-    });
+  });
 
   @override
   _Kn05S002WeekCalculatorSchedualState createState() => _Kn05S002WeekCalculatorSchedualState();
@@ -67,17 +67,48 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
     }
   }
 
+  // 显示进度对话框
+  void _showProgressDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                Text('正在执行排课，请稍候...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // 执行排课
   Future<void> executeWeeklySchedual(int weekNumber, String startDate, String endDate) async {
+    _showProgressDialog(); // 显示进度对话框
+
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualExcute}/$startDate/$endDate';
     try {
       final response = await http.get(Uri.parse(apiUrl));
+      Navigator.pop(context); // 关闭进度对话框
+
       if (response.statusCode == 200) {
         await fetchWeeklySchedual(); // 刷新页面
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('排课成功！')),
+        );
       } else {
         throw Exception('Failed to execute weekly schedual');
       }
     } catch (e) {
+      Navigator.pop(context); // 确保错误时也关闭进度对话框
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('排课失败：$e')),
       );
@@ -85,43 +116,51 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
   }
 
   // 撤销排课
-Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDate) async {
-  final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualCancel}/$startDate/$endDate/$weekNumber';
-  try {
-    final response = await http.get(Uri.parse(apiUrl));
-    if (response.statusCode == 200) {
-      final responseBody = utf8.decode(response.bodyBytes);
-      if (responseBody == "ok") {
-        await fetchWeeklySchedual(); // 刷新页面
+  Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDate) async {
+    _showProgressDialog(); // 显示进度对话框
+
+    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualCancel}/$startDate/$endDate/$weekNumber';
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      Navigator.pop(context); // 关闭进度对话框
+
+      if (response.statusCode == 200) {
+        final responseBody = utf8.decode(response.bodyBytes);
+        if (responseBody == "ok") {
+          await fetchWeeklySchedual(); // 刷新页面
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('撤销成功！')),
+          );
+        } else {
+          // 显示错误消息
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('撤销失败'),
+                content: Text(responseBody),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('确定'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
       } else {
-        // 显示错误消息
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('撤销失败'),
-              content: Text(responseBody),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('确定'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        throw Exception('Failed to cancel weekly schedual');
       }
-    } else {
-      throw Exception('Failed to cancel weekly schedual');
+    } catch (e) {
+      Navigator.pop(context); // 确保错误时也关闭进度对话框
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('撤销失败：$e')),
+      );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('撤销失败：$e')),
-    );
   }
-}
 
   String formatDate(String date) {
     final DateTime dateTime = DateTime.parse(date);
@@ -133,13 +172,13 @@ Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDa
       height: 30,
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(text, style: const TextStyle(fontSize: 12)),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
           minimumSize: const Size(60, 30),
         ),
+        child: Text(text, style: const TextStyle(fontSize: 12)),
       ),
     );
   }
@@ -148,26 +187,26 @@ Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDa
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-          title: titleName,
-          subtitle: '${widget.pagePath} >> $titleName',
-          context: context,
-          appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
-          titleColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义标题颜色
-                                     widget.knFontColor.red - 20, 
-                                     widget.knFontColor.green - 20, 
-                                     widget.knFontColor.blue - 20),
-
-          subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, // 自定义底部文本框背景颜色
-                                     widget.knFontColor.red + 20, 
-                                     widget.knFontColor.green + 20, 
-                                     widget.knFontColor.blue + 20),
-
-          subtitleTextColor: Colors.white, // 自定义底部文本颜色
-          titleFontSize: 20.0, // 自定义标题字体大小
-          subtitleFontSize: 12.0, // 自定义底部文本字体大小
-                  actions: [
+        title: titleName,
+        subtitle: '${widget.pagePath} >> $titleName',
+        context: context,
+        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
+        subtitleTextColor: Colors.white, // 自定义底部文本颜色
+        titleFontSize: 20.0, // 自定义标题字体大小
+        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_horiz, color:widget.knFontColor),
+            icon: Icon(Icons.more_horiz, color: widget.knFontColor),
             onSelected: (String result) {
               if (result == 'prepay') {
                 print('预支付学费被选中');

@@ -10,7 +10,11 @@ import java.util.List;
 @Mapper
 public interface Kn05S002WeekCalculatorMapper {
     public List<Kn05S002FixedLsnStatusBean> getInfoList();
+
+    public List<Kn05S002FixedLsnStatusBean> getInfoList4mb();
+
     void insertFixedLessonStatus(Kn05S002FixedLsnStatusBean status);
+    
     public void deleteAll();
     
     // 执行一周计划排课的Batch处理
