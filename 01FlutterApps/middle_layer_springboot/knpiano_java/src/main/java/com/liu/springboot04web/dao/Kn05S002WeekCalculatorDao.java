@@ -54,6 +54,11 @@ public class Kn05S002WeekCalculatorDao implements InterfaceKnPianoDao {
         List<Kn05S002FixedLsnStatusBean> list =weekCalculatorMapper.getInfoList();
         return list;
     }
+    //手机端获取未排课的周次信息
+    public List<Kn05S002FixedLsnStatusBean> getInfoList4mb() {
+        List<Kn05S002FixedLsnStatusBean> list =weekCalculatorMapper.getInfoList4mb();
+        return list;
+    }
 
     public void deleteAll() {
         weekCalculatorMapper.deleteAll();

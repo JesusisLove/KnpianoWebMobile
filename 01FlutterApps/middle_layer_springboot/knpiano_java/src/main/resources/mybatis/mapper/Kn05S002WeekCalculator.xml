@@ -2,8 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn05S002WeekCalculatorMapper">
 
+    <!-- 后台Web端，排课操作可，撤销操作可 -->
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">
         select * from t_fixedlesson_status
+    </select>
+
+    <!-- 手机端只显示排课操作，不显示撤销操作 -->
+    <select id= "getInfoList4mb" resultType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">
+        select * from t_fixedlesson_status 
+        where fixed_status = 0
+        order by start_week_date
     </select>
 
     <insert id="insertFixedLessonStatus" parameterType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">

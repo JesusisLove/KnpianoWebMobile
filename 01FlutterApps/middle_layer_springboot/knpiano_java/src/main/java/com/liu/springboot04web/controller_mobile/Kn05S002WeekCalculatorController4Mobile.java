@@ -26,8 +26,8 @@ public class Kn05S002WeekCalculatorController4Mobile {
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_calculate_Weeks")
     public ResponseEntity<List<Kn05S002FixedLsnStatusBean>> getStudentList() {
-        // 获取当前正在上课的所有学生信息
-        List<Kn05S002FixedLsnStatusBean> collection = kn05S002WeekCalculatorDao.getInfoList();
+        // 获取未执行排课的周次
+        List<Kn05S002FixedLsnStatusBean> collection = kn05S002WeekCalculatorDao.getInfoList4mb();
         return ResponseEntity.ok(collection);
     }
 
