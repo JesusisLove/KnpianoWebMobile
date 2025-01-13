@@ -929,10 +929,12 @@ class TimeTile extends StatelessWidget {
                   } else {
                     // 显示所有按钮
                     return <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: '签到',
+                        // 只有小于等于系统当前日期的课才可以执行签到
+                        enabled: !selectedDay.isAfter(DateTime.now()),
                         height: 36,
-                        child: Text('签到', style: TextStyle(fontSize: 11.5)),
+                        child: Text('签到', style: TextStyle(fontSize: 11.5, color: selectedDay.isAfter(DateTime.now()) ? Colors.grey : null)),
                       ),
                       const PopupMenuDivider(height: 1),
                       const PopupMenuItem<String>(

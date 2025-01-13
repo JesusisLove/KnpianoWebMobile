@@ -62,7 +62,7 @@ public class Kn02F003AdvcLsnFeePayController {
 
         // 画面初期化基本设定
         setModel(model);
-        System.out.println("Received successMessage: " + successMessage); 
+        // System.out.println("Received successMessage: " + successMessage); 
         if (!successMessage.isEmpty()) {
             model.addAttribute("successMessage", successMessage);
         }
@@ -70,10 +70,11 @@ public class Kn02F003AdvcLsnFeePayController {
         return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
     }
 
+    // 点击Web页面上的【推算排课日期】按钮
     @GetMapping("/kn_advc_pay_lsn/search")
     public String search(@RequestParam Map<String, Object> queryParams, 
                                        Model model) {
-        // 把画面传来的年和月拼接成yyyy-mm的        
+        // 把画面传来的年和月拼接成yyyy-mm的形式        
         Map<String, Object> params = new HashMap<>();
         String lsnMonth = (String) queryParams.get("selectedmonth");
         params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
@@ -85,7 +86,7 @@ public class Kn02F003AdvcLsnFeePayController {
             List<Kn02F003AdvcLsnFeePayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             model.addAttribute("infoList", list);
 
-            // 提取该生当前月份的预支付历史情况
+            // 提取#{引数.生徒番号}、#{引数.基準月}的预支付历史情况
             List<Kn02F003AdvcLsnFeePayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0,4) ,null);
             model.addAttribute("historyList", advcPaidHistorylist);
 
@@ -104,33 +105,52 @@ public class Kn02F003AdvcLsnFeePayController {
         return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
     }
     
+    //点击Web页面上的【课费预支付】按钮
     @PostMapping("/kn_advc_pay_lsn_execute")
     public String executeAdvanceLsnFeePay(@RequestParam Map<String, Object> queryParams, 
                                           @RequestBody List<Kn02F003AdvcLsnFeePayBean> beans,
                                           RedirectAttributes redirectAttributes,
                                           Model model) {
 
-        // 执行之前先做check：是否同一个月的课费预支付在重复执行（查看课费预支付表）
-        String stuId = beans.get(0).getStuId();
+        // 执行之前先做check：是否同一个月的课费预支付在重复执行（查看课费预支付表 t_info_lsn_fee_advc_pay）
         String stuName = beans.get(0).getStuName();
         String yearMonth = new SimpleDateFormat("yyyy-MM").format(beans.get(0).getSchedualDate());
 
-        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
-        if (advcPaidList.size() > 0) {
-            // 添加更新不可消息
-            redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
-            return "redirect:/kn_advc_pay_lsn";
-        }
-
-        // 处理多个对象的逻辑
+        // 对科目的学费进行预支付处理（For循环：如果前端页面选中了多个科目，就对各个科目分别进行预支付处理）
         for (Kn02F003AdvcLsnFeePayBean bean : beans) {
-            // 对每个bean进行处理
-            kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
+            if (!hasPaid(bean)) {
+                // 对每个bean进行处理
+                kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
+
+
+
+
+
+
+                
+            } else {
+                // 如果有重复，则返回更新不可消息
+                redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
+                return "redirect:/kn_advc_pay_lsn";
+            }
         }
         
         // 添加成功消息
         redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费成功预支付。");
         return "redirect:/kn_advc_pay_lsn";
+    }
+
+    // 判断当前要预支付的课是否在对象月里已经预支付了（避免重复预支付）
+    private boolean hasPaid (Kn02F003AdvcLsnFeePayBean bean) {
+
+        String stuId = bean.getStuId();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = formatter.format(bean.getSchedualDate());
+        String yearMonth = formattedDate.substring(0,7);
+
+        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
+        // true:表示已经预支付了
+        return (advcPaidList.size() > 0);
     }
 
     // 学生银行下拉列表框初期化

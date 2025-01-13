@@ -89,8 +89,10 @@
             <div id="successMessageDiv" class="alert alert-success mt-3" style="display: none;" role="alert">
                 <p id="successMessageContent"></p>
             </div>
-
             
+            <b>第一步：选择预支付月份，点击 推算排课日期</b>
+            <hr/>
+
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_advc_pay_lsn/search}" th:object="${searchForm}" method="get">
                 <div class="form-row">
@@ -115,7 +117,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>月份</label>
+                        <label>请选择预支付月份</label>
                         <select class="form-control" id="monthSelect" name="selectedmonth">
                             <option th:each="month : ${knmonthlist}" 
                                     th:value="${month}" 
@@ -124,7 +126,7 @@
                         </select>
                     </div>
                     <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
-                        <button type="submit" class="btn btn-primary">検 索</button>
+                        <button type="submit" class="btn btn-primary">推算排课日期</button>
                    </div>
                 </div>
                 <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
@@ -148,10 +150,13 @@
                     <dl>
                         <dt>业务说明：</dt>
                         <dd class="indented">①课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。</dd>
-                        <dd class="indented">②先参照该生最后一次签到日期为参考，在下个月的第一个星期的日期作为该科目的计划排课日期。</dd>
-                        <dd class="indented">③如果该生连最后一次签到的日期都没有，则以当前的系统月份为参照为该科目安排该月的第一周的日期为计划排课日期。</dd>
-                        <dd class="indented">④注意：如果发现排课日期字体显示红色，就表示该日期与系统当前日期相比已经过期了，请选择系统当前月份的下一个月份进行课费预支付。</dd>
-                        <dd class="indented">⑤注意：当你看到排课计划是空值的时候，就表示这个科目没有在固定排课里做固定排课登记，所以需要你手动来安排排课日期。</dd>
+                        <dd class="indented">②先参照该生最后一次签到日期为参考(离现在最近的一次签到课仅限于当前年度)，在下个月的第一个星期的日期作为该科目的推算的排课日期日期。</dd>
+                        <dd class="indented">③如果该生连最后一次签到的日期都没有，则以当前的系统月份为参照为该科目安排该月的第一周的日期为推算的排课日期日期。</dd>
+                        <dd class="indented">④【推算的排课日期】列，这是根据学生最近一次的上课日期推算是周几，根据星期推算对象月的计划排课日期。</dd>
+                        <dd class="indented">              对象月：如果本月没有签到记录，但是有排课记录，本月就是对象月。</dd>
+                        <dd class="indented">              对象月：如果本月已经有签到记录，下月就是对象月。</dd>
+                        <dd class="indented">⑤注意：如果发现排课日期字体显示红色，就表示推算的该日期与系统当前日期相比已经过期了，请选择系统当前月份的下一个月份进行课费预支付。</dd>
+                        <dd class="indented">⑥注意：当你看到【排课计划】这一列是空值的时候，就表示这个科目在固定排课里没有做固定排课登记，所以需要你手动来安排排课日期。</dd>
                     </dl>
                 </div>
 
@@ -177,7 +182,7 @@
                         <th>课程单价</th>
                         <th>上课时长（分钟）</th>
                         <th>计划排课种别</th>
-                        <th>排课计划</th>
+                        <th>推算的排课日期</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -203,7 +208,10 @@
                     </tbody>
                 </table>
             </div>
-
+            
+            <hr/>
+            <b>第二步：选中👆预支付的科目，选择👇要支付的银行名称，执行课费预支付</b>
+            <hr/>
             <!-- 课费预支付按钮和银行选择 -->
             <div class="mt-3 payment-controls">
                 <div class="form-group d-flex align-items-center mr-3 mb-0">

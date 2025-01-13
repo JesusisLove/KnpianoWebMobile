@@ -63,6 +63,10 @@ class Constants {
 
   static const String apiStuNameByYear = '/liu/mb_kn_lsn_fee_001_all';
 
+// 学费预先支付：取得当前在课学生名单列表
+  static const String apiCurrentStuName = '/liu/mb_kn_advc_cur_stu';
+
+// 学费月度报告
   static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
 
 // 点击学费入账按钮，往后端发送学费入账保存请求
@@ -224,6 +228,8 @@ class Constants {
   static const String stuLsnFeeListPage = 'stuFinacialPage';
 // 课程进度统计页面的pageId
   static const String kn01L002LsnStatistic = 'Kn01L002LsnStatistic';
-// 课程进度统计页面的pageId
+// 加课消化管理页面的pageId
   static const String kn01L003ExtraToSche = 'kn01L003ExtraToSche';
+// 学费预先支付页面的pageId
+  static const String kn02F003AdvcLsnFeePayPage = 'kn02F003AdvcLsnFeePayPage';
 }

@@ -37,7 +37,7 @@ public class Kn01L002LsnDao {
         return list;
     }
 
-    // 手机前端页面课程表页面，获取指定元月日这一天的学生的排课课程
+    // 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程
     public List<Kn01L002LsnBean> getInfoListByDay(String schedualDate) {
         List<Kn01L002LsnBean> list = knLsn001Mapper.getInfoListByDay(schedualDate);
         return list;

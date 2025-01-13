@@ -1,14 +1,12 @@
+use KNStudent;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
 
 CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
 BEGIN
-    DECLARE v_year INT;
-    DECLARE v_month INT;
+
     DECLARE v_first_day DATE;
-    DECLARE v_yearMonth VARCHAR(7);
-    
     -- 临时禁用安全更新模式，以允许不使用主键的更新操作
     SET SQL_SAFE_UPDATES = 0;
     
@@ -17,98 +15,131 @@ BEGIN
 
     -- 创建临时表来存储计算后的结果
     CREATE TEMPORARY TABLE temp_result AS
-    -- 第一部分：获取学生档案中存在但在课程信息表中不存在的科目数据
-    (SELECT 
-        doc.stu_id,
-        doc.stu_name,
-        doc.subject_id,
-        doc.subject_name,
-        doc.subject_sub_id,
-        doc.subject_sub_name,
-        -- 根据支付方式设置课程类型
-        CASE 
-            WHEN doc.pay_style = 1 THEN 1  -- 1表示按月付费的情况下，有月计划课和月加课，月加课是此次处理的对象外课程
-            --  WHEN doc.pay_style = 0 THEN 0  -- 0表示课时结算的课程
-        END as lesson_type,
-        NULL AS schedual_date
-    FROM (
-        -- 子查询：获取每个学生每个科目的最新签到日期，月加课（lesson_type != 2）
-        SELECT 
-            stu_id,
-            stu_name,
-            subject_id,
-            subject_name,
-            subject_sub_id,
-            subject_sub_name,
-            lesson_type,
-            MAX(schedual_date) AS schedual_date
-        FROM v_info_lesson
-        WHERE scanQR_date IS NOT NULL and lesson_type != 2
-        GROUP BY 
-            stu_id,
-            stu_name,
-            subject_id,
-            subject_name,
-            subject_sub_id,
-            lesson_type,
-            subject_sub_name
-    ) lsn
-    RIGHT JOIN (
-        -- 从学生档案表获取所有课程记录
-        SELECT *
-        FROM v_latest_subject_info_from_student_document
-    ) doc
-    ON lsn.stu_id = doc.stu_id 
-    AND lsn.subject_id = doc.subject_id
-    AND lsn.subject_sub_id = doc.subject_sub_id
-    WHERE lsn.stu_id IS NULL AND doc.pay_style = 1
-      AND doc.stu_id = p_stuId)
-    UNION ALL
-    -- 第二部分：获取学生在课程信息表中的现有课程数据
-    (SELECT 
-        stu_id,
-        stu_name,
-        subject_id,
-        subject_name,
-        subject_sub_id,
-        subject_sub_name,
-        lesson_type,
-        MAX(schedual_date) AS schedual_date
-    FROM v_info_lesson
-    WHERE stu_id = p_stuId
-      AND scanQR_date IS NOT NULL -- 获取每个学生每个科目的最新签到日期
-      and lesson_type = 1 -- 这次预支付课费先只考虑月计划课的Pattern吧lesson_type !=2  -- 排除月加课
-    GROUP BY 
-        stu_id,
-        stu_name,
-        subject_id,
-        subject_name,
-        subject_sub_id,
-        lesson_type,
-        subject_sub_name);
+	-- 第一部分：获取学生档案中存在但在课程信息表中不存在的科目数据
+	WITH MaxSubIds AS (
+	 -- 取得学生们各科目中截止到目前学过的或正在学的最大子科目（即，子科目id值最大的那个科目） 
+		SELECT 
+			t.*
+		FROM v_latest_subject_info_from_student_document t
+		INNER JOIN (
+			SELECT 
+				stu_id,
+				subject_id,
+				MAX(CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) AS UNSIGNED)) as max_num
+			FROM v_latest_subject_info_from_student_document
+			WHERE 1 = 1
+            AND pay_style = 1 -- 仅限于按月交费的科目
+			-- 价格调整日期小于系统当前日期，目的是防止未来准备要上，目前还没有开始上的科目不出现在当前的预支付中
+			AND adjusted_date <= CURDATE()
+			GROUP BY stu_id, subject_id
+		) m ON t.stu_id = m.stu_id 
+			AND t.subject_id = m.subject_id
+			-- 学科子科目（例如：钢琴1级，2级等）的最大值
+			AND CAST(SUBSTRING_INDEX(t.subject_sub_id, '-', -1) AS UNSIGNED) = m.max_num
+			-- 只限于当前在课的学生
+			AND t.stu_id in (select stu_id from t_mst_student where del_flg = 0)
+	)
+	(SELECT 
+		doc.stu_id,
+		doc.stu_name,
+		doc.subject_id,
+		doc.subject_name,
+		doc.subject_sub_id,
+		doc.subject_sub_name,
+		CASE 
+			WHEN doc.pay_style = 1 THEN 1
+		END as lesson_type,
+		NULL AS schedual_date
+	FROM (
+		SELECT 
+			stu_id,
+			stu_name,
+			subject_id,
+			subject_name,
+			subject_sub_id,
+			subject_sub_name,
+			lesson_type,
+			MAX(schedual_date) AS schedual_date
+		FROM v_info_lesson
+		WHERE scanQR_date IS NOT NULL and lesson_type = 1
+		GROUP BY 
+			stu_id,
+			stu_name,
+			subject_id,
+			subject_name,
+			subject_sub_id,
+			lesson_type,
+			subject_sub_name
+	) lsn
+	RIGHT JOIN MaxSubIds doc
+	ON lsn.stu_id = doc.stu_id 
+	AND lsn.subject_id = doc.subject_id
+	AND lsn.subject_sub_id = doc.subject_sub_id
+	WHERE lsn.stu_id IS NULL
+	  AND doc.stu_id = p_stuId
+      -- 价格调整日期小于系统当前日期，目的是防止未来准备要上，目前还没有开始上的科目不出现在当前的预支付中
+	  AND doc.adjusted_date <= CURDATE()
+	  AND LEFT(lsn.schedual_date,4) = LEFT(CURDATE(),4))
+	UNION ALL
+	-- 第二部分：获取学生在课程信息表中的现有课程数据
+	SELECT 
+		t1.stu_id,
+		t1.stu_name,
+		t1.subject_id,
+		t1.subject_name,
+		t1.subject_sub_id,
+		t1.subject_sub_name,
+		t1.lesson_type,
+		t1.schedual_date
+	FROM (
+		SELECT 
+			v.*,
+			MAX(schedual_date) OVER (PARTITION BY stu_id, subject_id) as max_date
+		FROM v_info_lesson v
+		WHERE v.stu_id = p_stuId
+		  AND v.scanQR_date IS NOT NULL 
+		  AND v.lesson_type = 1
+          -- 排课日期只参考去年到现在的排课日期
+          AND LEFT(v.schedual_date,4) >= LEFT(CURDATE(),4) - 1
+	) t1
+	INNER JOIN (
+		SELECT 
+			stu_id,
+			subject_id,
+			MAX(CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) AS UNSIGNED)) as max_num
+		FROM v_info_lesson
+		WHERE stu_id = p_stuId
+		  AND scanQR_date IS NOT NULL 
+		  AND lesson_type = 1
+		GROUP BY stu_id, subject_id
+	) t2 ON t1.stu_id = t2.stu_id 
+		AND t1.subject_id = t2.subject_id
+		AND CAST(SUBSTRING_INDEX(t1.subject_sub_id, '-', -1) AS UNSIGNED) = t2.max_num
+	WHERE t1.schedual_date = t1.max_date;
 
-    -- 从schedual_date中提取年月信息，并计算下一个月
-    -- 如果schedual_date为空，则使用传入的p_yearMonth参数
-    IF EXISTS (SELECT 1 FROM temp_result WHERE schedual_date IS NOT NULL AND schedual_date >= CURDATE()) THEN
-        SELECT 
-            YEAR(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
-            MONTH(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH)),
-            DATE(DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m-01')),
-            DATE_FORMAT(DATE_ADD(MAX(schedual_date), INTERVAL 1 MONTH), '%Y-%m')
-        INTO
-            v_year, v_month, v_first_day, v_yearMonth
-        FROM temp_result
-        WHERE schedual_date IS NOT NULL;
-    ELSE
-        SET v_year = SUBSTRING(p_yearMonth, 1, 4);
-        SET v_month = SUBSTRING(p_yearMonth, 6, 2);
-        SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
-        SET v_yearMonth = p_yearMonth;
-    END IF;
+	-- 创建临时表来存储统计p_yearMonth月里里签到的课程数量
+	CREATE TEMPORARY TABLE IF NOT EXISTS temp_scaned_count AS
+	SELECT subject_id, COUNT(subject_sub_id) as subject_sub_id_count 
+	FROM t_info_lesson
+	WHERE stu_id = p_stuId
+		AND LEFT(schedual_date,7) = p_yearMonth
+		AND scanqr_date IS NOT NULL
+	GROUP BY subject_id;
 
-    -- 更新临时表中的排课计划日期
+	-- 根据签到的统计结果进行判断：如果subject_sub_id_count大于0，预支付的对象月是下一个月，没有签到记录，就是当前月
+	IF EXISTS (SELECT 1 FROM temp_scaned_count WHERE subject_sub_id_count > 0) THEN
+		-- 如果有签到记录，取下个月的第一天
+		SET v_first_day = DATE(DATE_FORMAT(DATE_ADD(CONCAT(p_yearMonth, '-01'), INTERVAL 1 MONTH), '%Y-%m-01'));
+	ELSE
+		-- 如果没有签到记录，取当前传入月份的第一天
+		SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
+	END IF;
+	-- 最后删除临时表
+	DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
+    
+    -- 更新临时表中的排课计划日期(因为临时表存放的是过去最新的排课参考用的信息，现在要把它的排课日期更新成要预支付的排课日期)
     UPDATE temp_result tr
-    LEFT JOIN KNStudent.v_earliest_fixed_week_info AS vefw
+    LEFT JOIN v_earliest_fixed_week_info AS vefw
     ON tr.stu_id = vefw.stu_id AND tr.subject_id = vefw.subject_id
     SET tr.schedual_date = 
         CASE 

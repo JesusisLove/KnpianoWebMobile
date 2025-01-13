@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
+import '../02LsnFeeMngmnt/Kn02F003AdvcLsnFeePayPage.dart';
 import '../02LsnFeeMngmnt/kn02F002LsnFeeDetail.dart';
 import '../Constants.dart';
 
@@ -58,6 +59,16 @@ class PageIdMapping extends StatelessWidget {
           knBgColor: Constants.lsnfeeThemeColor,
           knFontColor: Colors.white,
           pagePath: "学费支付管理 >> 在课学生一览",
+        );
+        break;
+
+      case Constants.kn02F003AdvcLsnFeePayPage: // 迁移至课费预支付画面
+        page = Kn02F003AdvcLsnFeePayPage(
+          stuId: stuId,
+          stuName: stuName,
+          knBgColor: Constants.lsnfeeThemeColor,
+          knFontColor: Colors.white,
+          pagePath: "学费预先支付 >> 在课学生一览",
         );
         break;
 

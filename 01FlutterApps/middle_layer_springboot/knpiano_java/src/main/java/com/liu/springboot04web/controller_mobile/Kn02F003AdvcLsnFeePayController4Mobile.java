@@ -15,6 +15,7 @@ import com.liu.springboot04web.dao.Kn02F003AdvcLsnFeePayDao;
 import com.liu.springboot04web.dao.Kn03D003StubnkDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 
@@ -29,6 +30,16 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
     Kn03D004StuDocDao kn03D004StuDocDao;
     @Autowired
     Kn03D003StubnkDao kn05S002StubnkDao;
+
+
+    //取得当前在课学生名单列表
+    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    @GetMapping("/mb_kn_advc_cur_stu")
+    public ResponseEntity<List<Kn02F003AdvcLsnFeePayBean>> getInfoStuList() {
+        // 将学生交费信息响应送给前端
+        List<Kn02F003AdvcLsnFeePayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayStuInfo();
+        return ResponseEntity.ok(list);
+    }
 
     //取得该生预支付的科目信息
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
@@ -64,21 +75,35 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
 
         String stuName = beans.get(0).getStuName();
 
-        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
-        if (advcPaidList.size() > 0) {
-            // 表示因为有签到了的课程，该星期所有排课撤销不可
-            String errorMessage = stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。";
-            return ResponseEntity.ok(errorMessage);
-        }
-        
         // 处理多个对象的逻辑
         for (Kn02F003AdvcLsnFeePayBean bean : beans) {
-            // 对每个bean进行处理
-            kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
+            // 确认是否重复预支付
+            if (!hasPaid(bean)) {
+                // 对每个bean进行处理
+                kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
+            } else {
+                // 表示因为有签到了的课程，该星期所有排课撤销不可
+                String errorMessage = bean.getStuName() + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。";
+                return ResponseEntity.ok(errorMessage);
+            }
         }
         
         String successMessage = stuName + "的课费成功预支付。";
         return ResponseEntity.ok(successMessage);
+    }
+
+
+    // 判断当前要预支付的课是否在对象月里已经预支付了（避免重复预支付）
+    private boolean hasPaid (Kn02F003AdvcLsnFeePayBean bean) {
+
+        String stuId = bean.getStuId();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = formatter.format(bean.getSchedualDate());
+        String yearMonth = formattedDate.substring(0,7);
+
+        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
+        // true:表示已经预支付了
+        return (advcPaidList.size() > 0);
     }
 
 }

@@ -5,11 +5,9 @@ CREATE
     SQL SECURITY DEFINER 
 VIEW v_latest_subject_info_from_student_document AS 
 select subquery.stu_id AS stu_id,
-       subquery.stu_name AS stu_name,
        case when subquery.del_flg = 1 then  CONCAT(subquery.stu_name, '(已退学)')
-             else subquery.stu_name
-        end AS stu_name,
-
+            else subquery.stu_name
+       end AS stu_name,
        subquery.subject_id AS subject_id,
        subquery.subject_name AS subject_name,
        subquery.subject_sub_id AS subject_sub_id,
@@ -17,24 +15,30 @@ select subquery.stu_id AS stu_id,
        subquery.lesson_fee AS lesson_fee,
        subquery.lesson_fee_adjusted AS lesson_fee_adjusted,
        subquery.minutes_per_lsn AS minutes_per_lsn,
-       subquery.pay_style AS pay_style 
+       subquery.pay_style AS pay_style, 
+       subquery.adjusted_date AS adjusted_date
 from (
-    select v_info_student_document.stu_id AS stu_id,
-    v_info_student_document.stu_name AS stu_name,
-    v_info_student_document.subject_id AS subject_id,
-    v_info_student_document.subject_name AS subject_name,
-    v_info_student_document.subject_sub_id AS subject_sub_id,
-    v_info_student_document.subject_sub_name AS subject_sub_name,
-    v_info_student_document.adjusted_date AS adjusted_date,
-    v_info_student_document.pay_style AS pay_style,
-    v_info_student_document.minutes_per_lsn AS minutes_per_lsn,
-    v_info_student_document.lesson_fee AS lesson_fee,
-    v_info_student_document.lesson_fee_adjusted AS lesson_fee_adjusted,
-    v_info_student_document.del_flg AS del_flg,
-    v_info_student_document.create_date AS create_date,
-    v_info_student_document.update_date AS update_date,
-    row_number() OVER (
-                        PARTITION BY v_info_student_document.stu_id,
-                                     v_info_student_document.subject_id 
-                                     ORDER BY v_info_student_document.adjusted_date desc 
-                      )  AS rn from v_info_student_document) subquery where ((subquery.rn = 1))
+    select vDoc.stu_id AS stu_id,
+            vDoc.stu_name AS stu_name,
+            vDoc.subject_id AS subject_id,
+            vDoc.subject_name AS subject_name,
+            vDoc.subject_sub_id AS subject_sub_id,
+            vDoc.subject_sub_name AS subject_sub_name,
+            vDoc.adjusted_date AS adjusted_date,
+            vDoc.pay_style AS pay_style,
+            vDoc.minutes_per_lsn AS minutes_per_lsn,
+            vDoc.lesson_fee AS lesson_fee,
+            vDoc.lesson_fee_adjusted AS lesson_fee_adjusted,
+            vDoc.del_flg AS del_flg,
+            vDoc.create_date AS create_date,
+            vDoc.update_date AS update_date,
+            row_number() OVER (
+                                PARTITION BY vDoc.stu_id,
+                                            vDoc.subject_id 
+                                            ORDER BY vDoc.adjusted_date desc 
+                            )  AS rn 
+    from v_info_student_document vDoc
+    ) subquery 
+where subquery.rn = 1
+-- 价格调整日期小于系统当前日期，防止学生下一学期调整的科目不合时机的出现
+and subquery.adjusted_date < CURDATE()

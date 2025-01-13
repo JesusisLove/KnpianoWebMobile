@@ -97,7 +97,7 @@ class HomePageState extends State<HomePage> {
         return [
           setButton(
             iconData: Icons.payment,
-            text: "课费支付管理",
+            text: "学费支付管理",
             onPressed: () {
               // Navigator.push(context, MaterialPageRoute(builder: (context) => const StuFinancialPage()));
               Navigator.push(
@@ -106,10 +106,28 @@ class HomePageState extends State<HomePage> {
                       builder: (context) => StudentNameMenuCommon(
                             knBgColor: consts.Constants.lsnfeeThemeColor,
                             knFontColor: Colors.white,
-                            pagePath: "课费支付管理>>在课学生一览",
+                            pagePath: "学费支付管理>>在课学生一览",
                             pageId: Constants.stuLsnFeeListPage,
-                            strUri:
-                                '${Constants.apiStuNameByYear}/${DateTime.now().year}',
+                            strUri: '${Constants.apiStuNameByYear}/${DateTime.now().year}',
+                          )));
+            },
+            bgcolor: consts.Constants.lsnfeeThemeColor,
+          ),
+          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+
+          setButton(
+            iconData: Icons.forward,
+            text: "学费预先支付",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const StudentNameMenuCommon(
+                            knBgColor: consts.Constants.lsnfeeThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "学费预先支付>>在课学生一览",
+                            pageId: Constants.kn02F003AdvcLsnFeePayPage,
+                            strUri: Constants.apiCurrentStuName,
                           )));
             },
             bgcolor: consts.Constants.lsnfeeThemeColor,
@@ -117,8 +135,6 @@ class HomePageState extends State<HomePage> {
           const SizedBox(
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
 
-          // setButton(iconData: Icons.forward, text: "提前支付学费", onPressed: () {}, bgcolor: consts.Constants.lsnfeeThemeColor,),
-          // const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.assessment,
             text: "学费月度报告",
@@ -317,8 +333,7 @@ class HomePageState extends State<HomePage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: '上课管理'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.attach_money), label: '学费管理'),
+          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '学费管理'),
           BottomNavigationBarItem(icon: Icon(Icons.engineering), label: '档案管理'),
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
