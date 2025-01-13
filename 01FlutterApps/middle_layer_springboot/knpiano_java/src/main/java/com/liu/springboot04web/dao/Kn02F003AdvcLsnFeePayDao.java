@@ -21,6 +21,11 @@ public class Kn02F003AdvcLsnFeePayDao {
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
+    //取得当前在课学生名单列表
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayStuInfo() {
+        return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayStuInfo();
+    } 
+
     public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayLsnInfo (String stuId, String yearMonth) {
         return kn02F003LsnFeeAdvcPayMapper.getAdvcFeePayLsnInfo(stuId, yearMonth);
     }

@@ -196,7 +196,7 @@ public class Kn01L002LsnController{
     public String lessonMemo(@PathVariable("lessonid") String id, Model model) {
 
         // 拿到该课程信息
-        Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
+        // Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
         // 备注更新
         
         return "redirect:/kn_lsn_001_all";

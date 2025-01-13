@@ -10,6 +10,9 @@ import java.util.Map;
 
 public interface Kn02F003AdvcLsnFeePayMapper {
 
+
+    public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayStuInfo();
+
     public List<Kn02F003AdvcLsnFeePayBean> getAdvcFeePayLsnInfo(@Param("stuId") String stuId,
                                                                 @Param("yearMonth") String yearMonth);
 

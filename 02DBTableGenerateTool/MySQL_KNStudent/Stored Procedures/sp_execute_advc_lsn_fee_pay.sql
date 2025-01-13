@@ -52,7 +52,7 @@ BEGIN
     SET v_schedual_date = p_schedual_datetime;
 
     -- 步骤 1: 检查 v_info_lesson 表
-    SET v_current_step = '检查 v_info_lesson';
+    SET v_current_step = '1 检查 v_info_lesson';
     SELECT COUNT(*) INTO v_count
     FROM v_info_lesson
     WHERE stu_id = p_stu_id
@@ -87,7 +87,7 @@ BEGIN
 
     -- 步骤 2: 插入到 t_info_lesson（仅对新lesson执行）
     IF v_is_new_lesson THEN
-        SET v_current_step = '插入到 t_info_lesson';
+        SET v_current_step = '2 插入到 t_info_lesson';
         INSERT INTO t_info_lesson (
             lesson_id, stu_id, subject_id, subject_sub_id, 
             class_duration, lesson_type, schedual_type, schedual_date
@@ -102,7 +102,7 @@ BEGIN
     END IF;
 
     -- 步骤 3: 插入到 t_info_lesson_fee
-    SET v_current_step = '插入到 t_info_lesson_fee';
+    SET v_current_step = '3 插入到 t_info_lesson_fee';
     SET v_lsn_fee_id = CONCAT(p_fee_seq_code, nextval(p_fee_seq_code));
     SET v_lsn_month = DATE_FORMAT(v_schedual_date, '%Y-%m');
 
@@ -117,7 +117,7 @@ BEGIN
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- 步骤 4: 插入到 t_info_lesson_pay
-    SET v_current_step = '插入到 t_info_lesson_pay';
+    SET v_current_step = '4 插入到 t_info_lesson_pay';
     SET v_lsn_pay_id = CONCAT(p_pay_seq_code, nextval(p_pay_seq_code));
 
     INSERT INTO t_info_lesson_pay (
@@ -136,7 +136,7 @@ BEGIN
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
     -- 步骤 5: 插入到 t_info_lsn_fee_advc_pay
-    SET v_current_step = '插入到 t_info_lsn_fee_advc_pay';
+    SET v_current_step = '5 插入到 t_info_lsn_fee_advc_pay';
     INSERT INTO t_info_lsn_fee_advc_pay (
         lesson_id, lsn_fee_id, lsn_pay_id, advance_pay_date
     ) VALUES (
@@ -153,7 +153,7 @@ BEGIN
     COMMIT;
     SET p_result = 1;
 
-    SET v_current_step = '存储过程完成';
+    SET v_current_step = '6 存储过程完成';
     INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, '成功');
 

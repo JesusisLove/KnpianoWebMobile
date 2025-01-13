@@ -20,8 +20,8 @@ class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
   late String pagePath;
 
   Kn02F003AdvcLsnFeePayPage({
-    super.key, 
-    required this.stuId, 
+    super.key,
+    required this.stuId,
     required this.stuName,
     required this.knBgColor,
     required this.knFontColor,
@@ -61,10 +61,12 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
       final decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> data = json.decode(decodedBody);
       setState(() {
-        bankList = data.map((item) => {
-          'bankId': item['bankId'],
-          'bankName': item['bankName'],
-        }).toList();
+        bankList = data
+            .map((item) => {
+                  'bankId': item['bankId'],
+                  'bankName': item['bankName'],
+                })
+            .toList();
       });
     } else {
       print('Failed to load bank list');
@@ -254,7 +256,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
               ),
             ),
           );
-          
+
           // 延迟一小段时间后关闭当前页面
           Future.delayed(const Duration(seconds: 2), () {
             Navigator.of(context).pop(true); // 关闭当前页面，返回上一级
@@ -269,6 +271,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
       showErrorDialog('网络错误：$e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -293,7 +296,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 年月选择和检索按钮
+            // 年月选择和推算排课日期按钮
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -344,7 +347,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       minimumSize: const Size(80, controlHeight),
                     ),
                     child: const Text(
-                      '检索',
+                      '推算排课日期',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -395,10 +398,12 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       ),
                       child: DropdownButton<String>(
                         value: selectedBank,
-                        items: bankList.map((bank) => DropdownMenuItem<String>(
-                          value: bank['bankId'],
-                          child: Text(bank['bankName'], style: const TextStyle(color: Colors.red)),
-                        )).toList(),
+                        items: bankList
+                            .map((bank) => DropdownMenuItem<String>(
+                                  value: bank['bankId'],
+                                  child: Text(bank['bankName'], style: const TextStyle(color: Colors.red)),
+                                ))
+                            .toList(),
                         onChanged: (value) {
                           setState(() {
                             selectedBank = value;
@@ -419,7 +424,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                       minimumSize: const Size(120, controlHeight),
+                      minimumSize: const Size(120, controlHeight),
                     ), // 修改：使用新的executeAdvcLsnPay方法
                     child: const Text(
                       '课费预支付',
@@ -502,11 +507,7 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
   @override
   Widget build(BuildContext context) {
     bool datePassed = isDatePassed();
-    String displayDate = widget.item.schedualDate.isNotEmpty 
-        ? widget.item.schedualDate 
-        : (selectedDate != null && selectedTime != null 
-            ? "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${selectedTime!.format(context)}"
-            : "");
+    String displayDate = widget.item.schedualDate.isNotEmpty ? widget.item.schedualDate : (selectedDate != null && selectedTime != null ? "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${selectedTime!.format(context)}" : "");
 
     return CheckboxListTile(
       value: widget.item.isChecked,

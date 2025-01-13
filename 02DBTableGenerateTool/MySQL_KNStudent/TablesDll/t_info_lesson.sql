@@ -16,6 +16,8 @@ CREATE TABLE `t_info_lesson` (
   PRIMARY KEY (`lesson_id`),
   KEY `fk_lesson_stu_id` (`stu_id`),
   KEY `fk_lesson_subject_id` (`subject_id`),
+  KEY `fk_stu_document_subject_id` (`subject_id`),
   CONSTRAINT `fk_lesson_stu_id` FOREIGN KEY (`stu_id`) REFERENCES `t_mst_student` (`stu_id`),
-  CONSTRAINT `fk_lesson_subject_id` FOREIGN KEY (`subject_id`) REFERENCES `t_mst_subject` (`subject_id`)
+  CONSTRAINT `fk_lesson_subject_id` FOREIGN KEY (`subject_id`) REFERENCES `t_mst_subject` (`subject_id`),
+  CONSTRAINT `fk_stu_document_subject_id` FOREIGN KEY (`subject_id`) REFERENCES `t_info_student_cocument` (`subject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
