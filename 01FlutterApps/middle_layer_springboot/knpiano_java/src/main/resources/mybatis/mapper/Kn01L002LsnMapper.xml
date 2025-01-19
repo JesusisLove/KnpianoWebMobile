@@ -149,6 +149,13 @@ https://mybatis.org/mybatis-3/getting-started.html
         where lesson_id = #{lessonId}
     </update>
 
+    <update id="updateLessonTime">
+        <!-- 更新当日的上课时间 -->
+        update t_info_lesson Set schedual_date = #{schedualDate}
+        where lesson_id = #{lessonId}
+    </update>
+    
+
     <insert id="insertInfo" keyColumn="">
         insert into t_info_lesson (
             lesson_id,

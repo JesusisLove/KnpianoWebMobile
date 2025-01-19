@@ -112,6 +112,11 @@ public class Kn01L002LsnDao {
         undoNewLsnFee(knLsn001Bean);
     }
 
+    public int updateLessonTime(Kn01L002LsnBean knLsn001Bean) {
+        // 更新当日的上课时间
+        return knLsn001Mapper.updateLessonTime(knLsn001Bean);
+    }
+
     /**
      *  过期的科目，签到不可（比如1月上钢琴3级，现在是5月份都已經上4级的钢琴课，3级的课已经不再上了
      *  这个时候，把1月份为签到的课，在5月份执行签到的时候，这个3级的课就是过期的科目），不予执行签到。
