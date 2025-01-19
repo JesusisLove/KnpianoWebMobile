@@ -153,6 +153,26 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(duration);
     }
 
+    @PostMapping("/mb_kn_lsn_updatetime")
+    public ResponseEntity<String> updateLessonTime(@RequestBody Kn01L002LsnBean requestBody) {
+
+        try {
+            // 模拟更新操作，可以替换为实际的服务逻辑
+            int isUpdated = kn01L002LsnDao.updateLessonTime(requestBody);
+
+            if (isUpdated > 0) {
+                return ResponseEntity.ok("Lesson time updated successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to update lesson time");
+            }
+        } catch (Exception e) {
+            // 捕获异常并返回错误响应
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
+    }
+
     // 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息
     @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_latest_subjects/{stuId}")

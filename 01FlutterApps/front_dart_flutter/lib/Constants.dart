@@ -19,6 +19,8 @@ class Constants {
 // 新规排课页面，从学生档案表视图中取得该学生正在上的所有科目信息
   static const String apiLatestSubjectsnUrl = '/liu/mb_kn_latest_subjects';
 
+  static const String apiUpdateLessonTime = '/liu/mb_kn_lsn_updatetime';
+
 // 课程表画面一览，课程签到请求
   static const String apiStuLsnSign = '/liu/mb_kn_lsn_001_lsn_sign';
 

@@ -52,4 +52,6 @@ public interface Kn01L002LsnMapper  {
     // 手机前端：XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息
     public List<Kn01L002LsnBean> getScanSQLsnInfoByYear(@Param("stuId") String stuId,
             @Param("year") String year);
+
+    public int updateLessonTime(Kn01L002LsnBean knLsn001Bean);
 }
