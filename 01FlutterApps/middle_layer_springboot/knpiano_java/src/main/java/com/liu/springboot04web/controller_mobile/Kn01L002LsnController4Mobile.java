@@ -155,11 +155,8 @@ public class Kn01L002LsnController4Mobile {
 
     @PostMapping("/mb_kn_lsn_updatetime")
     public ResponseEntity<String> updateLessonTime(@RequestBody Kn01L002LsnBean requestBody) {
-
         try {
-            // 模拟更新操作，可以替换为实际的服务逻辑
             int isUpdated = kn01L002LsnDao.updateLessonTime(requestBody);
-
             if (isUpdated > 0) {
                 return ResponseEntity.ok("Lesson time updated successfully");
             } else {

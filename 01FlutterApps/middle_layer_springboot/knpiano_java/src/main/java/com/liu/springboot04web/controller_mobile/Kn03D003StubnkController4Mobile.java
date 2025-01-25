@@ -12,13 +12,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import com.liu.springboot04web.bean.Kn03D003BnkBean;
 import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.dao.Kn03D003StubnkDao;
+import com.liu.springboot04web.mapper.Kn03D003BnkMapper;
 
 @Controller
 public class Kn03D003StubnkController4Mobile {
     @Autowired
     Kn03D003StubnkDao Kn03D003StubnkDao;
+    @Autowired
+    Kn03D003BnkMapper kn03D003BnkMapper;
 
     @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_03d003_students_by_bankid/{bankId}")
@@ -31,9 +36,13 @@ public class Kn03D003StubnkController4Mobile {
     // 学费记账的画面初期表示里，用到该生名下ta的银行名称
     @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_03d003_banks_by_stuid/{stuId}")
-    public ResponseEntity<Collection<Kn03D003StubnkBean>> getStuBankList2(@PathVariable("stuId") String stuId) {
-        // 获取目前所有科目信息显示在画面一览上
-        Collection<Kn03D003StubnkBean> collection = Kn03D003StubnkDao.getInfoById(stuId);
+    public ResponseEntity<Collection<Kn03D003BnkBean>> getStuBankList2(@PathVariable("stuId") String stuId) {
+        /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
+        // // 获取该学生的银行信息
+        // Collection<Kn03D003StubnkBean> collection = Kn03D003StubnkDao.getInfoById(stuId);
+        /* ↑↑↑↑↑↑↑↑　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑　*/
+
+        Collection<Kn03D003BnkBean> collection = kn03D003BnkMapper.getInfoList();
         return ResponseEntity.ok(collection);
     }
 

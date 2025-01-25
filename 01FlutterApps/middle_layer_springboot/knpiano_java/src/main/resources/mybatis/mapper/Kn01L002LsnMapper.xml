@@ -40,24 +40,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,memo
         from v_info_lesson 
         where substring(schedual_date,1,10) = #{schedualDate}
-        union all
-        select 
-            lesson_id
-            ,stu_id
-            ,subject_id
-            ,subject_sub_id
-            ,stu_name
-            ,subject_name
-            ,subject_sub_name
-            ,class_duration
-            ,lesson_type
-            ,schedual_date
-            ,scanQR_date
-            ,lsn_adjusted_date
-            ,extra_to_dur_date
-            ,memo
-        from v_info_lesson 
-        where substring(lsn_adjusted_date,1,10) = #{schedualDate}
+           or substring(lsn_adjusted_date,1,10) = #{schedualDate}
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
@@ -150,12 +133,18 @@ https://mybatis.org/mybatis-3/getting-started.html
     </update>
 
     <update id="updateLessonTime">
-        <!-- 更新当日的上课时间 -->
-        update t_info_lesson Set schedual_date = #{schedualDate}
+        update t_info_lesson 
+        <choose>
+            <when test="lsnAdjustedDate != null">
+                Set lsn_adjusted_date = #{lsnAdjustedDate}
+            </when>
+            <otherwise>
+                Set schedual_date = #{schedualDate}
+            </otherwise>
+        </choose>
         where lesson_id = #{lessonId}
     </update>
     
-
     <insert id="insertInfo" keyColumn="">
         insert into t_info_lesson (
             lesson_id,

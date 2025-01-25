@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean;
-import com.liu.springboot04web.bean.Kn03D003StubnkBean;
+import com.liu.springboot04web.bean.Kn03D003BnkBean;
+// import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.dao.Kn02F003AdvcLsnFeePayDao;
 import com.liu.springboot04web.dao.Kn03D003StubnkDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
+import com.liu.springboot04web.mapper.Kn03D003BnkMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -40,6 +42,8 @@ public class Kn02F003AdvcLsnFeePayController {
 
     @Autowired
     Kn02F003AdvcLsnFeePayDao kn02F003LsnFeeAdvcPayDao;
+    @Autowired
+    Kn03D003BnkMapper kn03D003BnkMapper;
     @Autowired
     Kn03D004StuDocDao kn03D004StuDocDao;
     @Autowired
@@ -121,12 +125,6 @@ public class Kn02F003AdvcLsnFeePayController {
             if (!hasPaid(bean)) {
                 // 对每个bean进行处理
                 kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
-
-
-
-
-
-
                 
             } else {
                 // 如果有重复，则返回更新不可消息
@@ -155,10 +153,10 @@ public class Kn02F003AdvcLsnFeePayController {
 
     // 学生银行下拉列表框初期化
     private Map<String, String> getStuBnkCodeValueMap(String stuId) {
-        Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
-
+        // Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
+        Collection<Kn03D003BnkBean> collection = kn03D003BnkMapper.getInfoList();
         Map<String, String> map = new HashMap<>();
-        for (Kn03D003StubnkBean bean : collection) {
+        for (Kn03D003BnkBean bean : collection) {
             map.put(bean.getBankId(), bean.getBankName());
         }
         return map;
