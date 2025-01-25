@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, unnecessary_null_comparison, avoid_print, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +13,178 @@ import 'AddCourseDialog.dart';
 import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
 import 'RescheduleLessonDialog.dart';
+import 'package:flutter/rendering.dart';
+
+// 调课对话框组件
+class RescheduleLessonTimeDialog extends StatefulWidget {
+  final DateTime initialDate;
+  final String initialTime;
+  final Function(String) onSave;
+
+  const RescheduleLessonTimeDialog({
+    Key? key,
+    required this.initialDate,
+    required this.initialTime,
+    required this.onSave,
+  }) : super(key: key);
+
+  @override
+  _RescheduleLessonTimeDialogState createState() => _RescheduleLessonTimeDialogState();
+}
+
+class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog> {
+  late TimeOfDay selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    final timeParts = widget.initialTime.split(':');
+    selectedTime = TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+  }
+
+  bool _isValidTime(TimeOfDay time) {
+    if (time.hour < 8 || time.hour > 22) return false;
+    return [0, 15, 30, 45].contains(time.minute);
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          ),
+        );
+      },
+    );
+
+    if (picked != null && _isValidTime(picked)) {
+      setState(() {
+        selectedTime = picked;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  '将该课调至',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const Text('选择日期：'),
+            const SizedBox(height: 8),
+            AbsorbPointer(
+              absorbing: true,
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: '选择日期',
+                  suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                controller: TextEditingController(
+                  text: DateFormat('yyyy-MM-dd').format(widget.initialDate),
+                ),
+                enabled: false,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text('选择时间：'),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => _selectTime(context),
+              child: AbsorbPointer(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: '选择时间',
+                    suffixIcon: const Icon(Icons.access_time),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  controller: TextEditingController(
+                    text: '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE091A0),
+                  minimumSize: const Size(120, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () async {
+                  final String newTime = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+                  try {
+                    await widget.onSave(newTime);
+                    if (mounted) {
+                      Navigator.of(context).pop(true);
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('保存失败: $e')),
+                      );
+                    }
+                    rethrow;
+                  }
+                },
+                child: const Text(
+                  '保存',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class CalendarPage extends StatefulWidget {
   final String focusedDay;
@@ -25,6 +197,7 @@ class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay;
   late DateTime _selectedDay;
+  String? currentHighlightedTime;
 
   List<Kn01L002LsnBean> studentLsns = [];
 
@@ -55,19 +228,23 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  Future<void> _updateLessonTime(String lessonId, String newTime) async {
+  Future<void> _updateLessonTime(String lessonId, String newTime, bool isRescheduledLesson) async {
+    // 选中的课程表日期
+    final String selectedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
+    // 设置当天的调换时间
     final Map<String, dynamic> courseData = {
       'lessonId': lessonId,
-      'schedualDate': '${widget.focusedDay} $newTime',
+      // 如果是调课From的课程，则将schedualDate，设置schedualDate为空
+      'schedualDate': isRescheduledLesson ? '' : '$selectedDate $newTime',
+      // 如果是调课From的课程，把调课时间设置给lsnAdjustedDate
+      'lsnAdjustedDate': isRescheduledLesson ? '$selectedDate $newTime' : '',
     };
 
     try {
-      // final String updateUrl = '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}/$lessonId';
       final String updateUrl = '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
       final response = await http.post(
         Uri.parse(updateUrl),
         headers: {'Content-Type': 'application/json'},
-        // body: json.encode({'newTime': newTime}),
         body: json.encode(courseData),
       );
 
@@ -352,6 +529,12 @@ class _CalendarPageState extends State<CalendarPage> {
     String noteContent = event.memo ?? '';
     bool hasContent = noteContent.isNotEmpty;
 
+    // 创建一个TextEditingController并设置初始值和光标位置
+    final TextEditingController _controller = TextEditingController(text: noteContent)
+      ..selection = TextSelection.fromPosition(
+        TextPosition(offset: noteContent.length),
+      );
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -369,21 +552,32 @@ class _CalendarPageState extends State<CalendarPage> {
                 ],
               ),
               content: TextField(
+                controller: _controller,
                 maxLines: 3,
-                controller: TextEditingController(text: noteContent)
-                  ..selection = TextSelection.fromPosition(
-                    TextPosition(offset: noteContent.length),
-                  ),
+                // 添加以下属性以支持IME输入
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                // 确保支持多语言输入
+                enableInteractiveSelection: true,
+                // 设置输入装饰
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: '请输入备注内容',
+                  // 添加内边距使文本不会太靠边
+                  contentPadding: EdgeInsets.all(12),
                 ),
+                // 修改onChanged处理方式
                 onChanged: (value) {
                   noteContent = value;
                   setDialogState(() {
                     hasContent = value.trim().isNotEmpty;
                   });
                 },
+                // 添加文本样式
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                ),
               ),
               actions: <Widget>[
                 SizedBox(
@@ -400,7 +594,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               final response = await http.post(
                                 Uri.parse(memoUrl),
                                 headers: {
-                                  'Content-Type': 'application/json',
+                                  'Content-Type': 'application/json; charset=utf-8', // 确保指定正确的字符集
                                 },
                                 body: json.encode({
                                   'memo': noteContent,
@@ -408,7 +602,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                 }),
                               );
                               final responseData = json.decode(utf8.decode(response.bodyBytes));
-
                               if (response.statusCode == 200 && responseData['status'] == 'success') {
                                 Navigator.of(dialogContext).pop();
                                 _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
@@ -483,6 +676,7 @@ class _CalendarPageState extends State<CalendarPage> {
               lastDay: DateTime.utc(2030, 3, 14),
               focusedDay: _focusedDay,
               calendarFormat: _calendarFormat,
+              startingDayOfWeek: StartingDayOfWeek.monday, // 星期排列从Mon开始
               selectedDayPredicate: (day) {
                 return isSameDay(_selectedDay, day);
               },
@@ -528,6 +722,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 String time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
                 return TimeTile(
+                  key: ValueKey(time),
                   time: time,
                   events: getSchedualLessonForTime(time),
                   onTap: () => _handleTimeSelection(context, time),
@@ -539,7 +734,13 @@ class _CalendarPageState extends State<CalendarPage> {
                   onCancel: _handleCancelRescheCourse,
                   onAddmemo: _handleNoteCourse,
                   selectedDay: _selectedDay,
-                  onTimeChanged: _updateLessonTime, // 新增：传递时间更新方法
+                  onTimeChanged: _updateLessonTime,
+                  highlightedTime: currentHighlightedTime,
+                  onHighlightChanged: (time) {
+                    setState(() {
+                      currentHighlightedTime = time;
+                    });
+                  },
                 );
               },
             ),
@@ -550,7 +751,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 }
 
-// 修改后的 TimeTile 相关代码
+// TimeTile Widget 的定义
 class TimeTile extends StatefulWidget {
   final String time;
   final List<Kn01L002LsnBean> events;
@@ -563,7 +764,9 @@ class TimeTile extends StatefulWidget {
   final Function(Kn01L002LsnBean) onCancel;
   final Function(Kn01L002LsnBean) onAddmemo;
   final DateTime selectedDay;
-  final Function(String, String) onTimeChanged; // 新增：时间更新回调
+  final Function(String, String, bool) onTimeChanged;
+  final String? highlightedTime;
+  final Function(String) onHighlightChanged;
 
   const TimeTile({
     super.key,
@@ -578,167 +781,106 @@ class TimeTile extends StatefulWidget {
     required this.onCancel,
     required this.onAddmemo,
     required this.selectedDay,
-    required this.onTimeChanged, // 新增：构造函数参数
+    required this.onTimeChanged,
+    required this.highlightedTime,
+    required this.onHighlightChanged,
   });
 
   @override
   _TimeTileState createState() => _TimeTileState();
 }
 
-class _TimeTileState extends State<TimeTile> {
-  bool isDragging = false;
-  double verticalOffset = 0;
-  Kn01L002LsnBean? draggedEvent;
-  String? highlightedTime;
-  final GlobalKey _timeLineKey = GlobalKey();
-  double? _timeSlotHeight;
+class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin {
+  GlobalKey timeLineKey = GlobalKey();
+  String? pressedLessonId;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  bool _isSaving = false; // 新增：保存状态标志
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateTimeSlotHeight();
-    });
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
   }
 
-  void _calculateTimeSlotHeight() {
-    final RenderBox? renderBox = _timeLineKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      setState(() {
-        _timeSlotHeight = renderBox.size.height;
-        print('Time slot height: $_timeSlotHeight');
-      });
-    }
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
-  // 处理长按开始，添加触觉反馈
+  // 修改：调整长按处理逻辑
   void _handleLongPressStart(Kn01L002LsnBean event) async {
     if (!_isGrayBackground(event)) {
       await HapticFeedback.heavyImpact();
       setState(() {
-        isDragging = true;
-        draggedEvent = event;
+        pressedLessonId = event.lessonId;
+        _isSaving = false;
       });
-    }
-  }
+      _fadeController.reset();
 
-  // 处理拖动更新，使用卡片上边缘计算时间
-  void _handleDragUpdate(LongPressMoveUpdateDetails details) {
-    if (isDragging && draggedEvent != null) {
-      // 获取ListView在屏幕上的位置
-      final RenderBox listBox = context.findRenderObject() as RenderBox;
-      final listPosition = listBox.localToGlobal(Offset.zero);
+      // 获取当前卡片所在的时间位置
+      final String currentTime = widget.time; // 直接使用时间轴上的时间
+      // 判断是否有调课From
+      final isRescheduledLesson = (event.lsnAdjustedDate.isNotEmpty == true);
 
-      // 获取8:00时间轴的位置
-      final firstTimeSlotBox = _timeLineKey.currentContext?.findRenderObject() as RenderBox?;
-      final firstTimeSlotPosition = firstTimeSlotBox?.localToGlobal(Offset.zero);
+      final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return RescheduleLessonTimeDialog(
+            initialDate: widget.selectedDay,
+            initialTime: currentTime, // 使用时间轴上的时间
+            onSave: (String newTime) async {
+              try {
+                setState(() {
+                  _isSaving = true;
+                });
+                await widget.onTimeChanged(event.lessonId, newTime, isRescheduledLesson);
+                return true;
+              } catch (e) {
+                setState(() {
+                  _isSaving = false;
+                });
+                rethrow;
+              }
+            },
+          );
+        },
+      );
 
-      if (firstTimeSlotPosition != null) {
-        // 计算拖动点相对于8:00时间轴的垂直距离
-        final verticalDistance = details.globalPosition.dy - firstTimeSlotPosition.dy;
-
-        // 计算滚动偏移
-        final ScrollableState? scrollable = Scrollable.maybeOf(context);
-        final scrollOffset = scrollable?.position.pixels ?? 0;
-
-        // 考虑所有offset后计算实际位置
-        final adjustedPosition = verticalDistance + scrollOffset;
-
-        // 每15分钟的实际高度(根据UI计算)
-        final quarterHourHeight = 28.0; // 可以通过实际测量得到这个值
-
-        // 计算时间槽
-        final timeSlot = (adjustedPosition / quarterHourHeight).floor();
-
-        // 计算对应时间
-        final int totalMinutes = (timeSlot * 15) + (8 * 60);
-        final int hour = totalMinutes ~/ 60;
-        final int minute = totalMinutes % 60;
-
-        if (hour >= 8 && hour < 22) {
+      if (result == true && mounted) {
+        // 保存成功，开始2秒计时后执行渐变动画
+        Future.delayed(const Duration(seconds: 10), () {
+          if (mounted && _isSaving) {
+            _fadeController.forward().then((_) {
+              if (mounted) {
+                setState(() {
+                  pressedLessonId = null;
+                  _isSaving = false;
+                });
+              }
+            });
+          }
+        });
+      } else {
+        // 取消或关闭对话框，直接清除状态
+        if (mounted) {
           setState(() {
-            verticalOffset = details.offsetFromOrigin.dy;
-            highlightedTime = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-            print('Adjusted position: $adjustedPosition, '
-                'Time slot: $timeSlot, '
-                'Vertical distance: $verticalDistance, '
-                'Scroll offset: $scrollOffset, '
-                'Time: $highlightedTime');
+            pressedLessonId = null;
+            _isSaving = false;
           });
         }
       }
     }
   }
 
-  // 处理拖动结束
-  void _handleDragEnd(LongPressEndDetails details) async {
-    if (isDragging && draggedEvent != null && highlightedTime != null) {
-      // 显示更新进度对话框
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Center(
-            child: Card(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 20),
-                    Text('正在更新上课时间...'),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
-
-      try {
-        // 调用父组件提供的更新方法
-        await widget.onTimeChanged(draggedEvent!.lessonId, highlightedTime!);
-
-        // 成功后提供触觉反馈
-        await HapticFeedback.mediumImpact();
-
-        if (context.mounted) {
-          // 关闭进度对话框
-          Navigator.of(context).pop();
-
-          // 显示成功提示
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('上课时间更新成功'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          // 关闭进度对话框
-          Navigator.of(context).pop();
-
-          // 显示错误提示
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('更新失败: $e'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-
-      // 重置状态
-      setState(() {
-        isDragging = false;
-        draggedEvent = null;
-        verticalOffset = 0;
-        highlightedTime = null;
-      });
-    }
+  void _handleLongPressEnd() {
+    // 长按结束时不立即清除边框
   }
 
   bool _isGrayBackground(Kn01L002LsnBean event) {
@@ -757,33 +899,33 @@ class _TimeTileState extends State<TimeTile> {
     bool hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
     bool hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
 
-    bool isGray = ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) || ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) || ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
-
-    return isGray;
+    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) || ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) || ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isHighlighted = widget.time == widget.highlightedTime;
+
     if (widget.events.isEmpty) {
       return GestureDetector(
         onTap: widget.onTap,
-        child: SizedBox(
-          key: _timeLineKey,
-          height: 20, // 这里保持固定高度作为基准
+        child: Container(
+          key: timeLineKey,
+          color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
           child: _buildTimeLine(),
         ),
       );
     }
 
-    return GestureDetector(
-      onTap: widget.onTap,
+    return Container(
+      color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              key: _timeLineKey,
+              key: timeLineKey,
               child: _buildTimeLine(),
             ),
             ...widget.events.map((event) => _buildEventTile(context, event)),
@@ -794,8 +936,6 @@ class _TimeTileState extends State<TimeTile> {
   }
 
   Widget _buildTimeLine() {
-    final isCurrentTimeHighlighted = widget.time == highlightedTime;
-
     return Row(
       children: [
         SizedBox(
@@ -804,31 +944,31 @@ class _TimeTileState extends State<TimeTile> {
             padding: const EdgeInsets.only(left: 0, right: 0),
             child: Align(
               alignment: Alignment.centerRight,
-              child: _buildTimeText(isHighlighted: isCurrentTimeHighlighted),
+              child: _buildTimeText(),
             ),
           ),
         ),
         Expanded(
           child: Container(
-            height: isCurrentTimeHighlighted ? 2.0 : 0.5,
-            color: isCurrentTimeHighlighted ? Colors.blue : Colors.grey.shade300,
+            height: 0.5,
+            color: Colors.grey.shade300,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTimeText({bool isHighlighted = false}) {
+  Widget _buildTimeText() {
     final isFullHour = widget.time.endsWith(':00');
-    const backgroundColor = Colors.white; // 用于隐藏非整点时间的小时部分
+    const backgroundColor = Colors.white;
 
     if (isFullHour) {
       return Text(
         widget.time,
-        style: TextStyle(
-          fontSize: isHighlighted ? 13 : 11,
-          fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w300,
-          color: isHighlighted ? Colors.blue : Colors.black,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w300,
+          color: Colors.black,
         ),
       );
     } else {
@@ -836,19 +976,19 @@ class _TimeTileState extends State<TimeTile> {
         text: TextSpan(
           children: [
             TextSpan(
-              text: widget.time.substring(0, 3), // 小时部分和冒号
-              style: TextStyle(
-                fontSize: isHighlighted ? 12 : 10,
-                fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w300,
-                color: backgroundColor, // 使用白色使其不可见
+              text: widget.time.substring(0, 3),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w300,
+                color: Colors.white,
               ),
             ),
             TextSpan(
-              text: widget.time.substring(3), // 分钟部分
-              style: TextStyle(
-                fontSize: isHighlighted ? 12 : 10,
-                fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w300,
-                color: isHighlighted ? Colors.blue : Colors.black,
+              text: widget.time.substring(3),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w300,
+                color: Colors.black,
               ),
             ),
           ],
@@ -865,24 +1005,20 @@ class _TimeTileState extends State<TimeTile> {
     final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
     final hasBeenSigned = event.scanQrDate != null && event.scanQrDate.isNotEmpty;
 
-    final isScheduledUnsignedLsn = ((selectedDayStr == eventScheduleDateStr) && !hasBeenRescheduled && !hasBeenSigned);
-    final isScheduledSignedLsn = ((selectedDayStr == eventScheduleDateStr) && !hasBeenRescheduled && hasBeenSigned);
+    final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && !hasBeenSigned;
+    final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && hasBeenSigned;
 
-    final isAdjustedUnSignedLsnFrom = ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled && (selectedDayStr != eventAdjustedDateStr) && !hasBeenSigned);
-    final isAdjustedSignedLsnFrom = ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled && (selectedDayStr != eventAdjustedDateStr) && hasBeenSigned);
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
+    final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && hasBeenSigned;
 
-    final isAdjustedUnSignedLsnTo = ((selectedDayStr != eventScheduleDateStr) && hasBeenRescheduled && (selectedDayStr == eventAdjustedDateStr) && !hasBeenSigned);
-
-    final isAdjustedSignedLsnTo = ((selectedDayStr != eventScheduleDateStr) && hasBeenRescheduled && (selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
+    final isAdjustedUnSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && !hasBeenSigned;
+    final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && hasBeenSigned;
 
     Color backgroundColor;
     Color textColor = Colors.black;
     String additionalInfo = '';
 
-    if (isAdjustedUnSignedLsnFrom) {
-      backgroundColor = Colors.grey.shade300;
-      additionalInfo = '调课To：${event.lsnAdjustedDate}';
-    } else if (isAdjustedSignedLsnFrom) {
+    if (isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom) {
       backgroundColor = Colors.grey.shade300;
       additionalInfo = '调课To：${event.lsnAdjustedDate}';
     } else if (isAdjustedUnSignedLsnTo) {
@@ -903,228 +1039,259 @@ class _TimeTileState extends State<TimeTile> {
     if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
       textDecoration = TextDecoration.lineThrough;
     }
-
-    bool isGray = _isGrayBackground(event);
-    bool isCurrentDragging = isDragging && draggedEvent?.lessonId == event.lessonId;
-
     return GestureDetector(
       onLongPressStart: (_) => _handleLongPressStart(event),
-      onLongPressMoveUpdate: !isGray ? _handleDragUpdate : null,
-      onLongPressEnd: !isGray ? _handleDragEnd : null,
-      child: Transform.translate(
-        offset: isCurrentDragging ? Offset(0, verticalOffset) : Offset.zero,
-        child: Card(
-          elevation: isCurrentDragging ? 8 : 2,
-          margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
-          color: backgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: isCurrentDragging ? const BorderSide(color: Colors.red, width: 2.0) : BorderSide.none,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.stuName,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor, decoration: textDecoration),
+      onLongPressEnd: (_) => _handleLongPressEnd(),
+      child: Card(
+        elevation: 2,
+        margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
+        color: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: pressedLessonId == event.lessonId && _isSaving
+              ? BorderSide(
+                  color: Colors.red.withOpacity(_fadeAnimation.value),
+                  width: 2.0,
+                )
+              : BorderSide.none,
+        ),
+        child: AnimatedBuilder(
+          animation: _fadeAnimation,
+          builder: (context, child) {
+            return Padding(
+              padding: const EdgeInsets.all(8),
+              child: child!,
+            );
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.stuName,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        decoration: textDecoration,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              '${event.subjectName} - ${event.subjectSubName}',
-                              style: TextStyle(fontSize: 12, color: textColor, decoration: textDecoration),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            '${event.subjectName} - ${event.subjectSubName}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: textColor,
+                              decoration: textDecoration,
                             ),
                           ),
-                          if (additionalInfo.isNotEmpty)
-                            Expanded(
-                              flex: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 0),
-                                child: Text(
-                                  additionalInfo,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.black54,
-                                    fontStyle: FontStyle.italic,
-                                  ),
+                        ),
+                        if (additionalInfo.isNotEmpty)
+                          Expanded(
+                            flex: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 0),
+                              child: Text(
+                                additionalInfo,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.black54,
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
-                              style: TextStyle(fontSize: 11, color: textColor, decoration: textDecoration),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: textColor,
+                              decoration: textDecoration,
                             ),
                           ),
-                          if (event.memo != null && event.memo!.isNotEmpty)
-                            Expanded(
-                              flex: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 0),
-                                child: Text(
-                                  '备注: ${event.memo}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.black54,
-                                  ),
+                        ),
+                        if (event.memo != null && event.memo!.isNotEmpty)
+                          Expanded(
+                            flex: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 0),
+                              child: Text(
+                                '备注: ${event.memo}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.black54,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.black),
-                  onSelected: (String result) {
-                    switch (result) {
-                      case '签到':
-                        widget.onSign(event);
-                        break;
-                      case '撤销':
-                        widget.onRestore(event);
-                        break;
-                      case '修改':
-                        widget.onEdit(event);
-                        break;
-                      case '调课':
-                        widget.onReschLsn(event);
-                        break;
-                      case '取消':
-                        widget.onCancel(event);
-                        break;
-                      case '删除':
-                        widget.onDelete(event);
-                        break;
-                      case '备注':
-                        widget.onAddmemo(event);
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
-                      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
-                        return [
-                          const PopupMenuItem<String>(
-                            value: '撤销',
-                            height: 36,
-                            child: Text('撤销', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      } else {
-                        return [
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      }
-                    } else {
-                      if (isAdjustedUnSignedLsnFrom) {
-                        return <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: '修改',
-                            height: 36,
-                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '调课',
-                            height: 36,
-                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '取消',
-                            height: 36,
-                            child: Text('取消', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '删除',
-                            height: 36,
-                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      } else {
-                        return <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                            value: '签到',
-                            enabled: !widget.selectedDay.isAfter(DateTime.now()),
-                            height: 36,
-                            child: Text('签到', style: TextStyle(fontSize: 11.5, color: widget.selectedDay.isAfter(DateTime.now()) ? Colors.grey : null)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '修改',
-                            height: 36,
-                            child: Text('修改', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '调课',
-                            height: 36,
-                            child: Text('调课', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: '删除',
-                            height: 36,
-                            child: Text('删除', style: TextStyle(fontSize: 11.5)),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: '备注',
-                            height: 36,
-                            child: Text('备注', style: TextStyle(fontSize: 11.5)),
-                          ),
-                        ];
-                      }
-                    }
-                  },
-                  constraints: const BoxConstraints(
-                    minWidth: 50,
-                    maxWidth: 60,
-                  ),
-                  position: PopupMenuPosition.under,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.zero,
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.black),
+                onSelected: (String result) {
+                  switch (result) {
+                    case '签到':
+                      widget.onSign(event);
+                      break;
+                    case '撤销':
+                      widget.onRestore(event);
+                      break;
+                    case '修改':
+                      widget.onEdit(event);
+                      break;
+                    case '调课':
+                      widget.onReschLsn(event);
+                      break;
+                    case '取消':
+                      widget.onCancel(event);
+                      break;
+                    case '删除':
+                      widget.onDelete(event);
+                      break;
+                    case '备注':
+                      widget.onAddmemo(event);
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => _buildPopupMenuItems(event),
+                constraints: const BoxConstraints(
+                  minWidth: 50,
+                  maxWidth: 60,
                 ),
-              ],
-            ),
+                position: PopupMenuPosition.under,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  List<PopupMenuEntry<String>> _buildPopupMenuItems(Kn01L002LsnBean event) {
+    if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
+      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+        return [
+          const PopupMenuItem<String>(
+            value: '撤销',
+            height: 36,
+            child: Text('撤销', style: TextStyle(fontSize: 11.5)),
+          ),
+          const PopupMenuItem<String>(
+            value: '备注',
+            height: 36,
+            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+          ),
+        ];
+      } else {
+        return [
+          const PopupMenuItem<String>(
+            value: '备注',
+            height: 36,
+            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+          ),
+        ];
+      }
+    }
+
+    // 检查是否为已调课但未签到的课程
+    final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
+    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
+    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
+
+    final hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
+    final hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
+
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
+
+    if (isAdjustedUnSignedLsnFrom) {
+      return <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: '修改',
+          height: 36,
+          child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuDivider(height: 1),
+        const PopupMenuItem<String>(
+          value: '调课',
+          height: 36,
+          child: Text('调课', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuItem<String>(
+          value: '取消',
+          height: 36,
+          child: Text('取消', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuDivider(height: 1),
+        const PopupMenuItem<String>(
+          value: '删除',
+          height: 36,
+          child: Text('删除', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuDivider(height: 1),
+        const PopupMenuItem<String>(
+          value: '备注',
+          height: 36,
+          child: Text('备注', style: TextStyle(fontSize: 11.5)),
+        ),
+      ];
+    } else {
+      return <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          value: '签到',
+          enabled: !widget.selectedDay.isAfter(DateTime.now()),
+          height: 36,
+          child: Text(
+            '签到',
+            style: TextStyle(fontSize: 11.5, color: widget.selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
+          ),
+        ),
+        const PopupMenuDivider(height: 1),
+        const PopupMenuItem<String>(
+          value: '修改',
+          height: 36,
+          child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuItem<String>(
+          value: '调课',
+          height: 36,
+          child: Text('调课', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuItem<String>(
+          value: '删除',
+          height: 36,
+          child: Text('删除', style: TextStyle(fontSize: 11.5)),
+        ),
+        const PopupMenuDivider(height: 1),
+        const PopupMenuItem<String>(
+          value: '备注',
+          height: 36,
+          child: Text('备注', style: TextStyle(fontSize: 11.5)),
+        ),
+      ];
+    }
   }
 }

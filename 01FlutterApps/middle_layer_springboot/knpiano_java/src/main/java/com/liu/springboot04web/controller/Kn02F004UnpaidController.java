@@ -6,9 +6,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F004UnpaidBean;
-import com.liu.springboot04web.bean.Kn03D003StubnkBean;
+import com.liu.springboot04web.bean.Kn03D003BnkBean;
+// import com.liu.springboot04web.bean.Kn03D003StubnkBean;
 import com.liu.springboot04web.dao.Kn02F004UnpaidDao;
 import com.liu.springboot04web.dao.Kn03D003StubnkDao;
+import com.liu.springboot04web.mapper.Kn03D003BnkMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -29,6 +31,8 @@ public class Kn02F004UnpaidController{
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
     Collection<Kn02F004UnpaidBean> unPaidStuList;
 
+    @Autowired
+    Kn03D003BnkMapper kn03D003BnkMapper;
     @Autowired
     Kn03D003StubnkDao kn05S002StubnkDao;
     @Autowired
@@ -133,11 +137,15 @@ public class Kn02F004UnpaidController{
         // 根据课费编号，取得未支付的课费信息
         Kn02F004UnpaidBean knLsnUnPaid001Bean = knLsnUnPaid001Dao.getLsnUnpayByID(lsnFeeId);
 
-        // 取得该生的银行信息
-        String stuId = knLsnUnPaid001Bean.getStuId();
-        // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
-        Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
-        model.addAttribute("bankMap", stuBankMap);
+        /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
+        // // 取得该生的银行信息
+        // String stuId = knLsnUnPaid001Bean.getStuId();
+        // // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
+        // Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
+        /* ↑↑↑↑↑↑↑↑　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑　*/
+        
+        Map<String, String> bankMap = getTeacherBnkCodeValueMap();
+        model.addAttribute("bankMap", bankMap);
 
         // 将学生交费信息响应送给前端
         model.addAttribute("selectedinfo", knLsnUnPaid001Bean);
@@ -166,17 +174,27 @@ public class Kn02F004UnpaidController{
         knLsnUnPaid001Dao.excuteLsnPay(knLsnUnPaid001Bean);
         return "redirect:/kn_lsn_unpaid_001_all";
     }
-
-    // 学生银行下拉列表框初期化
-    private Map<String, String> getStuBnkCodeValueMap(String stuId) {
-        Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
+    
+    // 老师银行下拉列表框初期化
+    private Map<String, String> getTeacherBnkCodeValueMap() {
+        Collection<Kn03D003BnkBean> collection = kn03D003BnkMapper.getInfoList();
 
         Map<String, String> map = new HashMap<>();
-        for (Kn03D003StubnkBean bean : collection) {
+        for (Kn03D003BnkBean bean : collection) {
             map.put(bean.getBankId(), bean.getBankName());
         }
         return map;
     }
+
+    // // 学生银行下拉列表框初期化 暂时不要删除
+    // private Map<String, String> getStuBnkCodeValueMap(String stuId) {
+    //     Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
+    //     Map<String, String> map = new HashMap<>();
+    //     for (Kn03D003StubnkBean bean : collection) {
+    //         map.put(bean.getBankId(), bean.getBankName());
+    //     }
+    //     return map;
+    // }
 
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
     private Map<String, String> getResultsTabStus(Collection<Kn02F004UnpaidBean> collection) {
@@ -202,11 +220,16 @@ public class Kn02F004UnpaidController{
             // 将学生交费信息响应送给前端
             model.addAttribute("selectedinfo", knLsnUnPaid001Bean);
 
-            // 取得该生的银行信息
-            String stuId = knLsnUnPaid001Bean.getStuId();
-            // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
-            Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
-            model.addAttribute("bankMap", stuBankMap);
+            /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
+            // // 取得该生的银行信息
+            // String stuId = knLsnUnPaid001Bean.getStuId();
+            // // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
+            // Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
+            // model.addAttribute("bankMap", stuBankMap);
+            /* ↑↑↑↑↑↑↑↑　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑　*/
+
+            Map<String, String> bankMap = getTeacherBnkCodeValueMap();
+            model.addAttribute("bankMap", bankMap);
 
             // 将错误消息显示在画面上
             model.addAttribute("errorMessageList", msgList);
