@@ -51,3 +51,14 @@ app.*.map.json
 /front_dart_flutter/test/
 /front_dart_flutter/web/
 /front_dart_flutter/windows/
+
+.metadata/
+pubspec.lock
+*.kt
+gradle-wrapper.properties
+build-request.json
+*.msgpack
+manifest.json
+target-graph.txt
+*.pbxproj
+*.swift
