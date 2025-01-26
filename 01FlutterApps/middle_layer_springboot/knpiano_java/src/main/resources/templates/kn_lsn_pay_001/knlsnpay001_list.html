@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+    <!-- <script src="knScriptfunctions.js"></script> -->
+    <!-- src
+    └── main
+        └── resources
+            └── static
+                └── knScriptfunctions.js 
+    -->
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            background-color: #28a745; /* 绿色背景 */
+            color: white; /* 白色文字 */
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #28a745 #28a745 #fff;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_pay_001_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+
+            <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_lsn_pay_001/search}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (payMap!= null ? payMap['selectedyear'] : '')}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px;">
+                        <label>月份</label>
+                        <select class="form-control" id="monthSelect" name="selectedmonth">
+                            <!-- 默认选项由JavaScript动态生成 -->
+                            <option th:each="month : ${knmonthlist}" 
+                                    th:value="${month}" 
+                                    th:text="${month}" 
+                                    th:selected="${month == (payMap!= null ? payMap['selectedmonth'] : currentmonth)}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" th:if="${selectedinfo==null}" style="margin-left: 20px;">
+                        <label>学生姓名</label> 
+                        <select class="form-control" id="studentSelect" name="stuId">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">検 索</button>
+                   </div>
+                </div>
+                
+                <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有学生的已支付信息！</p>
+                </div>
+
+            </form> 
+            <!-- 选项卡内容 -->
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}" 
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="kn_lsn_pay_001/tab_pay_by_stu :: paidFeeTable(${entry.key}, ${entry.value})"></div>
+                </div>
+            </div>
+        </main>
+        <!-- 削除処理-->
+        <form id="deleteEmpForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</div>
+<!--Bootstrap core JavaScrip
+=============================-->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<!-- Icons -->
+
+<!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+<script>
+    $(".deleteBtn").click(function() {
+        if (confirm('真的要撤销吗？')) {
+            //thisが削除ボタンである
+            let del_uri = $(this).attr("liu_del_uri");
+            //対象フォームのsubmitを実行する
+            $("#deleteEmpForm").attr("action",del_uri).submit();
+            return false;
+        }
+    });
+</script>
+<script th:inline="javascript">
+    // 从后端传递的要付费的学生数据
+    var jsonStuSubList = /*[[${paidStuList}]]*/ [];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        // 初期化结算课程的学生
+        var studentSelect = document.getElementById('studentSelect');
+        var selectedStuId = /*[[${payMap != null ? payMap['stuId'] : ''}]]*/ '';
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                // 设置选中项
+                if (item.stuId === selectedStuId) {  // 使用严格等于
+                    option.selected = true;
+                }
+                studentSelect.add(option);
+            }
+        });
+    };
+</script>
+</body>
+</html>

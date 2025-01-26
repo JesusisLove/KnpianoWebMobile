@@ -1,0 +1,49 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### 01FlutterApps/middle_layer_springboot ###
+/middle_layer_springboot/demo_study/
+/middle_layer_springboot/knpiano_java/target/
+/middle_layer_springboot/.vscode/
+
+.metadata/
+pubspec.lock
+*.kt
+gradle-wrapper.properties
+build-request.json
+*.msgpack
+manifest.json
+target-graph.txt
+*.pbxproj
+*.swift
