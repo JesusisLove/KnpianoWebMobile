@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn02f005_all_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <hr/>
+            <h2 th:text="${currentyear} + '年度月收入报表'"></h2>
+            <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn02f005_all}" method="get">
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="lsnfeeyear">年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="year" th:value="${currentyear}">
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == currentyear}"></option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>月份</th>
+                        <th>应支付金额</th>
+                        <th>已支付金额</th>
+                        <th>未支付金额</th>
+                        <th>操作</th>
+                   </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="info:${infoList}">
+                        <td th:text="${#strings.substring(info.lsnMonth, 5, 7)}"></td>
+                        <td>[[${info.shouldPayLsnFee}]]</td>
+                        <td>[[${info.hasPaidLsnFee}]]</td>
+                        <td>[[${info.unpaidLsnFee}]]</td>
+                        <td>
+                        <a class="btn btn-sm btn-primary" th:href="@{/kn02f005_unpaid_details/}+${info.lsnMonth}" methods="GET">详细</a> 
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        <!-- 削除処理-->
+        <form id="deleteEmpForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</div>
+<!--Bootstrap core JavaScrip
+=============================-->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var currentYear = /*[[${currentyear}]]*/ '2024';
+    /*]]>*/
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var yearSelect = document.getElementById('lsnfeeyear');
+        
+        yearSelect.addEventListener('change', function() {
+            var selectedYear = this.value;
+            var baseUrl = /*[[@{/kn02f005_all/}]]*/ '/kn02f005_all/';
+            window.location.href = baseUrl + selectedYear;
+        });
+
+        // 确保选择框显示当前年份
+        if (currentYear) {
+            yearSelect.value = currentYear;
+        }
+    });
+</script>
+</body>
+</html>

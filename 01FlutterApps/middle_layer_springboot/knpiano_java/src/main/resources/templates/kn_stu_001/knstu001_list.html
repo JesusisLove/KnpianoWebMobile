@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn_stu_001_link_active')}"></div>
+       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <hr/>
+                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_stu_001}">学生新規登録</a></h2>
+           <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_stu_001/search}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="stuId" name="stuId" th:value="${studentMap != null ? studentMap['stuId'] : ''}" placeholder="学生番号">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="stuName" name="stuName" th:value="${studentMap != null ? studentMap['stuName'] : ''}" placeholder="学生名前">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="gender" name="gender" th:value="${studentMap != null ? studentMap['gender'] : ''}" placeholder="性別">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="birthday" name="birthday" th:value="${studentMap != null ? studentMap['birthday'] : ''}" placeholder="誕生日">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="tel1" name="tel1" th:value="${studentMap != null ? studentMap['tel1'] : ''}" placeholder="電話番号１">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="tel2" name="tel2" th:value="${studentMap != null ? studentMap['tel2'] : ''}" placeholder="電話番号２">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="tel3" name="tel3" th:value="${studentMap != null ? studentMap['tel3'] : ''}" placeholder="電話番号３">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="tel4" name="tel4" th:value="${studentMap != null ? studentMap['tel4'] : ''}" placeholder="電話番号４">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="address" name="address" th:value="${studentMap != null ? studentMap['address'] : ''}" placeholder="住所">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="postCode" name="postCode" th:value="${studentMap != null ? studentMap['postCode'] : ''}" placeholder="郵便番号">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="introducer" name="introducer" th:value="${studentMap != null ? studentMap['introducer'] : ''}" placeholder="紹介者">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="date" class="form-control" id="createDate" name="createDate">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="date" class="form-control" id="updateDate" name="updateDate">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">検索</button>
+            </form> 
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <!-- 明細部 -->
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>学生番号</th>
+                        <th>学生名前</th>
+                        <th>性別</th>
+                        <th>誕生日</th>
+                        <th>電話番号１</th>
+                        <th>電話番号２</th>
+                        <th>電話番号３</th>
+                        <th>電話番号４</th>
+                        <th>住所</th>
+                        <th>郵便番号</th>
+                        <th>紹介者</th>
+                        <th>作成日</th>
+                        <th>更新日</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="info:${infoList}">
+                        <td>[[${info.stuId}]]</td>
+                        <td>[[${info.stuName}]]</td>
+                        <td th:text="${info.gender == 1 ? '男' : '女'}"></td>
+                        <td>[[${info.birthday}]]</td>
+                        <td>[[${info.tel1}]]</td>
+                        <td>[[${info.tel2}]]</td>
+                        <td>[[${info.tel3}]]</td>
+                        <td>[[${info.tel4}]]</td>
+                        <td>[[${info.address}]]</td>
+                        <td>[[${info.postCode}]]</td>
+                        <td>[[${info.introducer}]]</td>
+                        <td th:text="${#dates.format(info.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                        <td th:text="${#dates.format(info.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" th:href="@{/kn_stu_001/}+${info.stuId}" 
+                                methods="GET">変更</a> 
+                            <button class="btn btn-sm btn-danger deleteBtn" 
+                                    th:attr="student_del_uri=@{/kn_stu_001/}+${info.stuId},student_id=${info.stuId},student_name=${info.stuName}">削除</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        <!-- 削除処理-->
+        <form id="deleteStudentForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<!-- 削除プロセス -->
+<script>
+   $(".deleteBtn").click(function() {
+        let del_uri = $(this).attr("student_del_uri");
+        let stuId = $(this).attr("student_id");
+        let stuName = $(this).attr("student_name");
+        // 固定排课记录检查
+        $.ajax({
+            url: "/liu/kn_fixlsn_check/search",
+            method: "GET",
+            data: { stuId: stuId },
+            dataType: 'json', // 假设后端返回JSON数据
+            success: function(response) {
+                // 假设后端返回的JSON对象中包含fixedLessonList
+                let fixedLessonList = response.fixedLessonList;
+                console.log("获取到的固定课程列表:", fixedLessonList);
+                if (fixedLessonList && fixedLessonList.length > 0) {
+                    // 有固定排课记录，显示确认对话框
+                    if (confirm(`該生${stuName}目前有固定排課記録，削除該生会将Ta的固定排課記録一緒に削除，你確定要執行削除吗？`)) {
+                        executeDelete(del_uri);
+                    }
+                } else {
+                    // 没有固定排课记录，直接执行删除
+                    if (confirm('本当に削除しますか？')) {
+                        executeDelete(del_uri);
+                    }
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX请求失败:", textStatus, errorThrown);
+                alert("固定排課記録の確認中にエラーが発生しました。");
+            }
+        });
+    });
+
+    function executeDelete(del_uri) {
+        $("#deleteStudentForm").attr("action", del_uri).submit();
+    }
+</script>
+</body>
+</html>
