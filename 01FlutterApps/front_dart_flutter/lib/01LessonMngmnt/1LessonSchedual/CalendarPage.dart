@@ -29,17 +29,20 @@ class RescheduleLessonTimeDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RescheduleLessonTimeDialogState createState() => _RescheduleLessonTimeDialogState();
+  _RescheduleLessonTimeDialogState createState() =>
+      _RescheduleLessonTimeDialogState();
 }
 
-class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog> {
+class _RescheduleLessonTimeDialogState
+    extends State<RescheduleLessonTimeDialog> {
   late TimeOfDay selectedTime;
 
   @override
   void initState() {
     super.initState();
     final timeParts = widget.initialTime.split(':');
-    selectedTime = TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+    selectedTime = TimeOfDay(
+        hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
   }
 
   bool _isValidTime(TimeOfDay time) {
@@ -113,7 +116,8 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
               child: TextFormField(
                 decoration: InputDecoration(
                   hintText: '选择日期',
-                  suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+                  suffixIcon:
+                      const Icon(Icons.calendar_today, color: Colors.grey),
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
@@ -139,7 +143,8 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
                     ),
                   ),
                   controller: TextEditingController(
-                    text: '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                    text:
+                        '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
                   ),
                 ),
               ),
@@ -155,7 +160,8 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
                   ),
                 ),
                 onPressed: () async {
-                  final String newTime = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+                  final String newTime =
+                      '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
                   try {
                     await widget.onSave(newTime);
                     if (mounted) {
@@ -211,14 +217,17 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Future<void> _fetchStudentLsn(String schedualDate) async {
     try {
-      final String apilsnInfoByDayUrl = '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
+      final String apilsnInfoByDayUrl =
+          '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
       final response = await http.get(Uri.parse(apilsnInfoByDayUrl));
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> responseStuLsnsJson = json.decode(decodedBody);
         setState(() {
-          studentLsns = responseStuLsnsJson.map((json) => Kn01L002LsnBean.fromJson(json)).toList();
+          studentLsns = responseStuLsnsJson
+              .map((json) => Kn01L002LsnBean.fromJson(json))
+              .toList();
         });
       } else {
         throw Exception('Failed to load archived lessons of the day');
@@ -228,7 +237,8 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  Future<void> _updateLessonTime(String lessonId, String newTime, bool isRescheduledLesson) async {
+  Future<void> _updateLessonTime(
+      String lessonId, String newTime, bool isRescheduledLesson) async {
     // 选中的课程表日期
     final String selectedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     // 设置当天的调换时间
@@ -241,7 +251,8 @@ class _CalendarPageState extends State<CalendarPage> {
     };
 
     try {
-      final String updateUrl = '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
+      final String updateUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
       final response = await http.post(
         Uri.parse(updateUrl),
         headers: {'Content-Type': 'application/json'},
@@ -262,39 +273,43 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
     return studentLsns.where((event) {
-      String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-      String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16 ? event.schedualDate.substring(11, 16) : '';
+      String eventScheduleDateStr =
+          event.schedualDate != null && event.schedualDate.length >= 10
+              ? event.schedualDate.substring(0, 10)
+              : '';
+      String eventTime1 =
+          event.schedualDate != null && event.schedualDate.length >= 16
+              ? event.schedualDate.substring(11, 16)
+              : '';
 
-      String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
-      String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16 ? event.lsnAdjustedDate.substring(11, 16) : '';
+      String eventAdjustedDateStr =
+          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+              ? event.lsnAdjustedDate.substring(0, 10)
+              : '';
+      String eventTime2 =
+          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
+              ? event.lsnAdjustedDate.substring(11, 16)
+              : '';
 
-      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) || (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
+      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) ||
+          (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
     }).toList();
   }
 
   void _handleTimeSelection(BuildContext context, String time) {
     String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Date: $formattedDate, Time: $time')),
-    );
-
-    List<Kn01L002LsnBean> eventsForTime = getSchedualLessonForTime(time);
-
-    if (eventsForTime.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
-        },
-      ).then((result) {
-        if (result == true) {
-          setState(() {
-            _fetchStudentLsn(formattedDate);
-          });
-        }
-      });
-    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
+      },
+    ).then((result) {
+      if (result == true) {
+        setState(() {
+          _fetchStudentLsn(formattedDate);
+        });
+      }
+    });
   }
 
   void _handleEditCourse(Kn01L002LsnBean event) {
@@ -318,7 +333,8 @@ class _CalendarPageState extends State<CalendarPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('执行签到确认'),
-          content: Text('签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
+          content: Text(
+              '签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
           actions: <Widget>[
             TextButton(
               child: const Text('取消'),
@@ -329,7 +345,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
+                final String signUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
                 try {
                   final response = await http.get(
                     Uri.parse(signUrl),
@@ -339,7 +356,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -373,7 +391,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
+                final String signUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
                 try {
                   final response = await http.get(
                     Uri.parse(signUrl),
@@ -383,7 +402,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -454,7 +474,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
                 try {
                   final response = await http.post(
                     Uri.parse(deleteUrl),
@@ -464,7 +485,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -498,7 +520,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
                 try {
                   final response = await http.delete(
                     Uri.parse(deleteUrl),
@@ -508,7 +531,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -530,10 +554,11 @@ class _CalendarPageState extends State<CalendarPage> {
     bool hasContent = noteContent.isNotEmpty;
 
     // 创建一个TextEditingController并设置初始值和光标位置
-    final TextEditingController _controller = TextEditingController(text: noteContent)
-      ..selection = TextSelection.fromPosition(
-        TextPosition(offset: noteContent.length),
-      );
+    final TextEditingController _controller =
+        TextEditingController(text: noteContent)
+          ..selection = TextSelection.fromPosition(
+            TextPosition(offset: noteContent.length),
+          );
 
     showDialog(
       context: context,
@@ -585,26 +610,32 @@ class _CalendarPageState extends State<CalendarPage> {
                   height: 40,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: hasContent ? Colors.pink[100] : Colors.grey[300],
+                      backgroundColor:
+                          hasContent ? Colors.pink[100] : Colors.grey[300],
                     ),
                     onPressed: hasContent
                         ? () async {
                             try {
-                              final String memoUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
+                              final String memoUrl =
+                                  '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
                               final response = await http.post(
                                 Uri.parse(memoUrl),
                                 headers: {
-                                  'Content-Type': 'application/json; charset=utf-8', // 确保指定正确的字符集
+                                  'Content-Type':
+                                      'application/json; charset=utf-8', // 确保指定正确的字符集
                                 },
                                 body: json.encode({
                                   'memo': noteContent,
                                   'lessonId': event.lessonId,
                                 }),
                               );
-                              final responseData = json.decode(utf8.decode(response.bodyBytes));
-                              if (response.statusCode == 200 && responseData['status'] == 'success') {
+                              final responseData =
+                                  json.decode(utf8.decode(response.bodyBytes));
+                              if (response.statusCode == 200 &&
+                                  responseData['status'] == 'success') {
                                 Navigator.of(dialogContext).pop();
-                                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                                _fetchStudentLsn(DateFormat('yyyy-MM-dd')
+                                    .format(_selectedDay));
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('备注更新成功'),
@@ -612,9 +643,11 @@ class _CalendarPageState extends State<CalendarPage> {
                                   ),
                                 );
                               } else {
-                                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                ScaffoldMessenger.of(dialogContext)
+                                    .showSnackBar(
                                   SnackBar(
-                                    content: Text('备注更新失败: ${responseData['message'] ?? '未知错误'}'),
+                                    content: Text(
+                                        '备注更新失败: ${responseData['message'] ?? '未知错误'}'),
                                     backgroundColor: Colors.red,
                                     duration: const Duration(seconds: 3),
                                   ),
@@ -707,7 +740,8 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Text(
               DateFormat('yyyy年MM月dd日').format(_selectedDay),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -719,7 +753,8 @@ class _CalendarPageState extends State<CalendarPage> {
               itemBuilder: (context, index) {
                 int hour = 8 + (index ~/ 4);
                 int minute = (index % 4) * 15;
-                String time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+                String time =
+                    '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
                 return TimeTile(
                   key: ValueKey(time),
@@ -790,7 +825,8 @@ class TimeTile extends StatefulWidget {
   _TimeTileState createState() => _TimeTileState();
 }
 
-class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin {
+class _TimeTileState extends State<TimeTile>
+    with SingleTickerProviderStateMixin {
   GlobalKey timeLineKey = GlobalKey();
   String? pressedLessonId;
   late AnimationController _fadeController;
@@ -804,7 +840,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+    _fadeAnimation =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
   }
 
   @override
@@ -840,7 +877,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                 setState(() {
                   _isSaving = true;
                 });
-                await widget.onTimeChanged(event.lessonId, newTime, isRescheduledLesson);
+                await widget.onTimeChanged(
+                    event.lessonId, newTime, isRescheduledLesson);
                 return true;
               } catch (e) {
                 setState(() {
@@ -899,38 +937,35 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
     bool hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
     bool hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
 
-    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) || ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) || ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
+    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) ||
+        ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) ||
+        ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
   }
 
   @override
   Widget build(BuildContext context) {
     bool isHighlighted = widget.time == widget.highlightedTime;
-
-    if (widget.events.isEmpty) {
-      return GestureDetector(
-        onTap: widget.onTap,
-        child: Container(
-          key: timeLineKey,
-          color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
-          child: _buildTimeLine(),
-        ),
-      );
-    }
-
-    return Container(
-      color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              key: timeLineKey,
-              child: _buildTimeLine(),
-            ),
-            ...widget.events.map((event) => _buildEventTile(context, event)),
-          ],
-        ),
+    return GestureDetector(
+      // 将GestureDetector移到最外层
+      onTap: widget.onTap,
+      child: Container(
+        color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
+        child: widget.events.isEmpty
+            ? _buildTimeLine()
+            : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      key: timeLineKey,
+                      child: _buildTimeLine(),
+                    ),
+                    ...widget.events
+                        .map((event) => _buildEventTile(context, event)),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -999,20 +1034,44 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
+    final eventScheduleDateStr =
+        event.schedualDate != null && event.schedualDate.length >= 10
+            ? event.schedualDate.substring(0, 10)
+            : '';
+    final eventAdjustedDateStr =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+            ? event.lsnAdjustedDate.substring(0, 10)
+            : '';
 
-    final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
-    final hasBeenSigned = event.scanQrDate != null && event.scanQrDate.isNotEmpty;
+    final hasBeenRescheduled =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
+    final hasBeenSigned =
+        event.scanQrDate != null && event.scanQrDate.isNotEmpty;
 
-    final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && !hasBeenSigned;
-    final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && hasBeenSigned;
+    final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        !hasBeenSigned;
+    final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        hasBeenSigned;
 
-    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
-    final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && hasBeenSigned;
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
+    final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        hasBeenSigned;
 
-    final isAdjustedUnSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && !hasBeenSigned;
-    final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && hasBeenSigned;
+    final isAdjustedUnSignedLsnTo = selectedDayStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr == eventAdjustedDateStr &&
+        !hasBeenSigned;
+    final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr == eventAdjustedDateStr &&
+        hasBeenSigned;
 
     Color backgroundColor;
     Color textColor = Colors.black;
@@ -1036,7 +1095,9 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
     }
 
     TextDecoration textDecoration = TextDecoration.none;
-    if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
+    if (isScheduledSignedLsn ||
+        isAdjustedSignedLsnFrom ||
+        isAdjustedSignedLsnTo) {
       textDecoration = TextDecoration.lineThrough;
     }
     return GestureDetector(
@@ -1173,7 +1234,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                       break;
                   }
                 },
-                itemBuilder: (BuildContext context) => _buildPopupMenuItems(event),
+                itemBuilder: (BuildContext context) =>
+                    _buildPopupMenuItems(event),
                 constraints: const BoxConstraints(
                   minWidth: 50,
                   maxWidth: 60,
@@ -1193,7 +1255,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
   List<PopupMenuEntry<String>> _buildPopupMenuItems(Kn01L002LsnBean event) {
     if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
-      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) ==
+          event.scanQrDate) {
         return [
           const PopupMenuItem<String>(
             value: '撤销',
@@ -1219,13 +1282,22 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
     // 检查是否为已调课但未签到的课程
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
+    final eventScheduleDateStr =
+        event.schedualDate != null && event.schedualDate.length >= 10
+            ? event.schedualDate.substring(0, 10)
+            : '';
+    final eventAdjustedDateStr =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+            ? event.lsnAdjustedDate.substring(0, 10)
+            : '';
 
     final hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
     final hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
 
-    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
 
     if (isAdjustedUnSignedLsnFrom) {
       return <PopupMenuEntry<String>>[
@@ -1266,7 +1338,11 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
           height: 36,
           child: Text(
             '签到',
-            style: TextStyle(fontSize: 11.5, color: widget.selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
+            style: TextStyle(
+                fontSize: 11.5,
+                color: widget.selectedDay.isAfter(DateTime.now())
+                    ? Colors.grey
+                    : null),
           ),
         ),
         const PopupMenuDivider(height: 1),
