@@ -1,64 +1,20 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
+# 忽略所有文件
+*
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# 只跟踪这些文件
+!*.dart
+!*.yml
+!*.json
+
+# 忽略特定目录
 .idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-### 01FlutterApps/front_dart_flutter ###
-*.metadata
-/front_dart_flutter/android/
-/front_dart_flutter/ios/
-/front_dart_flutter/macos/
-/front_dart_flutter/linux/
-/front_dart_flutter/test/
-/front_dart_flutter/web/
-/front_dart_flutter/windows/
-
-.metadata/
-pubspec.lock
-*.kt
-gradle-wrapper.properties
-build-request.json
-*.msgpack
-manifest.json
-target-graph.txt
-*.pbxproj
-*.swift
+.vscode/
+android/
+build/
+ios/
+linux/
+macos/
+test/
+web/
+windows/
