@@ -391,11 +391,25 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 // 修改: 调整日期选择器的样式
                 GestureDetector(
                   onTap: () async {
+                    // 获取当前时间
+                    DateTime now = DateTime.now();
+                    // 设置可选时间范围为当前年份的全年
+                    DateTime firstDate = DateTime(now.year, 1, 1);
+                    DateTime lastDate = DateTime(now.year, 12, 31);
+
                     final DateTime? picked = await showDatePicker(
                       context: context,
                       initialDate: selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2025),
+                      firstDate: firstDate,
+                      lastDate: lastDate,
+                      selectableDayPredicate: (DateTime date) {
+                        // 判断这个日期在这个月的第几天
+                        int dayOfMonth = date.day;
+                        // 只要是这个月的日期就返回true
+                        return dayOfMonth >= 1 && dayOfMonth <= 31;
+                      },
+                      initialEntryMode:
+                          DatePickerEntryMode.calendarOnly, // 直接显示日历视图
                     );
                     if (picked != null && picked != selectedDate) {
                       setState(() {
