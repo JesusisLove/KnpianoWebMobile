@@ -76,7 +76,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   void initState() {
     super.initState();
     int currentYear = DateTime.now().year;
-    years = List.generate(currentYear - 2017 + 1, (index) => currentYear - index);
+    years =
+        List.generate(currentYear - 2017 + 1, (index) => currentYear - index);
     selectedYear = currentYear;
     widget.pagePath = '${widget.pagePath} >> 加课消化管理';
     futureLessons = fetchLessons();
@@ -109,9 +110,16 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
 
   void updateCounts() {
     setState(() {
-      paidCount = allLessons.where((lesson) => lesson.extraToDurDate.isEmpty && lesson.payFlg == 1).length;
-      unpaidCount = allLessons.where((lesson) => lesson.extraToDurDate.isEmpty && lesson.payFlg == 0).length;
-      convertedCount = allLessons.where((lesson) => lesson.extraToDurDate.isNotEmpty).length;
+      paidCount = allLessons
+          .where(
+              (lesson) => lesson.extraToDurDate.isEmpty && lesson.payFlg == 1)
+          .length;
+      unpaidCount = allLessons
+          .where(
+              (lesson) => lesson.extraToDurDate.isEmpty && lesson.payFlg == 0)
+          .length;
+      convertedCount =
+          allLessons.where((lesson) => lesson.extraToDurDate.isNotEmpty).length;
     });
   }
 
@@ -243,11 +251,19 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () async {
+                        // 获取当前日期
+                        DateTime now = DateTime.now();
+// 计算本年年底
+                        DateTime yearEnd = DateTime(now.year, 12, 31);
+// 计算合适的初始日期
+                        DateTime initialDate =
+                            now.isAfter(yearEnd) ? yearEnd : now;
+
                         final DateTime? picked = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2025),
+                          initialDate: initialDate,
+                          firstDate: DateTime(2020, 1, 1),
+                          lastDate: DateTime(2025, 12, 31), // 延长到2025年底
                           builder: (context, child) {
                             return Theme(
                               data: Theme.of(context).copyWith(
@@ -261,7 +277,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                         );
                         if (picked != null) {
                           setState(() {
-                            selectedDate = DateFormat('yyyy-MM-dd').format(picked);
+                            selectedDate =
+                                DateFormat('yyyy-MM-dd').format(picked);
                           });
                         }
                       },
@@ -290,18 +307,22 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                             ? null
                             : () async {
                                 try {
-                                  final requestData = lesson.toRequestMap(selectedDate);
-                                  final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.executeExtraToSche}';
+                                  final requestData =
+                                      lesson.toRequestMap(selectedDate);
+                                  final String apiUrl =
+                                      '${KnConfig.apiBaseUrl}${Constants.executeExtraToSche}';
                                   final response = await http.post(
                                     Uri.parse(apiUrl),
                                     headers: {
-                                      'Content-Type': 'application/json; charset=UTF-8',
+                                      'Content-Type':
+                                          'application/json; charset=UTF-8',
                                     },
                                     body: utf8.encode(json.encode(requestData)),
                                   );
 
                                   if (response.statusCode == 200) {
-                                    final decodedBody = utf8.decode(response.bodyBytes);
+                                    final decodedBody =
+                                        utf8.decode(response.bodyBytes);
                                     if (decodedBody == 'success') {
                                       Navigator.of(context).pop();
                                       _fetchLessonsData();
@@ -309,7 +330,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                       throw Exception(decodedBody);
                                     }
                                   } else {
-                                    final decodedBody = utf8.decode(response.bodyBytes);
+                                    final decodedBody =
+                                        utf8.decode(response.bodyBytes);
                                     throw Exception(decodedBody);
                                   }
                                 } catch (e) {
@@ -322,7 +344,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                         actions: <Widget>[
                                           TextButton(
                                             child: const Text('确定'),
-                                            onPressed: () => Navigator.of(context).pop(),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
                                           ),
                                         ],
                                       );
@@ -357,7 +380,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
 
   Future<void> _cancelLesson(Kn01L003LsnExtraBean lesson) async {
     try {
-      final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.undoExtraToSche}/${lesson.lessonId}';
+      final String apiUrl =
+          '${KnConfig.apiBaseUrl}${Constants.undoExtraToSche}/${lesson.lessonId}';
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
@@ -391,7 +415,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   }
 
   Future<List<Kn01L003LsnExtraBean>> fetchLessons() async {
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.extraToScheView}/${widget.stuId}/$selectedYear';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.extraToScheView}/${widget.stuId}/$selectedYear';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -399,7 +424,9 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> lessonsJson = json.decode(decodedBody);
-        return lessonsJson.map((json) => Kn01L003LsnExtraBean.fromJson(json)).toList();
+        return lessonsJson
+            .map((json) => Kn01L003LsnExtraBean.fromJson(json))
+            .toList();
       } else {
         throw Exception('Failed to load lessons');
       }
@@ -423,12 +450,18 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
-                    child: const Text('取消', style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('取消', style: TextStyle(color: Colors.white)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const Text('选择年份', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  const Text('选择年份',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
                   CupertinoButton(
-                    child: const Text('确定', style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('确定', style: TextStyle(color: Colors.white)),
                     onPressed: () {
                       _fetchLessonsData();
                       Navigator.of(context).pop();
@@ -445,7 +478,11 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                     selectedYear = years[index];
                   });
                 },
-                children: years.map((year) => Center(child: Text(year.toString(), style: const TextStyle(color: Colors.pink)))).toList(),
+                children: years
+                    .map((year) => Center(
+                        child: Text(year.toString(),
+                            style: const TextStyle(color: Colors.pink))))
+                    .toList(),
               ),
             ),
           ],
@@ -499,7 +536,11 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   }
 
   Widget _buildDateInfo(Kn01L003LsnExtraBean lesson, bool isPaidExtraLesson) {
-    Color textColor = lesson.payFlg == 1 ? Colors.grey : (lesson.extraToDurDate.isNotEmpty ? const Color.fromARGB(255, 167, 47, 4) : Colors.pink);
+    Color textColor = lesson.payFlg == 1
+        ? Colors.grey
+        : (lesson.extraToDurDate.isNotEmpty
+            ? const Color.fromARGB(255, 167, 47, 4)
+            : Colors.pink);
 
     if (lesson.extraToDurDate.isNotEmpty) {
       return Column(
@@ -529,7 +570,11 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
           Text(
             '调课日期: ${lesson.lsnAdjustedDate}',
             style: TextStyle(
-              color: isPaidExtraLesson ? Colors.grey : (lesson.extraToDurDate.isEmpty ? Colors.pink : Colors.orange),
+              color: isPaidExtraLesson
+                  ? Colors.grey
+                  : (lesson.extraToDurDate.isEmpty
+                      ? Colors.pink
+                      : Colors.orange),
             ),
           ),
         ],
@@ -550,8 +595,16 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
         subtitle: widget.pagePath,
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha, widget.knFontColor.red - 20, widget.knFontColor.green - 20, widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha, widget.knFontColor.red + 20, widget.knFontColor.green + 20, widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
@@ -577,7 +630,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                   final filteredLessons = getFilteredLessons();
                   return ListView.builder(
                     itemCount: filteredLessons.length,
-                    itemBuilder: (context, index) => _buildLessonCard(filteredLessons[index]),
+                    itemBuilder: (context, index) =>
+                        _buildLessonCard(filteredLessons[index]),
                   );
                 },
               ),
@@ -598,7 +652,9 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isPaidExtraLesson ? Colors.grey.withOpacity(0.3) : Colors.green.withOpacity(0.3),
+          color: isPaidExtraLesson
+              ? Colors.grey.withOpacity(0.3)
+              : Colors.green.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -636,13 +692,17 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: lesson.extraToDurDate.isNotEmpty ? const Color.fromARGB(255, 167, 47, 4).withOpacity(0.1) : Colors.pink.withOpacity(0.1),
+                color: lesson.extraToDurDate.isNotEmpty
+                    ? const Color.fromARGB(255, 167, 47, 4).withOpacity(0.1)
+                    : Colors.pink.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 lesson.extraToDurDate.isNotEmpty ? "加转正" : "月加课",
                 style: TextStyle(
-                  color: lesson.extraToDurDate.isNotEmpty ? const Color.fromARGB(255, 167, 47, 4) : Colors.pink,
+                  color: lesson.extraToDurDate.isNotEmpty
+                      ? const Color.fromARGB(255, 167, 47, 4)
+                      : Colors.pink,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -679,7 +739,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                         child: Text('撤销'),
                       ),
                     ];
-                  } else if (lesson.extraToDurDate.isEmpty && lesson.payFlg == 0) {
+                  } else if (lesson.extraToDurDate.isEmpty &&
+                      lesson.payFlg == 0) {
                     return <PopupMenuEntry<String>>[
                       const PopupMenuItem<String>(
                         value: 'digest',

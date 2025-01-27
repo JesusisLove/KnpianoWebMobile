@@ -221,7 +221,8 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                 // 获取当前选择的日期，如果没有则使用当前日期
                 DateTime currentDate = adjustmentDate ?? DateTime.now();
                 // 确保初始日期总是月初1号
-                DateTime initialDate = DateTime(currentDate.year, currentDate.month, 1);
+                DateTime initialDate =
+                    DateTime(currentDate.year, currentDate.month, 1);
 
                 final DateTime? picked = await showDatePicker(
                   context: context,
@@ -232,7 +233,8 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                     // 只允许选择每月1号
                     return date.day == 1;
                   },
-                  initialEntryMode: DatePickerEntryMode.calendarOnly, // 直接显示日历视图
+                  initialEntryMode:
+                      DatePickerEntryMode.calendarOnly, // 直接显示日历视图
                   helpText: '选择月份', // 修改标题文字为中文
                 );
                 if (picked != null) {
