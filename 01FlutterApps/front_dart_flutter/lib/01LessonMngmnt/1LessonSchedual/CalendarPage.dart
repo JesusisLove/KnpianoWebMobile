@@ -1135,7 +1135,7 @@ class _TimeTileState extends State<TimeTile>
                     Text(
                       event.stuName,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: textColor,
                         decoration: textDecoration,
@@ -1164,7 +1164,8 @@ class _TimeTileState extends State<TimeTile>
                               child: Text(
                                 additionalInfo,
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -1182,13 +1183,16 @@ class _TimeTileState extends State<TimeTile>
                           child: Text(
                             '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: textColor,
                               decoration: textDecoration,
                             ),
                           ),
                         ),
-                        if (event.memo != null && event.memo!.isNotEmpty)
+                        if (event.memo != null &&
+                            event.memo!.isNotEmpty &&
+                            (!isAdjustedUnSignedLsnTo &&
+                                !isAdjustedSignedLsnTo))
                           Expanded(
                             flex: 4,
                             child: Padding(
@@ -1196,7 +1200,8 @@ class _TimeTileState extends State<TimeTile>
                               child: Text(
                                 '备注: ${event.memo}',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                 ),
                               ),

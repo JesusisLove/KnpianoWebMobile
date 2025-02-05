@@ -1,14 +1,35 @@
 # 忽略所有文件
-/*
+#/*
 
 # 不忽略lib目录
-!/lib/
+#!/lib/
 
 # 只跟踪这些文件
-**/*.dart
-**/*.json
+#**/*.dart
+#**/*.json
 
 # 忽略特定目录
+#.idea/
+#.dart_tool/
+#.vscode/
+#android/
+#build/
+#ios/
+#linux/
+#macos/
+#test/
+#web/
+#windows/
+
+# 首先忽略所有文件
+*
+# 不忽略目录，这样我们可以递归进入目录
+!*/
+# 不忽略这些特定类型的文件
+!*.dart
+!*.json
+
+# 明确忽略这些目录
 .idea/
 .dart_tool/
 .vscode/
@@ -20,3 +41,9 @@ macos/
 test/
 web/
 windows/
+
+# 明确忽略这些特定文件
+.DS_Store
+*.xcconfig
+*.plist
+*.xcworkspacedata

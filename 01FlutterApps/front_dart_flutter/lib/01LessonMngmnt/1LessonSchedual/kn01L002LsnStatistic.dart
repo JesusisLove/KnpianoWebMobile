@@ -522,71 +522,33 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     );
   }
 
-  // 新增：构建单个课程项
-  // Widget _buildLessonItem(Kn01L002LsnBean lesson, int currentMonth) {
-  //   String lessonType = _getLessonTypeString(lesson.lessonType);
-  //   Color textColor = _getTextColor(lesson, currentMonth);
-
-  //   return Card(
-  //     margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-  //     child: ListTile(
-  //       leading: CircleAvatar(
-  //         radius: 16,
-  //         backgroundColor: Colors.green,
-  //         foregroundColor: Colors.white,
-  //         child: Text(
-  //           lesson.classDuration.toString(),
-  //           style: const TextStyle(fontSize: 15), // 设置字体大小为16
-  //         ),
-  //       ),
-  //       title: Text(
-  //         '种别: $lessonType',
-  //         style: TextStyle(
-  //             color: textColor, fontWeight: FontWeight.bold, fontSize: 14),
-  //       ),
-  //       subtitle: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text('上课日期: ${lesson.schedualDate}',
-  //               style: TextStyle(color: textColor, fontSize: 12)),
-  //           if (lesson.lsnAdjustedDate.isNotEmpty)
-  //             Text('调课日期: ${lesson.lsnAdjustedDate}',
-  //                 style: const TextStyle(color: Colors.orange, fontSize: 12)),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-// 2024-11-04 修改：修改 _buildLessonItem 方法，让"月加课"类型的课程字体显示为粉红色
   Widget _buildLessonItem(Kn01L002LsnBean lesson, int currentMonth) {
     String lessonType = getLessonTypeString(lesson);
     Color textColor = _getTextColor(lesson, currentMonth);
 
     // 2024-11-04 添加：检查是否是月加课类型
     bool isExtraLesson = lesson.lessonType == 2;
-    // bool isExtraToSche =
-    //     (lesson.lessonType == 1 && lesson.originalSchedualDate.isNotEmpty);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start, // 添加顶部对齐
           children: [
             CircleAvatar(
-              backgroundColor: Colors.green, // 保持圆圈的绿色背景不变
-              foregroundColor: Colors.white, // 保持圆圈中的文字为白色
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
               child: Text(lesson.classDuration.toString()),
             ),
             const SizedBox(width: 16),
             Expanded(
+              flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '种别: $lessonType',
-                    // 2024-11-04 修改：如果是月加课，使用粉红色
                     style: TextStyle(
                         color: isExtraLesson ? Colors.pink : textColor,
                         fontWeight: FontWeight.bold),
@@ -595,55 +557,42 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (lesson.lsnAdjustedDate.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        Text(
-                          '原定: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
-                          style: TextStyle(
-                            color: isExtraLesson ? Colors.pink : textColor,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          '调至: ${_getWeekday(lesson.lsnAdjustedDate)}  ${lesson.lsnAdjustedDate}',
-                          style: TextStyle(
-                              color:
-                                  isExtraLesson ? Colors.pink : Colors.orange),
-                        ),
-                      ],
+                    Text(
+                      '原定: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      style: TextStyle(
+                        color: isExtraLesson ? Colors.pink : textColor,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                    const SizedBox(height: 4), // 添加垂直间距
+                    Text(
+                      '调至: ${_getWeekday(lesson.lsnAdjustedDate)}  ${lesson.lsnAdjustedDate}',
+                      style: TextStyle(
+                          color: isExtraLesson ? Colors.pink : Colors.orange),
                     ),
                   ] else if (lesson.originalSchedualDate.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        Text(
-                          '原加课: ${_getWeekday(lesson.originalSchedualDate)}  ${lesson.originalSchedualDate}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          '现正课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
-                          style: TextStyle(color: textColor),
-                        ),
-                      ],
+                    Text(
+                      '原加课: ${_getWeekday(lesson.originalSchedualDate)}  ${lesson.originalSchedualDate}',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                    const SizedBox(height: 4), // 添加垂直间距
+                    Text(
+                      '现正课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      style: TextStyle(color: textColor),
                     ),
                   ] else ...[
-                    Row(
-                      children: [
-                        Text(
-                          '上课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
-                          style: TextStyle(
-                              color: isExtraLesson ? Colors.pink : textColor),
-                        ),
-                      ],
+                    Text(
+                      '上课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      style: TextStyle(
+                          color: isExtraLesson ? Colors.pink : textColor),
                     ),
                   ],
                 ],
