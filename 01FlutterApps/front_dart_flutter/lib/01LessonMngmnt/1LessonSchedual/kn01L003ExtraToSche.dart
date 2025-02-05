@@ -253,9 +253,9 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                       onTap: () async {
                         // 获取当前日期
                         DateTime now = DateTime.now();
-// 计算本年年底
+                        // 计算本年年底
                         DateTime yearEnd = DateTime(now.year, 12, 31);
-// 计算合适的初始日期
+                        // 计算合适的初始日期
                         DateTime initialDate =
                             now.isAfter(yearEnd) ? yearEnd : now;
 
