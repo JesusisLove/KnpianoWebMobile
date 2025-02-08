@@ -92,7 +92,32 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
+  Future<void> _showProcessingDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // 用户不能通过点击对话框外部来关闭
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false, // 禁止返回键关闭
+          child: const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('正在处理学费入账......'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> saveLsnPay() async {
+    // 显示“正在处理学费入账....”进度条
+    _showProcessingDialog();
+
     final String apiLsnSaveUrl =
         '${KnConfig.apiBaseUrl}${Constants.apiStuPaySave}';
     List<Kn02F004UnpaidBean> selectedFees = [];
@@ -116,6 +141,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
         body: json.encode(selectedFees),
       );
 
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭进度对话框
+      }
+
       if (response.statusCode == 200) {
         // ignore: use_build_context_synchronously
         Navigator.pop(context, true);
@@ -123,6 +153,10 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
         showErrorDialog('保存学费支付失败。错误码：${response.statusCode}');
       }
     } catch (e) {
+      // 确保发生错误时也关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭进度对话框
+      }
       showErrorDialog('网络错误：$e');
     }
   }

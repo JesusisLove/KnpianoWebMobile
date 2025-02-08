@@ -10,7 +10,8 @@ import '../../ApiConfig/KnApiConfig.dart';
 import '../../Constants.dart';
 
 class AddCourseDialog extends StatefulWidget {
-  const AddCourseDialog({super.key, required this.scheduleDate, required this.scheduleTime});
+  const AddCourseDialog(
+      {super.key, required this.scheduleDate, required this.scheduleTime});
   final String scheduleDate;
   final String scheduleTime;
   @override
@@ -41,14 +42,17 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   // 从档案表里取出入档案的学生初期化学生下拉列表框
   Future<void> _fetchStudentData() async {
     try {
-      final String apiStuDocUrl = '${KnConfig.apiBaseUrl}${Constants.stuDocInfoView}';
+      final String apiStuDocUrl =
+          '${KnConfig.apiBaseUrl}${Constants.stuDocInfoView}';
       final response = await http.get(Uri.parse(apiStuDocUrl));
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> stuDocJson = json.decode(decodedBody);
         setState(() {
-          stuDocList = stuDocJson.map((json) => Kn03D004StuDocBean.fromJson(json)).toList();
+          stuDocList = stuDocJson
+              .map((json) => Kn03D004StuDocBean.fromJson(json))
+              .toList();
         });
       } else {
         throw Exception('Failed to load archived students');
@@ -61,8 +65,10 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   // 从档案表里取入档案的学生最新的科目初期化科目下拉列表框
   Future<void> _fetchStudentSubjects(String stuId) async {
     try {
-      final String apiLatestSubjectsnUrl = '${KnConfig.apiBaseUrl}${Constants.apiLatestSubjectsnUrl}/$stuId';
-      final responseStuSubjects = await http.get(Uri.parse(apiLatestSubjectsnUrl));
+      final String apiLatestSubjectsnUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLatestSubjectsnUrl}/$stuId';
+      final responseStuSubjects =
+          await http.get(Uri.parse(apiLatestSubjectsnUrl));
 
       if (responseStuSubjects.statusCode == 200) {
         final decodedBody = utf8.decode(responseStuSubjects.bodyBytes);
@@ -86,14 +92,18 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   // 从后端取出上课时长初期化上课时长下拉列表框
   Future<void> fetchDurations() async {
     try {
-      final String apiLsnDruationUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnDruationUrl}';
+      final String apiLsnDruationUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnDruationUrl}';
       final response = await http.get(Uri.parse(apiLsnDruationUrl));
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> durationJson = json.decode(decodedBody);
         setState(() {
-          durationList = durationJson.map((durationString) => DurationBean.fromString(durationString as String)).toList();
+          durationList = durationJson
+              .map((durationString) =>
+                  DurationBean.fromString(durationString as String))
+              .toList();
         });
       } else {
         throw Exception('Failed to load duration');
@@ -158,8 +168,10 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   Future<void> _saveCourse() async {
     if (!_validateForm()) return;
 
-    final selectedStudentDoc = stuDocList.firstWhere((student) => student.stuName == selectedStudent);
-    final selectedSubjectInfo = stuSubjectsList.firstWhere((subject) => subject['subjectName'] == selectedSubject);
+    final selectedStudentDoc =
+        stuDocList.firstWhere((student) => student.stuName == selectedStudent);
+    final selectedSubjectInfo = stuSubjectsList
+        .firstWhere((subject) => subject['subjectName'] == selectedSubject);
 
     final Map<String, dynamic> courseData = {
       'stuId': selectedStudentDoc.stuId,
@@ -171,19 +183,48 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     };
 
     try {
-      final String apiLsnSaveUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在添加课程...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+      final String apiLsnSaveUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
       final response = await http.post(
         Uri.parse(apiLsnSaveUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(courseData),
       );
 
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       if (response.statusCode == 200) {
         Navigator.of(context).pop(true); // Close dialog and indicate success
       } else {
         throw Exception('Failed to save course');
       }
     } catch (e) {
+      // 如果发生错误，确保关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭进度对话框
+      }
       _showErrorDialog('保存失败: ${e.toString()}');
     }
   }
@@ -212,7 +253,10 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                   Expanded(
                     child: Text(
                       '添加课程:${widget.scheduleDate} ${widget.scheduleTime}',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor),
                     ),
                   ),
                   IconButton(
@@ -224,14 +268,15 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                 ],
               ),
               const SizedBox(height: 15),
-
               _buildDropdown(
                 label: '学生姓名',
                 value: selectedStudent,
-                items: stuDocList.map((student) => DropdownMenuItem(
-                  value: student.stuName,
-                  child: Text(student.stuName),
-                )).toList(),
+                items: stuDocList
+                    .map((student) => DropdownMenuItem(
+                          value: student.stuName,
+                          child: Text(student.stuName),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     selectedStudent = value as String?;
@@ -241,19 +286,21 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                     isRadioEnabled = false;
                   });
                   if (value != null) {
-                    final selectedStudentDoc = stuDocList.firstWhere((student) => student.stuName == value);
+                    final selectedStudentDoc = stuDocList
+                        .firstWhere((student) => student.stuName == value);
                     _fetchStudentSubjects(selectedStudentDoc.stuId);
                   }
                 },
               ),
-
               _buildDropdown(
                 label: '科目名称',
                 value: selectedSubject,
-                items: stuSubjectsList.map((subject) => DropdownMenuItem(
-                  value: subject['subjectName'] as String,
-                  child: Text(subject['subjectName'] as String),
-                )).toList(),
+                items: stuSubjectsList
+                    .map((subject) => DropdownMenuItem(
+                          value: subject['subjectName'] as String,
+                          child: Text(subject['subjectName'] as String),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() => selectedSubject = value as String?);
                   if (value != null) {
@@ -267,15 +314,17 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                   }
                 },
               ),
-
               _buildTextField(
                 label: '科目级别名称',
                 controller: TextEditingController(text: subjectLevel),
                 readOnly: true,
               ),
-
               const SizedBox(height: 10),
-              Text('上课种别', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor)),
+              Text('上课种别',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor)),
               const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -283,18 +332,19 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                   return _buildRadioButton(type, primaryColor);
                 }).toList(),
               ),
-
               const SizedBox(height: 10),
               _buildDropdown(
                 label: '上课时长',
                 value: selectedDuration,
-                items: durationList.map((DurationBean durationBean) => DropdownMenuItem(
-                  value: durationBean.minutesPerLsn,
-                  child: Text('${durationBean.minutesPerLsn} 分钟'),
-                )).toList(),
-                onChanged: (value) => setState(() => selectedDuration = value as int?),
+                items: durationList
+                    .map((DurationBean durationBean) => DropdownMenuItem(
+                          value: durationBean.minutesPerLsn,
+                          child: Text('${durationBean.minutesPerLsn} 分钟'),
+                        ))
+                    .toList(),
+                onChanged: (value) =>
+                    setState(() => selectedDuration = value as int?),
               ),
-
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -327,7 +377,11 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
+        Text(label,
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.green.shade700)),
         const SizedBox(height: 5),
         Container(
           decoration: BoxDecoration(
@@ -359,7 +413,11 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
+        Text(label,
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.green.shade700)),
         const SizedBox(height: 5),
         TextField(
           controller: controller,
@@ -383,7 +441,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   Widget _buildRadioButton(String type, Color primaryColor) {
     return InkWell(
       onTap: () {
-        if ((isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')) {
+        if ((isRadioEnabled && type != '课结算') ||
+            (courseType == '课结算' && type == '课结算')) {
           setState(() {
             courseType = type;
             if (type == '课结算') {
@@ -402,7 +461,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
           Radio<String>(
             value: type,
             groupValue: courseType,
-            onChanged: (isRadioEnabled && type != '课结算') || (courseType == '课结算' && type == '课结算')
+            onChanged: (isRadioEnabled && type != '课结算') ||
+                    (courseType == '课结算' && type == '课结算')
                 ? (String? value) {
                     setState(() {
                       courseType = value!;
@@ -410,7 +470,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                         lessonType = 0;
                       } else if (type == '月计划') {
                         lessonType = 1;
-                        } else if (type == '月加课') {
+                      } else if (type == '月加课') {
                         lessonType = 2;
                       }
                     });

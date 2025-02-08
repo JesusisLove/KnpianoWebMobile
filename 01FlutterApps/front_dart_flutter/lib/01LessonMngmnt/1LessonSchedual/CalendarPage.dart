@@ -312,20 +312,21 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
-  void _handleEditCourse(Kn01L002LsnBean event) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return EditCourseDialog(lessonId: event.lessonId);
-      },
-    ).then((result) {
-      if (result == true) {
-        setState(() {
-          _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
-        });
-      }
-    });
-  }
+  // //课程的修改功能暂时不要了 2025/02/08 先暂时保留，不要删除
+  // void _handleEditCourse(Kn01L002LsnBean event) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return EditCourseDialog(lessonId: event.lessonId);
+  //     },
+  //   ).then((result) {
+  //     if (result == true) {
+  //       setState(() {
+  //         _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+  //       });
+  //     }
+  //   });
+  // }
 
   void _handleSignCourse(Kn01L002LsnBean event) {
     showDialog(
@@ -763,7 +764,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   onTap: () => _handleTimeSelection(context, time),
                   onSign: _handleSignCourse,
                   onRestore: _handleRestoreCourse,
-                  onEdit: _handleEditCourse,
+                  // onEdit: _handleEditCourse,
                   onDelete: _handleDeleteCourse,
                   onReschLsn: _handleReschLsnCourse,
                   onCancel: _handleCancelRescheCourse,
@@ -793,7 +794,7 @@ class TimeTile extends StatefulWidget {
   final VoidCallback onTap;
   final Function(Kn01L002LsnBean) onSign;
   final Function(Kn01L002LsnBean) onRestore;
-  final Function(Kn01L002LsnBean) onEdit;
+  // final Function(Kn01L002LsnBean) onEdit; 废弃课程的修改处理
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
   final Function(Kn01L002LsnBean) onCancel;
@@ -810,7 +811,7 @@ class TimeTile extends StatefulWidget {
     required this.onTap,
     required this.onSign,
     required this.onRestore,
-    required this.onEdit,
+    // required this.onEdit,
     required this.onDelete,
     required this.onReschLsn,
     required this.onCancel,
@@ -1222,9 +1223,9 @@ class _TimeTileState extends State<TimeTile>
                     case '撤销':
                       widget.onRestore(event);
                       break;
-                    case '修改':
-                      widget.onEdit(event);
-                      break;
+                    // case '修改':
+                    //   widget.onEdit(event);
+                    //   break;
                     case '调课':
                       widget.onReschLsn(event);
                       break;
@@ -1306,11 +1307,11 @@ class _TimeTileState extends State<TimeTile>
 
     if (isAdjustedUnSignedLsnFrom) {
       return <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: '修改',
-          height: 36,
-          child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: '修改',
+        //   height: 36,
+        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        // ),
         const PopupMenuDivider(height: 1),
         const PopupMenuItem<String>(
           value: '调课',
@@ -1351,11 +1352,11 @@ class _TimeTileState extends State<TimeTile>
           ),
         ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
-          value: '修改',
-          height: 36,
-          child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: '修改',
+        //   height: 36,
+        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        // ),
         const PopupMenuItem<String>(
           value: '调课',
           height: 36,
