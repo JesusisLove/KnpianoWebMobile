@@ -108,12 +108,14 @@ class HomePageState extends State<HomePage> {
                             knFontColor: Colors.white,
                             pagePath: "学费支付管理>>在课学生一览",
                             pageId: Constants.stuLsnFeeListPage,
-                            strUri: '${Constants.apiStuNameByYear}/${DateTime.now().year}',
+                            strUri:
+                                '${Constants.apiStuNameByYear}/${DateTime.now().year}',
                           )));
             },
             bgcolor: consts.Constants.lsnfeeThemeColor,
           ),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          const SizedBox(
+              height: consts.Constants.homePageControlMargin), // 添加一些间隔
 
           setButton(
             iconData: Icons.forward,
@@ -333,7 +335,8 @@ class HomePageState extends State<HomePage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: '上课管理'),
-          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '学费管理'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.attach_money), label: '学费管理'),
           BottomNavigationBarItem(icon: Icon(Icons.engineering), label: '档案管理'),
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
@@ -368,7 +371,7 @@ class HomePageState extends State<HomePage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconData), // 使用传入的图标
+            Icon(iconData, color: Colors.white), // 使用传入的图标
             const SizedBox(width: 8),
             Text(
               text, // 使用传入的文本
