@@ -17,10 +17,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @Service
@@ -168,20 +168,25 @@ public class Kn01L002ExtraToScheController {
     }
 
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
-    private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
-
-        Map<String, String> activeStudentsMap = new HashMap<>();
-        Set<String> seenStuIds = new HashSet<>();
-
+        private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
+        // 首先创建一个用于去重的Map
+        Map<String, String> tempMap = new HashMap<>();
+        
+        // 填充临时Map
         for (Kn01L002ExtraToScheBean bean : collection) {
-            String stuId = bean.getStuId();
-            if (!seenStuIds.contains(stuId)) {
-                activeStudentsMap.put(stuId, bean.getStuName());
-                seenStuIds.add(stuId);
-            }
+            tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-
-        return activeStudentsMap;
+        
+        // 按值（学生姓名）排序并收集到新的LinkedHashMap中
+        return tempMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue,  // 处理重复键的情况
+                    LinkedHashMap::new  // 使用LinkedHashMap保持排序
+                ));
     }
 
 }
