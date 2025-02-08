@@ -237,7 +237,8 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: widget.knBgColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
                   ),
                   child: const Text('保存', style: TextStyle(fontSize: 18)),
                 ),
@@ -251,6 +252,26 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在更新固定排课处理...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
       _formKey.currentState!.save();
       // 学生固定排课编辑画面，点击"保存"按钮的url请求
       final String apiUrl =
@@ -269,6 +290,11 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
           'fixedMinute': selectedMinute,
         }),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         showDialog(

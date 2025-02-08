@@ -391,6 +391,27 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     };
 
     try {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在登记学生档案信息...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
       final response = await http.post(
         Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
         headers: <String, String>{
@@ -398,6 +419,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         },
         body: jsonEncode(data),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         // 保存成功
@@ -445,6 +471,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         );
       }
     } catch (e) {
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       // 捕获网络错误等异常
       showDialog(
         // ignore: use_build_context_synchronously

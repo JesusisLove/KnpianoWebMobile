@@ -307,6 +307,26 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                             ? null
                             : () async {
                                 try {
+                                  // 显示进度对话框
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return WillPopScope(
+                                        onWillPop: () async => false,
+                                        child: const AlertDialog(
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CircularProgressIndicator(),
+                                              SizedBox(height: 16),
+                                              Text('正在执行加课换正课处理...'),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
                                   final requestData =
                                       lesson.toRequestMap(selectedDate);
                                   final String apiUrl =
@@ -319,7 +339,10 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                     },
                                     body: utf8.encode(json.encode(requestData)),
                                   );
-
+                                  // 关闭进度对话框'正在执行加课换正课处理...'
+                                  if (mounted) {
+                                    Navigator.of(context).pop();
+                                  }
                                   if (response.statusCode == 200) {
                                     final decodedBody =
                                         utf8.decode(response.bodyBytes);
@@ -335,7 +358,12 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                                     throw Exception(decodedBody);
                                   }
                                 } catch (e) {
+                                  // 如果发生错误，确保关闭进度对话框'正在执行加课换正课处理...'
+                                  if (mounted) {
+                                    Navigator.of(context).pop(); // 关闭进度对话框
+                                  }
                                   showDialog(
+                                    // ignore: use_build_context_synchronously
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
