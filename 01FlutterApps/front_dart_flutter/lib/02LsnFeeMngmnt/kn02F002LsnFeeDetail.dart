@@ -393,11 +393,11 @@ class MonthLineItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '已支付: \$${monthData.where((item) => item.ownFlg == 1).fold(0.0, (sum, item) => sum + item.lsnFee).toStringAsFixed(2)}',
+                  '已支付: \$${monthData.where((item) => item.ownFlg == 1).fold(0.0, (sum, item) => sum + item.lsnPay).toStringAsFixed(2)}',
                   style: const TextStyle(color: Colors.green),
                 ),
                 Text(
-                  '未支付: \$${monthData.where((item) => item.ownFlg == 0).fold(0.0, (sum, item) => sum + item.lsnFee).toStringAsFixed(2)}',
+                  '未支付: \$${(monthData.fold(0.0, (sum, item) => sum + item.lsnFee) - monthData.fold(0.0, (sum, item) => sum + item.lsnPay)).toStringAsFixed(2)}',
                   style: const TextStyle(color: Colors.red),
                 ),
               ],
