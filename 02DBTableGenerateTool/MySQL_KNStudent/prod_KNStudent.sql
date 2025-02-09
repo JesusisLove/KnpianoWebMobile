@@ -311,6 +311,11 @@ CREATE TABLE t_sp_execution_log (
 -- 建立加课换正课中间表
 USE prod_KNStudent;
 -- DROP TABLE IF EXISTS `t_info_lesson_extra_to_sche`;
+/* 添加索引的原由：
+对加课换正课的新的课费id做已经支付的更新处理，
+由于这个表没有主键，所以程序在执行的时候启动safe update模式（安全更新模式）
+没有主键或没有索引，不让更新，索引添加了idx_fee_id_date
+*/
 CREATE TABLE `t_info_lesson_extra_to_sche` (
   `lesson_id` varchar(45) NOT NULL,
   `old_lsn_fee_id` varchar(255) NOT NULL,
@@ -318,7 +323,8 @@ CREATE TABLE `t_info_lesson_extra_to_sche` (
   `lsn_fee` decimal(4,0) DEFAULT NULL,
   `new_scanqr_date` datetime DEFAULT NULL,
   `is_good_change` int DEFAULT NULL,
-  `new_own_flg` int DEFAULT '0'
+  `new_own_flg` int DEFAULT '0',
+  INDEX idx_fee_id_date (new_lsn_fee_id, new_scanqr_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -868,7 +874,8 @@ SELECT
     fee.subject_price,
     fee.pay_style,
     SUM(fee.lsn_count) AS lsn_count,
-    SUM(pay.lsn_pay) AS lsn_fee,
+    SUM(fee.lsn_fee) AS lsn_fee, -- 应支付
+    SUM(pay.lsn_pay) AS has_pay, -- 已支付
     pay.pay_date,
     pay.bank_id,
     fee.lsn_month,
@@ -963,6 +970,7 @@ VIEW `v_info_lesson_pay_over` AS
         `vsumfee`.`lesson_type` AS `lesson_type`,
         `vsumfee`.`lsn_count` AS `lsn_count`,
         `vsumfee`.`lsn_fee` AS `lsn_fee`,
+        `vsumfee`.`lsn_pay` AS `lsn_pay`,
         `bnk`.`bank_id` AS `bank_id`,
         `bnk`.`bank_name` AS `bank_name`,
         `vsumfee`.`lsn_month` AS `pay_month`,
@@ -1502,15 +1510,13 @@ BEGIN
 END //
 DELIMITER ;
 
-
+-- 推算预支付课程的排课日期
 USE prod_KNStudent;
--- DROP PROCEDURE IF EXISTS `sp_get_advance_pay_subjects_and_lsnschedual_info`;
 DELIMITER //
-CREATE PROCEDURE sp_get_advance_pay_subjects_and_lsnschedual_info(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
+-- DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_get_advance_pay_subjects_and_lsnschedual_info`(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
 BEGIN
     DECLARE v_first_day DATE;
-
-    
     -- 临时禁用安全更新模式，以允许不使用主键的更新操作
     SET SQL_SAFE_UPDATES = 0;
     
@@ -1603,7 +1609,7 @@ BEGIN
 		WHERE v.stu_id = p_stuId
 		  AND v.scanQR_date IS NOT NULL 
 		  AND v.lesson_type = 1
-		  -- 排课日期只参考去年到现在的排课日期
+          -- 排课日期只参考去年到现在的排课日期
           AND LEFT(v.schedual_date,4) >= LEFT(CURDATE(),4) - 1
 	) t1
 	INNER JOIN (
@@ -1622,6 +1628,7 @@ BEGIN
 	WHERE t1.schedual_date = t1.max_date;
 
 	-- 创建临时表来存储统计p_yearMonth月里里签到的课程数量
+    DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_scaned_count AS
 	SELECT subject_id, COUNT(subject_sub_id) as subject_sub_id_count 
 	FROM t_info_lesson
@@ -1638,10 +1645,8 @@ BEGIN
 		-- 如果没有签到记录，取当前传入月份的第一天
 		SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
 	END IF;
-	-- 最后删除临时表
-	DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
+	
     
-
     -- 更新临时表中的排课计划日期(因为临时表存放的是过去最新的排课参考用的信息，现在要把它的排课日期更新成要预支付的排课日期)
     UPDATE temp_result tr
     LEFT JOIN v_earliest_fixed_week_info AS vefw
@@ -1694,29 +1699,75 @@ BEGIN
     -- 返回计算后结果:以该生目前最后一次的签到月份为基准，预支付该月以后月份的预支付课费
     -- 如果adv.schedual_date有值，表示该科目在固定排课表里有固定的排课记录
     -- 如果adv.schedual_date为空，表示该科目在固定排课表里还没有固定排课记录，仅此而已
-    SELECT 
-        adv.stu_id,
-        adv.stu_name,
-        adv.subject_id,
-        adv.subject_name,
-        adv.subject_sub_id,
-        adv.subject_sub_name,
-        adv.lesson_type,
-        adv.schedual_date,
-        vldoc.lesson_fee as subject_price,
-        vldoc.minutes_per_lsn
-    FROM temp_result adv
-    INNER JOIN v_latest_subject_info_from_student_document vldoc
-    ON adv.stu_id = vldoc.stu_id
-    AND adv.subject_id = vldoc.subject_id
-    AND adv.subject_sub_id = vldoc.subject_sub_id;
+   
+    -- 把temp_result更新后的结果集再做JOIN关联，将新的结果存放到temp_result_updated临时表里
+	DROP TEMPORARY TABLE IF EXISTS temp_result_updated;
+	CREATE TEMPORARY TABLE temp_result_updated AS
+	SELECT 
+		adv.stu_id,
+		adv.stu_name,
+		adv.subject_id,
+		adv.subject_name,
+		adv.subject_sub_id,
+		adv.subject_sub_name,
+		adv.lesson_type,
+		adv.schedual_date,
+		vldoc.lesson_fee as subject_price,
+		vldoc.minutes_per_lsn
+	FROM temp_result adv
+	INNER JOIN v_latest_subject_info_from_student_document vldoc
+	ON adv.stu_id = vldoc.stu_id
+	AND adv.subject_id = vldoc.subject_id
+	AND adv.subject_sub_id = vldoc.subject_sub_id;
+    
+    -- 创建临时的学生档案表
+    DROP TEMPORARY TABLE IF EXISTS temp_stu_doc;
+    CREATE TEMPORARY TABLE temp_stu_doc AS
+		SELECT 
+		stu_id,
+		stu_name,
+		subject_id,
+		subject_name,
+		subject_sub_id,
+		subject_sub_name,
+		1 as lesson_type,
+		null as schedual_date,
+		lesson_fee as subject_price,
+		minutes_per_lsn
+	FROM v_latest_subject_info_from_student_document
+	WHERE stu_id = p_stuId AND pay_style = 1;
+
+    SET @count = (SELECT COUNT(*) FROM temp_result_updated);
+	IF @count = 0 THEN
+		SELECT * FROM temp_stu_doc;
+	ELSE
+		-- 存储第一个查询的结果到一个中间表（课程表里已有的科目）
+		DROP TEMPORARY TABLE IF EXISTS temp_base_result;
+		CREATE TEMPORARY TABLE temp_base_result AS
+		SELECT * FROM temp_result_updated;
+		
+		-- 在同一个临时表中插入第二部分数据 （课程表里没有的科目）
+		INSERT INTO temp_base_result
+		SELECT * FROM temp_stu_doc 
+		WHERE subject_id NOT IN (SELECT subject_id FROM temp_result_updated);
+		
+		-- 返回结果
+		SELECT * FROM temp_base_result;
+		
+		-- 清理临时表
+		DROP TEMPORARY TABLE IF EXISTS temp_base_result;
+	END IF;
 
     -- 清理：删除临时表
-    DROP TEMPORARY TABLE IF EXISTS temp_result;
+	DROP TEMPORARY TABLE IF EXISTS temp_result_updated; 
+    DROP TEMPORARY TABLE IF EXISTS temp_stu_doc;
+	DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
+	DROP TEMPORARY TABLE IF EXISTS temp_result;
     
     -- 重新启用安全更新模式
     SET SQL_SAFE_UPDATES = 1;
 END //
+
 DELIMITER ;
 
 

@@ -1,3 +1,4 @@
+use prod_KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_sum_fee_pay_over;
 CREATE VIEW v_info_lesson_sum_fee_pay_over AS
 SELECT 
@@ -12,7 +13,8 @@ SELECT
     fee.subject_price,
     fee.pay_style,
     SUM(fee.lsn_count) AS lsn_count,
-    SUM(pay.lsn_pay) AS lsn_fee,
+    SUM(fee.lsn_fee) AS lsn_fee, -- 应支付
+    SUM(pay.lsn_pay) AS lsn_pay, -- 已支付
     pay.pay_date,
     pay.bank_id,
     fee.lsn_month,
@@ -59,7 +61,7 @@ FROM
 			        subject_sub_id,
 			        subject_sub_name,lsn_month,subject_price,pay_style,lesson_type
 			    )aa
-			GROUP BY lsn_fee_id,stu_id,stu_name,		
+			GROUP BY lsn_fee_id,stu_id,stu_name,
 			    subject_id,
 			        subject_name,
 			        subject_sub_id,

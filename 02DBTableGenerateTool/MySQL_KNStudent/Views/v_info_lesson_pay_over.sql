@@ -1,3 +1,4 @@
+use prod_KNStudent;
 DROP VIEW IF EXISTS `v_info_lesson_pay_over`;
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -17,6 +18,7 @@ VIEW `v_info_lesson_pay_over` AS
         `vsumfee`.`lesson_type` AS `lesson_type`,
         `vsumfee`.`lsn_count` AS `lsn_count`,
         `vsumfee`.`lsn_fee` AS `lsn_fee`,
+        `vsumfee`.`lsn_pay` AS `lsn_pay`,
         `bnk`.`bank_id` AS `bank_id`,
         `bnk`.`bank_name` AS `bank_name`,
         `vsumfee`.`lsn_month` AS `pay_month`,
