@@ -63,9 +63,8 @@ https://mybatis.org/mybatis-3/getting-started.html
         INNER JOIN 
             t_info_lsn_fee_advc_pay advc ON lsn.lesson_id = advc.lesson_id
         INNER JOIN
-            t_info_lesson_fee fee ON fee.lsn_fee_id = advc.lsn_fee_id
-        INNER JOIN
             t_info_lesson_pay pay ON pay.lsn_pay_id = advc.lsn_pay_id
+                                AND advc.lsn_fee_id = pay.lsn_fee_id 
         INNER JOIN
             t_mst_bank bnk ON pay.bank_id = bnk.bank_id
         <where>

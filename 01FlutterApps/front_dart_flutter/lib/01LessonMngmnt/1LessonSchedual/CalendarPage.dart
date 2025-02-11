@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
@@ -163,7 +165,7 @@ class _RescheduleLessonTimeDialogState
                   final String newTime =
                       '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
                   try {
-                    await widget.onSave(newTime);
+                    await widget.onSave(newTime); // 调用保存回调函数
                     if (mounted) {
                       Navigator.of(context).pop(true);
                     }
@@ -194,12 +196,17 @@ class _RescheduleLessonTimeDialogState
 
 class CalendarPage extends StatefulWidget {
   final String focusedDay;
-  const CalendarPage({super.key, required this.focusedDay});
+  final String? stuId;
+  const CalendarPage({super.key, required this.focusedDay, this.stuId});
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  String? highlightedStuId; // 新增
+  final ScrollController _scrollController = ScrollController(); // 新增
+  Timer? _highlightTimer; // 新增
+
   CalendarFormat _calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay;
   late DateTime _selectedDay;
@@ -208,11 +215,71 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Kn01L002LsnBean> studentLsns = [];
 
   @override
+  @override
   void initState() {
     super.initState();
     _focusedDay = DateFormat('yyyy-MM-dd').parse(widget.focusedDay);
     _selectedDay = _focusedDay;
-    _fetchStudentLsn(widget.focusedDay.trim());
+
+    // 设置初始状态
+    if (widget.focusedDay.contains(' ')) {
+      final time = widget.focusedDay.split(' ')[1].substring(0, 5);
+      setState(() {
+        currentHighlightedTime = time;
+        highlightedStuId = widget.stuId;
+      });
+
+      // 设置10秒后清除高亮状态
+      _highlightTimer = Timer(const Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() {
+            currentHighlightedTime = null;
+            highlightedStuId = null;
+          });
+        }
+      });
+    }
+
+    // 获取指定日期的课程数据
+    _fetchStudentLsn(widget.focusedDay.split(' ')[0].trim());
+
+    // 等待布局完成后滚动到目标位置
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToTargetTime();
+    });
+  }
+
+  // 新增：滚动到目标时间位置
+  void _scrollToTargetTime() {
+    if (widget.focusedDay.contains(' ')) {
+      final targetTime = widget.focusedDay.split(' ')[1].substring(0, 5);
+      final targetHour = int.parse(targetTime.split(':')[0]);
+      final targetMinute = int.parse(targetTime.split(':')[1]);
+
+      // 计算目标位置
+      final index = ((targetHour - 8) * 4) + (targetMinute ~/ 15);
+      final targetPosition = index * 60.0; // 假设每个时间格的高度约为60
+
+      // 计算滚动位置，使目标位置位于屏幕中间
+      final screenHeight = MediaQuery.of(context).size.height;
+      final offset =
+          math.max(0, targetPosition - (screenHeight / 2)).toDouble();
+
+      // 滚动到目标位置
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  // 新增：清理定时器
+  @override
+  void dispose() {
+    _highlightTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchStudentLsn(String schedualDate) async {
@@ -237,6 +304,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  // 长按课程卡片弹出的对话框画面，点击“保存”，执行时间更新
   Future<void> _updateLessonTime(
       String lessonId, String newTime, bool isRescheduledLesson) async {
     // 选中的课程表日期
@@ -750,6 +818,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           Expanded(
             child: ListView.builder(
+              controller: _scrollController, // 新增
               itemCount: ((22 - 8) * 4), // 从8点到22点，每小时4个时间段
               itemBuilder: (context, index) {
                 int hour = 8 + (index ~/ 4);
@@ -765,6 +834,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   onSign: _handleSignCourse,
                   onRestore: _handleRestoreCourse,
                   // onEdit: _handleEditCourse,
+                  highlightedStuId: highlightedStuId, // 新增
                   onDelete: _handleDeleteCourse,
                   onReschLsn: _handleReschLsnCourse,
                   onCancel: _handleCancelRescheCourse,
@@ -803,6 +873,7 @@ class TimeTile extends StatefulWidget {
   final Function(String, String, bool) onTimeChanged;
   final String? highlightedTime;
   final Function(String) onHighlightChanged;
+  final String? highlightedStuId; // 新增
 
   const TimeTile({
     super.key,
@@ -820,6 +891,7 @@ class TimeTile extends StatefulWidget {
     required this.onTimeChanged,
     required this.highlightedTime,
     required this.onHighlightChanged,
+    this.highlightedStuId, // 新增
   });
 
   @override
@@ -830,25 +902,100 @@ class _TimeTileState extends State<TimeTile>
     with SingleTickerProviderStateMixin {
   GlobalKey timeLineKey = GlobalKey();
   String? pressedLessonId;
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
+  Timer? _blinkTimer;
+  late AnimationController _fadeController; // 动画控制器，控制动画
+  late Animation<double> _fadeAnimation; // 动画显示课程卡片外缘显示红色，然后颜色消失
   bool _isSaving = false; // 新增：保存状态标志
+
+  // 修改高亮判断逻辑
+  bool _isHighlighted(Kn01L002LsnBean event) {
+    final bool timeMatches = widget.time == widget.highlightedTime;
+    final bool stuIdMatches = event.stuId == widget.highlightedStuId;
+    return timeMatches && stuIdMatches;
+  }
 
   @override
   void initState() {
     super.initState();
+    // 动画初期化
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _fadeAnimation =
         Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+    // 如果该课程卡片需要高亮显示，启动闪烁动画
+    if (widget.events.isNotEmpty) {
+      for (var event in widget.events) {
+        if (_isHighlighted(event)) {
+          _startBlinking();
+          break;
+        }
+      }
+    }
+  }
+
+// 添加闪烁控制方法
+  void _startBlinking() {
+    // 取消已存在的闪烁
+    _blinkTimer?.cancel();
+
+    // 重置控制器状态
+    _fadeController.value = 1.0;
+
+    // 每500毫秒闪烁一次，持续10秒（总共闪烁20次）
+    int blinkCount = 0;
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted && blinkCount < 20) {
+        setState(() {
+          _fadeController.value = _fadeController.value == 0 ? 1.0 : 0.0;
+        });
+        blinkCount++;
+      } else {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _fadeController.value = 0.0; // 确保动画结束时边框消失
+          });
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    _blinkTimer?.cancel(); // 确保在销毁时取消计时器
     _fadeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(TimeTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 检查事件列表是否发生变化
+    bool eventsChanged = widget.events.length != oldWidget.events.length;
+    if (!eventsChanged && widget.events.isNotEmpty) {
+      for (int i = 0; i < widget.events.length; i++) {
+        if (widget.events[i].lessonId != oldWidget.events[i].lessonId) {
+          eventsChanged = true;
+          break;
+        }
+      }
+    }
+
+    // 当高亮状态发生改变或事件列表发生变化时，触发动画
+    if (widget.events.isNotEmpty &&
+        (widget.highlightedTime != oldWidget.highlightedTime ||
+            widget.highlightedStuId != oldWidget.highlightedStuId ||
+            eventsChanged)) {
+      for (var event in widget.events) {
+        if (_isHighlighted(event)) {
+          _startBlinking();
+          break;
+        }
+      }
+    }
   }
 
   // 修改：调整长按处理逻辑
@@ -950,7 +1097,8 @@ class _TimeTileState extends State<TimeTile>
       // 将GestureDetector移到最外层
       onTap: widget.onTap,
       child: Container(
-        color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
+        // 这是是设置时间槽的背景颜色
+        // color: isHighlighted ? Colors.red[100] : Colors.transparent,
         child: widget.events.isEmpty
             ? _buildTimeLine()
             : Padding(
@@ -1043,15 +1191,16 @@ class _TimeTileState extends State<TimeTile>
         event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
             ? event.lsnAdjustedDate.substring(0, 10)
             : '';
-
     final hasBeenRescheduled =
         event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
+
     final hasBeenSigned =
         event.scanQrDate != null && event.scanQrDate.isNotEmpty;
 
     final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr &&
         !hasBeenRescheduled &&
         !hasBeenSigned;
+
     final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr &&
         !hasBeenRescheduled &&
         hasBeenSigned;
@@ -1060,6 +1209,7 @@ class _TimeTileState extends State<TimeTile>
         hasBeenRescheduled &&
         selectedDayStr != eventAdjustedDateStr &&
         !hasBeenSigned;
+
     final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
         hasBeenRescheduled &&
         selectedDayStr != eventAdjustedDateStr &&
@@ -1069,6 +1219,7 @@ class _TimeTileState extends State<TimeTile>
         hasBeenRescheduled &&
         selectedDayStr == eventAdjustedDateStr &&
         !hasBeenSigned;
+
     final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr &&
         hasBeenRescheduled &&
         selectedDayStr == eventAdjustedDateStr &&
@@ -1107,15 +1258,21 @@ class _TimeTileState extends State<TimeTile>
       child: Card(
         elevation: 2,
         margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
-        color: backgroundColor,
+        // 设置课程卡片的背景颜色
+        color: _isHighlighted(event) ? Colors.red[100] : backgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: pressedLessonId == event.lessonId && _isSaving
+          side: _isHighlighted(event) // 修改这里的判断条件
               ? BorderSide(
                   color: Colors.red.withOpacity(_fadeAnimation.value),
                   width: 2.0,
                 )
-              : BorderSide.none,
+              : (pressedLessonId == event.lessonId && _isSaving
+                  ? BorderSide(
+                      color: Colors.red.withOpacity(_fadeAnimation.value),
+                      width: 2.0,
+                    )
+                  : BorderSide.none),
         ),
         child: AnimatedBuilder(
           animation: _fadeAnimation,

@@ -667,13 +667,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
             trailing: ElevatedButton(
               onPressed: () async {
                 // 将 onPressed 改为异步函数
-                String targetDateTime = lessonDate.substring(0, 10);
+                // String targetDateTime = lessonDate.substring(0, 10);
+                String targetDateTime = lessonDate;
                 // 等待 CalendarPage 返回
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          CalendarPage(focusedDay: targetDateTime)),
+                      builder: (context) => CalendarPage(
+                            focusedDay: targetDateTime,
+                            stuId: lesson.stuId,
+                          )),
                 );
                 // 当 CalendarPage 关闭并返回到此页面时，刷新数据
                 setState(() {
