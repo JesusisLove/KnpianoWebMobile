@@ -10,6 +10,7 @@ public class Kn03D004StuDocBean implements KnPianoBean {
     protected String subjectId;
     protected String subjectSubId; // 枝番番号
     protected String stuName;
+    protected String introducer;
     protected String subjectName;
     protected String subjectSubName;// 枝番名称
 
@@ -47,6 +48,12 @@ public class Kn03D004StuDocBean implements KnPianoBean {
     }
     public String getSubjectName() {
         return subjectName;
+    }
+    public String getIntroducer() {
+        return introducer;
+    }
+    public void setIntroducer(String introducer) {
+        this.introducer = introducer;
     }
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
