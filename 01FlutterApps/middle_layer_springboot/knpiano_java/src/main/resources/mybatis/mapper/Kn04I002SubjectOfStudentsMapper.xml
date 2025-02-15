@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.dao.Kn04I002SubjectOfStudentsDao">
+
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn03D002SubBean">
+        SELECT * FROM t_mst_subject
+    </select>
+
+    <select id="getSubjectListOfStudents" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        select 
+             subject_id
+            ,subject_name
+            ,subject_sub_id
+            ,subject_sub_name
+            ,doc.stu_id
+            ,doc.stu_name
+            ,pay_style
+            ,lesson_fee
+            ,lesson_fee_adjusted
+            ,adjusted_date
+            ,case 
+                when (lesson_fee_adjusted > 0.0) then lesson_fee_adjusted * 4
+				else lesson_fee * 4 end as month_fee
+            ,minutes_per_lsn
+            ,stu.introducer
+            from v_latest_subject_info_from_student_document doc
+            inner join t_mst_student stu
+            on doc.stu_id = stu.stu_id
+            where doc.subject_id = #{subjectId}
+            and exists(
+                        select 1 from t_mst_student mst where mst.stu_id  = doc.stu_id and mst.del_flg = 0
+                        )
+            order by CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) as SIGNED), cast(SUBSTRING_INDEX(subject_sub_id, '-', -1)as signed),stu_name
+    </select>
+
+    <select id="getSubjectListOfStudents4Mobil" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        select 
+             subject_id
+            ,subject_name
+            ,subject_sub_id
+            ,subject_sub_name
+            ,doc.stu_id
+            ,doc.stu_name
+            ,pay_style
+            ,lesson_fee
+            ,lesson_fee_adjusted
+            ,adjusted_date
+            ,case 
+                when (lesson_fee_adjusted > 0.0) then lesson_fee_adjusted * 4
+				else lesson_fee * 4 end as month_fee
+            ,minutes_per_lsn
+            ,stu.introducer
+            from v_latest_subject_info_from_student_document doc
+            inner join t_mst_student stu
+            on doc.stu_id = stu.stu_id
+            where doc.subject_id = #{subjectId}
+            and doc.subject_sub_id = #{subjectSubId}
+            and exists(
+                        select 1 from t_mst_student mst where mst.stu_id  = doc.stu_id and mst.del_flg = 0
+                        )
+            order by CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) as SIGNED), cast(SUBSTRING_INDEX(subject_sub_id, '-', -1)as signed),stu_name
+    </select>
+
+
+
+
+    
+
+</mapper>
