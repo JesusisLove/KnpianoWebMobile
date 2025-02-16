@@ -10,7 +10,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 <mapper namespace="com.liu.springboot04web.dao.Kn04I002SubjectOfStudentsDao">
 
     <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn03D002SubBean">
-        SELECT * FROM t_mst_subject
+        SELECT subject_id, subject_name FROM t_mst_subject
     </select>
 
     <select id="getSubjectListOfStudents" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">

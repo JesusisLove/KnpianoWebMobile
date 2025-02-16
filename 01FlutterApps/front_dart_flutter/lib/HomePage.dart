@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
@@ -245,8 +246,18 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.score,
-            text: "学生考试管理",
-            onPressed: () {},
+            text: "科目级别查看",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const SubSubjectOfStudentsListBySubject(
+                            knBgColor: consts.Constants.ingergThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "综合管理",
+                          )));
+            },
             bgcolor: consts.Constants.ingergThemeColor,
           ),
           const SizedBox(
