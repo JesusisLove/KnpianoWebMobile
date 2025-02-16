@@ -117,7 +117,8 @@ class Constants {
   static const String subjectInfoDelete = '/liu/mb_kn_sub_001';
 
 // 科目级别一览画面，画面初期化的url请求
-  static const String subjectEdaView = '/liu/mb_kn_05s003_subject_edabn_by_subid';
+  static const String subjectEdaView =
+      '/liu/mb_kn_05s003_subject_edabn_by_subid';
 
 // 科目级别新规画面，点击“保存”按钮的url请求
   static const String subjectEdaAdd = '/liu/mb_kn_05s003_subject_edabn';
@@ -184,6 +185,12 @@ class Constants {
 // 手机前端执行学生复学处理，只能是单个执行
   static const String intergStuReturnExecute = '/liu/mb_kn_stu_return';
 
+// 获取最新课程信息
+  static const String subjectEdaStuAll = '/liu/mb_kn_subject_eda_stu_all';
+
+// 按各科的子科目查看正在上该科目的学生信息（比如，学钢琴一级的学生都有哪些，8级的学生有哪些）
+  static const String subjectEdaStuBysub = '/liu/mb_kn_subject_sub_stu';
+
 //.......设置................................................................................
 // 设置管理菜单画面，点击“固定排课设置”按钮的url请求
   static const String fixedLsnInfoView = '/liu/mb_kn_fixlsn_001_all';
@@ -199,13 +206,16 @@ class Constants {
   static const String fixedLsnInfoDelete = '/liu/mb_kn_fixlsn_001';
 
 //年度周次排课信息取得的url请求
-  static const String weeklySchedualDateForOneYear = '/liu/mb_kn_calculate_Weeks';
+  static const String weeklySchedualDateForOneYear =
+      '/liu/mb_kn_calculate_Weeks';
 
 //一周排课的url请求
-  static const String weeklySchedualExcute = '/liu/mb_kn_excute_Week_lsn_schedual';
+  static const String weeklySchedualExcute =
+      '/liu/mb_kn_excute_Week_lsn_schedual';
 
 //撤销排课的url请求
-  static const String weeklySchedualCancel = '/liu/mb_kn_cancel_Week_lsn_schedual';
+  static const String weeklySchedualCancel =
+      '/liu/mb_kn_cancel_Week_lsn_schedual';
 
 //.......其他................................................................................
 // 主页面button按钮尺寸

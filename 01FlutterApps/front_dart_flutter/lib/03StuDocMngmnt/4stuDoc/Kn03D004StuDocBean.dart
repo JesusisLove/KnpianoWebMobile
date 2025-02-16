@@ -8,13 +8,14 @@ class Kn03D004StuDocBean {
   final String subjectName;
   final String subjectSubName; // 枝番名称
   final String adjustedDate;
-  final int    payStyle;
-  final int    minutesPerLsn;
-  final int    subjectCount;
+  final int payStyle;
+  final int minutesPerLsn;
+  final int subjectCount;
   final double lessonFee;
   final double lessonFeeAdjusted;
   final String examDate;
   final double examScore;
+  final String introducer;
 
   Kn03D004StuDocBean({
     required this.stuId,
@@ -31,6 +32,7 @@ class Kn03D004StuDocBean {
     required this.lessonFeeAdjusted,
     required this.examDate,
     required this.examScore,
+    required this.introducer,
   });
 
   // 从后台拿到的json数据转化为Kn03D004StuDocBean对象
@@ -42,7 +44,8 @@ class Kn03D004StuDocBean {
         /* 解决从后端java传到前端，日期总是偏差一天的处理 例如，java端给出的日期是2024-01-01，到了前端却变成了2023-12-31T15:00:00.000+00:00 
         下面代码是处理从后端java传递过来的日期，在前端也能正常显示
         */
-        formattedAdjustedDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        formattedAdjustedDate =
+            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
       }
     } catch (e) {
       // ignore: avoid_print
@@ -50,20 +53,21 @@ class Kn03D004StuDocBean {
     }
 
     return Kn03D004StuDocBean(
-      stuId:              json['stuId'] ?? '',
-      subjectId:          json['subjectId'] ?? '',
-      subjectSubId:       json['subjectSubId'] ?? '',
-      stuName:            json['stuName'] ?? '',
-      subjectName:        json['subjectName'] ?? '',
-      subjectSubName:     json['subjectSubName'] ?? '',
-      adjustedDate:       formattedAdjustedDate,
-      payStyle:           json['payStyle'] ?? 0,
-      minutesPerLsn:      json['minutesPerLsn'] ?? 0,
-      subjectCount:       json['subjectCount'] ?? 0,
-      lessonFee:          json['lessonFee']?.toDouble() ?? 0.0,
-      lessonFeeAdjusted:  json['lessonFeeAdjusted']?.toDouble() ?? 0.0,
-      examDate:           json['examDate'] ?? '',
-      examScore:          json['examScore']?.toDouble() ?? 0.0,
+      stuId: json['stuId'] ?? '',
+      subjectId: json['subjectId'] ?? '',
+      subjectSubId: json['subjectSubId'] ?? '',
+      stuName: json['stuName'] ?? '',
+      subjectName: json['subjectName'] ?? '',
+      subjectSubName: json['subjectSubName'] ?? '',
+      adjustedDate: formattedAdjustedDate,
+      payStyle: json['payStyle'] ?? 0,
+      minutesPerLsn: json['minutesPerLsn'] ?? 0,
+      subjectCount: json['subjectCount'] ?? 0,
+      lessonFee: json['lessonFee']?.toDouble() ?? 0.0,
+      lessonFeeAdjusted: json['lessonFeeAdjusted']?.toDouble() ?? 0.0,
+      examDate: json['examDate'] ?? '',
+      examScore: json['examScore']?.toDouble() ?? 0.0,
+      introducer: json['introducer'] ?? '',
     );
   }
 }
