@@ -47,6 +47,33 @@
         .nav-tabs .nav-link:hover {
             border-color: #ff009d #ff009d #fff;
         }
+
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+        }
+        
+        .indented {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -55,17 +82,39 @@
 <body>
     <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
-        <div class="row">"
+        <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_extra_lesson_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <h2 class="mt-4 mb-2">加课消化管理</h2>
-                <p class="text-muted small mb-4" style="font-size: 0.875rem;">
-                    ★业务说明：
-                </p>
-                <hr />
+
+                <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
+                <div class="business-description mb-4">
+                    <!-- 检索部业务说明折叠组件 -->
+                    <div class="card">
+                        <div class="card-header" id="searchDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#searchDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="searchDescriptionCollapse">
+                                    ★检索部业务说明
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="searchDescriptionCollapse" class="collapse" 
+                             aria-labelledby="searchDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①画面初期化时，年度：系统当前年度 月份：系统当前月份，学生姓名：当前年度当前月份有加课的学生。</dd>
+                                    <dd class="indented">②选择年度时，月份被初始化为"ALL"；学生下拉列表框初始化为当前年度所有有加课的学生</dd>
+                                    <dd class="indented">③选择月份时，学生下拉列表框初始化为选择年度，选择月份下的所有有加课的学生。</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_extratosche_all/search}" th:object="${searchForm}" method="get">
-
                     <div class="form-row">
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label>年度</label>
@@ -97,31 +146,33 @@
                             <button type="submit" class="btn btn-primary">検 索</button>
                        </div>
                     </div>
+                    <hr />
 
-                    <!-- <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectId" name="subjectId"
-                                th:value="${lsnMap != null ? lsnMap['subjectId'] : ''}" placeholder="科目番号">
+                    <!-- 明细部业务说明折叠组件 -->
+                    <div class="card mt-4">
+                        <div class="card-header" id="detailDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#detailDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="detailDescriptionCollapse">
+                                    明细部业务说明
+                                </button>
+                            </h5>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectName" name="subjectName"
-                                th:value="${lsnMap != null ? lsnMap['subjectName'] : ''}" placeholder="科目名称">
+                        <div id="detailDescriptionCollapse" class="collapse" 
+                             aria-labelledby="detailDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
+                                    <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
+                                    <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
+                                    <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
+                                    <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮</dd>
+                                </dl>
+                            </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="date" class="form-control" id="payFlg" name="payFlg"
-                                th:value="${lsnMap != null ? lsnMap['payFlg'] : ''}" placeholder="支付完了或未支付：0/1 ">
-                        </div>
-                    </div> -->
-                    <div class="business-description">
-                        <dl>
-                            <dt>业务说明：</dt>
-                            <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
-                            <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
-                            <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
-                            <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
-                            <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮 </dd>
-                        </dl>
                     </div>
+
                     <!-- 如果没有学生的已支付信息，显示提示信息 -->
                     <style>
                         .no-info-message {
@@ -133,7 +184,7 @@
                         <p class="no-info-message">目前没有学生的消化课程信息！</p>
                     </div>
                 </form>
-                <hr />
+
                 <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
@@ -195,7 +246,6 @@
             var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
             console.log('获取到的selectedStuId:', selectedStuId);
 
-
             var uniqueStudentIds = new Set(); // 使用集合来避免重复
             
             // 从stuSubList添加学生姓名到下拉列表，确保不重复
@@ -214,4 +264,28 @@
     </script>
 </body>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const yearSelect = document.getElementById('lsnfeeyear');
+        const monthSelect = document.getElementById('monthSelect');
+        const studentSelect = document.getElementById('studentSelect');
+
+        yearSelect.addEventListener('change', function() {
+            const selectedYear = this.value;
+            monthSelect.value = "ALL";
+            monthSelect.dispatchEvent(new Event('change'));
+        });
+
+        monthSelect.addEventListener('change', function() {
+            const selectedYear = yearSelect.value;
+            const selectedMonth = this.value;
+            // 创建一个临时表单来提交请求
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `/liu/kn_extra_stu_all/${selectedYear}/${selectedMonth}`;
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+</script>
 </html>
