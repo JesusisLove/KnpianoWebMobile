@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +34,6 @@ public class Kn01L002LsnStatistic4Mobile {
      * 学生上课的课时数的统计为什么用课费金额的模块（Kn02F002F）的原因是，能产生课费的科目都是已经签到完了的科目，
      * 这对将来维护对业务理解提供方便
      */
-    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_lsn_signed_total/{stuId}/{selectedYear}")
     public ResponseEntity<List<Kn02F002FeeBean>> getInfoStuLsnList(@PathVariable("stuId") String stuId,
             @PathVariable("selectedYear") Integer year) {
@@ -45,7 +43,6 @@ public class Kn01L002LsnStatistic4Mobile {
     }
 
     // 手机前端课程进度统计页面的【还未上课统计】Tab页（
-    // @CrossOrigin(origins = "*")
     @GetMapping("/mb_kn_lsn_unsigned_list/{stuId}/{selectedYear}")
     public ResponseEntity<List<Kn01L002LsnBean>> getUnScanSQDateLsnInfoByYear(@PathVariable("stuId") String stuId,
             @PathVariable("selectedYear") Integer year) {
@@ -56,7 +53,6 @@ public class Kn01L002LsnStatistic4Mobile {
     }
 
     // XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息
-    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_lsn_scaned_lsns/{stuId}/{selectedYear}")
     public ResponseEntity<List<Kn01L002LsnBean>> getScanSQDateLsnInfoByYear(@PathVariable("stuId") String stuId,
             @PathVariable("selectedYear") Integer year) {
