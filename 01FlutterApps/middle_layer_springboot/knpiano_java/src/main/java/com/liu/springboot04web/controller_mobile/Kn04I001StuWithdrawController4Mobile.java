@@ -28,7 +28,7 @@ public class Kn04I001StuWithdrawController4Mobile {
     Kn05S001LsnFixDao knFixLsn001Dao;
 
     // 手机前端退学休学的学生信息取得
-    @CrossOrigin(origins = "*")
+    // @CrossOrigin(origins = "*")
     @GetMapping("/mb_kn_stu_leave_all")
     public ResponseEntity<Collection<Kn03D001StuBean>> getStuLeaveList() {
         // 获取休学学生信息
@@ -37,7 +37,7 @@ public class Kn04I001StuWithdrawController4Mobile {
     }
 
     // 手机前端退学休学的学生信息取得
-    @CrossOrigin(origins = "*") //
+    // @CrossOrigin(origins = "*") //
     @GetMapping("/mb_kn_stu_onLsn_all")
     public ResponseEntity<Collection<Kn03D001StuBean>> getStuOnLesonList() {
         // 获取休学学生信息
@@ -46,7 +46,7 @@ public class Kn04I001StuWithdrawController4Mobile {
     }
 
     // 手机前端执行学生退学/休学处理，可选复述个学生一并执行
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @PostMapping("/mb_kn_stu_leave")
     @Transactional
     public ResponseEntity<String> stuWithdraw(@RequestBody List<Kn03D001StuBean> beans) {
@@ -65,7 +65,7 @@ public class Kn04I001StuWithdrawController4Mobile {
     }
 
     // 手机前端执行学生复学处理，只能是单个执行
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @PostMapping("/mb_kn_stu_return/{stuId}")
     public ResponseEntity<String> excuteReturn( @PathVariable("stuId") String stuId) {
         // 处理多个对象的逻辑

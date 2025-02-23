@@ -22,7 +22,7 @@ public class Kn04I002SubjectOfStudentsController4Mobile {
     Kn04I002SubjectOfStudentsDao dao;
 
     // 手机前端取得目前最新的所有科目
-    @CrossOrigin(origins = "*")
+    // @CrossOrigin(origins = "*")
     @GetMapping("/mb_kn_subject_eda_stu_all")
     public ResponseEntity<Collection<Kn03D002SubBean>> getLatestSubjectsList() {
         // 获取休学学生信息
@@ -32,7 +32,7 @@ public class Kn04I002SubjectOfStudentsController4Mobile {
 
 
     // 手机前端取得目前该科目下所有子科目正在上课的学生信息
-    @CrossOrigin(origins = "*")
+    // @CrossOrigin(origins = "*")
     @GetMapping("/mb_kn_subject_sub_stu/{subjectId}")
     public ResponseEntity<Collection<Kn03D004StuDocBean>> getSubjectOfStudentsList(@PathVariable("subjectId") String subjectId) {
         // 获取休学学生信息

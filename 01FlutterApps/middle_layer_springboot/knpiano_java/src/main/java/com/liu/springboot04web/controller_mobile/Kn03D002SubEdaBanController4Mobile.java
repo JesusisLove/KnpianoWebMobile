@@ -24,7 +24,7 @@ public class Kn03D002SubEdaBanController4Mobile {
     @Autowired
     Kn03D002SubEdaBanDao kn05S003SubjectEdabnDao;
 
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_05s003_subject_edabn_by_subid/{subId}")
     public ResponseEntity<Collection<Kn03D002SubEdaBanBean>> getSubdentList(@PathVariable("subId") String subId) {
         // 获取目前所有科目信息显示在画面一览上
@@ -33,14 +33,14 @@ public class Kn03D002SubEdaBanController4Mobile {
     }
 
     // 【新規/编辑】画面にて、【保存】ボタンを押下
-    @CrossOrigin(origins = "*") 
+    // @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_05s003_subject_edabn")
     public void excuteInfoAdd(@RequestBody Kn03D002SubEdaBanBean knSub001Bean) {
         kn05S003SubjectEdabnDao.save(knSub001Bean);
     }
 
     // 【学科一覧】削除ボタンを押下
-    @CrossOrigin(origins = "*") 
+    // @CrossOrigin(origins = "*") 
     @DeleteMapping("/mb_kn_05s003_subject_edabn/{subId}/{edabanId}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("subId") String subId,
                                                     @PathVariable("edabanId") String edabanId) {

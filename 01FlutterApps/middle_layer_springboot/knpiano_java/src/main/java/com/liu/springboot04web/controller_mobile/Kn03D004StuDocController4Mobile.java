@@ -38,7 +38,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 尚未入档学生信息
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_undoc_all")
     public ResponseEntity<List<Kn03D004StuDocBean>> getUnDocedList() {
         // 获取当前正在上课的所有学生信息
@@ -47,7 +47,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 已经入档学生信息
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_studoced_all")
     public ResponseEntity<List<Kn03D004StuDocBean>> getDocedStuList() {
         // 获取当前正在上课的所有学生信息
@@ -56,7 +56,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 手机端网页提取已经入档的学生他本人的历史档案信息 
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_studoc_detail/{stuId}")
     public ResponseEntity<List<Kn03D004StuDocBean>> getDocedStuDetailList(@PathVariable("stuId") String stuId) {
         // 获取当前正在上课的所有学生信息
@@ -65,7 +65,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 【档案一览】画面にて、【编辑】ボタンを押下
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public ResponseEntity<Kn03D004StuDocBean> getStudentByName(@PathVariable("stuId") String stuId, 
                                @PathVariable("subjectId") String subjectId, 
@@ -79,7 +79,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 【新規编辑】画面にて、【保存】ボタンを押下
-    @CrossOrigin(origins = "*") 
+    // @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_studoc_001_save")
     public void excuteInfoAdd(@RequestBody Kn03D004StuDocBean knStudoc001Bean) {
         // 因为是复合主键，只能通过从表里抽出记录来确定是新规操作还是更新操作
@@ -95,7 +95,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 【档案一覧】削除ボタンを押下
-    @CrossOrigin(origins = "*") 
+    // @CrossOrigin(origins = "*") 
     @DeleteMapping("/mb_kn_studoc_001_delete/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("stuId") String stuId, 
                                                     @PathVariable("subjectId") String subjectId, 
@@ -113,7 +113,7 @@ public class Kn03D004StuDocController4Mobile {
     }
 
     // 取得学生上1节课的分钟时长
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_duration")
     public ResponseEntity<List<String>> getDurationList() {
         // 获取当前正在上课的所有学生信息

@@ -20,7 +20,7 @@ public class Kn02f005FeeReportController4Mobile {
     @Autowired
     Kn02f005FeeMonthlyReportDao kn02f005Dao;
 
-    @CrossOrigin(origins = "*") 
+    // @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn02f005_all/{year}")
     public ResponseEntity<List<Kn02f005FeeMonthlyReportBean>> list(@PathVariable("year") Integer year) {
         List<Kn02f005FeeMonthlyReportBean> list = kn02f005Dao.getInfoList(Integer.toString(year));
