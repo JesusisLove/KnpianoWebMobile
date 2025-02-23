@@ -22,8 +22,8 @@ public class Kn01L002ExtraToScheController4Mobile {
     @Autowired
     private Kn01L002ExtraToScheDao kn01L002ExtraToScheDao;
 
-    // 获取所有学生排课信息
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // 因为有了配置类CorsConfig，这里的CrossOrigin的配置不需要了
+    // // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_extratosche_all/{stuId}/{year}")
     public ResponseEntity<List<Kn01L002ExtraToScheBean>> getExtraLsnList(@PathVariable String stuId,
             @PathVariable String year) {
@@ -33,7 +33,7 @@ public class Kn01L002ExtraToScheController4Mobile {
     }
 
     // 执行加课换正课
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @PostMapping("/mb_kn_extra_tobe_sche")
     public ResponseEntity<String> executeExtra(@RequestBody Kn01L002ExtraToScheBean extraToScheBean) {
         try {
@@ -55,7 +55,7 @@ public class Kn01L002ExtraToScheController4Mobile {
     }
 
     // 撤销加课换正课
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_extra_lsn_undo/{lessonId}")
     public ResponseEntity<Map<String, String>> undoExtra(@PathVariable String lessonId) {
         try {

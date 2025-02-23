@@ -33,7 +33,7 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
 
 
     //取得当前在课学生名单列表
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_advc_cur_stu")
     public ResponseEntity<List<Kn02F003AdvcLsnFeePayBean>> getInfoStuList() {
         // 将学生交费信息响应送给前端
@@ -42,7 +42,7 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
     }
 
     //取得该生预支付的科目信息
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_advc_pay_lsn/{stuId}/{yearMonth}")
     public ResponseEntity<List<Kn02F003AdvcLsnFeePayBean>> getInfoStuLsnList(@PathVariable("stuId")     String stuId,
                                                                              @PathVariable("yearMonth") String yearMonth) {
@@ -53,7 +53,7 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
     }
 
     // 该生指定年度的预支付历史记录
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_advc_paid_history/{stuId}/{yearMonth}")
     public ResponseEntity<List<Kn02F003AdvcLsnFeePayBean>> getAdvcLsnPaidHistory(@PathVariable("stuId")     String stuId,
                                                                                  @PathVariable("yearMonth") String yearMonth) {
@@ -67,7 +67,7 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
     }
 
     // 执行课费预支付处理
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
+    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @PostMapping("/mb_kn_advc_pay_lsn_execute/{stuId}/{yearMonth}")
     public ResponseEntity<String> getAdvcLsnPaidHistory(@PathVariable("stuId")     String stuId,
                                                         @PathVariable("yearMonth") String yearMonth,
