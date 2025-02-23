@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.dao.KnErrorDataWatchDao">
+
+    <!-- 后台Web端，监视支付完了的支付账单，监视课费（lsn_fee）和支付（lsn_pay）不一致的支付记录 -->
+    <select id= "getErrDataList0" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        with WatchData AS (
+            select paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, paid.lsn_fee_id, paid.lsn_pay_id, 
+                pay_style, lesson_type ,pay_month, 
+                sum(lsn_count) as lsn_count,
+                sum(lsn_fee)as lsn_fee, 
+                sum(lsn_pay) as lsn_pay
+            from v_info_lesson_pay_over paid 
+            group by paid.lsn_pay_id, paid.lsn_fee_id,paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, 
+                    pay_style, lesson_type ,pay_month
+        )
+        select * from WatchData
+        where stu_id in (select stu_id from WatchData where lsn_fee != lsn_pay)
+        order by stu_id,pay_month
+    </select>
+
+    <select id= "getErrDataList" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+        with WatchData AS (
+            select paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, paid.lsn_fee_id, paid.lsn_pay_id, 
+                pay_style, lesson_type ,pay_month, 
+                sum(lsn_count) as lsn_count,
+                sum(lsn_fee)as lsn_fee, 
+                sum(lsn_pay) as lsn_pay
+            from v_info_lesson_pay_over paid 
+            group by paid.lsn_pay_id, paid.lsn_fee_id,paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, 
+                    pay_style, lesson_type ,pay_month
+        )
+        select * from WatchData
+        where stu_id in (select stu_id from WatchData where lsn_fee != lsn_pay)
+        order by stu_id,pay_month
+    </select>
+    
+
+</mapper>

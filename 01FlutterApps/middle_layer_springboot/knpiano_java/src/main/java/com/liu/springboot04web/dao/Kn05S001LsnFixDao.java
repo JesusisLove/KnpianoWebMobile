@@ -14,7 +14,6 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
 
     @Autowired
     private Kn05S001LsnFixMapper knFixLsn001Mapper;
-    @Autowired
     
     // 获取所有固定授業計画的信息列表
     public List<Kn05S001LsnFixBean> getInfoList() {

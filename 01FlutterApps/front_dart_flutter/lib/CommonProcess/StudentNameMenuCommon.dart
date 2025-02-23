@@ -34,7 +34,7 @@ class StudentNameMenuCommon extends StatefulWidget {
 
 class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   List<Map<String, dynamic>> students = [];
-  DisplayMode _displayMode = DisplayMode.small;
+  DisplayMode _displayMode = DisplayMode.medium;
 
   @override
   void initState() {
@@ -154,13 +154,13 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(48.0), // 增加整体内边距
+      padding: const EdgeInsets.all(8.0), // 增加整体内边距
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
-          childAspectRatio: 1,
-          crossAxisSpacing: 24, // 增加水平间距
-          mainAxisSpacing: 24, // 增加垂直间距
+          childAspectRatio: 4 / 2,
+          crossAxisSpacing: 1, // 增加水平间距
+          mainAxisSpacing: 1, // 增加垂直间距
         ),
         itemCount: students.length,
         itemBuilder: (context, index) {
@@ -170,7 +170,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
                 _onStudentTap(student['id'], student['name'], widget.pageId),
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(4), //倒角
               ),
               padding: EdgeInsets.zero,
               backgroundColor: Colors.white, // 设置按钮背景色为白色
