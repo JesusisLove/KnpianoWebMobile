@@ -3,7 +3,6 @@ package com.liu.springboot04web.controller_mobile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +22,6 @@ public class Kn05S002WeekCalculatorController4Mobile {
     @Autowired
     private Kn05S002WeekCalculatorDao kn05S002WeekCalculatorDao;
 
-    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_calculate_Weeks")
     public ResponseEntity<List<Kn05S002FixedLsnStatusBean>> getStudentList() {
         // 获取未执行排课的周次
@@ -32,7 +30,6 @@ public class Kn05S002WeekCalculatorController4Mobile {
     }
 
     // 执行新的年度周次的新规（一年执行一次：）
-    // @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_calculate_Weeks_new")
     public void calculateWeeksForYear(@RequestParam int year) {
 

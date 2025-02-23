@@ -6,7 +6,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ public class Kn03D003StubnkController4Mobile {
     @Autowired
     Kn03D003BnkMapper kn03D003BnkMapper;
 
-    // @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_03d003_students_by_bankid/{bankId}")
     public ResponseEntity<Collection<Kn03D003StubnkBean>> getStuBankList(@PathVariable("bankId") String bankId) {
         // 获取目前所有科目信息显示在画面一览上
@@ -34,7 +32,6 @@ public class Kn03D003StubnkController4Mobile {
     }
 
     // 学费记账的画面初期表示里，用到该生名下ta的银行名称
-    // @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_03d003_banks_by_stuid/{stuId}")
     public ResponseEntity<Collection<Kn03D003BnkBean>> getStuBankList2(@PathVariable("stuId") String stuId) {
         /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
@@ -47,7 +44,6 @@ public class Kn03D003StubnkController4Mobile {
     }
 
     // 【新規/编辑】画面にて、【保存】ボタンを押下
-    // @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_03d003_bank_stu")
     public ResponseEntity<String>  excuteInfoAdd(@RequestBody Kn03D003StubnkBean knSub001Bean) {
         Kn03D003StubnkDao.save(knSub001Bean);
@@ -55,7 +51,6 @@ public class Kn03D003StubnkController4Mobile {
     }
 
     // 【学科一覧】削除ボタンを押下
-    // @CrossOrigin(origins = "*") 
     @DeleteMapping("/mb_kn_03d003_bank_stu/{stuId}/{bankId}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("stuId") String stuId,
                                                     @PathVariable("bankId") String bankId) {
