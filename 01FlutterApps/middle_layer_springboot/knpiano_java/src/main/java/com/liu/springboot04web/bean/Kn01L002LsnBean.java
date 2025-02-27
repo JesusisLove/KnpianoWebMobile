@@ -47,7 +47,21 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected boolean isToday;
 // 其他
     protected Integer payStyle;
+    protected String lsnMonth;    //监视排课异常数据模块用
+    protected float subjectPrice; //监视排课异常数据模块用
 
+    public float getSubjectPrice() {
+        return subjectPrice;
+    }
+    public void setSubjectPrice(float subjectPrice) {
+        this.subjectPrice = subjectPrice;
+    }
+    public String getLsnMonth() {
+        return lsnMonth;
+    }
+    public void setLsnMonth(String lsnMonth) {
+        this.lsnMonth = lsnMonth;
+    }
     public String getLessonId() {
         return lessonId;
     }

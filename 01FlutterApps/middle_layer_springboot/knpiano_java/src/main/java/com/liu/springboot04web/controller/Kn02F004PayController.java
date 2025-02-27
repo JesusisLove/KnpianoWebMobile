@@ -41,7 +41,7 @@ public class Kn02F004PayController{
         this.paidStuList = null;
     }
 
-    // 【課費支払管理】ボタンをクリックして，全ての情報を表示すること
+    // 【课费已支付管理】按钮按下，全ての情報を表示すること
     @GetMapping("/kn_lsn_pay_001_all")
     public String list(Model model) {
         // 课费已经结算完毕一览
