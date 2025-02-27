@@ -97,6 +97,12 @@
                                 <i class="fas fa-file"></i> 加课消化管理
                             </a>
                         </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_err_lsn_watch}"
+                                th:class="${activeUri == 'kn_err_lsn_watch_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-database"></i> 监视排课异常数据
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -138,8 +144,8 @@
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link" href="#" th:href="@{/kn_err_watch}"
-                                th:class="${activeUri == 'kn_err_watch_link_active'} ? 'nav-link active' : 'nav-link'">
+                            <a class="nav-link" href="#" th:href="@{/kn_err_fee_watch}"
+                                th:class="${activeUri == 'kn_err_fee_watch_link_active'} ? 'nav-link active' : 'nav-link'">
                                 <i class="fas fa-database"></i> 监视学费异常数据
                             </a>
                         </li>

@@ -2,24 +2,110 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.dao.KnErrorDataWatchDao">
 
-    <!-- 后台Web端，监视支付完了的支付账单，监视课费（lsn_fee）和支付（lsn_pay）不一致的支付记录 -->
-    <select id= "getErrDataList0" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
-        with WatchData AS (
-            select paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, paid.lsn_fee_id, paid.lsn_pay_id, 
-                pay_style, lesson_type ,pay_month, 
-                sum(lsn_count) as lsn_count,
-                sum(lsn_fee)as lsn_fee, 
-                sum(lsn_pay) as lsn_pay
-            from v_info_lesson_pay_over paid 
-            group by paid.lsn_pay_id, paid.lsn_fee_id,paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, 
-                    pay_style, lesson_type ,pay_month
+    <!-- 查看每个学生在同一科目（如钢琴）下，同一个月内是否有多个不同的子科目（如钢琴5级、钢琴6级） -->
+    <select id= "getErrLsnDataList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        WITH watchLsnSubject as 
+        (
+            SELECT 
+                stu_id, 
+                stu_name, 
+                subject_id, 
+                subject_name,
+                CASE 
+                    WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
+                    ELSE left(schedual_date,7) 
+                END as lsn_month,
+                COUNT(DISTINCT subject_sub_id) as sub_subject_count
+            FROM v_info_lesson
+            WHERE left(schedual_date,4) = '2025' 
+            OR left(lsn_adjusted_date,4) = '2025' 
+            OR left(extra_to_dur_date,4) = '2025' 
+            AND scanQR_date is not null
+            GROUP BY 
+                stu_id, 
+                stu_name, 
+                subject_id, 
+                subject_name,
+                CASE 
+                    WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
+                    ELSE left(schedual_date,7) 
+                END
+            HAVING COUNT(DISTINCT subject_sub_id) > 1
         )
-        select * from WatchData
-        where stu_id in (select stu_id from WatchData where lsn_fee != lsn_pay)
-        order by stu_id,pay_month
+        SELECT 
+            a.stu_id, 
+            a.stu_name, 
+            a.subject_id, 
+            a.subject_name,
+            a.lsn_month,
+            a.sub_subject_count,
+            GROUP_CONCAT(DISTINCT b.subject_sub_name) as subject_sub_name
+        FROM 
+            watchLsnSubject a
+        JOIN v_info_lesson b ON 
+            a.stu_id = b.stu_id AND 
+            a.subject_id = b.subject_id AND
+            CASE 
+                WHEN b.extra_to_dur_date IS NOT NULL THEN left(b.extra_to_dur_date,7)
+                ELSE left(b.schedual_date,7) 
+            END = a.lsn_month
+        GROUP BY 
+            a.stu_id, 
+            a.stu_name, 
+            a.subject_id, 
+            a.subject_name,
+            a.lsn_month,
+            a.sub_subject_count;
     </select>
 
-    <select id= "getErrDataList" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
+    <!-- 查看每个学生在同一科目（如钢琴）下，同一个月内是否有多个不同的子科目（如钢琴5级、钢琴6级）并且也把这个错误数据所在的那一组数据都取出来看看 -->
+    <select id= "getErrLsnGroupDataList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        SELECT lsn.*, clsn.subject_price FROM v_info_lesson lsn
+        inner join
+        v_info_lesson_fee_connect_lsn clsn on lsn.lesson_id = clsn.lesson_id
+        WHERE lsn.lesson_id IN (
+            WITH watchLsnSubject as (
+                SELECT 
+                    stu_id, 
+                    stu_name, 
+                    subject_id, 
+                    subject_name,
+                    CASE 
+                        WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
+                        ELSE left(schedual_date,7) 
+                    END as lsn_month,
+                    COUNT(DISTINCT subject_sub_id) as sub_subject_count
+                FROM v_info_lesson
+                WHERE left(schedual_date,4) = '2025' 
+                    OR left(lsn_adjusted_date,4) = '2025' 
+                    OR left(extra_to_dur_date,4) = '2025' 
+                    AND scanQR_date is not null
+                GROUP BY 
+                    stu_id, 
+                    stu_name, 
+                    subject_id, 
+                    subject_name,
+                    CASE 
+                        WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
+                        ELSE left(schedual_date,7) 
+                    END
+                HAVING COUNT(DISTINCT subject_sub_id) > 1
+            )
+            SELECT DISTINCT b.lesson_id
+            FROM watchLsnSubject a
+            JOIN v_info_lesson b ON 
+                a.stu_id = b.stu_id AND 
+                a.subject_id = b.subject_id AND
+                CASE 
+                    WHEN b.extra_to_dur_date IS NOT NULL THEN left(b.extra_to_dur_date,7)
+                    ELSE left(b.schedual_date,7) 
+                END = a.lsn_month
+        ) 
+        AND scanQR_date is not null
+    </select>
+
+    <!-- 后台Web端，监视支付完了的支付账单，监视课费（lsn_fee）和支付（lsn_pay）不一致的支付记录 -->
+    <select id= "getErrFeeDataList" resultType="com.liu.springboot04web.bean.Kn02F004PayBean">
         with WatchData AS (
             select paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, paid.lsn_fee_id, paid.lsn_pay_id, 
                 pay_style, lesson_type ,pay_month, 
@@ -30,8 +116,7 @@
             group by paid.lsn_pay_id, paid.lsn_fee_id,paid.stu_id,stu_name,subject_id,subject_name,subject_sub_id,subject_sub_name, 
                     pay_style, lesson_type ,pay_month
         )
-        select * from WatchData
-        where stu_id in (select stu_id from WatchData where lsn_fee != lsn_pay)
+        select * from WatchData where lsn_fee != lsn_pay
         order by stu_id,pay_month
     </select>
     
