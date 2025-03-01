@@ -2,7 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.dao.KnErrorDataWatchDao">
 
-    <!-- 查看每个学生在同一科目（如钢琴）下，同一个月内是否有多个不同的子科目（如钢琴5级、钢琴6级） -->
+    <!-- 查看每个学生在同一科目（如钢琴）下，同一个月内是否有多个不同的子科目（如钢琴5级、钢琴6级）
+     指定年度里，统计各个月里有没有不同的子科目出现。（原则上一个月内是不可以出现两个不同的子科目的。
+     因为是按月收费，所以一个月内不能有两个不同价格的科目出现） -->
     <select id= "getErrLsnDataList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         WITH watchLsnSubject as 
         (
@@ -30,6 +32,7 @@
                     WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
                     ELSE left(schedual_date,7) 
                 END
+            -- 表示有2个以上的不同的子科目出现
             HAVING COUNT(DISTINCT subject_sub_id) > 1
         )
         SELECT 
@@ -62,8 +65,9 @@
     <select id= "getErrLsnGroupDataList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         SELECT lsn.*, clsn.subject_price FROM v_info_lesson lsn
         inner join
-        v_info_lesson_fee_connect_lsn clsn on lsn.lesson_id = clsn.lesson_id
+        v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrectBefore clsn on lsn.lesson_id = clsn.lesson_id
         WHERE lsn.lesson_id IN (
+            <!-- 指定年度里，统计各个月里有没有不同的子科目出现。（原则上一个月内是不可以出现两个不同的子科目的。因为是按月收费，所以一个月内不能有两个不同价格的科目出现） -->
             WITH watchLsnSubject as (
                 SELECT 
                     stu_id, 
@@ -79,7 +83,7 @@
                 WHERE left(schedual_date,4) = '2025' 
                     OR left(lsn_adjusted_date,4) = '2025' 
                     OR left(extra_to_dur_date,4) = '2025' 
-                    AND scanQR_date is not null
+                    AND scanQR_date is not null -- 已上完课
                 GROUP BY 
                     stu_id, 
                     stu_name, 
@@ -89,7 +93,8 @@
                         WHEN extra_to_dur_date IS NOT NULL THEN left(extra_to_dur_date,7)
                         ELSE left(schedual_date,7) 
                     END
-                HAVING COUNT(DISTINCT subject_sub_id) > 1
+                -- 表示有2个以上的不同的子科目出现
+                HAVING COUNT(DISTINCT subject_sub_id) > 1 
             )
             SELECT DISTINCT b.lesson_id
             FROM watchLsnSubject a
@@ -119,6 +124,4 @@
         select * from WatchData where lsn_fee != lsn_pay
         order by stu_id,pay_month
     </select>
-    
-
 </mapper>

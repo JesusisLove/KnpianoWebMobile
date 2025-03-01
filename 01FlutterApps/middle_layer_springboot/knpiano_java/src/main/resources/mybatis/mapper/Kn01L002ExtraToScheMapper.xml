@@ -218,7 +218,7 @@ https://mybatis.org/mybatis-3/getting-started.html
              lsn_fee_id
             ,lsn_fee
             ,lesson_id
-        from v_info_lesson_fee_connect_lsn
+        from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrectBefore
         <where>
             lesson_id = #{lessonId}
         </where>
@@ -230,7 +230,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select lsn_fee_id
               ,own_flg
-        from v_info_lesson_fee_connect_lsn
+        from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         <where>
             stu_id = #{stuId}
             and subject_id = #{subjectId}

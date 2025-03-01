@@ -24,7 +24,7 @@
                     ELSE SUM(lsnfee.lsn_fee) 
                 END AS lsn_fee
             from (
-                v_info_lesson_fee_connect_lsn lsnfee
+                v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect lsnfee
                 inner join 
                 v_info_lesson_include_extra2sche lesson
                 on lsnfee.lesson_id = lesson.lesson_id
@@ -71,7 +71,7 @@
                     ELSE SUM(lsnfee.lsn_fee) 
                 END AS lsn_fee
             from (
-                v_info_lesson_fee_connect_lsn lsnfee
+                v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect lsnfee
                 inner join 
                 v_info_lesson_include_extra2sche lesson
                 on lsnfee.lesson_id = lesson.lesson_id
@@ -134,7 +134,7 @@
                     ELSE SUM(lsnfee.lsn_fee) 
                 END AS lsn_fee
             from (
-                v_info_lesson_fee_connect_lsn lsnfee
+                v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect lsnfee
                 inner join 
                 v_info_lesson_include_extra2sche lesson
                 on lsnfee.lesson_id = lesson.lesson_id
