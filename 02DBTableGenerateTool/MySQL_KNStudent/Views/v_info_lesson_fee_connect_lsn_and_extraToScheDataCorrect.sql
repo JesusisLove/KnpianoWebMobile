@@ -1,13 +1,13 @@
-
+use prod_KNStudent;
 /**
 * 获取所有学生签完到的上课记录和课费记录
 */
-DROP VIEW IF EXISTS v_info_lesson_fee_connect_lsn;
+DROP VIEW IF EXISTS v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect;
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 
     SQL SECURITY DEFINER
-VIEW v_info_lesson_fee_connect_lsn AS
+VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
     SELECT 
         fee.lsn_fee_id AS lsn_fee_id,
         fee.lesson_id AS lesson_id,
@@ -24,18 +24,20 @@ VIEW v_info_lesson_fee_connect_lsn AS
         doc.subject_sub_name AS subject_sub_name,
         (CASE
             WHEN (doc.lesson_fee_adjusted > 0) THEN doc.lesson_fee_adjusted
-            ELSE doc.lesson_fee
+            ELSE case 
+					when fee.extra2sche_flg = 1 then fee.lsn_fee -- 如果是加课换正课记录，就是用换正课后的课程价格
+					else doc.lesson_fee end
         END) AS subject_price,
-        (fee.lsn_fee * (lsn.class_duration / doc.minutes_per_lsn)) AS lsn_fee,
+        (fee.lsn_fee * (lsn.class_duration / doc.minutes_per_lsn)) AS lsn_fee, -- 这是学生实际上课的费用值，不是学费的值
         fee.lsn_month AS lsn_month,
         fee.own_flg AS own_flg,
         fee.del_flg AS del_flg,
-        fee.extra2sche_flg,
+        fee.extra2sche_flg, -- 加课换正课标识
         fee.create_date AS create_date,
         fee.update_date AS update_date
     FROM
-        ((v_info_lesson_fee_include_extra2sche fee -- 包含了加课换正课后的记录
-        JOIN v_info_lesson_include_extra2sche lsn   -- 包含了加课换正课后的记录
+        ((v_info_lesson_fee_and_extraToScheDataCorrect fee  -- 包含了加课换正课后的记录
+        JOIN v_info_lesson_and_extraToScheDataCorrect lsn   -- 包含了加课换正课后的记录
         ON (((fee.lesson_id = lsn.lesson_id)
             AND (fee.del_flg = 0)
             AND (lsn.del_flg = 0))))

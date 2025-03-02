@@ -33,14 +33,10 @@ FROM
 			    subject_price,
 				pay_style,
 			    lesson_type,
-				-- SUM(CASE 
--- 					WHEN lesson_type = 1 THEN subject_price * 4
--- 					ELSE lsn_fee
--- 				END) AS lsn_fee,
-				CASE 
+				SUM(CASE 
 					WHEN lesson_type = 1 THEN subject_price * 4
-					ELSE sum(lsn_fee)
-				END AS lsn_fee,
+					ELSE lsn_fee
+				END) AS lsn_fee,
 			    lsn_count,
 				lsn_month
 			FROM(
@@ -58,7 +54,7 @@ FROM
 			        sum(lsn_count) as lsn_count,
 					sum(lsn_fee) as lsn_fee,
 					lsn_month
-				FROM v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
+				FROM v_info_lesson_fee_connect_lsn
 			    where own_flg = 1
 				GROUP BY lsn_fee_id,stu_id,stu_name,		
 			    subject_id,
