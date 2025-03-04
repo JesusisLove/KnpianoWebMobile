@@ -575,14 +575,14 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '原加课日: ${lesson.originalSchedualDate}',
+            '原加课日: ${_getWeekday(lesson.originalSchedualDate)} ${lesson.originalSchedualDate}',
             style: TextStyle(
               color: isPaidExtraLesson ? Colors.grey : Colors.grey,
               decoration: TextDecoration.lineThrough,
             ),
           ),
           Text(
-            '现正课日: ${lesson.extraToDurDate}',
+            '现正课日: ${_getWeekday(lesson.extraToDurDate)} ${lesson.extraToDurDate}',
             style: TextStyle(color: textColor),
           ),
         ],
@@ -592,11 +592,11 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '上课日期: ${lesson.schedualDate}',
+            '上课日期: ${_getWeekday(lesson.schedualDate)} ${lesson.schedualDate}',
             style: TextStyle(color: textColor),
           ),
           Text(
-            '调课日期: ${lesson.lsnAdjustedDate}',
+            '调课日期: ${_getWeekday(lesson.lsnAdjustedDate)} ${lesson.lsnAdjustedDate}',
             style: TextStyle(
               color: isPaidExtraLesson
                   ? Colors.grey
@@ -609,9 +609,36 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
       );
     } else {
       return Text(
-        '上课日期: ${lesson.schedualDate}',
+        '上课日期: ${_getWeekday(lesson.schedualDate)} ${lesson.schedualDate}',
         style: TextStyle(color: textColor),
       );
+    }
+  }
+
+  String _getWeekday(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      switch (date.weekday) {
+        case 1:
+          return '(Mon)';
+        case 2:
+          return '(Tue)';
+        case 3:
+          return '(Wed)';
+        case 4:
+          return '(Thu)';
+        case 5:
+          return '(Fri)';
+        case 6:
+          return '(Sat)';
+        case 7:
+          return '(Sun)';
+        default:
+          return '';
+      }
+    } catch (e) {
+      return '';
     }
   }
 
