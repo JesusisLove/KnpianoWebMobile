@@ -663,7 +663,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
               child: Text((index + 1).toString()),
             ),
             title: Text(lesson.subjectName),
-            subtitle: Text('上课日期: $lessonDate'),
+            subtitle: Text('上课日期: ${_getWeekday(lessonDate)} $lessonDate'),
             trailing: ElevatedButton(
               onPressed: () async {
                 // 将 onPressed 改为异步函数
