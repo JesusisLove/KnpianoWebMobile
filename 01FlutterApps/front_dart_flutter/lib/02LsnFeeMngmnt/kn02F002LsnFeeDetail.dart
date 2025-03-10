@@ -432,15 +432,50 @@ class MonthLineItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${item.subjectName} - $lessonTypeText',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: item.ownFlg == 1 ? Colors.grey : knBgColor,
-                    decoration: item.ownFlg == 1
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${item.subjectName} - $lessonTypeText',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: item.ownFlg == 1 ? Colors.grey : knBgColor,
+                          decoration: item.ownFlg == 1
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                    // 如果有支付日期且不为空，显示支付日期和银行名称
+                    if (item.payDate != null && item.payDate!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10), // 设置10像素的间距
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '支付日期: ${item.payDate}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.green,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (item.bankName != null &&
+                                item.bankName!.isNotEmpty)
+                              Text(
+                                '银行名称: ${item.bankName}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
                 Text(
                   '课时: ${item.lsnCount}节  $lsnFeeText：\$${item.lessonType == 1 ? (item.subjectPrice! * 4).toStringAsFixed(2) : item.lsnFee.toStringAsFixed(2)}',

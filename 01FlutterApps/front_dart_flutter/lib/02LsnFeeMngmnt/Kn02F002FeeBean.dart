@@ -27,31 +27,34 @@ class Kn02F002FeeBean {
   final double? subjectPrice;
   // 新增：识别该精算课费是不是预支付的课费（只有advcFlg=0 是预支付课费）
   final int advcFlg;
+  final String bankName;
 
-  Kn02F002FeeBean(
-      {required this.lsnPayId,
-      required this.lsnFeeId,
-      required this.lessonId,
-      required this.lsnFee,
-      required this.lsnPay,
-      required this.lsnMonth,
-      required this.ownFlg,
-      required this.lessonType,
-      required this.stuId,
-      required this.subjectId,
-      required this.stuName,
-      required this.subjectName,
-      required this.payStyle,
-      required this.lsnCount,
-      // 画面用变量
-      required this.month,
-      required this.payDate,
-      required this.payStatus,
-      required this.totalLsnCount0,
-      required this.totalLsnCount1,
-      required this.totalLsnCount2,
-      required this.subjectPrice,
-      required this.advcFlg});
+  Kn02F002FeeBean({
+    required this.lsnPayId,
+    required this.lsnFeeId,
+    required this.lessonId,
+    required this.lsnFee,
+    required this.lsnPay,
+    required this.lsnMonth,
+    required this.ownFlg,
+    required this.lessonType,
+    required this.stuId,
+    required this.subjectId,
+    required this.stuName,
+    required this.subjectName,
+    required this.payStyle,
+    required this.lsnCount,
+    // 画面用变量
+    required this.month,
+    required this.payDate,
+    required this.payStatus,
+    required this.totalLsnCount0,
+    required this.totalLsnCount1,
+    required this.totalLsnCount2,
+    required this.subjectPrice,
+    required this.advcFlg,
+    required this.bankName,
+  });
 
   factory Kn02F002FeeBean.fromJson(Map<String, dynamic> json) {
     String formattedPayDate = '';
@@ -101,6 +104,7 @@ class Kn02F002FeeBean {
       totalLsnCount2: json['totalLsnCount2']?.toDouble() ?? 0.0,
       subjectPrice: json['subjectPrice']?.toDouble() ?? 0.0,
       advcFlg: json['advcFlg'] == 0 ? 0 : 1, // 只有advcFlg=0 才是预支付费用
+      bankName: json['bankName'] ?? '',
     );
   }
 }

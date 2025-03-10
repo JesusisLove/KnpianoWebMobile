@@ -74,7 +74,9 @@
                         <td>[[${info.hasPaidLsnFee}]]</td>
                         <td>[[${info.unpaidLsnFee}]]</td>
                         <td>
-                        <a class="btn btn-sm btn-primary go-to-settle" href="#" th:data-stu-id="${info.stuId}">去结算</a> 
+                        <!-- <a class="btn btn-sm btn-primary go-to-settle" href="#" th:data-stu-id="${info.stuId}">去结算</a>  -->
+                        <a th:if="${info.unpaidLsnFee > 0.0}" class="btn btn-sm btn-primary go-to-settle" href="#" th:data-stu-id="${info.stuId}">去结算</a>
+                        <button th:if="${info.unpaidLsnFee <= 0.0}" class="btn btn-sm btn-secondary" disabled>已结算</button>
                         </td>
                  </tr>
                     </tbody>

@@ -100,6 +100,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,pay_date
                 ,own_flg
                 ,1 as advc_flg
+                ,'' as bank_name
             from v_info_lesson_sum_fee_unpaid_yet
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
@@ -120,9 +121,12 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,paid.pay_date
                 ,1 as own_flg
                 ,lfap.advc_flg
+                ,bnk.bank_name
             from v_info_lesson_sum_fee_pay_over paid
             left join t_info_lsn_fee_advc_pay lfap
             on paid.lsn_pay_id = lfap.lsn_pay_id
+            left join t_mst_bank bnk
+            on paid.bank_id = bnk.bank_id
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
         order by lsn_month, subject_id;
