@@ -663,7 +663,20 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
               child: Text((index + 1).toString()),
             ),
             title: Text(lesson.subjectName),
-            subtitle: Text('上课日期: ${_getWeekday(lessonDate)} $lessonDate'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('上课日期: ${_getWeekday(lessonDate)} $lessonDate'),
+                if (lesson.memo != null && lesson.memo!.isNotEmpty)
+                  Text(
+                    '备注: ${lesson.memo}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+              ],
+            ),
             trailing: ElevatedButton(
               onPressed: () async {
                 // 将 onPressed 改为异步函数
@@ -690,6 +703,8 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
               ),
               child: const Text('查看'),
             ),
+            isThreeLine:
+                lesson.memo != null && lesson.memo!.isNotEmpty, // 如果有备注，设置为三行布局
           ),
         );
       },
