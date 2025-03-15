@@ -79,7 +79,7 @@ class HomePageState extends State<HomePage> {
                             pagePath: "加课消化管理>>在课学生一览",
                             pageId: Constants.kn01L003ExtraToSche,
                             strUri:
-                                '${Constants.lsnInfoStuName}/${DateTime.now().year}',
+                                '${Constants.lsnExtraInfoStuName}/${DateTime.now().year}',
                           )));
             },
             bgcolor: consts.Constants.lessonThemeColor,
@@ -88,7 +88,7 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "课时统计查询",
+            text: "碎课组装正课",
             onPressed: () {},
             bgcolor: consts.Constants.lessonThemeColor,
           ),
@@ -264,7 +264,7 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.calendar_month,
-            text: "年度课程汇报",
+            text: "年度课程汇总",
             onPressed: () {},
             bgcolor: consts.Constants.ingergThemeColor,
           ),

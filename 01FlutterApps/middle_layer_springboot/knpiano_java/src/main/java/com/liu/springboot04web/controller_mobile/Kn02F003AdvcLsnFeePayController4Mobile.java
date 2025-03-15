@@ -39,10 +39,13 @@ public class Kn02F003AdvcLsnFeePayController4Mobile {
         return ResponseEntity.ok(list);
     }
 
-    //取得该生预支付的科目信息
+    //点击手机前端画面“推算排课日期”按钮
     @GetMapping("/mb_kn_advc_pay_lsn/{stuId}/{yearMonth}")
     public ResponseEntity<List<Kn02F003AdvcLsnFeePayBean>> getInfoStuLsnList(@PathVariable("stuId")     String stuId,
                                                                              @PathVariable("yearMonth") String yearMonth) {
+        // 前端传递过来的年月小于系统当前年月的，不能进行预支付处理
+                                                    
+
         // 将学生交费信息响应送给前端
         List<Kn02F003AdvcLsnFeePayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
 

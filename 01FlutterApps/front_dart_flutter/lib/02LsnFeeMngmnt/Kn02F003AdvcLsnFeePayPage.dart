@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F003AdvcLsnFeePayBean.dart';
@@ -351,6 +352,35 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // 添加操作指导小贴士
+            Container(
+              margin: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: Colors.yellow[50],
+                border: Border.all(color: Colors.amber),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '预支付操作小贴士:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                      color: Colors.amber,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text('①指定年月后，点击【推算排课日期】按钮。'),
+                  Text('②看到日期字体红色，表示过去的日期，依然可以预支付。'),
+                  Text('③点击排课日期，可以另择日期进行预排课。'),
+                  Text('④选择银行名称，点击【课费与支付】完成预支付操作。'),
+                  Text('※一旦预支付完成，再预支付程序也不会重复执行预支付。'),
+                ],
+              ),
+            ),
             // 年月选择和推算排课日期按钮
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -488,7 +518,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       minimumSize: const Size(120, controlHeight),
-                    ), // 修改：使用新的executeAdvcLsnPay方法
+                    ),
                     child: const Text(
                       '课费预支付',
                       style: TextStyle(color: Colors.white),
@@ -594,7 +624,8 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
         });
         widget.onChanged(value); // 调用回调函数
       },
-      title: Text('${widget.item.subjectName} ${widget.item.subjectSubName}'),
+      title: Text(
+          '${widget.item.subjectName} ${widget.item.subjectSubName} ${widget.item.lessonType == 1 ? '「月计划」' : ''}'),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -604,10 +635,11 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
               children: <TextSpan>[
                 TextSpan(
                     text:
-                        '¥${widget.item.subjectPrice}　${widget.item.lessonType == 1 ? '月计划' : ''}　${widget.item.minutesPerLsn}分钟　'),
+                        '¥${widget.item.subjectPrice}   ${widget.item.minutesPerLsn}分钟   '),
                 if (displayDate.isNotEmpty)
                   TextSpan(
-                    text: displayDate,
+                    text:
+                        '${CommonMethod.getWeekday(displayDate)} $displayDate',
                     style: TextStyle(
                       color: widget.item.schedualDate.isEmpty
                           ? Colors.blue

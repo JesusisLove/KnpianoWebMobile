@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import '../../02LsnFeeMngmnt/Kn02F002FeeBean.dart';
 import '../../ApiConfig/KnApiConfig.dart';
+import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'CalendarPage.dart';
@@ -111,33 +112,6 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
     // 新增：获取课程详细信息
     await _fetchScanedLsnDetails();
-  }
-
-  String _getWeekday(String dateStr) {
-    if (dateStr.isEmpty) return '';
-    try {
-      final date = DateTime.parse(dateStr);
-      switch (date.weekday) {
-        case 1:
-          return '(Mon)';
-        case 2:
-          return '(Tue)';
-        case 3:
-          return '(Wed)';
-        case 4:
-          return '(Thu)';
-        case 5:
-          return '(Fri)';
-        case 6:
-          return '(Sat)';
-        case 7:
-          return '(Sun)';
-        default:
-          return '';
-      }
-    } catch (e) {
-      return '';
-    }
   }
 
   // 新增：获取课程详细信息的方法
@@ -563,7 +537,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                 children: [
                   if (lesson.lsnAdjustedDate.isNotEmpty) ...[
                     Text(
-                      '原定: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      '原定: ${CommonMethod.getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
                       style: TextStyle(
                         color: isExtraLesson ? Colors.pink : textColor,
                         decoration: TextDecoration.lineThrough,
@@ -571,13 +545,13 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     ),
                     const SizedBox(height: 4), // 添加垂直间距
                     Text(
-                      '调至: ${_getWeekday(lesson.lsnAdjustedDate)}  ${lesson.lsnAdjustedDate}',
+                      '调至: ${CommonMethod.getWeekday(lesson.lsnAdjustedDate)}  ${lesson.lsnAdjustedDate}',
                       style: TextStyle(
                           color: isExtraLesson ? Colors.pink : Colors.orange),
                     ),
                   ] else if (lesson.originalSchedualDate.isNotEmpty) ...[
                     Text(
-                      '原加课: ${_getWeekday(lesson.originalSchedualDate)}  ${lesson.originalSchedualDate}',
+                      '原加课: ${CommonMethod.getWeekday(lesson.originalSchedualDate)}  ${lesson.originalSchedualDate}',
                       style: const TextStyle(
                         color: Colors.grey,
                         decoration: TextDecoration.lineThrough,
@@ -585,12 +559,12 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     ),
                     const SizedBox(height: 4), // 添加垂直间距
                     Text(
-                      '现正课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      '现正课: ${CommonMethod.getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
                       style: TextStyle(color: textColor),
                     ),
                   ] else ...[
                     Text(
-                      '上课: ${_getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
+                      '上课: ${CommonMethod.getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
                       style: TextStyle(
                           color: isExtraLesson ? Colors.pink : textColor),
                     ),
@@ -666,7 +640,8 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('上课日期: ${_getWeekday(lessonDate)} $lessonDate'),
+                Text(
+                    '上课日期: ${CommonMethod.getWeekday(lessonDate)} $lessonDate'),
                 if (lesson.memo != null && lesson.memo!.isNotEmpty)
                   Text(
                     '备注: ${lesson.memo}',
