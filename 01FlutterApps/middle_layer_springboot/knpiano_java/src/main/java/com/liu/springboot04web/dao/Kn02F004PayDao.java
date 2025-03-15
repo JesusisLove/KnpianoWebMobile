@@ -51,6 +51,7 @@ public class Kn02F004PayDao {
         Kn02F002FeeBean kn02F002FeeBean = new Kn02F002FeeBean();
         kn02F002FeeBean.setLsnFeeId(lsnFeeId);
         kn02F002FeeBean.setOwnFlg(0);
+        //  把该生整个月的课费执行撤销（从课费结算表里撤销一个课费，即lsn_pay_id，也就根据该课费id对应的课程id，即lesson_id去更新课费表里的课费支付状态（更新多条记录））
         kn02F002FeeDao.updateOwnFlg(kn02F002FeeBean);
 
         // 《加课换正课中间表》对换正课的结算标识own_flg字段做1→0的更新操作

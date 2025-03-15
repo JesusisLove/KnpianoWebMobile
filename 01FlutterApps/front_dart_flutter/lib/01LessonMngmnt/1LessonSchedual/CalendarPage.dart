@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
@@ -29,17 +31,20 @@ class RescheduleLessonTimeDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RescheduleLessonTimeDialogState createState() => _RescheduleLessonTimeDialogState();
+  _RescheduleLessonTimeDialogState createState() =>
+      _RescheduleLessonTimeDialogState();
 }
 
-class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog> {
+class _RescheduleLessonTimeDialogState
+    extends State<RescheduleLessonTimeDialog> {
   late TimeOfDay selectedTime;
 
   @override
   void initState() {
     super.initState();
     final timeParts = widget.initialTime.split(':');
-    selectedTime = TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+    selectedTime = TimeOfDay(
+        hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
   }
 
   bool _isValidTime(TimeOfDay time) {
@@ -113,7 +118,8 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
               child: TextFormField(
                 decoration: InputDecoration(
                   hintText: '选择日期',
-                  suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+                  suffixIcon:
+                      const Icon(Icons.calendar_today, color: Colors.grey),
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
@@ -139,7 +145,8 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
                     ),
                   ),
                   controller: TextEditingController(
-                    text: '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                    text:
+                        '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
                   ),
                 ),
               ),
@@ -155,9 +162,10 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
                   ),
                 ),
                 onPressed: () async {
-                  final String newTime = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+                  final String newTime =
+                      '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
                   try {
-                    await widget.onSave(newTime);
+                    await widget.onSave(newTime); // 调用保存回调函数
                     if (mounted) {
                       Navigator.of(context).pop(true);
                     }
@@ -188,12 +196,17 @@ class _RescheduleLessonTimeDialogState extends State<RescheduleLessonTimeDialog>
 
 class CalendarPage extends StatefulWidget {
   final String focusedDay;
-  const CalendarPage({super.key, required this.focusedDay});
+  final String? stuId;
+  const CalendarPage({super.key, required this.focusedDay, this.stuId});
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  String? highlightedStuId; // 新增
+  final ScrollController _scrollController = ScrollController(); // 新增
+  Timer? _highlightTimer; // 新增
+
   CalendarFormat _calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay;
   late DateTime _selectedDay;
@@ -202,23 +215,86 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Kn01L002LsnBean> studentLsns = [];
 
   @override
+  @override
   void initState() {
     super.initState();
     _focusedDay = DateFormat('yyyy-MM-dd').parse(widget.focusedDay);
     _selectedDay = _focusedDay;
-    _fetchStudentLsn(widget.focusedDay.trim());
+
+    // 设置初始状态
+    if (widget.focusedDay.contains(' ')) {
+      final time = widget.focusedDay.split(' ')[1].substring(0, 5);
+      setState(() {
+        currentHighlightedTime = time;
+        highlightedStuId = widget.stuId;
+      });
+
+      // 设置10秒后清除高亮状态
+      _highlightTimer = Timer(const Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() {
+            currentHighlightedTime = null;
+            highlightedStuId = null;
+          });
+        }
+      });
+    }
+
+    // 获取指定日期的课程数据
+    _fetchStudentLsn(widget.focusedDay.split(' ')[0].trim());
+
+    // 等待布局完成后滚动到目标位置
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToTargetTime();
+    });
+  }
+
+  // 新增：滚动到目标时间位置
+  void _scrollToTargetTime() {
+    if (widget.focusedDay.contains(' ')) {
+      final targetTime = widget.focusedDay.split(' ')[1].substring(0, 5);
+      final targetHour = int.parse(targetTime.split(':')[0]);
+      final targetMinute = int.parse(targetTime.split(':')[1]);
+
+      // 计算目标位置
+      final index = ((targetHour - 8) * 4) + (targetMinute ~/ 15);
+      final targetPosition = index * 60.0; // 假设每个时间格的高度约为60
+
+      // 计算滚动位置，使目标位置位于屏幕中间
+      final screenHeight = MediaQuery.of(context).size.height;
+      final offset =
+          math.max(0, targetPosition - (screenHeight / 2)).toDouble();
+
+      // 滚动到目标位置
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  // 新增：清理定时器
+  @override
+  void dispose() {
+    _highlightTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchStudentLsn(String schedualDate) async {
     try {
-      final String apilsnInfoByDayUrl = '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
+      final String apilsnInfoByDayUrl =
+          '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
       final response = await http.get(Uri.parse(apilsnInfoByDayUrl));
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> responseStuLsnsJson = json.decode(decodedBody);
         setState(() {
-          studentLsns = responseStuLsnsJson.map((json) => Kn01L002LsnBean.fromJson(json)).toList();
+          studentLsns = responseStuLsnsJson
+              .map((json) => Kn01L002LsnBean.fromJson(json))
+              .toList();
         });
       } else {
         throw Exception('Failed to load archived lessons of the day');
@@ -228,7 +304,9 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  Future<void> _updateLessonTime(String lessonId, String newTime, bool isRescheduledLesson) async {
+  // 长按课程卡片弹出的对话框画面，点击“保存”，执行时间更新
+  Future<void> _updateLessonTime(
+      String lessonId, String newTime, bool isRescheduledLesson) async {
     // 选中的课程表日期
     final String selectedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     // 设置当天的调换时间
@@ -241,7 +319,8 @@ class _CalendarPageState extends State<CalendarPage> {
     };
 
     try {
-      final String updateUrl = '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
+      final String updateUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
       final response = await http.post(
         Uri.parse(updateUrl),
         headers: {'Content-Type': 'application/json'},
@@ -262,55 +341,60 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
     return studentLsns.where((event) {
-      String eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-      String eventTime1 = event.schedualDate != null && event.schedualDate.length >= 16 ? event.schedualDate.substring(11, 16) : '';
+      String eventScheduleDateStr =
+          event.schedualDate != null && event.schedualDate.length >= 10
+              ? event.schedualDate.substring(0, 10)
+              : '';
+      String eventTime1 =
+          event.schedualDate != null && event.schedualDate.length >= 16
+              ? event.schedualDate.substring(11, 16)
+              : '';
 
-      String eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
-      String eventTime2 = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16 ? event.lsnAdjustedDate.substring(11, 16) : '';
+      String eventAdjustedDateStr =
+          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+              ? event.lsnAdjustedDate.substring(0, 10)
+              : '';
+      String eventTime2 =
+          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
+              ? event.lsnAdjustedDate.substring(11, 16)
+              : '';
 
-      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) || (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
+      return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) ||
+          (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
     }).toList();
   }
 
   void _handleTimeSelection(BuildContext context, String time) {
     String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Date: $formattedDate, Time: $time')),
-    );
-
-    List<Kn01L002LsnBean> eventsForTime = getSchedualLessonForTime(time);
-
-    if (eventsForTime.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
-        },
-      ).then((result) {
-        if (result == true) {
-          setState(() {
-            _fetchStudentLsn(formattedDate);
-          });
-        }
-      });
-    }
-  }
-
-  void _handleEditCourse(Kn01L002LsnBean event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return EditCourseDialog(lessonId: event.lessonId);
+        return AddCourseDialog(scheduleDate: formattedDate, scheduleTime: time);
       },
     ).then((result) {
       if (result == true) {
         setState(() {
-          _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+          _fetchStudentLsn(formattedDate);
         });
       }
     });
   }
+
+  // //课程的修改功能暂时不要了 2025/02/08 先暂时保留，不要删除
+  // void _handleEditCourse(Kn01L002LsnBean event) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return EditCourseDialog(lessonId: event.lessonId);
+  //     },
+  //   ).then((result) {
+  //     if (result == true) {
+  //       setState(() {
+  //         _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+  //       });
+  //     }
+  //   });
+  // }
 
   void _handleSignCourse(Kn01L002LsnBean event) {
     showDialog(
@@ -318,7 +402,8 @@ class _CalendarPageState extends State<CalendarPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('执行签到确认'),
-          content: Text('签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
+          content: Text(
+              '签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
           actions: <Widget>[
             TextButton(
               child: const Text('取消'),
@@ -329,7 +414,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
+                final String signUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
                 try {
                   final response = await http.get(
                     Uri.parse(signUrl),
@@ -339,7 +425,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -373,7 +460,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String signUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
+                final String signUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
                 try {
                   final response = await http.get(
                     Uri.parse(signUrl),
@@ -383,7 +471,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -454,7 +543,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
                 try {
                   final response = await http.post(
                     Uri.parse(deleteUrl),
@@ -464,7 +554,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -498,7 +589,8 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               child: const Text('确定'),
               onPressed: () async {
-                final String deleteUrl = '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
                 try {
                   final response = await http.delete(
                     Uri.parse(deleteUrl),
@@ -508,7 +600,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   );
                   if (response.statusCode == 200) {
                     setState(() {
-                      _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                      _fetchStudentLsn(
+                          DateFormat('yyyy-MM-dd').format(_selectedDay));
                     });
                     Navigator.of(context).pop(true);
                   } else {
@@ -530,10 +623,11 @@ class _CalendarPageState extends State<CalendarPage> {
     bool hasContent = noteContent.isNotEmpty;
 
     // 创建一个TextEditingController并设置初始值和光标位置
-    final TextEditingController _controller = TextEditingController(text: noteContent)
-      ..selection = TextSelection.fromPosition(
-        TextPosition(offset: noteContent.length),
-      );
+    final TextEditingController _controller =
+        TextEditingController(text: noteContent)
+          ..selection = TextSelection.fromPosition(
+            TextPosition(offset: noteContent.length),
+          );
 
     showDialog(
       context: context,
@@ -585,26 +679,32 @@ class _CalendarPageState extends State<CalendarPage> {
                   height: 40,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: hasContent ? Colors.pink[100] : Colors.grey[300],
+                      backgroundColor:
+                          hasContent ? Colors.pink[100] : Colors.grey[300],
                     ),
                     onPressed: hasContent
                         ? () async {
                             try {
-                              final String memoUrl = '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
+                              final String memoUrl =
+                                  '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
                               final response = await http.post(
                                 Uri.parse(memoUrl),
                                 headers: {
-                                  'Content-Type': 'application/json; charset=utf-8', // 确保指定正确的字符集
+                                  'Content-Type':
+                                      'application/json; charset=utf-8', // 确保指定正确的字符集
                                 },
                                 body: json.encode({
                                   'memo': noteContent,
                                   'lessonId': event.lessonId,
                                 }),
                               );
-                              final responseData = json.decode(utf8.decode(response.bodyBytes));
-                              if (response.statusCode == 200 && responseData['status'] == 'success') {
+                              final responseData =
+                                  json.decode(utf8.decode(response.bodyBytes));
+                              if (response.statusCode == 200 &&
+                                  responseData['status'] == 'success') {
                                 Navigator.of(dialogContext).pop();
-                                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+                                _fetchStudentLsn(DateFormat('yyyy-MM-dd')
+                                    .format(_selectedDay));
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('备注更新成功'),
@@ -612,9 +712,11 @@ class _CalendarPageState extends State<CalendarPage> {
                                   ),
                                 );
                               } else {
-                                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                ScaffoldMessenger.of(dialogContext)
+                                    .showSnackBar(
                                   SnackBar(
-                                    content: Text('备注更新失败: ${responseData['message'] ?? '未知错误'}'),
+                                    content: Text(
+                                        '备注更新失败: ${responseData['message'] ?? '未知错误'}'),
                                     backgroundColor: Colors.red,
                                     duration: const Duration(seconds: 3),
                                   ),
@@ -707,7 +809,8 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Text(
               DateFormat('yyyy年MM月dd日').format(_selectedDay),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -715,11 +818,13 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           Expanded(
             child: ListView.builder(
+              controller: _scrollController, // 新增
               itemCount: ((22 - 8) * 4), // 从8点到22点，每小时4个时间段
               itemBuilder: (context, index) {
                 int hour = 8 + (index ~/ 4);
                 int minute = (index % 4) * 15;
-                String time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+                String time =
+                    '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
                 return TimeTile(
                   key: ValueKey(time),
@@ -728,7 +833,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   onTap: () => _handleTimeSelection(context, time),
                   onSign: _handleSignCourse,
                   onRestore: _handleRestoreCourse,
-                  onEdit: _handleEditCourse,
+                  // onEdit: _handleEditCourse,
+                  highlightedStuId: highlightedStuId, // 新增
                   onDelete: _handleDeleteCourse,
                   onReschLsn: _handleReschLsnCourse,
                   onCancel: _handleCancelRescheCourse,
@@ -758,7 +864,7 @@ class TimeTile extends StatefulWidget {
   final VoidCallback onTap;
   final Function(Kn01L002LsnBean) onSign;
   final Function(Kn01L002LsnBean) onRestore;
-  final Function(Kn01L002LsnBean) onEdit;
+  // final Function(Kn01L002LsnBean) onEdit; 废弃课程的修改处理
   final Function(Kn01L002LsnBean) onDelete;
   final Function(Kn01L002LsnBean) onReschLsn;
   final Function(Kn01L002LsnBean) onCancel;
@@ -767,6 +873,7 @@ class TimeTile extends StatefulWidget {
   final Function(String, String, bool) onTimeChanged;
   final String? highlightedTime;
   final Function(String) onHighlightChanged;
+  final String? highlightedStuId; // 新增
 
   const TimeTile({
     super.key,
@@ -775,7 +882,7 @@ class TimeTile extends StatefulWidget {
     required this.onTap,
     required this.onSign,
     required this.onRestore,
-    required this.onEdit,
+    // required this.onEdit,
     required this.onDelete,
     required this.onReschLsn,
     required this.onCancel,
@@ -784,33 +891,111 @@ class TimeTile extends StatefulWidget {
     required this.onTimeChanged,
     required this.highlightedTime,
     required this.onHighlightChanged,
+    this.highlightedStuId, // 新增
   });
 
   @override
   _TimeTileState createState() => _TimeTileState();
 }
 
-class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin {
+class _TimeTileState extends State<TimeTile>
+    with SingleTickerProviderStateMixin {
   GlobalKey timeLineKey = GlobalKey();
   String? pressedLessonId;
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
+  Timer? _blinkTimer;
+  late AnimationController _fadeController; // 动画控制器，控制动画
+  late Animation<double> _fadeAnimation; // 动画显示课程卡片外缘显示红色，然后颜色消失
   bool _isSaving = false; // 新增：保存状态标志
+
+  // 修改高亮判断逻辑
+  bool _isHighlighted(Kn01L002LsnBean event) {
+    final bool timeMatches = widget.time == widget.highlightedTime;
+    final bool stuIdMatches = event.stuId == widget.highlightedStuId;
+    return timeMatches && stuIdMatches;
+  }
 
   @override
   void initState() {
     super.initState();
+    // 动画初期化
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+    _fadeAnimation =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+    // 如果该课程卡片需要高亮显示，启动闪烁动画
+    if (widget.events.isNotEmpty) {
+      for (var event in widget.events) {
+        if (_isHighlighted(event)) {
+          _startBlinking();
+          break;
+        }
+      }
+    }
+  }
+
+// 添加闪烁控制方法
+  void _startBlinking() {
+    // 取消已存在的闪烁
+    _blinkTimer?.cancel();
+
+    // 重置控制器状态
+    _fadeController.value = 1.0;
+
+    // 每500毫秒闪烁一次，持续10秒（总共闪烁20次）
+    int blinkCount = 0;
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted && blinkCount < 20) {
+        setState(() {
+          _fadeController.value = _fadeController.value == 0 ? 1.0 : 0.0;
+        });
+        blinkCount++;
+      } else {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _fadeController.value = 0.0; // 确保动画结束时边框消失
+          });
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    _blinkTimer?.cancel(); // 确保在销毁时取消计时器
     _fadeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(TimeTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 检查事件列表是否发生变化
+    bool eventsChanged = widget.events.length != oldWidget.events.length;
+    if (!eventsChanged && widget.events.isNotEmpty) {
+      for (int i = 0; i < widget.events.length; i++) {
+        if (widget.events[i].lessonId != oldWidget.events[i].lessonId) {
+          eventsChanged = true;
+          break;
+        }
+      }
+    }
+
+    // 当高亮状态发生改变或事件列表发生变化时，触发动画
+    if (widget.events.isNotEmpty &&
+        (widget.highlightedTime != oldWidget.highlightedTime ||
+            widget.highlightedStuId != oldWidget.highlightedStuId ||
+            eventsChanged)) {
+      for (var event in widget.events) {
+        if (_isHighlighted(event)) {
+          _startBlinking();
+          break;
+        }
+      }
+    }
   }
 
   // 修改：调整长按处理逻辑
@@ -840,7 +1025,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                 setState(() {
                   _isSaving = true;
                 });
-                await widget.onTimeChanged(event.lessonId, newTime, isRescheduledLesson);
+                await widget.onTimeChanged(
+                    event.lessonId, newTime, isRescheduledLesson);
                 return true;
               } catch (e) {
                 setState(() {
@@ -899,38 +1085,36 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
     bool hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
     bool hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
 
-    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) || ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) || ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
+    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) ||
+        ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) ||
+        ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
   }
 
   @override
   Widget build(BuildContext context) {
     bool isHighlighted = widget.time == widget.highlightedTime;
-
-    if (widget.events.isEmpty) {
-      return GestureDetector(
-        onTap: widget.onTap,
-        child: Container(
-          key: timeLineKey,
-          color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
-          child: _buildTimeLine(),
-        ),
-      );
-    }
-
-    return Container(
-      color: isHighlighted ? Colors.yellow[100] : Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              key: timeLineKey,
-              child: _buildTimeLine(),
-            ),
-            ...widget.events.map((event) => _buildEventTile(context, event)),
-          ],
-        ),
+    return GestureDetector(
+      // 将GestureDetector移到最外层
+      onTap: widget.onTap,
+      child: Container(
+        // 这是是设置时间槽的背景颜色
+        // color: isHighlighted ? Colors.red[100] : Colors.transparent,
+        child: widget.events.isEmpty
+            ? _buildTimeLine()
+            : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      key: timeLineKey,
+                      child: _buildTimeLine(),
+                    ),
+                    ...widget.events
+                        .map((event) => _buildEventTile(context, event)),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -999,20 +1183,47 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
+    final eventScheduleDateStr =
+        event.schedualDate != null && event.schedualDate.length >= 10
+            ? event.schedualDate.substring(0, 10)
+            : '';
+    final eventAdjustedDateStr =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+            ? event.lsnAdjustedDate.substring(0, 10)
+            : '';
+    final hasBeenRescheduled =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
 
-    final hasBeenRescheduled = event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
-    final hasBeenSigned = event.scanQrDate != null && event.scanQrDate.isNotEmpty;
+    final hasBeenSigned =
+        event.scanQrDate != null && event.scanQrDate.isNotEmpty;
 
-    final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && !hasBeenSigned;
-    final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr && !hasBeenRescheduled && hasBeenSigned;
+    final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        !hasBeenSigned;
 
-    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
-    final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && hasBeenSigned;
+    final isScheduledSignedLsn = selectedDayStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        hasBeenSigned;
 
-    final isAdjustedUnSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && !hasBeenSigned;
-    final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr && hasBeenRescheduled && selectedDayStr == eventAdjustedDateStr && hasBeenSigned;
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
+
+    final isAdjustedSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        hasBeenSigned;
+
+    final isAdjustedUnSignedLsnTo = selectedDayStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr == eventAdjustedDateStr &&
+        !hasBeenSigned;
+
+    final isAdjustedSignedLsnTo = selectedDayStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr == eventAdjustedDateStr &&
+        hasBeenSigned;
 
     Color backgroundColor;
     Color textColor = Colors.black;
@@ -1036,7 +1247,9 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
     }
 
     TextDecoration textDecoration = TextDecoration.none;
-    if (isScheduledSignedLsn || isAdjustedSignedLsnFrom || isAdjustedSignedLsnTo) {
+    if (isScheduledSignedLsn ||
+        isAdjustedSignedLsnFrom ||
+        isAdjustedSignedLsnTo) {
       textDecoration = TextDecoration.lineThrough;
     }
     return GestureDetector(
@@ -1045,15 +1258,21 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
       child: Card(
         elevation: 2,
         margin: const EdgeInsets.only(left: 56, top: 4, bottom: 4, right: 8),
-        color: backgroundColor,
+        // 设置课程卡片的背景颜色
+        color: _isHighlighted(event) ? Colors.red[100] : backgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: pressedLessonId == event.lessonId && _isSaving
+          side: _isHighlighted(event) // 修改这里的判断条件
               ? BorderSide(
                   color: Colors.red.withOpacity(_fadeAnimation.value),
                   width: 2.0,
                 )
-              : BorderSide.none,
+              : (pressedLessonId == event.lessonId && _isSaving
+                  ? BorderSide(
+                      color: Colors.red.withOpacity(_fadeAnimation.value),
+                      width: 2.0,
+                    )
+                  : BorderSide.none),
         ),
         child: AnimatedBuilder(
           animation: _fadeAnimation,
@@ -1074,7 +1293,7 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                     Text(
                       event.stuName,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: textColor,
                         decoration: textDecoration,
@@ -1103,7 +1322,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                               child: Text(
                                 additionalInfo,
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -1121,13 +1341,16 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                           child: Text(
                             '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: textColor,
                               decoration: textDecoration,
                             ),
                           ),
                         ),
-                        if (event.memo != null && event.memo!.isNotEmpty)
+                        if (event.memo != null &&
+                            event.memo!.isNotEmpty &&
+                            (!isAdjustedUnSignedLsnTo &&
+                                !isAdjustedSignedLsnTo))
                           Expanded(
                             flex: 4,
                             child: Padding(
@@ -1135,7 +1358,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                               child: Text(
                                 '备注: ${event.memo}',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                 ),
                               ),
@@ -1156,9 +1380,9 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                     case '撤销':
                       widget.onRestore(event);
                       break;
-                    case '修改':
-                      widget.onEdit(event);
-                      break;
+                    // case '修改':
+                    //   widget.onEdit(event);
+                    //   break;
                     case '调课':
                       widget.onReschLsn(event);
                       break;
@@ -1173,7 +1397,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
                       break;
                   }
                 },
-                itemBuilder: (BuildContext context) => _buildPopupMenuItems(event),
+                itemBuilder: (BuildContext context) =>
+                    _buildPopupMenuItems(event),
                 constraints: const BoxConstraints(
                   minWidth: 50,
                   maxWidth: 60,
@@ -1193,7 +1418,8 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
   List<PopupMenuEntry<String>> _buildPopupMenuItems(Kn01L002LsnBean event) {
     if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
-      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) == event.scanQrDate) {
+      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) ==
+          event.scanQrDate) {
         return [
           const PopupMenuItem<String>(
             value: '撤销',
@@ -1219,21 +1445,30 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
 
     // 检查是否为已调课但未签到的课程
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr = event.schedualDate != null && event.schedualDate.length >= 10 ? event.schedualDate.substring(0, 10) : '';
-    final eventAdjustedDateStr = event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10 ? event.lsnAdjustedDate.substring(0, 10) : '';
+    final eventScheduleDateStr =
+        event.schedualDate != null && event.schedualDate.length >= 10
+            ? event.schedualDate.substring(0, 10)
+            : '';
+    final eventAdjustedDateStr =
+        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
+            ? event.lsnAdjustedDate.substring(0, 10)
+            : '';
 
     final hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
     final hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
 
-    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr && hasBeenRescheduled && selectedDayStr != eventAdjustedDateStr && !hasBeenSigned;
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
 
     if (isAdjustedUnSignedLsnFrom) {
       return <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: '修改',
-          height: 36,
-          child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: '修改',
+        //   height: 36,
+        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        // ),
         const PopupMenuDivider(height: 1),
         const PopupMenuItem<String>(
           value: '调课',
@@ -1266,15 +1501,19 @@ class _TimeTileState extends State<TimeTile> with SingleTickerProviderStateMixin
           height: 36,
           child: Text(
             '签到',
-            style: TextStyle(fontSize: 11.5, color: widget.selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
+            style: TextStyle(
+                fontSize: 11.5,
+                color: widget.selectedDay.isAfter(DateTime.now())
+                    ? Colors.grey
+                    : null),
           ),
         ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
-          value: '修改',
-          height: 36,
-          child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: '修改',
+        //   height: 36,
+        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
+        // ),
         const PopupMenuItem<String>(
           value: '调课',
           height: 36,

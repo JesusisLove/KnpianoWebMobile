@@ -12,17 +12,20 @@ spring:
     password: 7654321
     #東京
     #开发用的数据库
-    #url: jdbc:mysql://192.168.3.8:49168/KNStudent
+    #########url: jdbc:mysql://192.168.3.8:49168/KNStudent
     #シンガポール
     #开发用的数据库
     #url: jdbc:mysql://192.168.50.101:49168/KNStudent
 
     #观妮用的数据库
-    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Singapore&useSSL=false&allowPublicKeyRetrieval=true
+    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
 
 
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+
     #数据源其他配置
     initialSize: 5
     minIdle: 5
@@ -54,3 +57,11 @@ mybatis:
 
 #  configuration:
 #    use-actual-param-name: true
+
+# 2025-02-23 在生产环境中，应该明确指定允许访问的源(origins)
+# 这里定义了允许跨域访问的源地址。你可以根据不同环境设置不同的值，比如：
+# 开发环境：http://localhost:8080
+# 测试环境：https://test.yourwebsite.com
+# 生产环境：https://www.yourwebsite.com
+cors:
+  allowed-origin: http://10.8.0.6:8080

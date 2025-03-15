@@ -313,6 +313,26 @@ class StudentAddState extends State<StudentAdd> {
   // 点击保存按钮
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在登记学生信息...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
       _formKey.currentState!.save();
 
       // 学生档案菜单画面，点击“保存”按钮的url请求
@@ -336,6 +356,11 @@ class StudentAddState extends State<StudentAdd> {
           'introducer': introducer,
         }),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         showDialog(

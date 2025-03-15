@@ -24,6 +24,7 @@ public class DruidConfig {
 
     /* 配置Druid的监控 */
     // 1 配置一个管理后台的Servlet
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Bean // 把return出来的bean加入到容器中
     public ServletRegistrationBean statViewServlet() {
         ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(new StatViewServlet(),"/druid/*");
@@ -49,6 +50,7 @@ public class DruidConfig {
     }
 
     // 2 配置一个web监控的filter
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Bean
     public FilterRegistrationBean webStatFilter() {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();

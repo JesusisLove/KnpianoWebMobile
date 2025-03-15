@@ -12,7 +12,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F002FeeMapper">
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         <!--  year 参数为 null 或空时不执行 WHERE 子句，而在有值时才执行。 -->
-        select * from v_info_lesson_fee_connect_lsn 
+        select * from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect 
         <where>
             <if test="year != null and year != ''">
                 substring(lsn_month, 1, 4) = #{year}
@@ -22,14 +22,14 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee_connect_lsn
+        select * from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         where lsn_fee_id = #{lsnFeeId}
           and lesson_id = #{lessonId}
     </select>
 
     <!-- 按月结算课程且是计划课(即，月计划)的场合，lsn_fee_id和lesson_id是一对多的处理,通过科目和月份取得计划课时用的lsn_fee_id -->
     <select id= "checkScheLsnCurrentMonth" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        select * from v_info_lesson_fee_connect_lsn
+        select * from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         <where>
             stu_id = #{stuId}
             and subject_id = #{subjectId}
@@ -46,7 +46,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
 
     <select id="searchLsnFee" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         SELECT *
-        FROM v_info_lesson_fee_connect_lsn
+        FROM v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         <where>
         <!-- <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
@@ -95,10 +95,12 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,lesson_type
                 ,lsn_count
                 ,lsn_fee
+                ,0 as lsn_pay
                 ,lsn_month
                 ,pay_date
                 ,own_flg
                 ,1 as advc_flg
+                ,'' as bank_name
             from v_info_lesson_sum_fee_unpaid_yet
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
@@ -114,13 +116,17 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,paid.lesson_type
                 ,paid.lsn_count
                 ,paid.lsn_fee
+                ,paid.lsn_pay
                 ,paid.lsn_month
                 ,paid.pay_date
                 ,1 as own_flg
                 ,lfap.advc_flg
+                ,bnk.bank_name
             from v_info_lesson_sum_fee_pay_over paid
             left join t_info_lsn_fee_advc_pay lfap
             on paid.lsn_pay_id = lfap.lsn_pay_id
+            left join t_mst_bank bnk
+            on paid.bank_id = bnk.bank_id
             where stu_id = #{stuId}
             and lsn_month like CONCAT('%', #{year}, '%')
         order by lsn_month, subject_id;

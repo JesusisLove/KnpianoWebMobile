@@ -58,7 +58,7 @@ public class Kn02F004UnpaidDao {
         kn02F002FeeDao.updateOwnFlg(kn02F002FeeBean);
 
         /* 考虑到加课换正课的情况下，对该课程在《课费表里》显示已支付还是未支付的处理 */
-        // 加课换正课的一支付/未支付的状态，在加课换正课中间表里体现：new_own_flg ０→１
+        // 加课换正课的已支付/未支付的状态，在加课换正课中间表里体现：new_own_flg ０→１
         kn02F002FeeMapper.updateNewOwnFlg(knLsnUnPaid001Bean.getLsnFeeId(), knLsnUnPaid001Bean.getPayMonth(), 1);
 
     }
