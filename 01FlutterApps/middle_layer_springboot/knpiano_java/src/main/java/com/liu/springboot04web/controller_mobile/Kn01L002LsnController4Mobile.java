@@ -46,6 +46,14 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(collection);
     }
 
+    // 在课学生一览用的加课学生名单
+    @GetMapping("/mb_kn_lsn_all_extra/{year}")
+    public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnExtraList(@PathVariable Integer year) {
+        // 获取当前正在上课的所有学生的排课信息
+        List<Kn01L002LsnBean> collection = kn01L002LsnDao.getLsnExtraInfoList(Integer.toString(year));
+        return ResponseEntity.ok(collection);
+    }
+
     // 手机端网页:点击手机日历上的日期，提取指定年月日这一天的课程
     @GetMapping("/mb_kn_lsn_info_by_day/{schedualDate}")
     public ResponseEntity<List<Kn01L002LsnBean>> getInfoListByDay(@PathVariable("schedualDate") String schedualDate) {
