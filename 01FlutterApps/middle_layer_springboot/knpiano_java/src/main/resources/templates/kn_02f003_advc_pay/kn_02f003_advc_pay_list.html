@@ -51,7 +51,7 @@
             margin-bottom: 0;
         }
         #prepayButton {
-            height: 38px;/* 调整按钮高度以匹配下拉框 */
+            height: 38px;
         }
         .business-description {
             margin-top: 20px;
@@ -60,19 +60,42 @@
             margin-bottom: 0;
         }
         .business-description dt {
-            float: left;
-            clear: left;
             font-weight: bold;
+            margin-bottom: 10px;
         }
         .business-description dd {
-            margin-left: 100px;
-            white-space: pre;
-        }
-        .business-description dd::before {
-            content: "    ";
+            margin-left: 20px;
+            margin-bottom: 8px;
         }
         .past-date {
             color: red;
+        }
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1.25rem;
+        }
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+            padding: 0;
+        }
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+            margin-bottom: 1rem;
+        }
+        .card-body {
+            padding: 1.25rem;
+        }
+        .ml-4 {
+            margin-left: 1.5rem!important;
         }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
@@ -81,10 +104,9 @@
 <div th:replace="~{commons/bar::topbar}"></div>
 <div class="container-fluid">
     <div class="row">
-
-        
-       <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_pay_lsn_link_active')}"></div>
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_pay_lsn_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4 mb-2">学费预支付管理</h2>
             <hr/>
             <div id="successMessageDiv" class="alert alert-success mt-3" style="display: none;" role="alert">
                 <p id="successMessageContent"></p>
@@ -129,8 +151,8 @@
                         <button type="submit" class="btn btn-primary">推算排课日期</button>
                    </div>
                 </div>
-                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                 <div th:if="${errorMessage}" class="alert alert-danger">
                     错误信息：[[${errorMessage}]]
                 </div>
@@ -145,19 +167,32 @@
 
                 <hr/>
                 
-                <!-- 业务说明部分 -->
-                <div class="business-description">
-                    <dl>
-                        <dt>业务说明：</dt>
-                        <dd class="indented">①课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。</dd>
-                        <dd class="indented">②先参照该生最后一次签到日期为参考(离现在最近的一次签到课仅限于当前年度)，在下个月的第一个星期的日期作为该科目的推算的排课日期日期。</dd>
-                        <dd class="indented">③如果该生连最后一次签到的日期都没有，则以当前的系统月份为参照为该科目安排该月的第一周的日期为推算的排课日期日期。</dd>
-                        <dd class="indented">④【推算的排课日期】列，这是根据学生最近一次的上课日期推算是周几，根据星期推算对象月的计划排课日期。</dd>
-                        <dd class="indented">              对象月：如果本月没有签到记录，但是有排课记录，本月就是对象月。</dd>
-                        <dd class="indented">              对象月：如果本月已经有签到记录，下月就是对象月。</dd>
-                        <dd class="indented">⑤注意：如果发现排课日期字体显示红色，就表示推算的该日期与系统当前日期相比已经过期了，请选择系统当前月份的下一个月份进行课费预支付。</dd>
-                        <dd class="indented">⑥注意：当你看到【排课计划】这一列是空值的时候，就表示这个科目在固定排课里没有做固定排课登记，所以需要你手动来安排排课日期。</dd>
-                    </dl>
+                <!-- 修改后的业务说明部分 -->
+                <div class="card">
+                    <div class="card-header" id="businessDescriptionHeader">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                    data-target="#businessDescriptionCollapse" aria-expanded="false" 
+                                    aria-controls="businessDescriptionCollapse">
+                                ★业务说明
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="businessDescriptionCollapse" class="collapse" 
+                         aria-labelledby="businessDescriptionHeader">
+                        <div class="card-body">
+                            <dl>
+                                <dd>①课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。</dd>
+                                <dd>②先参照该生最后一次签到日期为参考(离现在最近的一次签到课仅限于当前年度)，在下个月的第一个星期的日期作为该科目的推算的排课日期日期。</dd>
+                                <dd>③如果该生连最后一次签到的日期都没有，则以当前的系统月份为参照为该科目安排该月的第一周的日期为推算的排课日期日期。</dd>
+                                <dd>④【推算的排课日期】列，这是根据学生最近一次的上课日期推算是周几，根据星期推算对象月的计划排课日期。</dd>
+                                <dd class="ml-4">对象月：如果本月没有签到记录，但是有排课记录，本月就是对象月。</dd>
+                                <dd class="ml-4">对象月：如果本月已经有签到记录，下月就是对象月。</dd>
+                                <dd>⑤注意：如果发现排课日期字体显示红色，就表示推算的该日期与系统当前日期相比已经过期了，请选择系统当前月份的下一个月份进行课费预支付。</dd>
+                                <dd>⑥注意：当你看到【排课计划】这一列是空值的时候，就表示这个科目在固定排课里没有做固定排课登记，所以需要你手动来安排排课日期。</dd>
+                            </dl>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 如果没有学生的未支付信息，显示提示信息 -->
@@ -288,6 +323,7 @@
         </main>
     </div>
 </div>
+
 <!--Bootstrap core JavaScript-->
 <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>

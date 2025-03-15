@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+    <!-- <script src="knScriptfunctions.js"></script> -->
+    <!-- src
+    └── main
+        └── resources
+            └── static
+                └── knScriptfunctions.js 
+    -->
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            background-color: #28a745; /* 绿色背景 */
+            color: white; /* 白色文字 */
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #28a745 #28a745 #fff;
+        }
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1.25rem;
+        }
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+            padding: 0;
+        }
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+            margin-bottom: 1rem;
+        }
+        .card-body {
+            padding: 1.25rem;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn_err_watch_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4 mb-2">监视排课异常数据</h2>
+            <div class="card">
+                <div class="card-header" id="businessDescriptionHeader">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                data-target="#businessDescriptionCollapse" aria-expanded="false" 
+                                aria-controls="businessDescriptionCollapse">
+                                ★发生异常数据的时机：
+                        </button>
+                    </h5>
+                </div>
+                <div id="businessDescriptionCollapse" class="collapse" 
+                     aria-labelledby="businessDescriptionHeader">
+                    <div class="card-body">
+                        <dl>
+                            <dd>1.在本月末给次月的第一周排课时，赶上了学生次月开始新的课程（比如，本月学完钢琴5级，次月开始6级学习，子科目价格差异所致）</dd>
+                            <dd>2.次月的第一周排的是前月的课程（比如，钢琴5级的课），其实次月学的是新课程（比如，6级的课程），过早排课，导致同月内有两个不同的子科目出现。</dd>
+                            <dd>★解决上述问题的办法是：更改排课时机，对次月的排课，最好在次月的凌晨以后启动バッチ的自动排课处理。</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_lsn_pay_001/search}" th:object="${searchForm}" method="get">
+                <!-- <div class="form-row"> -->
+                    <!-- <div class="form-group" style="margin-bottom: 20px;">
+                        <label>年度</label>
+                        <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                            <option th:each="year : ${knyearlist}" 
+                                    th:value="${year}" 
+                                    th:text="${year}" 
+                                    th:selected="${year == (payMap!= null ? payMap['selectedyear'] : '')}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" th:if="${selectedinfo==null}" style="margin-left: 20px;">
+                        <label>学生姓名</label> 
+                        <select class="form-control" id="studentSelect" name="stuId">
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <button type="submit" class="btn btn-primary">検 索</button>
+                   </div>
+                </div> -->
+                
+                <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                <style>
+                    .no-info-message {
+                        font-size: 18px;
+                    }
+                </style>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没学生的错误数据信息！</p>
+                </div>
+
+            </form> 
+            <!-- 选项卡内容 --> 
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}" 
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="watch_err_data/tab_errLsnData_by_stu :: errorDataTable(${entry.key}, ${entry.value})"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<!--Bootstrap core JavaScrip
+=============================-->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<!-- Icons -->
+<script th:inline="javascript">
+    // 从后端传递的数据
+    var jsonStuSubList = /*[[${stuErrorDataList}]]*/ [];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        // 初期化有错误数据的学生
+        var studentSelect = document.getElementById('studentSelect');
+        var selectedStuId = /*[[${payMap != null ? payMap['stuId'] : ''}]]*/ '';
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从stuSubList添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                // 设置选中项
+                if (item.stuId === selectedStuId) {  // 使用严格等于
+                    option.selected = true;
+                }
+                studentSelect.add(option);
+            }
+        });
+    };
+</script>
+</body>
+</html>

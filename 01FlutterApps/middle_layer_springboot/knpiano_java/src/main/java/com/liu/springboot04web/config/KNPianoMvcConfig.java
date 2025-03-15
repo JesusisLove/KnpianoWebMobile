@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 // @EnableWebMvc//👈添加该注解，全面接管SpringMVC，自动配置就会失效
  * 在RestFulCRUD项目练习里，将@EnableWebMvc注释掉，使用SpringBoot的自动配置功能
  * */
+@SuppressWarnings("deprecation")
 @Configuration
 public class KNPianoMvcConfig extends WebMvcConfigurerAdapter {
 
@@ -30,7 +31,6 @@ public class KNPianoMvcConfig extends WebMvcConfigurerAdapter {
      * 如何设置呢？
      * ⭐⭐⭐ 所有的WebMvcConfigurerAdapter组件都会一起起作用️
      * */
-    @SuppressWarnings("deprecation")
     @Bean //⭐⭐⭐必须将组件注册在容器中，这样SpringBoot才能找到你配置的“/”或“/”
     public WebMvcConfigurerAdapter myWebMvcConfigurerAdapter() {
         WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {

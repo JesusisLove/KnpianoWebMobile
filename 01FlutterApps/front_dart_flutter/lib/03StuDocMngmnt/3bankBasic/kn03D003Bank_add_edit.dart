@@ -130,6 +130,26 @@ class _BankAddEditState extends State<BankAddEdit> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text('正在${widget.showMode}银行信息...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
       _formKey.currentState!.save();
 
       // 银行新规编辑画面，点击“保存”按钮的url请求
@@ -146,6 +166,11 @@ class _BankAddEditState extends State<BankAddEdit> {
           'delFlg': delFlg,
         }),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         showDialog(

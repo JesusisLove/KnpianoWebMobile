@@ -307,6 +307,27 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
     };
 
     try {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在更新学生档案信息...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
       final response = await http.post(
         Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
         headers: <String, String>{
@@ -314,6 +335,11 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         },
         body: jsonEncode(data),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         showDialog(
@@ -352,6 +378,10 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         );
       }
     } catch (e) {
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       showDialog(
         context: context,
         builder: (BuildContext context) {

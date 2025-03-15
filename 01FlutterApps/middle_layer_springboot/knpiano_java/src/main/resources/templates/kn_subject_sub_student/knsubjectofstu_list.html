@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+    <!-- <script src="knScriptfunctions.js"></script> -->
+    <!-- src
+    └── main
+        └── resources
+            └── static
+                └── knScriptfunctions.js 
+    -->
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            background-color: #28a745; /* 绿色背景 */
+            color: white; /* 白色文字 */
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #28a745 #28a745 #fff;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{commons/bar::topbar}"></div>
+<div class="container-fluid">
+    <div class="row">
+       <div th:replace="~{commons/bar::sidebar(activeUri='kn_subject_eda_stu_all_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4 mb-2">科目下的学生列表</h2>
+
+            <hr/>
+            <!-- 検索部 -->
+            <form action="#" th:action="@{/kn_subject_sub_stu/search}" th:object="${searchForm}" method="get">
+                <div class="form-row">
+                    <div class="form-group" style="margin-left: 20px; display: flex; align-items: center;">
+                        <label style="margin-right: 10px; margin-bottom: 0; font-size: 18px; white-space: nowrap;">科目：</label> 
+                        <select class="form-control" id="subjectSelect" name="subjectId" onchange="this.form.submit()">
+                            <option value="">请选择</option>
+                            <option th:each="subject : ${subjectInfoList}" 
+                                    th:value="${subject.subjectId}" 
+                                    th:text="${subject.subjectName}"
+                                    th:selected="${subject.subjectId == (subjectPayMap != null ? subjectPayMap['subjectId'] : '')}">
+                            </option>
+                        </select> 
+                    </div>
+                </div>
+                
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <p class="no-info-message">目前没有该科目下的学生列表信息！</p>
+                </div>
+            </form>
+            <!-- Tab账单明细 -->
+            <!-- 未支付明细内容 -->
+            <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                    <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                        th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}"
+                        role="tab" th:aria-controls="${entry.key}"
+                        th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                </li>
+            </ul>
+            <!-- Tab 卡片项里显示 学生的排课一览 -->
+            <div class="tab-content" id="myTabContent">
+                <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''"
+                        role="tabpanel" th:aria-labelledby="${entry.key + '-tab'}">
+                    <div th:replace="kn_subject_sub_student/tab_subject_of_stu :: subjectOfStudentsTable(${entry.key}, ${entry.value})"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<!--Bootstrap core JavaScrip
+=============================-->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+<!-- Icons -->
+</body>
+</html>

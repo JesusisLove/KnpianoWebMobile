@@ -29,7 +29,8 @@ class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
   });
 
   @override
-  _Kn02F003AdvcLsnFeePayPageState createState() => _Kn02F003AdvcLsnFeePayPageState();
+  _Kn02F003AdvcLsnFeePayPageState createState() =>
+      _Kn02F003AdvcLsnFeePayPageState();
 }
 
 class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
@@ -55,7 +56,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
 
   // 获取银行列表
   Future<void> fetchBankList() async {
-    final String apiGetBnkUrl = '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.stuId}';
+    final String apiGetBnkUrl =
+        '${KnConfig.apiBaseUrl}${Constants.stuBankList}/${widget.stuId}';
     final response = await http.get(Uri.parse(apiGetBnkUrl));
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
@@ -75,14 +77,18 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
 
   // 获取费用详情
   Future<void> fetchAdvcLsnInfoDetails() async {
-    final String yearMonth = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
-    final String apiAdvcLsnFeePayInfo = '${KnConfig.apiBaseUrl}${Constants.apiAdvcLsnFeePayInfo}/${widget.stuId}/$yearMonth';
+    final String yearMonth =
+        '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
+    final String apiAdvcLsnFeePayInfo =
+        '${KnConfig.apiBaseUrl}${Constants.apiAdvcLsnFeePayInfo}/${widget.stuId}/$yearMonth';
     final responseFeeDetails = await http.get(Uri.parse(apiAdvcLsnFeePayInfo));
     if (responseFeeDetails.statusCode == 200) {
       final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
       List<dynamic> stuDocJson = json.decode(decodedBody);
       setState(() {
-        stuFeeDetailList = stuDocJson.map((json) => Kn02F003AdvcLsnFeePayBean.fromJson(json)).toList();
+        stuFeeDetailList = stuDocJson
+            .map((json) => Kn02F003AdvcLsnFeePayBean.fromJson(json))
+            .toList();
         stuFeeDetailCount = stuFeeDetailList.length;
       });
     } else {
@@ -107,12 +113,14 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                 height: controlHeight,
                 decoration: BoxDecoration(
                   color: Colors.pink[100],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(10)),
                 ),
                 child: const Center(
                   child: Text(
                     '选择年份',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red),
                   ),
                 ),
               ),
@@ -124,7 +132,11 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       selectedYear = years[index];
                     });
                   },
-                  children: years.map((year) => Center(child: Text(year.toString(), style: const TextStyle(color: Colors.red)))).toList(),
+                  children: years
+                      .map((year) => Center(
+                          child: Text(year.toString(),
+                              style: const TextStyle(color: Colors.red))))
+                      .toList(),
                 ),
               ),
             ],
@@ -151,12 +163,14 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: Colors.pink[100],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(10)),
                 ),
                 child: const Center(
                   child: Text(
                     '选择月份',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red),
                   ),
                 ),
               ),
@@ -168,7 +182,11 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       selectedMonth = months[index];
                     });
                   },
-                  children: months.map((month) => Center(child: Text(month.toString().padLeft(2, '0'), style: const TextStyle(color: Colors.red)))).toList(),
+                  children: months
+                      .map((month) => Center(
+                          child: Text(month.toString().padLeft(2, '0'),
+                              style: const TextStyle(color: Colors.red))))
+                      .toList(),
                 ),
               ),
             ],
@@ -199,10 +217,33 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
     );
   }
 
+  Future<void> _showProcessingDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // 用户不能通过点击对话框外部来关闭
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false, // 禁止返回键关闭
+          child: const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('正在处理学费预支付......'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // 新增：执行课费预支付的方法
   Future<void> executeAdvcLsnPay() async {
     // 检查是否有选中的科目
-    List<Kn02F003AdvcLsnFeePayBean> selectedItems = stuFeeDetailList.where((item) => item.isChecked).toList();
+    List<Kn02F003AdvcLsnFeePayBean> selectedItems =
+        stuFeeDetailList.where((item) => item.isChecked).toList();
     if (selectedItems.isEmpty) {
       showErrorDialog('执行预支付，至少选择一个科目。');
       return;
@@ -225,9 +266,15 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
       item.bankId = selectedBank!;
     }
 
-    final String yearMonth = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
+    final String yearMonth =
+        '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
+
+    // 显示“正在处理学费预支付....”进度条
+    _showProcessingDialog();
+
     // 发送数据到后端
-    final String apiExecuteAdvcLsnPayUrl = '${KnConfig.apiBaseUrl}${Constants.apiExecuteAdvcLsnPay}/${widget.stuId}/$yearMonth';
+    final String apiExecuteAdvcLsnPayUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiExecuteAdvcLsnPay}/${widget.stuId}/$yearMonth';
     try {
       final response = await http.post(
         Uri.parse(apiExecuteAdvcLsnPayUrl),
@@ -266,7 +313,13 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
         // 显示错误信息
         showErrorDialog(utf8.decode(response.bodyBytes));
       }
+      // 关闭进度对话框
+      Navigator.of(context).pop(); // 关闭进度对话框
     } catch (e) {
+      // 确保发生错误时也关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭进度对话框
+      }
       print('Error details: $e');
       showErrorDialog('网络错误：$e');
     }
@@ -280,14 +333,16 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
         subtitle: "${widget.pagePath} >> 课费预支付",
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red - 20, 
-                                   widget.knFontColor.green - 20, 
-                                   widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red + 20, 
-                                   widget.knFontColor.green + 20, 
-                                   widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
@@ -306,7 +361,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                     onTap: _showYearPicker,
                     child: Container(
                       height: controlHeight,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.red),
                         borderRadius: BorderRadius.circular(10),
@@ -314,7 +370,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       ),
                       child: Row(
                         children: [
-                          Text('$selectedYear年', style: const TextStyle(color: Colors.red)),
+                          Text('$selectedYear年',
+                              style: const TextStyle(color: Colors.red)),
                           const Icon(Icons.arrow_drop_down, color: Colors.red),
                         ],
                       ),
@@ -323,7 +380,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                   GestureDetector(
                     onTap: _showMonthPicker,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.red),
                         borderRadius: BorderRadius.circular(10),
@@ -331,7 +389,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                       ),
                       child: Row(
                         children: [
-                          Text('${selectedMonth.toString().padLeft(2, '0')}月', style: const TextStyle(color: Colors.red)),
+                          Text('${selectedMonth.toString().padLeft(2, '0')}月',
+                              style: const TextStyle(color: Colors.red)),
                           const Icon(Icons.arrow_drop_down, color: Colors.red),
                         ],
                       ),
@@ -401,7 +460,9 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                         items: bankList
                             .map((bank) => DropdownMenuItem<String>(
                                   value: bank['bankId'],
-                                  child: Text(bank['bankName'], style: const TextStyle(color: Colors.red)),
+                                  child: Text(bank['bankName'],
+                                      style:
+                                          const TextStyle(color: Colors.red)),
                                 ))
                             .toList(),
                         onChanged: (value) {
@@ -409,10 +470,12 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
                             selectedBank = value;
                           });
                         },
-                        hint: const Text('请选择银行名称', style: TextStyle(color: Colors.red)),
+                        hint: const Text('请选择银行名称',
+                            style: TextStyle(color: Colors.red)),
                         isExpanded: true,
                         underline: const SizedBox(),
-                        icon: const Icon(Icons.arrow_drop_down, color: Colors.red),
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.red),
                       ),
                     ),
                   ),
@@ -446,7 +509,8 @@ class AdvcLsnDetails extends StatefulWidget {
   final Kn02F003AdvcLsnFeePayBean item;
   final Function(bool?) onChanged; // 新增：回调函数
 
-  const AdvcLsnDetails({super.key, required this.item, required this.onChanged});
+  const AdvcLsnDetails(
+      {super.key, required this.item, required this.onChanged});
 
   @override
   _AdvcLsnDetailsState createState() => _AdvcLsnDetailsState();
@@ -462,7 +526,8 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
       return false;
     }
     try {
-      DateTime scheduleDate = DateFormat('yyyy-MM-dd HH:mm').parse(widget.item.schedualDate);
+      DateTime scheduleDate =
+          DateFormat('yyyy-MM-dd HH:mm').parse(widget.item.schedualDate);
       return scheduleDate.isBefore(DateTime.now());
     } catch (e) {
       print('日期解析错误: ${widget.item.schedualDate}');
@@ -499,7 +564,8 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
       });
       // 更新schedualDate
       if (selectedDate != null) {
-        widget.item.schedualDate = "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${picked.format(context)}";
+        widget.item.schedualDate =
+            "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${picked.format(context)}";
       }
     }
   }
@@ -507,7 +573,11 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
   @override
   Widget build(BuildContext context) {
     bool datePassed = isDatePassed();
-    String displayDate = widget.item.schedualDate.isNotEmpty ? widget.item.schedualDate : (selectedDate != null && selectedTime != null ? "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${selectedTime!.format(context)}" : "");
+    String displayDate = widget.item.schedualDate.isNotEmpty
+        ? widget.item.schedualDate
+        : (selectedDate != null && selectedTime != null
+            ? "${DateFormat('yyyy-MM-dd').format(selectedDate!)} ${selectedTime!.format(context)}"
+            : "");
 
     return CheckboxListTile(
       value: widget.item.isChecked,
@@ -532,12 +602,16 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
             text: TextSpan(
               style: DefaultTextStyle.of(context).style,
               children: <TextSpan>[
-                TextSpan(text: '¥${widget.item.subjectPrice}　${widget.item.lessonType == 1 ? '月计划' : ''}　${widget.item.minutesPerLsn}分钟　'),
+                TextSpan(
+                    text:
+                        '¥${widget.item.subjectPrice}　${widget.item.lessonType == 1 ? '月计划' : ''}　${widget.item.minutesPerLsn}分钟　'),
                 if (displayDate.isNotEmpty)
                   TextSpan(
                     text: displayDate,
                     style: TextStyle(
-                      color: widget.item.schedualDate.isEmpty ? Colors.blue : (datePassed ? Colors.red : null),
+                      color: widget.item.schedualDate.isEmpty
+                          ? Colors.blue
+                          : (datePassed ? Colors.red : null),
                     ),
                   ),
               ],
@@ -548,7 +622,8 @@ class _AdvcLsnDetailsState extends State<AdvcLsnDetails> {
               children: [
                 TextButton(
                   onPressed: () => _selectDate(context),
-                  child: const Text('选择日期和时间', style: TextStyle(color: Colors.red)),
+                  child: const Text('选择日期和时间',
+                      style: TextStyle(color: Colors.red)),
                 ),
               ],
             ),

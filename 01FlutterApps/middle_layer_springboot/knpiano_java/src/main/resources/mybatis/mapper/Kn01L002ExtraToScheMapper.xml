@@ -8,6 +8,26 @@ https://mybatis.org/mybatis-3/getting-started.html
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn01L002ExtraToScheMapper">
+
+    <!-- 后台维护，《加课消化管理》Web页面的检索部，根据年度，月份获取有加课的学生姓名 -->
+    <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        SELECT DISTINCT stu_id,stu_name FROM v_info_lesson
+        WHERE 1=1
+        AND lesson_type = 2
+        <if test="yearMonth != null and yearMonth != ''">
+                <choose>
+                    <when test="yearMonth.length() == 4">
+                        AND left(schedual_date,4) = #{yearMonth}
+                    </when>
+                    <otherwise>
+                        AND left(schedual_date,7) = #{yearMonth}
+                    </otherwise>
+                </choose>
+            </if>
+        AND EXISTS (SELECT 1 FROM t_mst_student WHERE del_flg = 0)
+        ORDER BY stu_name
+    </select>
+
     <!-- 手机前端/后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
     <select id="getInfoListExtraCanBeSche" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
         SELECT  
@@ -143,6 +163,44 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
     </select>
 
+
+    <select id="getToScheDocumentInfo" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        <![CDATA[
+            WITH DateRanges AS (
+                SELECT adjusted_date
+                FROM v_info_student_document 
+                WHERE stu_id = #{stuId} 
+                AND subject_id = #{subjectId}
+                ORDER BY adjusted_date ASC
+            )
+            SELECT * 
+            FROM v_info_student_document doc
+            WHERE doc.stu_id = #{stuId}
+            AND doc.subject_id = #{subjectId}
+            AND CASE 
+                WHEN #{yearMonth} < (SELECT MIN(LEFT(adjusted_date,7)) FROM DateRanges) THEN 1
+                WHEN #{yearMonth} >= (
+                    SELECT MAX(LEFT(adjusted_date,7)) FROM DateRanges
+                ) THEN (SELECT COUNT(adjusted_date) + 1 FROM DateRanges)
+                ELSE (
+                    SELECT COUNT(*) + 1 
+                    FROM DateRanges d 
+                    WHERE LEFT(d.adjusted_date,7) <= #{yearMonth}
+                )
+            END = CASE 
+                WHEN LEFT(doc.adjusted_date,7) < (SELECT MIN(LEFT(adjusted_date,7)) FROM DateRanges) THEN 1
+                WHEN LEFT(doc.adjusted_date,7) >= (
+                    SELECT MAX(LEFT(adjusted_date,7)) FROM DateRanges
+                ) THEN (SELECT COUNT(adjusted_date) + 1 FROM DateRanges)
+                ELSE (
+                    SELECT COUNT(*) + 1 
+                    FROM DateRanges d 
+                    WHERE LEFT(d.adjusted_date,7) <= LEFT(doc.adjusted_date,7)
+                )
+            END
+        ]]>
+    </select>
+
     <!-- 将原加课产生的课费“废除/恢复” -->
     <update id="updateLsnFeeFlg">
         <!-- 通过使用动态 SQL 的方式来实现根据参数是否为 null 或空来决定是否更新对应的字 -->
@@ -160,7 +218,7 @@ https://mybatis.org/mybatis-3/getting-started.html
              lsn_fee_id
             ,lsn_fee
             ,lesson_id
-        from v_info_lesson_fee_connect_lsn
+        from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrectBefore
         <where>
             lesson_id = #{lessonId}
         </where>
@@ -172,7 +230,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <select id="getNewLessonIdInfo" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select lsn_fee_id
               ,own_flg
-        from v_info_lesson_fee_connect_lsn
+        from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         <where>
             stu_id = #{stuId}
             and subject_id = #{subjectId}
@@ -181,8 +239,8 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
     </select>
 
-    <select id="getExtraToScheInfo" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
-        select *
+    <select id="getRollbackExtraToScheInfo" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select old_lsn_fee as lsn_fee
         from t_info_lesson_extra_to_sche
         <where>
             lesson_id = #{lessonId}
@@ -195,16 +253,22 @@ https://mybatis.org/mybatis-3/getting-started.html
         lesson_id,
         old_lsn_fee_id,
         new_lsn_fee_id,
+        old_subject_sub_id,
+        new_subject_sub_id,
+        old_lsn_fee,
+        new_lsn_fee,
         new_scanqr_date,
-        lsn_fee,
         is_good_change,
         new_own_flg
         ) values (
         #{lessonId},
         #{oldLsnFeeId},
-        #{newLsnFeeId},
-        #{newScanQrDate},
-        #{lsnFee},
+        #{toScheLsnFeeId},
+        #{oldSubjectSubId},
+        #{toScheSubjectSubId},
+        #{oldLsnFee},
+        #{toScheLsnFee},
+        #{toScheScanQrDate},
         #{isGoodChange},
         #{newOwnFlg}
         )

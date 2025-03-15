@@ -221,7 +221,8 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                 // 获取当前选择的日期，如果没有则使用当前日期
                 DateTime currentDate = adjustmentDate ?? DateTime.now();
                 // 确保初始日期总是月初1号
-                DateTime initialDate = DateTime(currentDate.year, currentDate.month, 1);
+                DateTime initialDate =
+                    DateTime(currentDate.year, currentDate.month, 1);
 
                 final DateTime? picked = await showDatePicker(
                   context: context,
@@ -232,7 +233,8 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                     // 只允许选择每月1号
                     return date.day == 1;
                   },
-                  initialEntryMode: DatePickerEntryMode.calendarOnly, // 直接显示日历视图
+                  initialEntryMode:
+                      DatePickerEntryMode.calendarOnly, // 直接显示日历视图
                   helpText: '选择月份', // 修改标题文字为中文
                 );
                 if (picked != null) {
@@ -389,6 +391,27 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     };
 
     try {
+      // 显示进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在登记学生档案信息...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
       final response = await http.post(
         Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
         headers: <String, String>{
@@ -396,6 +419,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         },
         body: jsonEncode(data),
       );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (response.statusCode == 200) {
         // 保存成功
@@ -443,6 +471,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         );
       }
     } catch (e) {
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       // 捕获网络错误等异常
       showDialog(
         // ignore: use_build_context_synchronously

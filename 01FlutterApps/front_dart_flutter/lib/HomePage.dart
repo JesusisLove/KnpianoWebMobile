@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
@@ -108,12 +109,14 @@ class HomePageState extends State<HomePage> {
                             knFontColor: Colors.white,
                             pagePath: "学费支付管理>>在课学生一览",
                             pageId: Constants.stuLsnFeeListPage,
-                            strUri: '${Constants.apiStuNameByYear}/${DateTime.now().year}',
+                            strUri:
+                                '${Constants.apiStuNameByYear}/${DateTime.now().year}',
                           )));
             },
             bgcolor: consts.Constants.lsnfeeThemeColor,
           ),
-          const SizedBox(height: consts.Constants.homePageControlMargin), // 添加一些间隔
+          const SizedBox(
+              height: consts.Constants.homePageControlMargin), // 添加一些间隔
 
           setButton(
             iconData: Icons.forward,
@@ -243,8 +246,18 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.score,
-            text: "学生考试管理",
-            onPressed: () {},
+            text: "科目级别查看",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const SubSubjectOfStudentsListBySubject(
+                            knBgColor: consts.Constants.ingergThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "综合管理",
+                          )));
+            },
             bgcolor: consts.Constants.ingergThemeColor,
           ),
           const SizedBox(
@@ -333,7 +346,8 @@ class HomePageState extends State<HomePage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: '上课管理'),
-          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: '学费管理'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.attach_money), label: '学费管理'),
           BottomNavigationBarItem(icon: Icon(Icons.engineering), label: '档案管理'),
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
@@ -368,7 +382,7 @@ class HomePageState extends State<HomePage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconData), // 使用传入的图标
+            Icon(iconData, color: Colors.white), // 使用传入的图标
             const SizedBox(width: 8),
             Text(
               text, // 使用传入的文本

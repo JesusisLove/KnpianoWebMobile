@@ -17,10 +17,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @Service
@@ -42,28 +42,48 @@ public class Kn01L002ExtraToScheController {
         this.extra2ScheStuList = null;
     }
 
-    // 【KNPiano后台维护 加课换正课处理】ボタンをクリック
+    // 根据Web页面上的检索部传过来的年月，取得有加课的学生番号，学生姓名。初期化页面的学生姓名下拉列表框
+    @GetMapping("/kn_extra_stu_all/{year}/{month}")
+    public String list(@PathVariable("year") String year,@PathVariable("month") String month, Model model) {
+
+        String yearMonth = ("ALL".equals(month)) ? year : year + "-" + month;
+        List<Kn01L002ExtraToScheBean> list = kn01L002ExtraToScheDao.getSearchInfo4Stu(yearMonth);
+        model.addAttribute("extra2ScheStuList", list);
+
+        // 创建 Map 并添加到 Model
+        Map<String, String> extra2ScheMap = new HashMap<>();
+        extra2ScheMap.put("selectedyear", year);
+        extra2ScheMap.put("selectedmonth", month);
+        model.addAttribute("extra2ScheMap", extra2ScheMap);
+
+        model.addAttribute("knyearlist", knYear);
+        model.addAttribute("knmonthlist", knMonth);
+
+        return "kn_extra_to_sche_001/kn_extra_list";
+    }
+
+    // 【KNPiano后台维护】点击“加课消化管理”画面初期化
     @GetMapping("/kn_extratosche_all")
     public String list(Model model) {
         // 画面检索条件保持变量初始化前端检索部
         LocalDate currentDate = LocalDate.now();// 获取当前日期
 
         // 格式化为 yyyy
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
-        String year = currentDate.format(formatter);
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        // String year = currentDate.format(formatter);
 
         // 用保持变量里的检索条件从DB里抽取数据
-        Collection<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(year);
-        extra2ScheStuList = collection;
-        model.addAttribute("infoList", collection);
+        // Collection<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(year);
+        // extra2ScheStuList = collection;
+       //  model.addAttribute("infoList", collection);
 
         /* 初始化画面检索部 */
         // 把要消化加课的学生信息拿到前台画面，给学生下拉列表框做初期化
         model.addAttribute("extra2ScheStuList", extra2ScheStuList);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
-        Map<String, String> resultsTabStus = getResultsTabStus(collection);
-        model.addAttribute("resultsTabStus", resultsTabStus);
+        // Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        // model.addAttribute("resultsTabStus", resultsTabStus);
 
         // 年度下拉列表框初期化前台页面
         int currentYear = Year.now().getValue();
@@ -93,6 +113,10 @@ public class Kn01L002ExtraToScheController {
             params.put("lsn_month", queryParams.get("selectedyear"));
         }
 
+        String yearMonth = ("ALL".equals(lsnMonth)) ? lsnYear : lsnYear + "-" + lsnMonth;
+        List<Kn01L002ExtraToScheBean> list = kn01L002ExtraToScheDao.getSearchInfo4Stu(yearMonth);
+        model.addAttribute("extra2ScheStuList", list);
+
         // 检索条件
         params.put("stu_id", queryParams.get("stuId"));
 
@@ -104,7 +128,6 @@ public class Kn01L002ExtraToScheController {
         model.addAttribute("knyearlist", knYear);
         model.addAttribute("currentmonth", lsnMonth);
         model.addAttribute("knmonthlist", knMonth);
-        model.addAttribute("extra2ScheStuList", extra2ScheStuList);
 
         // 将queryParams传递给Service层或Mapper接口
         Collection<Kn01L002ExtraToScheBean> searchResults = kn01L002ExtraToScheDao.searchLessons(params);
@@ -168,20 +191,25 @@ public class Kn01L002ExtraToScheController {
     }
 
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
-    private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
-
-        Map<String, String> activeStudentsMap = new HashMap<>();
-        Set<String> seenStuIds = new HashSet<>();
-
+        private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
+        // 首先创建一个用于去重的Map
+        Map<String, String> tempMap = new HashMap<>();
+        
+        // 填充临时Map
         for (Kn01L002ExtraToScheBean bean : collection) {
-            String stuId = bean.getStuId();
-            if (!seenStuIds.contains(stuId)) {
-                activeStudentsMap.put(stuId, bean.getStuName());
-                seenStuIds.add(stuId);
-            }
+            tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-
-        return activeStudentsMap;
+        
+        // 按值（学生姓名）排序并收集到新的LinkedHashMap中
+        return tempMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue,  // 处理重复键的情况
+                    LinkedHashMap::new  // 使用LinkedHashMap保持排序
+                ));
     }
 
 }

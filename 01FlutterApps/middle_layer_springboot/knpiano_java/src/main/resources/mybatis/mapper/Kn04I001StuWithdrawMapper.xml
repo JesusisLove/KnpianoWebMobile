@@ -32,7 +32,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         where stu_id = #{stuId}
     </update>
 
-    <!-- 手机前端页面里的休学/退学处理（可选复述个学生） -->
+    <!-- 手机前端页面里的休学（可选复述个学生） -->
     <update id="stuWithdrawProcessList" parameterType="java.util.List">
         update t_mst_student set del_flg = 1
         where stu_id in

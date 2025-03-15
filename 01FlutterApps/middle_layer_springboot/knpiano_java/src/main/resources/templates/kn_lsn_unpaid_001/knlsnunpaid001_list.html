@@ -49,6 +49,10 @@
     <div class="row">
        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_unpaid_001_link_active')}"></div>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4 mb-2">课费未支付管理</h2>
+            <p class="text-muted small mb-4" style="font-size: 0.875rem;">
+                ★业务说明：
+            </p>
             <hr/>
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_unpaid_001/search}" th:object="${searchForm}" method="get">

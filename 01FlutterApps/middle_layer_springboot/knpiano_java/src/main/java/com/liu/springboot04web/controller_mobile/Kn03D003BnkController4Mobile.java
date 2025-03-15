@@ -1,6 +1,5 @@
 package com.liu.springboot04web.controller_mobile;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,7 +22,6 @@ public class Kn03D003BnkController4Mobile {
     @Autowired
     Kn03D003BnkDao knBnk001Dao;
 
-    @CrossOrigin(origins = "*") // 它允许接受来自所有的请求，不安全，生产环境中严谨使用“*”设置。
     @GetMapping("/mb_kn_03d003_bank_all")
     public ResponseEntity<Collection<Kn03D003BnkBean>> getBankList() {
         // 获取目前所有科目信息显示在画面一览上
@@ -32,14 +30,12 @@ public class Kn03D003BnkController4Mobile {
     }
 
     // 【新規/编辑】画面にて、【保存】ボタンを押下
-    @CrossOrigin(origins = "*") 
     @PostMapping("/mb_kn_03d003_bank")
     public void excuteInfoAdd(@RequestBody Kn03D003BnkBean knSub001Bean) {
         knBnk001Dao.save(knSub001Bean);
     }
 
     // 【银行一覧】削除ボタンを押下
-    @CrossOrigin(origins = "*") 
     @DeleteMapping("/mb_kn_03d003_bank/{id}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("id") String id) {
         try {
