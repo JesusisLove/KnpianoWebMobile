@@ -1,13 +1,14 @@
 use prod_KNStudent;
 /**
-* 前提条件，加课换正课执行完了，换正课的lesson_id会将t_info_lesson_fee表中的该记录的del_flg更新为0
+* 前提条件，加课换正课执行完了，换正课的lesson_id会将t_info_lesson_fee表中的该记录的del_flg更新为1(表示换正课之前计算的这个课费记录不要了)
 *同时，会在t_info_lesson_extra_to_sche中,记录原来的lsn_fee_id和换正课后所在月份的新的lsn_fee_id
-*如果加课换正课赶上了课程升级（比如，去年12月份学的5级的加课换成今年1月份正课，但是，1月份开始进入6级的课程，
+*如果加课换正课赶上了课程升级（比如，去年12月份学的5级的加课换成今年1月份正课，如果1月份开始已经进入6级的课程，
 *那么，换到1月正课的那个加课将被视为6级课程，课程价格也将按照6级的价格记录在会在t_info_lesson_extra_to_sche中。
 * 该视图就是将原来的课费信息和换正课后的课费信息进行了重新整合。
 */
 DROP VIEW IF EXISTS v_info_lesson_fee_and_extraToScheDataCorrect;
 CREATE VIEW v_info_lesson_fee_and_extraToScheDataCorrect AS 
+-- 未换正课的课费信息
 select 
 	lsn_fee_id,
     lesson_id,
@@ -22,6 +23,7 @@ select
 from t_info_lesson_fee 
 where del_flg = 0
 union all
+-- 已换正课的课费信息
 select 
 	ext.new_lsn_fee_id as lsn_fee_id,
     fee.lesson_id,
@@ -35,9 +37,9 @@ select
     fee.create_date,
     fee.update_date
 from 
-t_info_lesson_fee fee
+	t_info_lesson_fee fee
 inner join
-t_info_lesson_extra_to_sche ext
+	t_info_lesson_extra_to_sche ext
 on fee.lesson_id = ext.lesson_id
 and fee.del_flg = 1
 ;

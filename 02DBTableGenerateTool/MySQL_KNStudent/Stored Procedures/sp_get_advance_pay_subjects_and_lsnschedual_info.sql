@@ -1,4 +1,4 @@
-use KNStudent;
+use prod_KNStudent;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
@@ -202,7 +202,9 @@ BEGIN
 		adv.subject_sub_name,
 		adv.lesson_type,
 		adv.schedual_date,
-		vldoc.lesson_fee as subject_price,
+		case when vldoc.lesson_fee_adjusted > 0 then vldoc.lesson_fee_adjusted
+             else vldoc.lesson_fee
+        end as subject_price,
 		vldoc.minutes_per_lsn
 	FROM temp_result adv
 	INNER JOIN v_latest_subject_info_from_student_document vldoc
@@ -222,7 +224,9 @@ BEGIN
 		subject_sub_name,
 		1 as lesson_type,
 		null as schedual_date,
-		lesson_fee as subject_price,
+		case when lesson_fee_adjusted > 0 then lesson_fee_adjusted
+             else lesson_fee
+        end as subject_price,
 		minutes_per_lsn
 	FROM v_latest_subject_info_from_student_document
 	WHERE stu_id = p_stuId AND pay_style = 1;
