@@ -35,7 +35,8 @@
         <where>
             <foreach item="value" index="key" collection="params">
                 <if test="value != null and value != ''">
-                    AND ${key} like CONCAT('%', #{value}, '%')
+                    <!-- AND ${key} like CONCAT('%', #{value}, '%') -->
+                    AND ${key} = #{value}
                 </if>
             </foreach>
         </where>

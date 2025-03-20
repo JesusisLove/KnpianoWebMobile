@@ -71,6 +71,12 @@ public class Kn03D004StuDocController {
         backForwordMap.putAll(queryParams);
         model.addAttribute("stuDocMap", backForwordMap);
 
+        String delFlgStr = (String) queryParams.get("delFlg");
+        if (delFlgStr.equals("2")) {
+            // 查询所有学生，需要移除delFlg条件，否则可能会影响查询
+            queryParams.remove("delFlg");
+        }
+
         /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
            目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件 */
         Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
