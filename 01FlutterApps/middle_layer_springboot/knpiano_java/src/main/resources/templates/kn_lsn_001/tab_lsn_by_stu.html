@@ -92,6 +92,9 @@
                     <input type="checkbox" checked onchange="toggleColumn('col-actualDate')" /> 実績授業日付
                 </label>
                 <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-createMemo')" /> 备注
+                </label>
+                <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-createDate')" /> 作成日
                 </label>
                 <label>
@@ -117,6 +120,7 @@
                         <th class="col-adjustedDate">調整授業<br>日付</th>
                         <th class="col-convertDate">授業変換<br>日付</th>
                         <th class="col-actualDate">実績授業<br>日付</th>
+                        <th class="col-actualMemo">备注</th>
                         <th class="col-createDate">作成日</th>
                         <th class="col-updateDate">更新日</th>
                         <th class="action-column">操作</th>
@@ -140,6 +144,7 @@
                         <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
                         <td class="col-convertDate">[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-actualDate">[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-actualMemo">[[${info.memo}]]</td>
                         <td class="col-createDate">[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="col-updateDate">[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="action-column">

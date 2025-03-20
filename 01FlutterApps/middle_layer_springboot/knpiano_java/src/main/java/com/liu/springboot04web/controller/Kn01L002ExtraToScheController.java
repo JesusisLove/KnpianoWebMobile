@@ -113,6 +113,9 @@ public class Kn01L002ExtraToScheController {
             params.put("lsn_month", queryParams.get("selectedyear"));
         }
 
+        // 已结算的加课：1   未消化的加课：0   所有加课（不包括已转正的加课）：空值
+        params.put("extra_lsn_pay_status", queryParams.get("lsnExtraFlg") == "" ? "-1" : queryParams.get("lsnExtraFlg"));
+
         String yearMonth = ("ALL".equals(lsnMonth)) ? lsnYear : lsnYear + "-" + lsnMonth;
         List<Kn01L002ExtraToScheBean> list = kn01L002ExtraToScheDao.getSearchInfo4Stu(yearMonth);
         model.addAttribute("extra2ScheStuList", list);

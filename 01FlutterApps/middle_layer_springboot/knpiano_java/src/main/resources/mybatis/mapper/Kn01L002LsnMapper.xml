@@ -90,10 +90,10 @@ https://mybatis.org/mybatis-3/getting-started.html
                     </otherwise>
                 </choose>
             </if>
-            <if test="params.stu_id != null and params.stu_id != ''">
+           <if test="params.stu_id != null and params.stu_id != ''">
                 AND stu_id = #{params.stu_id}
             </if>
-            <if test="params.lesson_id != null and params.lesson_id != ''">
+             <!-- <if test="params.lesson_id != null and params.lesson_id != ''">
                 AND lesson_id = #{params.lesson_id}
             </if>
             <if test="params.lesson_type != null and params.lesson_type != ''">
@@ -101,9 +101,13 @@ https://mybatis.org/mybatis-3/getting-started.html
             </if>
             <if test="params.subject_id != null and params.subject_id != ''">
                 AND subject_id = #{params.subject_id}
+            </if> -->
+            <if test="params.lsn_status == 1">
+                AND scanQR_date is not null
             </if>
-
-            
+            <if test="params.lsn_status == 0">
+                AND scanQR_date is null
+            </if>
         </where> 
         order by stu_id, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
     </select> 

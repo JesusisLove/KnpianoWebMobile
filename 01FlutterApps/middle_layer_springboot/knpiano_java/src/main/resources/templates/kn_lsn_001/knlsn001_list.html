@@ -63,8 +63,8 @@
 
             <!-- 検索部 -->
             <form action="#" th:action="@{/kn_lsn_001/search}" th:object="${searchForm}" method="get">
-                <div class="form-row">
-                    <div class="form-group" style="margin-bottom: 20px;">
+                <div class="form-row align-items-end">
+                    <div class="form-group col-md-1">
                         <label>年度</label>
                         <select class="form-control" id="lsnfeeyear" name="selectedyear">
                             <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
@@ -74,7 +74,7 @@
                                     th:selected="${year == (lsnMap!= null ? lsnMap['selectedyear'] : '')}"></option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-left: 20px;">
+                    <div class="form-group col-md-1">
                         <label>月份</label>
                         <select class="form-control" id="monthSelect" name="selectedmonth">
                             <!-- 默认选项由JavaScript动态生成 -->
@@ -84,17 +84,33 @@
                                     th:selected="${month == (lsnMap!= null ? lsnMap['selectedmonth'] : currentmonth)}"></option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-left: 20px;">
+                    <div class="form-group col-md-2">
                         <label>学生姓名</label> 
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
-                        <button type="submit" class="btn btn-primary">検 索</button>
-                   </div>
+                    <div class="form-group col-md-2">
+                        <div class="d-flex">
+                            <div class="custom-control custom-radio mr-3">
+                                <input type="radio" id="radio-active" name="lsnSignFlg" value="1" class="custom-control-input" th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '1'}">
+                                <label class="custom-control-label" for="radio-active">已签到</label>
+                            </div>
+                            <div class="custom-control custom-radio mr-3">
+                                <input type="radio" id="radio-inactive" name="lsnSignFlg" value="0" class="custom-control-input" th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '0'}">
+                                <label class="custom-control-label" for="radio-inactive">未签到</label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="radio-all" name="lsnSignFlg" value="" class="custom-control-input" th:checked="${lsnMap == null || lsnMap['lsnSignFlg'] == null || lsnMap['lsnSignFlg'] == ''}">
+                                <label class="custom-control-label" for="radio-all">所有课</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <button type="submit" class="btn btn-primary w-100">検 索</button>
+                    </div>
                 </div>
-                <div class="form-row">
+                <!-- <div class="form-row">
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="lessonId" name="lessonId" th:value="${lsnMap != null ? lsnMap['lessonId'] : ''}" placeholder="课程番号">
                     </div>
@@ -107,7 +123,7 @@
                     <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="授業種別">
                     </div>
-                </div>
+                </div> -->
                 <!-- 如果没有学生的未支付信息，显示提示信息 -->
                 <style>
                     .no-info-message {

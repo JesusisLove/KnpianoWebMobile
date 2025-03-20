@@ -107,6 +107,7 @@
                                     <dd class="indented">①画面初期化时，年度：系统当前年度 月份：系统当前月份，学生姓名：当前年度当前月份有加课的学生。</dd>
                                     <dd class="indented">②选择年度时，月份被初始化为"ALL"；学生下拉列表框初始化为当前年度所有有加课的学生</dd>
                                     <dd class="indented">③选择月份时，学生下拉列表框初始化为选择年度，选择月份下的所有有加课的学生。</dd>
+                                    <dd class="indented">③Radio按钮，已结算：表示加课费已经支付完了 为消化：表示可以执行加课换正课  所有加课：除已经换成正课以外的所有加课（换成正课的加课不再显示）。</dd>
                                 </dl>
                             </div>
                         </div>
@@ -115,8 +116,8 @@
                 
                 <!-- 検索部 -->
                 <form action="#" th:action="@{/kn_extratosche_all/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row">
-                        <div class="form-group" style="margin-bottom: 20px;">
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-md-1">
                             <label>年度</label>
                             <select class="form-control" id="lsnfeeyear" name="selectedyear">
                                 <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
@@ -126,7 +127,7 @@
                                         th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-left: 20px;">
+                        <div class="form-group col-md-1">
                             <label>月份</label>
                             <select class="form-control" id="monthSelect" name="selectedmonth">
                                 <!-- 默认选项由JavaScript动态生成 -->
@@ -136,13 +137,29 @@
                                         th:selected="${month == (extra2ScheMap!= null ? extra2ScheMap['selectedmonth'] : currentmonth)}"></option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-left: 20px;">
+                        <div class="form-group col-md-2">
                             <label>学生姓名</label> 
                             <select class="form-control" id="studentSelect" name="stuId">
                                 <option value="">请选择</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-left: 20px; display: flex; justify-content: center;">
+                        <div class="form-group col-md-2">
+                            <div class="d-flex">
+                                <div class="custom-control custom-radio mr-3">
+                                    <input type="radio" id="radio-active" name="lsnExtraFlg" value="1" class="custom-control-input" th:checked="${extra2ScheMap != null && extra2ScheMap['lsnExtraFlg'] == '1'}">
+                                    <label class="custom-control-label" for="radio-active">已结算</label>
+                                </div>
+                                <div class="custom-control custom-radio mr-3">
+                                    <input type="radio" id="radio-inactive" name="lsnExtraFlg" value="0" class="custom-control-input" th:checked="${extra2ScheMap != null && extra2ScheMap['lsnExtraFlg'] == '0'}">
+                                    <label class="custom-control-label" for="radio-inactive">未消化</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="radio-all" name="lsnExtraFlg" value="" class="custom-control-input" th:checked="${extra2ScheMap == null || extra2ScheMap['lsnExtraFlg'] == null || extra2ScheMap['lsnExtraFlg'] == ''}">
+                                    <label class="custom-control-label" for="radio-all">所有加课</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-1">
                             <button type="submit" class="btn btn-primary">検 索</button>
                        </div>
                     </div>

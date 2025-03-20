@@ -105,13 +105,15 @@ public class Kn01L002LsnController{
         } else {
             params.put("lsn_month", queryParams.get("selectedyear"));
         }
+        // 已签到：1   未签到：0   所有课：空值
+        params.put("lsn_status",queryParams.get("lsnSignFlg")==""?"-1":queryParams.get("lsnSignFlg"));
 
-         // 检索条件
+        // 检索条件
          params.put("stu_id", queryParams.get("stuId"));
-         params.put("lesson_id", queryParams.get("lessonId"));
-         params.put("subject_id", queryParams.get("subjectId"));
-         params.put("subject_name", queryParams.get("subjectName"));
-         params.put("lesson_type", queryParams.get("lessonType"));
+        //  params.put("lesson_id", queryParams.get("lessonId"));
+        //  params.put("subject_id", queryParams.get("subjectId"));
+        //  params.put("subject_name", queryParams.get("subjectName"));
+        //  params.put("lesson_type", queryParams.get("lessonType"));
  
          // 回传参数设置（画面检索部的查询参数）
          Map<String, Object> backForwordMap = new HashMap<>();
