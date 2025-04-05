@@ -1,3 +1,5 @@
+-- use prod_KNStudent;
+use KNStudent;
 DROP VIEW IF EXISTS v_info_student_document;
 CREATE 
     ALGORITHM = UNDEFINED 

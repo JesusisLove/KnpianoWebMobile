@@ -1,4 +1,5 @@
-use prod_KNStudent;
+-- use prod_KNStudent;
+use KNStudent;
 /**
 * 获取所有学生签完到的上课记录和课费记录
 */

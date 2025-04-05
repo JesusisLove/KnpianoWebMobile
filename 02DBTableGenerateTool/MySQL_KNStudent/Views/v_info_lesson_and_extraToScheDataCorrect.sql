@@ -4,11 +4,12 @@
 *执行v_info_lesson，可以看到换正课之前,该月加课记录的真实记录（相当于姑娘化妆前的样貌）
 *执行v_info_lesson_include_extra2sche，只能看到加课换成正课之后，变成正课的样貌（相当于姑娘化妆后的样貌）
 *如果加课换正课赶上了课程升级（比如，去年12月份学的5级的加课换成今年1月份正课，但是，1月份开始进入6级的课程，
-*那么，换到1月正课的那个加课将被视为6级课程。t_info_lesson_extra_to_sche表里
+*那么，换到1月正课的那个加课将被视为6级课程）。t_info_lesson_extra_to_sche表里
 *会记录该加课的课程级别和换正课后的课程级别。
 *该视图只针对加课换正课的数据处理，对其调课记录，正课记录没有影响。
 */
-use prod_KNStudent;
+-- use prod_KNStudent;
+use KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_and_extraToScheDataCorrect;
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -53,7 +54,7 @@ VIEW v_info_lesson_and_extraToScheDataCorrect AS
 				lsn.create_date AS create_date,
 				lsn.update_date AS update_date
 			FROM
-				t_info_lesson lsn where extra_to_dur_date is null
+				t_info_lesson lsn where extra_to_dur_date is null -- 非加课换正课记录
 			UNION ALL
 			SELECT 
 				lsn.lesson_id AS lesson_id,

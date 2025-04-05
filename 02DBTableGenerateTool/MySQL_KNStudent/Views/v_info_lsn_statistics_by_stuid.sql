@@ -1,4 +1,5 @@
-use prod_KNStudent;
+-- use prod_KNStudent;
+use KNStudent;
 DROP VIEW IF EXISTS v_info_lsn_statistics_by_stuid;
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -43,7 +44,7 @@ SELECT
     FROM
         v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
     GROUP BY stu_id , 
-	     stu_name , 
+	         stu_name , 
              subject_name , 
              subject_id , 
              subject_sub_id , 
