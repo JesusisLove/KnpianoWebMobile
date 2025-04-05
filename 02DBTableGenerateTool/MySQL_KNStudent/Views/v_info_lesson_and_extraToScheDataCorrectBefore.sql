@@ -5,7 +5,8 @@
 *执行v_info_lesson_include_extra2sche，只能看到加课换成正课之后，变成正课的样貌（相当于姑娘结婚后在婆家的样貌）
 *该视图只针对加课换正课的数据处理，对其调课记录，正课记录没有影响。
 */
-use prod_KNStudent;
+-- use prod_KNStudent;
+use KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_and_extraToScheDataCorrectBefore;
 CREATE 
     ALGORITHM = UNDEFINED 

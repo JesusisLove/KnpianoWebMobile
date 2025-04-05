@@ -33,10 +33,6 @@ FROM
 			    subject_price,
 				pay_style,
 			    lesson_type,
-				-- SUM(CASE 
--- 					WHEN lesson_type = 1 THEN subject_price * 4
--- 					ELSE lsn_fee
--- 				END) AS lsn_fee,
 				CASE 
 					WHEN lesson_type = 1 THEN subject_price * 4
 					ELSE sum(lsn_fee)
