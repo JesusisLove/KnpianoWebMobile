@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf公共部分の抽出と参照：ここで抽出した部分を参照します -->
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_sub_001_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
+            <form th:action="@{/kn_sub_001}" method="post">
+                <input type="hidden" name="_method" value="put" th:if="${selectedSubject!=null}"/>
+                <br>
+                <div class="form-group"><br>  <label>科目ID</label> <input name="subjectId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly th:value="${selectedSubject!=null}?${selectedSubject.subjectId}"></div>
+                <div class="form-group"><br>  <label>科目名</label> <input name="subjectName" type="text" class="form-control" placeholder=""  th:value="${selectedSubject!=null}?${selectedSubject.subjectName}"></div>
+               <button type="submit" class="btn btn-primary">保存</button>
+            </form>
+            <br>
+            <div id="form2" style="display:none;">
+                <button class="btn btn-primary" onclick="showForm3()">新規</button>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>科目枝番</th>
+                            <th>枝番名称</th>
+                            <th>価格</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="subjectEdaban : ${subjectEdabanList}">
+                            <td th:text="${subjectEdaban.subjectSubId}">科目枝番</td>
+                            <td th:text="${subjectEdaban.subjectSubName}">枝番名称</td>
+                            <td th:text="${subjectEdaban.subjectPrice}">価格</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <div id="form3" style="display:none;">
+                <form th:action="@{/kn_sub_001_edaban}" method="post">
+                    <div class="form-group"><br>  
+                        <label>科目枝番</label> 
+                        <input name="subjectSubId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly>
+                    </div>
+                    <div class="form-group"><br>  
+                        <label>枝番名称</label> 
+                        <input name="subjectSubName" type="text" class="form-control" placeholder="">
+                    </div>
+                    <div class="form-group"><br>  
+                        <label>価格</label> 
+                        <input name="subjectPrice" type="text" class="form-control" placeholder="">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+    function closeForm() {
+        window.close();
+    }
+
+    function showForm3() {
+        document.getElementById('form3').style.display = 'block';
+    }
+</script>
+</body>
+</html>

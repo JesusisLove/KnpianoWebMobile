@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn04I001StuWithdrawMapper">
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn03D001StuBean">
+        select * from t_mst_student
+    </select>
+
+    <select id="getInfoListWitParm" resultType="com.liu.springboot04web.bean.Kn03D001StuBean">
+        select * from t_mst_student
+        <where>
+            <if test="stuId != null and stuId != ''">
+                AND stu_id = #{stuId}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+        order by stu_name
+    </select>
+
+    <!-- 后端维护的Web页面里的休学/退学处理-->
+    <update id="stuWithdrawProcessSingle">
+        update t_mst_student set
+        del_flg = 1
+        where stu_id = #{stuId}
+    </update>
+
+    <!-- 手机前端页面里的休学（可选复述个学生） -->
+    <update id="stuWithdrawProcessList" parameterType="java.util.List">
+        update t_mst_student set del_flg = 1
+        where stu_id in
+        <foreach item="bean" index="index" collection="beans" open="(" separator="," close=")">
+            #{bean.stuId}
+        </foreach>
+    </update>
+
+    <!-- 复学 -->
+    <update id="stuReinstatement">
+        update t_mst_student set
+        del_flg = 0
+        where stu_id = #{stuId}
+    </update>
+
+</mapper>

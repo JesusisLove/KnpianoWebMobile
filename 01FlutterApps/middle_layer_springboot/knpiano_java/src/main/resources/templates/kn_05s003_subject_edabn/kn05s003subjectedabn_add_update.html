@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+          rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_05s003_subject_edabn_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
+            <form th:action="@{/kn_05s003_subject_edabn}" method="post">
+                <input type="hidden" name="_method" value="put" th:if="${c!=null}"/>
+
+                <div class="form-group"><br>  
+                    <label>科目番号</label> 
+                    <input id="subject_Id" name="subjectId" type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly th:value="${selectedinfo!=null} ? ${selectedinfo.subjectId}">
+                </div>
+
+                <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
+                <div class="form-group" th:if="${selectedinfo==null || errorMessageList != null}">
+                    <label>科目名称</label> 
+                    <select class="form-control" id="subjectSelect" name="subjectName" onchange="getSubjectId()"> 
+                        <option value="">请选择</option>
+                        <option th:each="element : ${subMap}" 
+                                th:value="${element.key}" 
+                                th:text="${element.value.subjectName}"
+                                th:data-subjectid="${element.value.subjectId}"
+                                th:selected="${element.value.subjectId == (selectedinfo!=null ? selectedinfo.subjectId :'')}">
+                        </option>
+                    </select>
+                </div>
+                <!-- 变更修改 模式下 科目名称用 下拉列表框显示 -->
+                <div class="form-group" th:unless="${selectedinfo==null || errorMessageList != null}">
+                    <label>科目名称</label> 
+                    <input name="subjectName" type="text" class="form-control" disabled="true" th:value="${selectedinfo!=null} ? ${selectedinfo.subjectName}">
+                </div>
+
+                <div class="form-group"><br>  
+                    <label>科目枝番</label> 
+                    <input name="subjectSubId" type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly th:value="${selectedinfo!=null} ? ${selectedinfo.subjectSubId}">
+                </div>
+
+                <div class="form-group"><br>  
+                    <label>枝番名称</label> 
+                    <input name="subjectSubName" type="text" class="form-control"placeholder="请输入枝番名称"  th:value="${selectedinfo!=null}?${selectedinfo.subjectSubName}">
+                </div>
+
+                <div class="form-group"><br>  
+                    <label>科目価格</label> 
+                    <input name="subjectPrice" type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null} ? ${selectedinfo.subjectPrice} : 0">
+                </div>
+
+                <div class="form-group" th:unless="${selectedinfo==null || errorMessageList != null}"><br>  
+                    <label>削除フラグ</label> 
+                    <input name="delFlg" type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null} ? ${selectedinfo.delFlg} : 0" readonly>
+                </div>
+
+               <button type="submit" class="btn btn-primary" th:text="保存"></button>
+            </form>
+        </main>
+    </div>
+</div>
+<script>
+    // 联动显示功能：通过切换科目名称，在科目番号文本框里同步显示该科目的ID号
+    function getSubjectId() {
+        var select = document.getElementById('subjectSelect');
+        var selectedOption = select.options[select.selectedIndex];
+        var subjectid = selectedOption.getAttribute('data-subjectid');  // 如果未选或未找到科目Id则返回空字符串
+        document.getElementById('subject_Id').value = subjectid;
+    }
+</script>
+</body>
+</html>"

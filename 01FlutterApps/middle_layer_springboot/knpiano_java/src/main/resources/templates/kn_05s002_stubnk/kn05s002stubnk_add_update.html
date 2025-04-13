@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+          rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{commons/bar::sidebar(activeUri='kn_05s002_stubnk_link_active')}"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <!-- 显示错误消息 -->
+            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                <div th:each="errorMessage : ${errorMessageList}">
+                    <p th:text="${errorMessage}"></p>
+                </div>
+            </div>
+            <form th:action="@{/kn_05s002_stubnk}" method="post">
+                <!-- <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/> -->
+                <br>
+                <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
+                <div class="form-group" th:if="${selectedinfo==null || errorMessageList != null}">
+                    <label>学生姓名</label> 
+                    <select class="form-control" name="stuId"> 
+                        <option value="">请选择</option>
+                        <option th:each="element : ${stuMap}" 
+                                th:value="${element.key}" 
+                                th:utext="${element.value}"
+                                th:selected="${element.key == (selectedinfo!=null ? selectedinfo.stuId :'')}"></option>>
+                        </option>
+                    </select>
+                </div>
+
+                 <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
+                <!-- <div class="form-group" th:unless="${selectedinfo==null || errorMessageList != null}">
+                    <label>学生姓名</label> 
+                    <input name="stuName" type="text" class="form-control" 
+                           th:value="${selectedinfo.stuName}" 
+                           readonly>
+                    <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
+                </div>
+                <br> -->
+
+                <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
+                <div class="form-group" th:if="${selectedinfo==null || errorMessageList != null}">
+                    <label>银行名称</label> 
+                    <select class="form-control" id="bnkSelect" name="bankId"> 
+                        <option value="">请选择</option>
+                        <option th:each="element : ${bnkMap}" 
+                                th:value="${element.key}" 
+                                th:text="${element.value}"
+                                th:selected="${element.key == (selectedinfo!=null ? selectedinfo.bankId :'')}"></option>>
+                        </option>
+                    </select>
+                </div>
+
+                <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
+                <!-- <div class="form-group" th:unless="${selectedinfo==null || errorMessageList != null}">
+                    <label>银行名称</label> 
+                    <input name="bankName" type="text" class="form-control" 
+                           th:value="${selectedinfo.bankName}" 
+                           readonly>
+                    <input name="bankId" type="hidden" th:value="${selectedinfo.bankId}">
+                    <input name="delFlg" type="hidden" th:value="0">
+                </div> -->
+
+                <button type="submit" class="btn btn-primary" th:text="保存"></button>
+            </form>
+        </main>
+    </div>
+</div>
+<!-- <script th:inline="javascript">
+    // 从后端传递的 stuSubList 数据
+    var jsonStuSubList = [[${stuSubList}]];
+    
+    // 页面加载完成后，初始化学生下拉列表
+    window.onload = function() {
+        var studentSelect = document.getElementById('studentSelect');
+        var uniqueStudentIds = new Set(); // 使用集合来避免重复
+    
+        // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
+        jsonStuSubList.forEach(function(item) {
+            if (!uniqueStudentIds.has(item.stuId)) {
+                uniqueStudentIds.add(item.stuId);
+                var option = new Option(item.stuName, item.stuId);
+                studentSelect.add(option);
+            }
+        });
+    
+        // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
+        studentSelect.onchange = function() {
+            updateBankSelect(this.value);
+        };
+    };
+    
+    // 根据选中的学生 ID 更新科目下拉列表
+    function updateBankSelect(stuId) {
+        var bankSelect = document.getElementById('ban k S e le c t');
+        bankSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
+    
+        // 添加与选中学生 ID 相关的科目到科目下拉列表
+        jsonStuSubList.forEach(function(item) {
+            if (item.stuId === stuId) {
+                var option = new Option(item.bankName, item.bankId);
+                bankSelect.add(option);
+            }
+        });
+    }
+    </script>
+    <style>
+        /* 调整控件最右侧按钮的宽度 */
+        .input-group-append .input-group-text {
+            min-width: 60px; /* 设置按钮的最小宽度 */
+        }
+    </style> -->
+
+    </body>
+    </html>

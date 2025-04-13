@@ -1,0 +1,21 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "SpringBoot04WebRestfulcrudApplication",
+            "request": "launch",
+            "mainClass": "com.liu.springboot04web.SpringBoot04WebRestfulcrudApplication",
+            "projectName": "spring-boot-04-web-restfulcrud"
+        }
+    ]
+}
