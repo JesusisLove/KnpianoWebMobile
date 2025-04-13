@@ -1,5 +1,6 @@
 package com.liu.springboot04web.controller;
 
+import java.time.Year;
 // import java.time.LocalDate;
 // import java.time.Year;
 // import java.time.format.DateTimeFormatter;
@@ -38,7 +39,8 @@ public class KnErrorDataWatchController {
 
     @GetMapping("/kn_err_lsn_watch")
     public String listErrLsn(Model model) {
-        List<Kn01L002LsnBean> stuErrorLsnList = errDataDao.getErrLsnDataList();
+        Integer currentYear = Year.now().getValue();
+        List<Kn01L002LsnBean> stuErrorLsnList = errDataDao.getErrLsnDataList(String.valueOf(currentYear));
         model.addAttribute("infoList", stuErrorLsnList);
 
         List<Kn01L002LsnBean> stuErrorLsnGroupList = errDataDao.getErrLsnGroupDataList();

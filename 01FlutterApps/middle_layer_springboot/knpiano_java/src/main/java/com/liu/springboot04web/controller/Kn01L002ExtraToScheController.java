@@ -42,7 +42,7 @@ public class Kn01L002ExtraToScheController {
         this.extra2ScheStuList = null;
     }
 
-    // 根据Web页面上的检索部传过来的年月，取得有加课的学生番号，学生姓名。初期化页面的学生姓名下拉列表框
+    // 根据Web页面上年度和月份的下拉列表框的变化，实现学生姓名下拉列表框的联动初期化
     @GetMapping("/kn_extra_stu_all/{year}/{month}")
     public String list(@PathVariable("year") String year,@PathVariable("month") String month, Model model) {
 
@@ -69,25 +69,25 @@ public class Kn01L002ExtraToScheController {
         LocalDate currentDate = LocalDate.now();// 获取当前日期
 
         // 格式化为 yyyy
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
-        // String year = currentDate.format(formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        String year = currentDate.format(formatter);
 
         // 用保持变量里的检索条件从DB里抽取数据
-        // Collection<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(year);
-        // extra2ScheStuList = collection;
-       //  model.addAttribute("infoList", collection);
+        Collection<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(year);
+        extra2ScheStuList = collection;
+        model.addAttribute("infoList", collection);
 
         /* 初始化画面检索部 */
         // 把要消化加课的学生信息拿到前台画面，给学生下拉列表框做初期化
         model.addAttribute("extra2ScheStuList", extra2ScheStuList);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
-        // Map<String, String> resultsTabStus = getResultsTabStus(collection);
-        // model.addAttribute("resultsTabStus", resultsTabStus);
+        Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
 
         // 年度下拉列表框初期化前台页面
-        int currentYear = Year.now().getValue();
-        model.addAttribute("currentyear", currentYear);
+        // int currentYear = Year.now().getValue();
+        // model.addAttribute("currentyear", currentYear);
         model.addAttribute("knyearlist", knYear);
         
         // 月份下拉列表框初期化前台页面
@@ -127,7 +127,7 @@ public class Kn01L002ExtraToScheController {
         Map<String, Object> backForwordMap = new HashMap<>();
         backForwordMap.putAll(queryParams);
         model.addAttribute("extra2ScheMap", backForwordMap);
-        model.addAttribute("currentyear", lsnYear);
+        // model.addAttribute("currentyear", lsnYear);
         model.addAttribute("knyearlist", knYear);
         model.addAttribute("currentmonth", lsnMonth);
         model.addAttribute("knmonthlist", knMonth);

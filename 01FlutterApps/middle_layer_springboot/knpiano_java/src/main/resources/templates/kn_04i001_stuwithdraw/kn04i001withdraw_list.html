@@ -74,6 +74,20 @@
         .past-date {
             color: red;
         }
+        .student-card {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .active-student {
+            background-color: #d4edda !important; /* 绿色高亮 */
+        }
+        .inactive-student {
+            background-color: #e0e0e0 !important; /* 灰色高亮 */
+        }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}"  rel="stylesheet">
 </head>
@@ -85,111 +99,101 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <h2 class="mt-4 mb-2">学生退学复学管理</h2>
             <hr/>
-            
-            <!-- 业务说明部分 -->
-            <div class="business-description">
-                <dl>
-                    <dt>业务说明：</dt>
-                    <dd class="indented">①课费预支付，目前仅限于月计划课的预支付，月加课和课时结算的课程不能预先支付费用。</dd>
-                    <dd class="indented">②先参照该生最后一次签到日期为参考，在下个月的第一个星期的日期作为该科目的计划排课日期。</dd>
-                    <dd class="indented">③★手机端执行学生退学时，会直接将固定排课信息删除。</dd>
-                    <dd class="indented">④</dd>
-                    <dd class="indented">⑤</dd>
-                </dl>
-            </div>
-
-            <!-- 如果没有学生的未支付信息，显示提示信息 -->
-            <div class="form-group" th:if="${stuOnLsn == null || #lists.isEmpty(stuOnLsn)}">
-                <p class="no-info-message">目前没有入学的学生信息！</p>
-            </div>
-
-            <!-- 明細部 -->
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>学生番号</th>
-                        <th>学生名前</th>
-                        <th>同时删除<br>固定排课</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="info:${stuOnLsn}">
-                        <td>[[${info.stuId}]]</td>
-                        <td>[[${info.stuName}]]</td>
-                        <td>
-                            <input type="checkbox" th:id="'deleteSchedule_' + ${info.stuId}" class="delete-schedule-checkbox">
-                        </td>
-                        <td>
-                            <a class="btn btn-sm btn-primary leave-btn" 
-                               th:href="@{/kn_stu_leave/{stuId}(stuId=${info.stuId})}" 
-                               th:data-stuid="${info.stuId}">退学</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <hr/>
-
-            <!-- 如果没有学生的退学信息，显示提示信息 -->
-            <div class="form-group" th:if="${stuLeaveLsn == null || #lists.isEmpty(stuLeaveLsn)}">
-                <p class="no-info-message">目前没有学生退学信息！</p>
-            </div>
-            
-            <!-- 已退学学生列表 -->
-            <div class="form-group" th:unless="${stuLeaveLsn == null || #lists.isEmpty(stuLeaveLsn)}">
-                <p class="no-info-message">已经退学的学生</p>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>学生编号</th>
-                        <th>学生名称</th>
-                        <th>在课状态</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="info:${stuLeaveLsn}">
-                        <td>[[${info.stuId}]]</td>
-                        <td>[[${info.stuName}]]</td>
-                        <td>[[${info.delFlg == 1 ? '已退学':''}]]</td>
-                        <td>
-                            <a class="btn btn-sm btn-danger" 
-                               th:href="@{/kn_stu_return/{stuId}(stuId=${info.stuId})}" 
-                               methods="GET">复学</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <ul class="nav nav-tabs" id="studentTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="active-students-tab" data-toggle="tab" href="#active-students">在课学生</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="inactive-students-tab" data-toggle="tab" href="#inactive-students">已退学学生</a>
+                </li>
+            </ul>
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="active-students">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>学生番号</th>
+                                <th>学生名前</th>
+                                <th>同时删除<br>固定排课</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="info:${stuOnLsn}" class="student-card" onclick="highlightCard(this, 'active')">
+                                <td>[[${info.stuId}]]</td>
+                                <td>[[${info.stuName}]]</td>
+                                <td>
+                                    <input type="checkbox" th:id="'deleteSchedule_' + ${info.stuId}" class="delete-schedule-checkbox" th:checked="true">
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary leave-btn" 
+                                       th:href="@{/kn_stu_leave/{stuId}(stuId=${info.stuId})}" 
+                                       th:data-stuid="${info.stuId}">退学</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="inactive-students">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>学生编号</th>
+                                <th>学生名称</th>
+                                <th>在课状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="info:${stuLeaveLsn}" class="student-card" onclick="highlightCard(this, 'inactive')">
+                                <td>[[${info.stuId}]]</td>
+                                <td>[[${info.stuName}]]</td>
+                                <td>[[${info.delFlg == 1 ? '已退学':''}]]</td>
+                                <td>
+                                    <a class="btn btn-sm btn-danger" 
+                                       th:href="@{/kn_stu_return/{stuId}(stuId=${info.stuId})}" 
+                                       methods="GET">复学</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 </div>
-<!--Bootstrap core JavaScript-->
-<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+<!-- 修改body结尾部分，保留一个highlightCard函数，并简化Tab逻辑 -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function highlightCard(element, type) {
+    document.querySelectorAll('.student-card').forEach(card => {
+        card.classList.remove('active-student', 'inactive-student');
+    });
+    element.classList.add(type === 'active' ? 'active-student' : 'inactive-student');
+}
 
-<script th:inline="javascript">
-document.addEventListener('DOMContentLoaded', function() {
-    var leaveBtns = document.querySelectorAll('.leave-btn');
+// 简单的Bootstrap Tab激活代码
+$(document).ready(function() {
+    // 直接使用Bootstrap的Tab事件
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        // 可以在这里添加Tab切换后的逻辑
+        console.log("Tab切换到: " + $(e.target).attr('href'));
+    });
     
-    leaveBtns.forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            var stuId = this.getAttribute('data-stuid');
-            var checkbox = document.getElementById('deleteSchedule_' + stuId);
-            var deleteSchedule = checkbox ? checkbox.checked : false;
-            
-            var url = this.getAttribute('href');
-            url += (url.indexOf('?') === -1 ? '?' : '&') + 'deleteSchedule=' + deleteSchedule;
-            
-            window.location.href = url;
-        });
+    // 如果上面的方法不起作用，可以尝试手动绑定点击事件
+    $('#inactive-students-tab').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+    
+    $('#active-students-tab').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
     });
 });
 </script>
