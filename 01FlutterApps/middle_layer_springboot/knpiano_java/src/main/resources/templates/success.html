@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 添加【xmlns:th="http://www.thymeleaf.org"】目的为了出现语法提示 -->
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+	</head>
+	
+	<body>
+		<h1>欢迎来到成功页面 ！</h1>
+		<!-- th:text 将div里面的文本内容设置为 -->
+		<div th:text="${hi}"></div>
+		<!-- div 的字面量设置，也就是说，id 和 class的属性值都是固定值 -->
+		<div id="div01" class="myDiv"> </div>
+		<div th:id="${hi}" th:class="${hi}" th:text="${hi}"> WELCOME!</div>
+		
+		<hr/>
+		<div th:text="${hi}">这是 th:text</div>
+		<div th:utext="${hi}">这是 th:utext</div>
+		<hr/>
+		
+		<!-- th:each 每次遍历都会生成当前的这个h4标签 也就是遍历与数组元素相同个数的标签-->
+		<h4 th:text="${user}" th:each="user:${users}"></h4>
+		<hr/>
+		<h4><!-- th:each 每次遍历都会生成当前的这个span标签 也就是遍历与数组元素相同个数的标签-->
+			<span th:each="user:${users}">[[${user}]]</span>
+		</h4>
+		
+		
+	</body>
+</html>

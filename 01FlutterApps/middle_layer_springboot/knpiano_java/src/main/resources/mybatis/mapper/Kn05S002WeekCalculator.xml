@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn05S002WeekCalculatorMapper">
+
+    <!-- 后台Web端，排课操作可，撤销操作可 -->
+    <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">
+        select * from t_fixedlesson_status
+    </select>
+
+    <!-- 手机端只显示排课操作，不显示撤销操作 -->
+    <select id= "getInfoList4mb" resultType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">
+        select * from t_fixedlesson_status 
+        where fixed_status = 0
+        order by start_week_date
+    </select>
+
+    <insert id="insertFixedLessonStatus" parameterType="com.liu.springboot04web.bean.Kn05S002FixedLsnStatusBean">
+        INSERT INTO t_fixedlesson_status (week_number, start_week_date, end_week_date)
+        VALUES (#{weekNumber}, #{startWeekDate}, #{endWeekDate})
+    </insert>
+
+    <delete id="deleteAll">
+        <!-- MySQL Workbench 出于安全考虑，默认不允许执行没有 WHERE 子句的 DELETE 语句。这是为了防止意外删除整个表的数据。
+         然而，如果您确实需要删除表中的所有数据，有几种方法可以实现 
+         delete from t_fixedlesson_status where 1=1;
+         -->
+        
+        TRUNCATE TABLE t_fixedlesson_status
+
+    </delete>
+
+    <!-- 执行一周计划排课的Batch处理 -->
+    <select id="doLsnWeeklySchedual" statementType="CALLABLE">
+        {call sp_execute_weekly_batch_lsn_schedule (
+            #{weekStart, mode=IN, jdbcType=VARCHAR},
+            #{weekEnd,   mode=IN, jdbcType=VARCHAR},
+            #{SEQCode,   mode=IN, jdbcType=VARCHAR}
+        )}
+    </select>
+
+    <update id="updateWeeklyBatchStatus" >
+        UPDATE t_fixedlesson_status
+           SET fixed_status= #{lsnStatus}
+         WHERE start_week_date=#{weekStart}
+           AND end_week_date=#{weekEnd}
+          LIMIT 1
+    </update>
+
+    <!-- 只撤销Batch排课部分，手动排课保留 -->
+    <delete id ="cancelWeeklySchedual">
+        delete from t_info_lesson 
+        where substring(schedual_date,1,10) between #{weekStart} and #{weekEnd}
+          and schedual_type = 1;
+    </delete>
+
+    <!-- 课程表里确认是否有一个签到的课程
+    课题：如果这期间，认为手动排了一节课，并且签到了，因手动排的课导致有记录而不允许撤销，实际上这个排课记录根本就不是batch执行的记录，这种情况下怎么办呢？
+    课题状态：正在考虑中。。。 
+    -->
+    <select id= "checkLsnHasSignedOrNot" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        select * from t_info_lesson 
+         where scanqr_date is not null
+           and schedual_date between #{weekStart} and #{weekEnd}
+           and schedual_type = 1;
+    </select>
+
+</mapper>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+    <div th:fragment="lessonTable(dayOfWeek, fixedWeek)">
+        <div th:id="${dayOfWeek}" class="tab-pane fade" th:classappend="'show active'">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>学生ID</th>
+                        <th>科目ID</th>
+                        <th>学生姓名</th>
+                        <th>科目名称</th>
+                        <th>固定週</th>
+                        <th>固定上课时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="fixedlsn : ${fixedLessonList}" th:if="${fixedlsn.fixedWeek == fixedWeek}">
+                        <td>[[${fixedlsn.stuId}]]</td>
+                        <td>[[${fixedlsn.subjectId}]]</td>
+                        <td>[[${fixedlsn.stuName}]]</td>
+                        <td>[[${fixedlsn.subjectName}]]</td>
+                        <td>[[${fixedlsn.fixedWeek}]]</td>
+                        <td>
+                            <span th:text="${fixedlsn.fixedHour lt 10 ? '0' + fixedlsn.fixedHour : fixedlsn.fixedHour}"></span>：
+                            <span th:text="${fixedlsn.fixedMinute lt 10 ? '0' + fixedlsn.fixedMinute : fixedlsn.fixedMinute}"></span>
+                        </td>
+                        
+                        <td>
+                            <a class="btn btn-sm btn-primary" th:href="@{/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}
+                                                                                                (stuId=${fixedlsn.stuId}, 
+                                                                                                subjectId=${fixedlsn.subjectId}, 
+                                                                                                fixedWeek=${fixedlsn.fixedWeek})}" methods="GET">変更</a>
+                                                                                                
+                            <button class="btn btn-sm btn-danger deleteBtn" th:attr="subject_del_uri=@{/kn_fixlsn_001/{stuId}/{subjectId}/{fixedWeek}
+                                                                                                (stuId=${fixedlsn.stuId}, 
+                                                                                                subjectId=${fixedlsn.subjectId}, 
+                                                                                                fixedWeek=${fixedlsn.fixedWeek})}">削除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 削除処理的表单提交 -->
+        <form id="deleteSubjectForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete"/>
+        </form>
+    </div>
+</body>
+</html>

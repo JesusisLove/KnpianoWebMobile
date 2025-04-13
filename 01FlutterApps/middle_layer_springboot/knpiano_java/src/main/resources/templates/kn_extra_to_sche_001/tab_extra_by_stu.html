@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+    <style>
+        .column-control {
+            text-align: right;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .column-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            right: 0;
+            top: 100%;
+            min-width: 150px;
+        }
+
+        .column-menu.show {
+            display: block;
+        }
+
+        .column-menu label {
+            display: block;
+            padding: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .column-menu label:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 确保操作列始终显示 */
+        .action-column {
+            display: table-cell !important;
+        }
+    </style>
+</head>
+<body>
+    <div th:fragment="lessonTable(stuid, stuName)">
+        <!-- 列控制按钮和菜单 -->
+        <div class="column-control">
+            <button onclick="toggleColumnMenu(event)" class="btn btn-sm btn-secondary">
+                显示/隐藏列
+            </button>
+            <div id="columnMenu" class="column-menu">
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 授業番号
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目番号
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 科目枝番
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生番号
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 科目级别
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-classDuration')" /> 上课时长
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 课程種別
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 計画手段
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 计划课日期
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-adjustedDate')" /> 调课日期
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-extraToDurDate')" /> 加课换正课日期
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-scanQrDate')" /> 上课签到日期
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-payFlg')" /> 支付状况
+                </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-changingEffect')" /> 换正课果效
+                </label>
+            </div>
+        </div>
+        <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th class="col-lessonId">授業<br>番号</th>
+                        <th class="col-subjectId">科目<br>番号</th>
+                        <th class="col-subjectSubId">科目<br>枝番</th>
+                        <th class="col-stuId">学生<br>番号</th>
+                        <th class="col-subjectName">科目<br>名称</th>
+                        <th class="col-subjectLevel">科目<br>级别</th>
+                        <th class="col-classDuration">上课时长<br>（分钟）</th>
+                        <th class="col-lessonType">课程<br>種別</th>
+                        <th class="col-schedualType">計画<br>手段</th>
+                        <th class="col-schedualDate">计划课<br>日期</th>
+                        <th class="col-adjustedDate">调课<br>日期</th>
+                        <th class="col-extraToDurDate">加课换正课<br>日期</th>
+                        <th class="col-scanQrDate">上课签到<br>日期</th>
+                        <th class="col-payFlg">支付状况</th>
+                        <th class="col-changingEffect">换正课果效</th>
+                        <th class="action-column">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
+                        th:style="${info.extraToDurDate != null ? 'color: black;' : 
+                                  info.lessonType == 0 ? 'color: #4CAF50;' : 
+                                  info.lessonType == 1 ? 'color: #2196F3;' : 
+                                  info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
+                        <td class="col-lessonId">[[${info.lessonId}]]</td>
+                        <td class="col-subjectId">[[${info.subjectId}]]</td>
+                        <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
+                        <td class="col-stuId">[[${info.stuId}]]</td>
+                        <td class="col-subjectName">[[${info.subjectName}]]</td>
+                        <td class="col-subjectLevel">[[${info.subjectSubName}]]</td>
+                        <td class="col-classDuration">[[${info.classDuration}]]</td>
+                        <td class="col-lessonType" th:text="${info.lessonType == 0 ? '课结算' : 
+                                      info.lessonType == 1 ? '月计划' : 
+                                      info.extraToDurDate != null ? '已换正课' : '月加课'}"></td>
+                        <td class="col-schedualType" th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}"></td>
+                        <td class="col-schedualDate">[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-extraToDurDate">[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-scanQrDate">[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-payFlg">[[${info.payFlg}]]</td>
+                        <td class="col-changingEffect">
+                            <span th:if="${info.payFlg == 0 && info.extraToDurDate != null}"
+                                  th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
+                                  th:style="${info.isGoodChange == 1 ? 
+                                          'color: #4CAF50; font-weight: bold;' : 
+                                          'color: #FF0000; font-weight: bold;'}">
+                            </span>
+                            <span th:if="${info.payFlg == 1 && info.extraToDurDate != null }"
+                                  th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}"
+                                  th:style="${info.isGoodChange == 1 ? 
+                                          'color: #4CAF50; font-weight: bold;' : 
+                                          'color: #FF0000; font-weight: bold;'}">
+                            </span>
+                        </td>
+
+                        <td class="action-column">
+                            <div th:if="${info.payFlg == 0}">
+                                <a class="btn btn-sm btn-primary" 
+                                   th:if="${info.extraToDurDate == null}"
+                                   th:href="@{/kn_extra_lsn_detail/}+${info.lessonId}" 
+                                   methods="GET">加课换正课</a>
+                                <a class="btn btn-sm btn-danger" 
+                                   th:unless="${info.extraToDurDate == null}"
+                                   th:href="@{/kn_extra_lsn_undo/{id}(id=${info.lessonId})}" 
+                                   methods="GET">撤销</a>
+                            </div>
+                            <div th:if="${info.payFlg == 1}">
+                                <a class="btn btn-sm btn-secondary disabled" 
+                                   style="cursor: not-allowed; opacity: 0.65;" 
+                                   role="button">已结算完了</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 列控制相关的 JavaScript -->
+        <script th:inline="javascript">
+            // 存储列显示状态
+            var columnStates = JSON.parse(localStorage.getItem('columnStates') || '{}');
+
+            // 控制列显示菜单的显示/隐藏
+            function toggleColumnMenu(event) {
+                event.stopPropagation();
+                const menu = document.getElementById('columnMenu');
+                menu.classList.toggle('show');
+            }
+
+            // 控制列的显示/隐藏（同步到所有Tab）
+            function toggleColumn(columnClass) {
+                // 更新状态
+                columnStates[columnClass] = !columnStates[columnClass];
+                const isVisible = columnStates[columnClass];
+                
+                // 更新所有具有该类名的元素
+                const cells = document.getElementsByClassName(columnClass);
+                Array.from(cells).forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+
+                // 保存状态
+                localStorage.setItem('columnStates', JSON.stringify(columnStates));
+
+                // 同步所有Tab中的复选框状态
+                const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isVisible;
+                });
+            }
+
+            // 应用保存的列状态
+            function applyColumnStates() {
+                Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
+                    const cells = document.getElementsByClassName(columnClass);
+                    Array.from(cells).forEach(cell => {
+                        cell.style.display = isVisible ? '' : 'none';
+                    });
+                    
+                    // 更新复选框状态
+                    const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = isVisible;
+                    });
+                });
+            }
+
+            // 点击其他地方关闭菜单
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('columnMenu');
+                if (!event.target.closest('.column-control')) {
+                    menu.classList.remove('show');
+                }
+            });
+
+            // 页面加载时初始化列状态
+            document.addEventListener('DOMContentLoaded', function() {
+                applyColumnStates();
+            });
+
+            // 监听Tab切换事件
+            document.addEventListener('shown.bs.tab', function() {
+                applyColumnStates();
+            });
+        </script>
+    </div>
+</body>
+</html>

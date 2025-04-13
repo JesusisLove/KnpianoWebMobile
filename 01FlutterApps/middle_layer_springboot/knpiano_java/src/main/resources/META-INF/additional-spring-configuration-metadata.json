@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "spring.datasource.minIdle",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.minIdle'"
+  },
+  {
+    "name": "spring.datasource.initialSize",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.initialSize'"
+  }
+]}

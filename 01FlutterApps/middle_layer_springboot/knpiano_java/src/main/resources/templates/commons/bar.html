@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <!--topbar-->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow" th:fragment="topbar">
+        <!-- 2020/07/30 学习 thymeleaf 公共片段的抽取和引用：在此抽取片段 -->
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">[[${session.loginUser}]]</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+            data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#">Sign out</a>
+            </li>
+        </ul>
+    </nav>
+    <!--sidebar-->
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" th:fragment="sidebar">
+        <div class="sidebar-sticky pt-3">
+            <ul class="nav flex-column sidebar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main.html}"
+                        th:class="${activeUri}=='main_link_active'?'nav-link active':'nav-link'">
+                        <i class="fas fa-home"></i>
+                        KNPiano后台维护 首页 <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+
+                <!-- 基本信息管理 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-folder"></i> 基本管理
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_stu_001_all}"
+                                th:class="${activeUri}=='kn_stu_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 学生基本信息
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_sub_001_all}"
+                                th:class="${activeUri}=='kn_sub_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 科目基本信息
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_05s003_subject_edabn_all}"
+                                th:class="${activeUri}=='kn_05s003_subject_edabn_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 科目枝番信息
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_bnk_001_all}"
+                                th:class="${activeUri}=='kn_bnk_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 银行基本信息
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_05s002_stubnk_all}"
+                                th:class="${activeUri}=='kn_05s002_stubnk_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 学生银行账户
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_studoc_001_all}"
+                                th:class="${activeUri}=='kn_studoc_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 学生档案管理
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 课程信息管理 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-folder"></i> 课程管理
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_lsn_001_all}"
+                                th:class="${activeUri}=='kn_lsn_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 课程信息管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_extratosche_all}"
+                                th:class="${activeUri}=='kn_extra_lesson_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 加课消化管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_pieses_into_one}"
+                                th:class="${activeUri}=='kn_pieses_into_one_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 碎课拼成整课
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_err_lsn_watch}"
+                                th:class="${activeUri == 'kn_err_lsn_watch_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-database"></i> 监视排课异常数据
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 学费支付管理 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-folder"></i> 学费管理
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_lsn_fee_001_all}"
+                                th:class="${activeUri}=='kn_lsn_fee_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 课程费用管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_lsn_unpaid_001_all}"
+                                th:class="${activeUri}=='kn_lsn_unpaid_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 课费未支付管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_lsn_pay_001_all}"
+                                th:class="${activeUri}=='kn_lsn_pay_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 课费已支付管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_advc_pay_lsn}"
+                                th:class="${activeUri}=='kn_advc_pay_lsn_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 学费预支付管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#"
+                                th:href="@{/kn02f005_all/{year}(year=${#dates.year(#dates.createNow())})}"
+                                th:class="${activeUri}=='kn02f005_all_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 学费月度报表
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_err_fee_watch}"
+                                th:class="${activeUri == 'kn_err_fee_watch_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-database"></i> 监视学费异常数据
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 综合管理 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-tasks"></i> 综合管理
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_student_mst_all}"
+                                th:class="${activeUri == 'kn_stu_leave_or_return_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-exchange-alt"></i> 退学复学管理
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-line"></i> 年终课程统计分析
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar"></i> 学生上课进度统计
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_subject_eda_stu_all}"
+                            th:class="${activeUri == 'kn_subject_eda_stu_all_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-chart-bar"></i> 按科目查看学生
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 设置管理 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-cog"></i> 设置管理
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_calculate_Weeks}"
+                                th:class="${activeUri == 'kn_calculate_Weeks_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-calendar-alt"></i> 固定排课周次管理表（一年执行一次）
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_fixlsn_001_all}"
+                                th:class="${activeUri}=='kn_fixlsn_001_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-clock"></i> 固定课时信息
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-calendar-day"></i> 学生假期设置
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-qrcode"></i> 学生二维码管理
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 后台维护日志监视 -->
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <i class="fas fa-eye"></i> 后台维护监视
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_watch_db_log}"
+                                th:class="${activeUri == 'kn_watch_db_log_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-database"></i> 数据库存储过程监视
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</body>
+
+</html>

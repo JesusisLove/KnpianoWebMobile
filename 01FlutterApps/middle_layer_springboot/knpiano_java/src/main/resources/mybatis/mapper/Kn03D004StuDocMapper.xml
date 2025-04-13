@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn03D004StuDocMapper">
+
+    <select id="getInfoList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT * FROM v_info_student_document
+        ORDER BY stu_name,adjusted_date desc,subject_id,subject_sub_id
+    </select>
+
+    <!-- 手机端网页提取已经入档的学生名单 -->
+    <select id="getDocedStuList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT 
+            doc.stu_id, 
+            doc.stu_name, 
+            COUNT(DISTINCT doc.subject_id) as subjectCount
+        FROM v_info_student_document doc
+        INNER JOIN t_mst_student stu 
+            ON doc.stu_id = stu.stu_id 
+            AND stu.del_flg = 0
+        WHERE doc.del_flg = 0
+        GROUP BY doc.stu_id, doc.stu_name
+        ORDER BY doc.stu_name;
+    </select>
+
+    <!-- 手机端网页提取已经入档的学生他本人的历史档案信息 -->
+    <select id="getDocedstuDetailList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        select distinct * from v_info_student_document where stu_id = #{stuId} 
+        order by stu_name, adjusted_date desc, subject_id, subject_sub_id;
+    </select>
+
+
+    <select id="searchStuDoc" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT *
+        FROM v_info_student_document
+        <where>
+            <foreach item="value" index="key" collection="params">
+                <if test="value != null and value != ''">
+                    <!-- AND ${key} like CONCAT('%', #{value}, '%') -->
+                    AND ${key} = #{value}
+                </if>
+            </foreach>
+        </where>
+    </select> 
+
+    <!-- 还未建档的学生姓名一览取得 -->
+    <select id="getUnDocedList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT stu_id,stu_name FROM t_mst_student
+        WHERE stu_id NOT IN (select stu_id from t_info_student_document)
+    </select>
+
+    <select id="getInfoByKey" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        <!-- 绑定变量并格式化日期 -->
+        <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
+        SELECT * FROM v_info_student_document WHERE stu_id = #{stuId} 
+                                           AND subject_id = #{subjectId} 
+                                           AND subject_sub_id = #{subjectSubId} 
+                                           AND adjusted_date = #{formattedAdjustedDate}
+    </select>
+
+    <!-- 从学生档案表视图中取得在课学生正在上的科目，在新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
+    <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT * FROM v_latest_subject_info_from_student_document order by stu_name
+    </select>
+
+
+    <!-- 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息 -->
+    <select id="getLatestSubjectListByStuId" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT * FROM v_latest_subject_info_from_student_document
+        WHERE stu_id = #{stuId} 
+        ORDER BY subject_id
+    </select>
+    
+    <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        insert into t_info_student_document (
+            stu_id,
+            subject_id,
+            subject_sub_id,
+            adjusted_date,
+            pay_style,
+            minutes_per_lsn,
+            lesson_fee,
+            lesson_fee_adjusted,
+            exam_date,
+            exam_score
+            )
+        values (
+            #{stuId},
+            #{subjectId},
+            #{subjectSubId},
+            #{adjustedDate},
+            #{payStyle},
+            #{minutesPerLsn},
+            #{lessonFee},
+            #{lessonFeeAdjusted},
+            #{examDate},
+            #{examDcore}
+        )
+    </insert>
+
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+    <!-- 绑定变量并格式化日期 -->
+    <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
+
+            update t_info_student_document set
+                minutes_per_lsn = #{minutesPerLsn},
+                lesson_fee = #{lessonFee},
+                lesson_fee_adjusted = #{lessonFeeAdjusted},
+                pay_style = #{payStyle},
+                exam_date = #{examDate},
+                exam_score = #{examDcore}
+            WHERE stu_id = #{stuId}
+              AND subject_id = #{subjectId}
+              AND subject_sub_id = #{subjectSubId} 
+              AND adjusted_date = #{formattedAdjustedDate}
+    </update>
+
+    <delete id="deleteInfoByKeys">
+        DELETE FROM t_info_student_document WHERE stu_id = #{stuId} 
+                                         AND subject_id = #{subjectId} 
+                                         AND subject_sub_id = #{subjectSubId} 
+                                         AND adjusted_date = #{adjustedDate}
+    </delete>
+
+    <select id="getNextSequence" parameterType="map" statementType="CALLABLE">
+        {
+            #{parm_out,mode=OUT,jdbcType=INTEGER} = call nextval(#{parm_in,mode=IN})
+        }
+    </select>
+
+    <select id="getLsnPrice" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT pay_style, adjusted_date, minutes_per_lsn, lesson_fee, lesson_fee_adjusted
+          FROM t_info_student_document 
+         WHERE stu_id = #{stuId} 
+           AND subject_id = #{subjectId} 
+           AND subject_sub_id = #{subjectSubId}
+         ORDER BY adjusted_date DESC
+        LIMIT 1;
+    </select>
+
+</mapper>

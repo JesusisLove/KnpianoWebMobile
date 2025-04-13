@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01L003ExtraPiesesIntoOneMapper">
+
+    <select id="getExtraPiesesLsnList" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        select doc.stu_name,lsn.*, doc.subject_name, doc.subject_sub_name
+        from 
+            v_info_all_extra_lsns lsn
+        inner join
+            v_latest_subject_info_from_student_document doc
+            on lsn.stu_id = doc.stu_id
+            and lsn.subject_id = doc.subject_id
+            and lsn.subject_sub_id = doc.subject_sub_id
+        left join
+            v_info_subject_edaban sub
+            on lsn.subject_id = sub.subject_id
+            and lsn.subject_sub_id = sub.subject_sub_id
+        <where>
+            <if test="stuId != null and stuId.toString().trim() != ''">
+                AND lsn.stu_id = #{stuId}
+            </if>
+            and left(lsn.schedual_date,4) = #{year}
+        </where>
+        and lsn.pay_flg = 0
+        <!-- and lsn.class_duration < doc.minutes_per_lsn -->
+        and lsn.class_duration &lt; doc.minutes_per_lsn
+    </select>
+
+    <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        WITH extraPiecesLsn AS
+        (
+            SELECT * FROM v_info_all_extra_lsns 
+            WHERE LEFT(schedual_date, 4) = #{pieceExtraYear}
+        )
+        SELECT doc.stu_id, doc.stu_name 
+        FROM v_latest_subject_info_from_student_document doc
+        JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
+            AND doc.subject_id = extraPiecesLsn.subject_id
+            AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
+        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn;
+    </select>
+
+    <!-- <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+
+    </insert>
+
+    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+
+    </update>
+
+    <delete id="deleteInfo" parameterType="String">
+
+    </delete> -->
+
+</mapper>
