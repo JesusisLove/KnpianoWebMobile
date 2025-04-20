@@ -31,7 +31,7 @@ class BankViewPage extends StatefulWidget {
 
 class _BankViewPageState extends State<BankViewPage> {
   final String titleName = "银行信息一览";
-  late  String subtitle;
+  late String subtitle;
   late Future<List<Kn03D003BnkBean>> futureBanks;
 
   @override
@@ -77,6 +77,7 @@ class _BankViewPageState extends State<BankViewPage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),

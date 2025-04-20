@@ -347,7 +347,8 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
+        currentNavIndex: 1,
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -24,11 +24,11 @@ class RescheduleLessonTimeDialog extends StatefulWidget {
   final Function(String) onSave;
 
   const RescheduleLessonTimeDialog({
-    Key? key,
+    super.key,
     required this.initialDate,
     required this.initialTime,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   _RescheduleLessonTimeDialogState createState() =>

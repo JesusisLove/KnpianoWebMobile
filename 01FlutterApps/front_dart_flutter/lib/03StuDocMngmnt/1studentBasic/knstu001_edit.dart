@@ -210,7 +210,8 @@ class StudentEditState extends State<StudentEdit> {
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 2,
         actions: [
           // 如果需要，可以在这里添加额外的操作按钮
         ],

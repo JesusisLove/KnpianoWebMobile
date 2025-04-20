@@ -157,7 +157,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
+        currentNavIndex: 1,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         actions: [

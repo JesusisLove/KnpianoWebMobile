@@ -33,7 +33,7 @@ class Kn05S003SubEdaView extends StatefulWidget {
 
 class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
   final String titleName = "科目级别一览";
-  late  String subtitle;
+  late String subtitle;
   List<dynamic> subjectEdaBanBean = [];
   late Future<List<Kn05S003SubjectEdabnBean>> futureSubjectsEda;
 
@@ -85,6 +85,8 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        addInvisibleRightButton: false,
+        currentNavIndex: 2,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),

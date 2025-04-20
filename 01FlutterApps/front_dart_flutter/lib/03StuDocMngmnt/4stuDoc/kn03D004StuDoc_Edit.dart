@@ -123,7 +123,8 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 2,
       ),
       body: FutureBuilder<void>(
         future: _initialData,
