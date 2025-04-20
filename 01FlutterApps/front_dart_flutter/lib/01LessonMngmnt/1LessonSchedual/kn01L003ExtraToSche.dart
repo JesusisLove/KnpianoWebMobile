@@ -637,7 +637,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
+        currentNavIndex: 0,
       ),
       body: Column(
         children: [

@@ -26,10 +26,12 @@ class Kn05S002WeekCalculatorSchedual extends StatefulWidget {
   });
 
   @override
-  _Kn05S002WeekCalculatorSchedualState createState() => _Kn05S002WeekCalculatorSchedualState();
+  _Kn05S002WeekCalculatorSchedualState createState() =>
+      _Kn05S002WeekCalculatorSchedualState();
 }
 
-class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorSchedual> {
+class _Kn05S002WeekCalculatorSchedualState
+    extends State<Kn05S002WeekCalculatorSchedual> {
   final String titleName = '周次排课设置';
   List<Kn05S002FixedLsnStatusBean> staticLsnList = [];
   bool isLoading = false;
@@ -44,14 +46,17 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
     setState(() {
       isLoading = true;
     });
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualDateForOneYear}';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.weeklySchedualDateForOneYear}';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = json.decode(decodedBody);
         setState(() {
-          staticLsnList = jsonList.map((json) => Kn05S002FixedLsnStatusBean.fromJson(json)).toList();
+          staticLsnList = jsonList
+              .map((json) => Kn05S002FixedLsnStatusBean.fromJson(json))
+              .toList();
           isLoading = false;
         });
       } else {
@@ -91,10 +96,12 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
   }
 
   // 执行排课
-  Future<void> executeWeeklySchedual(int weekNumber, String startDate, String endDate) async {
+  Future<void> executeWeeklySchedual(
+      int weekNumber, String startDate, String endDate) async {
     _showProgressDialog(); // 显示进度对话框
 
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualExcute}/$startDate/$endDate';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.weeklySchedualExcute}/$startDate/$endDate';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       Navigator.pop(context); // 关闭进度对话框
@@ -116,10 +123,12 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
   }
 
   // 撤销排课
-  Future<void> cancelWeeklySchedual(int weekNumber, String startDate, String endDate) async {
+  Future<void> cancelWeeklySchedual(
+      int weekNumber, String startDate, String endDate) async {
     _showProgressDialog(); // 显示进度对话框
 
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.weeklySchedualCancel}/$startDate/$endDate/$weekNumber';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.weeklySchedualCancel}/$startDate/$endDate/$weekNumber';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       Navigator.pop(context); // 关闭进度对话框
@@ -204,6 +213,7 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        addInvisibleRightButton: true,
         actions: [
           PopupMenuButton<String>(
             icon: Icon(Icons.more_horiz, color: widget.knFontColor),
@@ -251,14 +261,33 @@ class _Kn05S002WeekCalculatorSchedualState extends State<Kn05S002WeekCalculatorS
                       return ListTile(
                         title: Row(
                           children: [
-                            Expanded(child: Text('第${item.weekNumber.toString().padLeft(2, '0')}周', textAlign: TextAlign.center)),
-                            Expanded(child: Text(formatDate(item.startWeekDate), textAlign: TextAlign.center)),
-                            Expanded(child: Text(formatDate(item.endWeekDate), textAlign: TextAlign.center)),
+                            Expanded(
+                                child: Text(
+                                    '第${item.weekNumber.toString().padLeft(2, '0')}周',
+                                    textAlign: TextAlign.center)),
+                            Expanded(
+                                child: Text(formatDate(item.startWeekDate),
+                                    textAlign: TextAlign.center)),
+                            Expanded(
+                                child: Text(formatDate(item.endWeekDate),
+                                    textAlign: TextAlign.center)),
                             Expanded(
                               child: Center(
                                 child: item.fixedStatus == 0
-                                    ? _buildButton('排课', Colors.blue, () => executeWeeklySchedual(item.weekNumber, item.startWeekDate, item.endWeekDate))
-                                    : _buildButton('撤销', Colors.red, () => cancelWeeklySchedual(item.weekNumber, item.startWeekDate, item.endWeekDate)),
+                                    ? _buildButton(
+                                        '排课',
+                                        Colors.blue,
+                                        () => executeWeeklySchedual(
+                                            item.weekNumber,
+                                            item.startWeekDate,
+                                            item.endWeekDate))
+                                    : _buildButton(
+                                        '撤销',
+                                        Colors.red,
+                                        () => cancelWeeklySchedual(
+                                            item.weekNumber,
+                                            item.startWeekDate,
+                                            item.endWeekDate)),
                               ),
                             ),
                           ],

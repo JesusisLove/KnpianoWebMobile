@@ -79,7 +79,8 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
                                    widget.knFontColor.green + 20,
                                    widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
-        addInvisibleRightButton: true, // 用来填充KnAppBar使布局对称
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 1,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
       ),

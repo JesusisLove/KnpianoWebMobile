@@ -115,7 +115,8 @@ class ScheduleFormState extends State<ScheduleForm> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 4,
       ),
       body: Form(
         key: _formKey,

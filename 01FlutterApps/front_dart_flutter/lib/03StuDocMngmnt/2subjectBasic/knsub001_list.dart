@@ -76,6 +76,7 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        addInvisibleRightButton: true,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),

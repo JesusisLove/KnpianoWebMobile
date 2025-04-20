@@ -14,16 +14,20 @@ import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
 import 'Constants.dart'; // 引入包含全局常量的文件
 
+// ignore: must_be_immutable
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  late  int currentNavIndex;
+
+  HomePage({
+    super.key,
+    required this.currentNavIndex,
+  });
 
   @override
   HomePageState createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
   List<Widget> getPageWidgets(int index) {
     switch (index) {
       case 0:
@@ -339,7 +343,7 @@ class HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: getPageWidgets(_selectedIndex),
+          children: getPageWidgets(widget.currentNavIndex),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -352,7 +356,7 @@ class HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: widget.currentNavIndex,
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
@@ -400,7 +404,7 @@ class HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.currentNavIndex = index;
     });
   }
 }
