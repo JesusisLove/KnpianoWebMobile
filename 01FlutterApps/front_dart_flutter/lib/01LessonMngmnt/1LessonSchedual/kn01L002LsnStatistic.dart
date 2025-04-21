@@ -287,7 +287,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     return Scaffold(
       appBar: KnAppBar(
         title: '${widget.stuName}的$titleName',
-        subtitle: "${widget.pagePath} >> $titleName",
+        subtitle: widget.pagePath,
         context: context,
         appBarBackgroundColor: widget.knBgColor,
         titleColor: Color.fromARGB(
