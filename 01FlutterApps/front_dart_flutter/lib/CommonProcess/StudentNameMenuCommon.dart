@@ -35,6 +35,7 @@ class StudentNameMenuCommon extends StatefulWidget {
 class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   List<Map<String, dynamic>> students = [];
   DisplayMode _displayMode = DisplayMode.medium;
+  bool _isLoading = true; // 添加加载状态变量
 
   @override
   void initState() {
@@ -43,6 +44,9 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   }
 
   Future<void> fetchStudents() async {
+    setState(() {
+      _isLoading = true; // 开始加载
+    });
     final String apiUrl = '${KnConfig.apiBaseUrl}${widget.strUri}';
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -69,12 +73,16 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
 
         setState(() {
           students = uniqueStudents;
+          _isLoading = false; // 加载完成
         });
       } else {
         print('Failed to load students');
       }
     } catch (e) {
       print('Error: $e');
+      setState(() {
+        _isLoading = false; // 出错也要结束加载状态
+      });
     }
   }
 
@@ -139,7 +147,9 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
         ],
         bottom: null,
       ),
-      body: _buildStudentGrid(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator()) // 加载中显示进度条
+          : _buildStudentGrid(), // 加载完成显示网格
     );
   }
 
