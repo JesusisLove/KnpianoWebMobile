@@ -12,6 +12,7 @@ class Kn02F002FeeBean {
   late String stuId;
   final String subjectId;
   late String stuName; // 因为后续需要赋值操作，所以由final改为late
+  String? nikName; //因为从后台返回的nikName有可能是NULL
   final String subjectName;
   final int payStyle;
   final double lsnCount;
@@ -41,6 +42,7 @@ class Kn02F002FeeBean {
     required this.stuId,
     required this.subjectId,
     required this.stuName,
+    this.nikName,
     required this.subjectName,
     required this.payStyle,
     required this.lsnCount,
@@ -93,6 +95,7 @@ class Kn02F002FeeBean {
       stuId: json['stuId'] ?? '',
       subjectId: json['subjectId'] ?? '',
       stuName: json['stuName'] ?? '',
+      nikName: json['nikName'] as String?,
       subjectName: json['subjectName'] ?? '',
       payStyle: json['payStyle'] ?? 0,
       lsnCount: json['lsnCount']?.toDouble() ?? 0.0,

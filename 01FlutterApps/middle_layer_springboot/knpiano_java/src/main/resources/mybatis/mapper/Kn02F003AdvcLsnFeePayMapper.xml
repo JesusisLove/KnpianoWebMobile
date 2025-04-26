@@ -12,7 +12,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F003AdvcLsnFeePayMapper">
 
     <select id="getAdvcFeePayStuInfo" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean">
-        select stu_id, stu_name from t_mst_student 
+        select stu_id, stu_name,nik_name from t_mst_student 
         where del_flg = 0
         order by stu_name;
     </select>
@@ -49,6 +49,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             advc.lsn_pay_id,
             lsn.stu_id,
             lsn.stu_name,
+            lsn.nik_name,
             lsn.subject_id,
             lsn.subject_name,
             lsn.subject_sub_id,

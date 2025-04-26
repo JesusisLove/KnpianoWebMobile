@@ -218,7 +218,9 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          student.stuName,
+                          student.nikName.isNotEmpty
+                              ? student.nikName
+                              : student.stuName,
                           style: const TextStyle(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),

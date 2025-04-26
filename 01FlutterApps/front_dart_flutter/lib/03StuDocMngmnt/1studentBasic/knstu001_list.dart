@@ -136,38 +136,78 @@ class StuEditListState extends State<StuEditList> {
           // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
         ),
-        title: Text(student.stuName),
-        subtitle: Row(
-          children: <Widget>[
-            // 为学生编号设置像素的左间距
-            // const SizedBox(width: 28 ),
-            // Expanded(
-            //   child: Text(
-            //     student.stuId,
-            //     style: const TextStyle(fontSize: 14),
-            //   ),
-            // ),
+        // 第一种风格
+        title: Text(
+          student.stuName,
+          style: const TextStyle(
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.blue, // 下划线颜色
+            decorationStyle: TextDecorationStyle.solid, // 下划线样式（实线）
+            /*还有其他形式的属性
+              TextDecorationStyle.double（双线）
+              TextDecorationStyle.dotted（点线）
+              TextDecorationStyle.dashed（虚线）
+              TextDecorationStyle.wavy（波浪线）
+            */
+            decorationThickness: 0.5, // 下划线粗细
+            fontSize: 20,
+            height: 2.5,
+          ),
+        ),
 
-            // const Spacer(), // 先不要删除，留着学习：这会填充所有可用空间
+        // 第二种风格
+        // title: Container(
+        //   padding: const EdgeInsets.only(bottom: 1), // 文字和下划线之间的间距
+        //   decoration: const BoxDecoration(
+        //     border: Border(
+        //       bottom: BorderSide(
+        //         color: Colors.black,
+        //         width: 0.09, // 线的粗细为1像素
+        //       ),
+        //     ),
+        //   ),
+        //   child: Text(
+        //     student.stuName,
+        //     style: const TextStyle(
+        //       fontSize: 20,
+        //     ),
+        //   ),
+        // ),
+        subtitle: Row(
+          // 能在不同设备的屏幕大小保持相同的布局比例
+          children: <Widget>[
+            // 昵称部分 - 使用Expanded占据剩余空间
+            Expanded(
+              flex: 5, // 给昵称更多的空间比例
+              child: Text(
+                student.nikName,
+                style: const TextStyle(fontSize: 14),
+                overflow: TextOverflow.ellipsis, // 处理长昵称
+              ),
+            ),
+
+            // 性别部分 - 固定宽度，但足够显示"男"或"女"
             Container(
-              // 设置像素的右间距
-              padding: const EdgeInsets.only(left: 40),
+              width: 35, // 略微调小宽度，确保紧凑布局
+              alignment: Alignment.center, // 内容居中对齐
               child: Text(
                 student.gender == 1 ? '男' : '女',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
 
-            Container(
-              // 设置像素的右间距
-              padding: const EdgeInsets.only(left: 20),
+            // 生日部分 - 使用Expanded但给予较小的比例
+            Expanded(
+              flex: 6, // 生日部分也需要较多空间，尤其是带"Birth:"前缀
               child: Text(
-                student.birthday,
+                'Birth:${student.birthday ?? ""}',
                 style: const TextStyle(fontSize: 14),
+                overflow: TextOverflow.ellipsis, // 以防日期太长
               ),
             ),
           ],
         ),
+
         trailing: Row(
             mainAxisSize: MainAxisSize.min, // Row的宽度只足够包含子控件
             children: <Widget>[

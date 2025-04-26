@@ -7,6 +7,7 @@ class Kn01L002LsnBean {
   final String subjectId;
   final String subjectSubId;
   final String stuName;
+  String? nikName; //因为从后台返回的nikName有可能是NULL
   final String subjectName;
   final String subjectSubName;
   late final int classDuration;
@@ -26,6 +27,7 @@ class Kn01L002LsnBean {
     required this.subjectId,
     required this.subjectSubId,
     required this.stuName,
+    this.nikName,
     required this.subjectName,
     required this.subjectSubName,
     required this.classDuration,
@@ -92,6 +94,7 @@ class Kn01L002LsnBean {
       subjectId: json['subjectId'] as String,
       subjectSubId: json['subjectSubId'] as String,
       stuName: json['stuName'] as String,
+      nikName: json['nikName'] as String?,
       subjectName: json['subjectName'] as String,
       subjectSubName: json['subjectSubName'] as String,
       classDuration: json['classDuration'] as int,

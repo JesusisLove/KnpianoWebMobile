@@ -32,7 +32,6 @@ class PageIdMapping extends StatelessWidget {
     late Widget page;
     switch (pageId) {
       case Constants.kn01L002LsnStatistic: // 迁移至课程进度统计画面
-
         page = Kn01L002LsnStatistic(
           stuId: stuId,
           stuName: stuName,

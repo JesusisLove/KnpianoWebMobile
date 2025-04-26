@@ -53,6 +53,9 @@
                         <input type="text" class="form-control" id="stuName" name="stuName" th:value="${studentMap != null ? studentMap['stuName'] : ''}" placeholder="学生名前">
                     </div>
                     <div class="form-group col-md-2">
+                        <input type="text" class="form-control" id="nikName" name="nikName" th:value="${studentMap != null ? studentMap['nikName'] : ''}" placeholder="姓名略称">
+                    </div>
+                    <div class="form-group col-md-2">
                         <input type="text" class="form-control" id="gender" name="gender" th:value="${studentMap != null ? studentMap['gender'] : ''}" placeholder="性別">
                     </div>
                     <div class="form-group col-md-2">
@@ -99,6 +102,7 @@
                     <tr>
                         <th>学生番号</th>
                         <th>学生名前</th>
+                        <th>姓名略称</th>
                         <th>性別</th>
                         <th>誕生日</th>
                         <th>電話番号１</th>
@@ -116,6 +120,7 @@
                     <tr th:each="info:${infoList}">
                         <td>[[${info.stuId}]]</td>
                         <td>[[${info.stuName}]]</td>
+                        <td>[[${info.nikName}]]</td>
                         <td th:text="${info.gender == 1 ? '男' : '女'}"></td>
                         <td>[[${info.birthday}]]</td>
                         <td>[[${info.tel1}]]</td>
