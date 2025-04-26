@@ -16,6 +16,7 @@ public class Kn02F002FeeBean implements KnPianoBean{
     protected String    stuId;
     protected String    subjectId;
     protected String    stuName;
+    protected String    nikName;
     protected String    subjectName;
     protected Integer   payStyle;
     protected float     lsnCount;
@@ -96,6 +97,12 @@ public class Kn02F002FeeBean implements KnPianoBean{
     }
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+    public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
     public String getSubjectName() {
         return subjectName;

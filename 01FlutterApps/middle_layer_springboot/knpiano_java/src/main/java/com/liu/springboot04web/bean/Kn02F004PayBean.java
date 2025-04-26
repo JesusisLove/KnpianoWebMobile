@@ -10,7 +10,10 @@ public class Kn02F004PayBean implements KnPianoBean {
     protected String lsnFeeId;
     protected float lsnPay;
     protected String payMonth;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    )
     protected Date payDate;
     protected String bankId;
     protected Integer delFlg;

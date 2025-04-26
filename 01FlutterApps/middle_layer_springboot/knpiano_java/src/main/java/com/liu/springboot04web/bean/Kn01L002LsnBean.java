@@ -17,6 +17,13 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String subjectSubName;
     protected String stuId;
     protected String stuName;
+    protected String nikName;
+    public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
+    }
     protected Integer classDuration;
     protected Integer lessonType;
     protected Integer schedualType;

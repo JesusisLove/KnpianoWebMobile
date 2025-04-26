@@ -16,7 +16,7 @@ import 'Constants.dart'; // 引入包含全局常量的文件
 
 // ignore: must_be_immutable
 class HomePage extends StatefulWidget {
-  late  int currentNavIndex;
+  late int currentNavIndex;
 
   HomePage({
     super.key,
@@ -92,7 +92,7 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "碎课组装正课",
+            text: "碎课拼凑正课",
             onPressed: () {},
             bgcolor: consts.Constants.lessonThemeColor,
           ),

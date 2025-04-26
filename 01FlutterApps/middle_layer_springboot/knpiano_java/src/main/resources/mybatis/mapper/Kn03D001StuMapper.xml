@@ -39,6 +39,7 @@ https://mybatis.org/mybatis-3/getting-started.html
       update t_mst_student set
             stu_id = #{stuId},
             stu_name = #{stuName},
+            nik_name = #{nikName},
             gender = #{gender},
             birthday = #{birthday},
             tel1 = #{tel1},
@@ -56,6 +57,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         insert into t_mst_student (
             stu_id,
             stu_name,
+            nik_name,
             gender,
             birthday,
             tel1,
@@ -69,6 +71,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         values (
             #{stuId},
             #{stuName},
+            #{nikName},
             #{gender},
             #{birthday},
             #{tel1},

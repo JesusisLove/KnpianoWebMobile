@@ -59,7 +59,10 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
             uniqueIds.add(id);
             uniqueStudents.add({
               'id': id,
-              'name': item['stuName'] ?? '未知姓名',
+              'name': item['nikName'] != null &&
+                      item['nikName'].toString().isNotEmpty
+                  ? item['nikName']
+                  : (item['stuName'] ?? '未知姓名'),
             });
           }
         }

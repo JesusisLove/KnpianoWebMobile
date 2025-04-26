@@ -39,6 +39,7 @@ class StudentEditState extends State<StudentEdit> {
   // 往后端提交新数据的退避变量
   String? stuId;
   String? stuName;
+  String? nikName;
   int? gender;
   String? birthday;
   List<String?> telephones = List.filled(4, null);
@@ -49,6 +50,7 @@ class StudentEditState extends State<StudentEdit> {
 
 // 用上一级传过来的List对象，初期化画面的项目数据
   final TextEditingController _stuNameController = TextEditingController();
+  final TextEditingController _nikNameController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _birthdayController =
       TextEditingController(); // 控制器用于管理日期输入
@@ -60,6 +62,7 @@ class StudentEditState extends State<StudentEdit> {
 
 // 为画面控件定义它对应的焦点对象
   final FocusNode _stuNameFocusNode = FocusNode();
+  final FocusNode _nikNameFocusNode = FocusNode();
   final FocusNode _genderFocusNode = FocusNode();
   final FocusNode _birthdayFocusNode = FocusNode();
   final List<FocusNode?> _telephonesNode = List.filled(4, null);
@@ -68,6 +71,7 @@ class StudentEditState extends State<StudentEdit> {
   final FocusNode _introducerFocusNode = FocusNode();
 
   Color _stuNameColor = Colors.black;
+  Color _nikNameColor = Colors.black;
   Color _genderColor = Colors.black;
   Color _birthdayColor = Colors.black;
   final List<Color> _telephonesColor = List.generate(4, (_) => Colors.black);
@@ -85,6 +89,7 @@ class StudentEditState extends State<StudentEdit> {
 
       // 把上一级画面传过来的student，赋值给TextFormField
       _stuNameController.text = widget.student!.stuName;
+      _nikNameController.text = widget.student!.nikName;
       _birthdayController.text = widget.student!.birthday;
       _telsController[0].text = widget.student!.tel1;
       _telsController[1].text = widget.student!.tel2;
@@ -98,6 +103,12 @@ class StudentEditState extends State<StudentEdit> {
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
       setState(() => _stuNameColor = _stuNameFocusNode.hasFocus
+          ? Constants.stuDocThemeColor
+          : Colors.black);
+    });
+
+    _nikNameFocusNode.addListener(() {
+      setState(() => _nikNameColor = _nikNameFocusNode.hasFocus
           ? Constants.stuDocThemeColor
           : Colors.black);
     });
@@ -146,6 +157,7 @@ class StudentEditState extends State<StudentEdit> {
   void dispose() {
     // 释放TextFormField资源
     _stuNameController.dispose();
+    _nikNameController.dispose();
     _genderController.dispose();
     _birthdayController.dispose();
     for (final controller in _telsController) {
@@ -157,6 +169,7 @@ class StudentEditState extends State<StudentEdit> {
 
     // 释放TextFormField资源
     _stuNameFocusNode.dispose();
+    _nikNameFocusNode.dispose();
     _genderFocusNode.dispose();
     _birthdayFocusNode.dispose();
     for (var node in _telephonesNode) {
@@ -236,6 +249,23 @@ class StudentEditState extends State<StudentEdit> {
                   if (value == null || value.isEmpty) {
                     return '请输入学生姓名';
                   }
+                  return null;
+                },
+              ),
+              FormFields.createTextFormField(
+                inputFocusNode: _nikNameFocusNode,
+                inputLabelText: '姓名略称',
+                inputLabelColor: _nikNameColor,
+                inputController: _nikNameController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                onSave: (value) =>
+                    {print("nikName onSave被触发，值为: $value"), nikName = value},
+                validator: (value) {
+                  // if (value == null || value.isEmpty) {
+                  //   return '请输入学生姓名';
+                  // }
                   return null;
                 },
               ),
@@ -381,6 +411,7 @@ class StudentEditState extends State<StudentEdit> {
         body: jsonEncode(<String, dynamic>{
           'stuId': stuId,
           'stuName': stuName ?? widget.student!.stuName,
+          'nikName': nikName ?? widget.student!.nikName,
           'gender': gender ?? widget.student!.gender,
           'birthday': birthday ?? widget.student!.birthday,
           'tel1': telephones.isNotEmpty ? telephones[0] : null,
