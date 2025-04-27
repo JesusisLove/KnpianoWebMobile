@@ -41,6 +41,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   late TabController _tabController;
   Map<String, List<LessonCount>> subjectsScanedLsnData = {};
   final String titleName = '课程进度统计';
+  bool _isLoading = false; // 添加加载状态变量
 
   // 选择年份相关变量
   late List<int> _years;
@@ -68,50 +69,62 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   }
 
   Future<void> _fetchData() async {
-    // 已上完课的结果集取得
-    final String apiLsnSignedStatisticUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+    setState(() {
+      _isLoading = true; // 开始加载时设置为true
+    });
+
     try {
-      final response = await http.get(Uri.parse(apiLsnSignedStatisticUrl));
-      if (response.statusCode == 200) {
-        // 使用 utf8.decode 来正确处理字符编码
-        final String decodedBody = utf8.decode(response.bodyBytes);
+      // 已上完课的结果集取得
+      final String apiLsnSignedStatisticUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+      final String apiLsnUnScanedStatisticUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
+
+      // 并行发送两个请求，提高效率
+      final responseSignedFuture =
+          http.get(Uri.parse(apiLsnSignedStatisticUrl));
+      final responseUnSignedFuture =
+          http.get(Uri.parse(apiLsnUnScanedStatisticUrl));
+
+      // 等待两个请求都完成
+      final responses =
+          await Future.wait([responseSignedFuture, responseUnSignedFuture]);
+      final responseSigned = responses[0];
+      final responseUnSigned = responses[1];
+
+      // 处理已上完课的数据
+      if (responseSigned.statusCode == 200) {
+        final String decodedBody = utf8.decode(responseSigned.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
         staticScanedLsnList =
             jsonData.map((item) => Kn02F002FeeBean.fromJson(item)).toList();
         _processScanedLsnData();
       } else {
-        // 处理错误情况
-        print('Failed to load data: ${response.statusCode}');
+        print('Failed to load signed data: ${responseSigned.statusCode}');
       }
-    } catch (e) {
-      // 处理异常
-      print('Error fetching data: $e');
-    }
 
-    // 新增：未上课的结果集取得
-    final String apiLsnUnScanedStatisticUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
-    try {
-      final response = await http.get(Uri.parse(apiLsnUnScanedStatisticUrl));
-      if (response.statusCode == 200) {
-        // 使用 utf8.decode 来正确处理字符编码
-        final String decodedBody = utf8.decode(response.bodyBytes);
+      // 处理未上课的数据
+      if (responseUnSigned.statusCode == 200) {
+        final String decodedBody = utf8.decode(responseUnSigned.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
         staticUnScanedLsnList =
             jsonData.map((item) => Kn01L002LsnBean.fromJson(item)).toList();
         _processUnScanedLsnData();
       } else {
-        // 处理错误情况
-        print('Failed to load data: ${response.statusCode}');
+        print('Failed to load unsigned data: ${responseUnSigned.statusCode}');
       }
-    } catch (e) {
-      // 处理异常
-      print('Error fetching data: $e');
-    }
 
-    // 新增：获取课程详细信息
-    await _fetchScanedLsnDetails();
+      // 获取课程详细信息
+      await _fetchScanedLsnDetails();
+    } catch (e) {
+      // 处理所有可能的异常
+      print('Error in _fetchData: $e');
+    } finally {
+      // 无论成功还是失败，都将加载状态设置为false
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   // 新增：获取课程详细信息的方法
@@ -285,71 +298,85 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KnAppBar(
-        title: '${widget.stuName}的$titleName',
-        subtitle: widget.pagePath,
-        context: context,
-        appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red - 20,
-            widget.knFontColor.green - 20,
-            widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
-        subtitleTextColor: Colors.white,
-        addInvisibleRightButton: false,
-        currentNavIndex: 0,
-        titleFontSize: 20.0,
-        subtitleFontSize: 12.0,
-      ),
-      body: Column(
-        children: [
-          Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TabBar(
-                      controller: _tabController,
-                      tabs: const [
-                        Tab(text: "上课完了统计"),
-                        Tab(text: "还未上课统计"),
-                      ],
-                      indicatorColor: Colors.green,
-                      labelColor: Colors.green,
-                      unselectedLabelColor: Colors.black54,
-                    ),
-                  ),
-                  OutlinedButton(
-                    onPressed: _showYearPicker,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.green,
-                      side: const BorderSide(color: Colors.green),
-                    ),
-                    child: Text('$_selectedYear年'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
+        appBar: KnAppBar(
+          title: '${widget.stuName}的$titleName',
+          subtitle: widget.pagePath,
+          context: context,
+          appBarBackgroundColor: widget.knBgColor,
+          titleColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red - 20,
+              widget.knFontColor.green - 20,
+              widget.knFontColor.blue - 20),
+          subtitleBackgroundColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red + 20,
+              widget.knFontColor.green + 20,
+              widget.knFontColor.blue + 20),
+          subtitleTextColor: Colors.white,
+          addInvisibleRightButton: false,
+          currentNavIndex: 0,
+          titleFontSize: 20.0,
+          subtitleFontSize: 12.0,
+        ),
+        body: Stack(
+          children: [
+            Column(
               children: [
-                _buildCompletedLessonsView(),
-                _buildPendingLessonsView(),
+                Card(
+                  margin: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TabBar(
+                            controller: _tabController,
+                            tabs: const [
+                              Tab(text: "上课完了统计"),
+                              Tab(text: "还未上课统计"),
+                            ],
+                            indicatorColor: Colors.green,
+                            labelColor: Colors.green,
+                            unselectedLabelColor: Colors.black54,
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed:
+                              _isLoading ? null : _showYearPicker, // 在加载中禁用按钮,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.green,
+                            side: const BorderSide(color: Colors.green),
+                          ),
+                          child: Text('$_selectedYear年'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    physics: _isLoading
+                        ? const NeverScrollableScrollPhysics()
+                        : null, // 在加载中禁用滑动
+                    children: [
+                      _buildCompletedLessonsView(),
+                      _buildPendingLessonsView(),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+            // 加载指示器
+            if (_isLoading)
+              const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ),
+              ),
+          ],
+        ));
   }
 
   Widget _buildCompletedLessonsView() {
