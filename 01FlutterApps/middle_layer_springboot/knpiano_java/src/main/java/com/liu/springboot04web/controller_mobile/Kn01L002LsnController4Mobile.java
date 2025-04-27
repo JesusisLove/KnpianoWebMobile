@@ -42,11 +42,11 @@ public class Kn01L002LsnController4Mobile {
     @GetMapping("/mb_kn_lsn_all/{year}")
     public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnList(@PathVariable Integer year) {
         // 获取当前正在上课的所有学生的排课信息
-        List<Kn01L002LsnBean> collection = kn01L002LsnDao.getInfoList(Integer.toString(year));
+        List<Kn01L002LsnBean> collection = kn01L002LsnDao.getStuNameList(Integer.toString(year));
         return ResponseEntity.ok(collection);
     }
 
-    // 在课学生一览用的加课学生名单
+    // 手机前端：加课消化管理的在课学生一览
     @GetMapping("/mb_kn_lsn_all_extra/{year}")
     public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnExtraList(@PathVariable Integer year) {
         // 获取当前正在上课的所有学生的排课信息
