@@ -29,6 +29,12 @@ public class Kn02F002FeeDao {
         return list;
     }
 
+    // 手机前端：学费支付管理的在课学生一览
+    public List<Kn02F002FeeBean> getStuNameList(String year) {
+        List<Kn02F002FeeBean> list = knLsnFee001Mapper.getStuNameList(year);
+        return list;
+    }
+
     // 获取所有符合查询条件的课费信息
     public List<Kn02F002FeeBean> searchLsnFee(Map<String, Object> params) {
         return knLsnFee001Mapper.searchLsnFee(params);

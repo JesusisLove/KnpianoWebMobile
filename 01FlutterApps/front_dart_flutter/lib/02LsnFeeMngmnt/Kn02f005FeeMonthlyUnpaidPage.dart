@@ -44,13 +44,16 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
   }
 
   Future<void> fetchFeeDetails() async {
-    final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.apiFeeUnpaidReport}/$selectedYearMonth';
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiFeeUnpaidReport}/$selectedYearMonth';
     final response = await http.get(Uri.parse(apiUrl));
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> jsonList = json.decode(decodedBody);
       setState(() {
-        feeList = jsonList.map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json)).toList();
+        feeList = jsonList
+            .map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json))
+            .toList();
         calculateTotalUnpaid();
       });
     } else {
@@ -70,14 +73,16 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
         subtitle: pagePath,
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red - 20,
-                                   widget.knFontColor.green - 20,
-                                   widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red + 20,
-                                   widget.knFontColor.green + 20,
-                                   widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: false, // 显示Home按钮返回主菜单
         currentNavIndex: 1,
@@ -117,12 +122,14 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
 
   DataRow _buildDataRow(Kn02f005FeeMonthlyReportBean fee) {
     return DataRow(cells: [
-      DataCell(Text(fee.stuName)),
+      DataCell(
+          Text(fee.nikName.isNotEmpty == true ? fee.nikName : fee.stuName)),
       DataCell(Text(fee.shouldPayLsnFee.toStringAsFixed(1))),
       DataCell(Text(fee.hasPaidLsnFee.toStringAsFixed(1))),
       DataCell(Text(
         fee.unpaidLsnFee.toStringAsFixed(1),
-        style: TextStyle(color: fee.unpaidLsnFee > 0 ? Colors.red : Colors.green),
+        style:
+            TextStyle(color: fee.unpaidLsnFee > 0 ? Colors.red : Colors.green),
       )),
     ]);
   }
@@ -139,17 +146,20 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
   }
 
   Widget _buildMonthPicker() {
-    int initialItem = widget.availableMonths.indexOf(selectedYearMonth.substring(5));
+    int initialItem =
+        widget.availableMonths.indexOf(selectedYearMonth.substring(5));
     return Container(
       height: 150,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: CupertinoPicker(
         itemExtent: 32,
         scrollController: FixedExtentScrollController(initialItem: initialItem),
-        children: widget.availableMonths.map((month) => Text('$month月份')).toList(),
+        children:
+            widget.availableMonths.map((month) => Text('$month月份')).toList(),
         onSelectedItemChanged: (index) {
           setState(() {
-            selectedYearMonth = '${selectedYearMonth.substring(0, 5)}${widget.availableMonths[index]}';
+            selectedYearMonth =
+                '${selectedYearMonth.substring(0, 5)}${widget.availableMonths[index]}';
             fetchFeeDetails();
           });
         },

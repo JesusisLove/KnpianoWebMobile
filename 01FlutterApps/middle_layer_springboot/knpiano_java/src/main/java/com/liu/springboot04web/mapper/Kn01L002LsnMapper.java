@@ -8,7 +8,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 public interface Kn01L002LsnMapper  {
-
+    // 手机前端：学费支付管理的在课学生一览
+    public List<Kn01L002LsnBean> getStuNameList (@Param("year") String year);
+    
     public List<Kn01L002LsnBean> getInfoList(@Param("year") String year);
     public List<Kn01L002LsnBean> getLsnExtraInfoList(@Param("year") String year);
 

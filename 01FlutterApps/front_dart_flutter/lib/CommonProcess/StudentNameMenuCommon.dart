@@ -53,30 +53,26 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
-        // 使用 Set 来去重
-        final Set<String> uniqueIds = {};
-        final List<Map<String, dynamic>> uniqueStudents = [];
-
-        for (var item in data) {
-          final String id = item['stuId'].toString();
-          if (!uniqueIds.contains(id)) {
-            uniqueIds.add(id);
-            uniqueStudents.add({
-              'id': id,
-              'name': item['nikName'] != null &&
-                      item['nikName'].toString().isNotEmpty
-                  ? item['nikName']
-                  : (item['stuName'] ?? '未知姓名'),
-            });
-          }
-        }
+        // 直接转换数据而不去重
+        final List<Map<String, dynamic>> studentsList = data.map((item) {
+          return {
+            'id': item['stuId'].toString(),
+            'name':
+                item['nikName'] != null && item['nikName'].toString().isNotEmpty
+                    ? item['nikName']
+                    : (item['stuName'] ?? '未知姓名'),
+          };
+        }).toList();
 
         setState(() {
-          students = uniqueStudents;
+          students = studentsList;
           _isLoading = false; // 加载完成
         });
       } else {
-        print('Failed to load students');
+        print('Failed to load students: ${response.statusCode}');
+        setState(() {
+          _isLoading = false; // 请求失败时结束加载状态
+        });
       }
     } catch (e) {
       print('Error: $e');

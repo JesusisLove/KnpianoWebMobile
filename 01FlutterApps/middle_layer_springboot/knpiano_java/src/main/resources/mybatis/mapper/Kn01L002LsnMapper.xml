@@ -10,6 +10,19 @@ https://mybatis.org/mybatis-3/getting-started.html
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn01L002LsnMapper">
+
+    <!-- 后台维护，获取所有学生的排课课程 -->
+    <select id= "getStuNameList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
+        select distinct stu_id,stu_name,nik_name from v_info_lesson 
+        <where>
+            <if test="year != null and year != ''">
+                substring(schedual_date, 1, 4) = #{year}
+            </if>
+            and del_flg = 0
+        </where>
+        order by stu_name
+    </select>
+
     <!-- 后台维护，获取所有学生的排课课程 -->
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         select * from v_info_lesson 
@@ -23,7 +36,7 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <!--手机前端，在课学生一览用的加课学生名单 -->
     <select id= "getLsnExtraInfoList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        select * from v_info_lesson 
+        select distinct stu_id,stu_name,nik_name from v_info_lesson 
         <where>
             scanQR_date is not null
             AND lesson_type = 2
@@ -31,7 +44,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 AND substring(schedual_date, 1, 4) = #{year}
             </if>
         </where>
-        order by stu_name, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
+        order by stu_name
     </select>
 
     <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->

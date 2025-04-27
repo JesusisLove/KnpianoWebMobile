@@ -21,6 +21,18 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
         order by stu_name,lsn_month
     </select>
 
+    <!-- 手机前端：学费支付管理的在课学生一览 -->
+    <select id= "getStuNameList" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
+        <!--  year 参数为 null 或空时不执行 WHERE 子句，而在有值时才执行。 -->
+        select distinct stu_id,stu_name,nik_name from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect 
+        <where>
+            <if test="year != null and year != ''">
+                substring(lsn_month, 1, 4) = #{year}
+            </if>
+        </where>
+        order by stu_name
+    </select>
+
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
         select * from v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
         where lsn_fee_id = #{lsnFeeId}
