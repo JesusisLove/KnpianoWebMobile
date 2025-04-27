@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Fragments</title>
     <style>
@@ -15,7 +16,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: none;
             right: 0;
@@ -44,6 +45,7 @@
         }
     </style>
 </head>
+
 <body>
     <div th:fragment="subjectOfStudentsTable(subjectSubId, subjectSubName)">
         <!-- 列控制按钮和菜单 -->
@@ -59,7 +61,7 @@
                     <input type="checkbox" checked onchange="toggleColumn('col-stuName')" /> 学生姓名
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-payStyle')" /> 上课种别
+                    <input type="checkbox" checked onchange="toggleColumn('col-payStyle')" /> 课程属性
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-lessonFee')" /> 科目单价
@@ -85,7 +87,7 @@
                     <tr>
                         <th class="col-stuId">学生编号</th>
                         <th class="col-stuName">学生姓名</th>
-                        <th class="col-payStyle">上课种别</th>
+                        <th class="col-payStyle">课程属性</th>
                         <th class="col-lessonFee">科目单价</th>
                         <th class="col-lessonFeeAdjusted">调整单价</th>
                         <th class="">学费/月</th>
@@ -101,8 +103,10 @@
                         <td class="col-payStyle" th:text="${info.payStyle == 0 ? '课结算' : '月计划'}"></td>
                         <td class="col-lessonFee">[[${info.lessonFee}]]</td>
                         <td class="col-lessonFeeAdjusted">[[${info.lessonFeeAdjusted}]]</td>
-                        <td class="">[[${info.lessonFeeAdjusted > 0.0 ? info.lessonFeeAdjusted : info.lessonFee} * 4]]</td>
-                        <td class="col-adjustedDate">[[${info.adjustedDate != null ? #dates.format(info.adjustedDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="">[[${info.lessonFeeAdjusted > 0.0 ? info.lessonFeeAdjusted : info.lessonFee} * 4]]
+                        </td>
+                        <td class="col-adjustedDate">[[${info.adjustedDate != null ?
+                            #dates.format(info.adjustedDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-introducer">[[${info.introducer}]]</td>
                     </tr>
                 </tbody>
@@ -126,7 +130,7 @@
                 // 更新状态
                 columnStates[columnClass] = !columnStates[columnClass];
                 const isVisible = columnStates[columnClass];
-                
+
                 // 更新所有具有该类名的元素
                 const cells = document.getElementsByClassName(columnClass);
                 Array.from(cells).forEach(cell => {
@@ -150,7 +154,7 @@
                     Array.from(cells).forEach(cell => {
                         cell.style.display = isVisible ? '' : 'none';
                     });
-                    
+
                     // 更新复选框状态
                     const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
                     checkboxes.forEach(checkbox => {
@@ -160,7 +164,7 @@
             }
 
             // 点击其他地方关闭菜单
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const menu = document.getElementById('columnMenu');
                 if (!event.target.closest('.column-control')) {
                     menu.classList.remove('show');
@@ -168,15 +172,16 @@
             });
 
             // 页面加载时初始化列状态
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 applyColumnStates();
             });
 
             // 监听Tab切换事件
-            document.addEventListener('shown.bs.tab', function() {
+            document.addEventListener('shown.bs.tab', function () {
                 applyColumnStates();
             });
         </script>
     </div>
 </body>
+
 </html>

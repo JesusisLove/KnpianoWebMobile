@@ -40,7 +40,7 @@ public class Kn02F004UnpaidDao {
         Kn02F004UnpaidBean knLsnUnpaid001Bean = knLsnUnpaid001Mapper.getLsnUnpayByID(lsnFeeId);
         return knLsnUnpaid001Bean;
     }
-    
+
     // 根据ID获取课费支付信息
     public Kn02F004UnpaidBean getInfoById(String id) {
         return null;
@@ -65,13 +65,13 @@ public class Kn02F004UnpaidDao {
 
     // 課費精算処理
     public void save(Kn02F004UnpaidBean knLsnUnpaid001Bean) {
-        if (knLsnUnpaid001Bean.getLsnPayId() == null || knLsnUnpaid001Bean.getLsnPayId().isEmpty()) { 
-        
+        if (knLsnUnpaid001Bean.getLsnPayId() == null || knLsnUnpaid001Bean.getLsnPayId().isEmpty()) {
+
             Map<String, Object> map = new HashMap<>();
             map.put("parm_in", KNConstant.CONSTANT_KN_LSN_PAY_SEQ);
-            // 授業課費番号の自動採番
+            // 授業课费编号の自動採番
             knLsnUnpaid001Mapper.getNextSequence(map);
-            knLsnUnpaid001Bean.setLsnPayId(KNConstant.CONSTANT_KN_LSN_PAY_SEQ + (Integer)map.get("parm_out"));
+            knLsnUnpaid001Bean.setLsnPayId(KNConstant.CONSTANT_KN_LSN_PAY_SEQ + (Integer) map.get("parm_out"));
 
             insert(knLsnUnpaid001Bean);
         } else {
@@ -91,7 +91,7 @@ public class Kn02F004UnpaidDao {
     }
 
     // 削除支付课费
-    public void delete(String lsnPayId, String lsnFeeId) { 
-        knLsnUnpaid001Mapper.deleteInfo(lsnPayId, lsnFeeId); 
+    public void delete(String lsnPayId, String lsnFeeId) {
+        knLsnUnpaid001Mapper.deleteInfo(lsnPayId, lsnFeeId);
     }
 }

@@ -59,7 +59,7 @@
                 <form th:action="@{/kn_extra_tobe_sche}" method="put">
                     <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" /><br>
 
-                    <div class="form-group"><br> <label>授業番号</label>
+                    <div class="form-group"><br> <label>课程编号</label>
                         <input name="lessonId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
                             th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
                     </div><br>
@@ -73,10 +73,10 @@
                     </div>
                     <br>
 
-                    <!-- 照会 模式下 科目级别名称用 文本框且操作不可 -->
+                    <!-- 照会 模式下 子科目名称用 文本框且操作不可 -->
                     <div class="form-group"
                         th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目级别名称</label>
+                        <label>子科目名称</label>
                         <input id="subjectSubName" name="subjectSubName" type="text"
                             th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" readonly>
                         <input id="subjectSubId" name="subjectSubId" type="hidden"
@@ -91,15 +91,15 @@
                         <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
                     </div>
 
-                    <!-- 照会 模式下 科目级别名称用 文本框且操作不 -->
+                    <!-- 照会 模式下 子科目名称用 文本框且操作不 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目级别名称</label>
+                        <label>子科目名称</label>
                         <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" readonly>
                         <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
                     </div>
 
-                    <br><label>上课种别</label>
-                    <!-- 照会 模式下的上课种别 使用 文本框 -->
+                    <br><label>课程属性</label>
+                    <!-- 照会 模式下的课程属性 使用 文本框 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
                         <!-- 显示用的文本框，用户无法编辑 -->
                         <input type="text" class="form-control"
@@ -147,12 +147,12 @@
                     </div>
 
                     <div class="form-group"><br>
-                        <label>授業変換日付（学生用额外追加的课顶替来周或来月哪天的计划课程）</label>
+                        <label>课程属性变换日期（学生用额外追加的课顶替来周或来月哪天的计划课程）</label>
                         <input name="extraToDurDate" type="date" class="form-control"
                             th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
                     </div>
 
-                    <div class="form-group"><br> <label>実績授業日付（学生实际来上课的时间）</label>
+                    <div class="form-group"><br> <label>实际上课日期（学生实际来上课的时间）</label>
                         <input name="scanQrDate" type="date" class="form-control"
                             th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}"
                             readonly>

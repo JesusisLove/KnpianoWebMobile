@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Fragments</title>
     <style>
@@ -15,7 +16,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: none;
             right: 0;
@@ -44,6 +45,7 @@
         }
     </style>
 </head>
+
 <body>
     <div th:fragment="lessonTable(stuid, stuName)">
         <!-- 列控制按钮和菜单 -->
@@ -53,43 +55,43 @@
             </button>
             <div id="columnMenu" class="column-menu">
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 授業番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 课程编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 科目枝番
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 子科目编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生编号
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 科目级别
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 子科目名称
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-classDuration')" /> 上课时长
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 授業種別
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 课程属性
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 計画手段
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 排课手段
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 計画授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 排课日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-adjustedDate')" /> 調整授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-adjustedDate')" /> 调课日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-convertDate')" /> 授業変換日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-convertDate')" /> 课程属性变换日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-actualDate')" /> 実績授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-actualDate')" /> 实际上课日期
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-createMemo')" /> 备注
@@ -107,19 +109,19 @@
             <table class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th class="col-lessonId">授業<br>番号</th>
-                        <th class="col-subjectId">科目<br>番号</th>
-                        <th class="col-subjectSubId">科目<br>枝番</th>
-                        <th class="col-stuId">学生<br>番号</th>
+                        <th class="col-lessonId">课程<br>编号</th>
+                        <th class="col-subjectId">科目<br>编号</th>
+                        <th class="col-subjectSubId">子科目<br>编号</th>
+                        <th class="col-stuId">学生<br>编号</th>
                         <th class="col-subjectName">科目<br>名称</th>
                         <th class="col-subjectLevel">科目<br>级别</th>
                         <th class="col-classDuration">上课时长<br>（分钟）</th>
-                        <th class="col-lessonType">授業<br>種別</th>
-                        <th class="col-schedualType">計画<br>手段</th>
-                        <th class="col-schedualDate">計画授業<br>日付</th>
-                        <th class="col-adjustedDate">調整授業<br>日付</th>
-                        <th class="col-convertDate">授業変換<br>日付</th>
-                        <th class="col-actualDate">実績授業<br>日付</th>
+                        <th class="col-lessonType">课程<br>属性</th>
+                        <th class="col-schedualType">排课<br>手段</th>
+                        <th class="col-schedualDate">计划排课<br>日期</th>
+                        <th class="col-adjustedDate">课程调整<br>日期</th>
+                        <th class="col-convertDate">课程属性变换<br>日期</th>
+                        <th class="col-actualDate">实际上课<br>日期</th>
                         <th class="col-actualMemo">备注</th>
                         <th class="col-createDate">作成日</th>
                         <th class="col-updateDate">更新日</th>
@@ -127,8 +129,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
-                        th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
+                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
                                  info.lessonType == 1 ? 'color: #2196F3;' : 
                                  info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
                         <td class="col-lessonId">[[${info.lessonId}]]</td>
@@ -138,15 +139,24 @@
                         <td class="col-subjectName">[[${info.subjectName}]]</td>
                         <td class="col-subjectLevel">[[${info.subjectSubName}]]</td>
                         <td class="col-classDuration">[[${info.classDuration}]]</td>
-                        <td class="col-lessonType" th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
-                        <td class="col-schedualType" th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}"></td>
-                        <td class="col-schedualDate">[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td class="col-convertDate">[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
-                        <td class="col-actualDate">[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-lessonType"
+                            th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                        <td class="col-schedualType"
+                            th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
+                        </td>
+                        <td class="col-schedualDate">[[${info.schedualDate != null ?
+                            #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ?
+                            #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-convertDate">[[${info.extraToDurDate != null ?
+                            #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-actualDate">[[${info.scanQrDate != null ?
+                            #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-actualMemo">[[${info.memo}]]</td>
-                        <td class="col-createDate">[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
-                        <td class="col-updateDate">[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                        <td class="col-createDate">[[${info.createDate != null ?
+                            #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                        <td class="col-updateDate">[[${info.updateDate != null ?
+                            #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="action-column">
                             <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
                                 th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
@@ -186,7 +196,7 @@
                 // 更新状态
                 columnStates[columnClass] = !columnStates[columnClass];
                 const isVisible = columnStates[columnClass];
-                
+
                 // 更新所有具有该类名的元素
                 const cells = document.getElementsByClassName(columnClass);
                 Array.from(cells).forEach(cell => {
@@ -210,7 +220,7 @@
                     Array.from(cells).forEach(cell => {
                         cell.style.display = isVisible ? '' : 'none';
                     });
-                    
+
                     // 更新复选框状态
                     const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
                     checkboxes.forEach(checkbox => {
@@ -220,7 +230,7 @@
             }
 
             // 点击其他地方关闭菜单
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const menu = document.getElementById('columnMenu');
                 if (!event.target.closest('.column-control')) {
                     menu.classList.remove('show');
@@ -228,15 +238,16 @@
             });
 
             // 页面加载时初始化列状态
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 applyColumnStates();
             });
 
             // 监听Tab切换事件
-            document.addEventListener('shown.bs.tab', function() {
+            document.addEventListener('shown.bs.tab', function () {
                 applyColumnStates();
             });
         </script>
     </div>
 </body>
+
 </html>

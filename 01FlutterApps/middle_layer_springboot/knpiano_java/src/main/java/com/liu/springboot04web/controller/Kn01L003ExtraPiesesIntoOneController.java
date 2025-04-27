@@ -26,7 +26,7 @@ import com.liu.springboot04web.service.ComboListInfoService;
 @Service
 public class Kn01L003ExtraPiesesIntoOneController {
 
-    final List<String> knYear; 
+    final List<String> knYear;
     final List<String> knMonth;
 
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
@@ -60,7 +60,7 @@ public class Kn01L003ExtraPiesesIntoOneController {
         return "kn_lsn_extra_pieses_into_one/kn_extra_pieces_list";
     }
 
-    // 根据Web页面上的检索部传过来的年月，取得有加课的学生番号，学生姓名。初期化页面的学生姓名下拉列表框
+    // 根据Web页面上的检索部传过来的年月，取得有加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
     @GetMapping("/kn_pieses_into_one")
     public String list(Model model) {
 
@@ -70,7 +70,8 @@ public class Kn01L003ExtraPiesesIntoOneController {
         // 格式化为 yyyy
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         String year = currentDate.format(formatter);
-        Collection<Kn01L002ExtraToScheBean> collection = kn01L003ExtraPiesesIntoOneDao.getExtraPiesesLsnList(year, null);
+        Collection<Kn01L002ExtraToScheBean> collection = kn01L003ExtraPiesesIntoOneDao.getExtraPiesesLsnList(year,
+                null);
         extra2ScheStuList = collection;
         model.addAttribute("infoList", collection);
 
@@ -88,7 +89,7 @@ public class Kn01L003ExtraPiesesIntoOneController {
         return "kn_lsn_extra_pieses_into_one/kn_extra_pieces_list";
     }
 
-    // 根据Web页面上的检索部传过来的年月，取得有零碎加课的学生番号，学生姓名。初期化页面的学生姓名下拉列表框
+    // 根据Web页面上的检索部传过来的年月，取得有零碎加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
     @GetMapping("/kn_pieses_into_one/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         String lsnYear = (String) queryParams.get("selectedyear");
@@ -117,26 +118,25 @@ public class Kn01L003ExtraPiesesIntoOneController {
         return "kn_lsn_extra_pieses_into_one/kn_extra_pieces_list";
     }
 
-
     // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
-        private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
+    private Map<String, String> getResultsTabStus(Collection<Kn01L002ExtraToScheBean> collection) {
         // 首先创建一个用于去重的Map
         Map<String, String> tempMap = new HashMap<>();
-        
+
         // 填充临时Map
         for (Kn01L002ExtraToScheBean bean : collection) {
             tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-        
+
         // 按值（学生姓名）排序并收集到新的LinkedHashMap中
         return tempMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue,  // 处理重复键的情况
-                    LinkedHashMap::new  // 使用LinkedHashMap保持排序
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, // 处理重复键的情况
+                        LinkedHashMap::new // 使用LinkedHashMap保持排序
                 ));
     }
 

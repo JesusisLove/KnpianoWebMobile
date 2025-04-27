@@ -24,9 +24,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 @Controller
-public class Kn02F004UnpaidController{
-    final List<String> knYear; 
+public class Kn02F004UnpaidController {
+    final List<String> knYear;
     final List<String> knMonth;
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
     Collection<Kn02F004UnpaidBean> unPaidStuList;
@@ -36,8 +37,8 @@ public class Kn02F004UnpaidController{
     @Autowired
     Kn03D003StubnkDao kn05S002StubnkDao;
     @Autowired
-    Kn02F004UnpaidDao knLsnUnPaid001Dao;  
-    
+    Kn02F004UnpaidDao knLsnUnPaid001Dao;
+
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn02F004UnpaidController(ComboListInfoService combListInfo) {
         // 初期化年度下拉列表框
@@ -57,10 +58,10 @@ public class Kn02F004UnpaidController{
         // 格式化为 yyyy
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         String year = currentDate.format(formatter);
-        
+
         // 未结算一览
         Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.getInfoList(year);
-        this.unPaidStuList = unPaiedCollection;  
+        this.unPaidStuList = unPaiedCollection;
 
         for (Kn02F004UnpaidBean kn02f004UnpaidBean : unPaiedCollection) {
             if (kn02f004UnpaidBean.getOwnFlg() == 1) {
@@ -68,7 +69,7 @@ public class Kn02F004UnpaidController{
             }
         }
 
-        model.addAttribute("infoList",unPaiedCollection);
+        model.addAttribute("infoList", unPaiedCollection);
 
         // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
         model.addAttribute("unPaidStuList", unPaidStuList);
@@ -86,18 +87,18 @@ public class Kn02F004UnpaidController{
         // 利用resultsTabStus的学生名，在前端页面做Tab
         Map<String, String> resultsTabStus = getResultsTabStus(unPaiedCollection);
         model.addAttribute("resultsTabStus", resultsTabStus);
-       
+
         return "kn_lsn_unpaid_001/knlsnunpaid001_list";
     }
 
     // 【课费未支付明细検索一覧】検索ボタンを押下
     @GetMapping("/kn_lsn_unpaid_001/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
-        // 把画面传来的年和月拼接成yyyy-mm的        
+        // 把画面传来的年和月拼接成yyyy-mm的
         Map<String, Object> params = new HashMap<>();
         String lsnMonth = (String) queryParams.get("selectedmonth");
         String lsnYear = (String) queryParams.get("selectedyear");
-        if ( !("ALL".equals(lsnMonth))) {
+        if (!("ALL".equals(lsnMonth))) {
             int month = Integer.parseInt(lsnMonth); // 将月份转换为整数类型
             lsnMonth = String.format("%02d", month); // 格式化为两位数并添加前导零
             params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
@@ -120,30 +121,30 @@ public class Kn02F004UnpaidController{
         model.addAttribute("unPaidStuList", unPaidStuList);
 
         // 未结算一览
-        Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.searchLsnUnpay(params);      
-        model.addAttribute("infoList",unPaiedCollection);
+        Collection<Kn02F004UnpaidBean> unPaiedCollection = knLsnUnPaid001Dao.searchLsnUnpay(params);
+        model.addAttribute("infoList", unPaiedCollection);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
         Map<String, String> resultsTabStus = getResultsTabStus(unPaiedCollection);
         model.addAttribute("resultsTabStus", resultsTabStus);
-        
+
         return "kn_lsn_unpaid_001/knlsnunpaid001_list";
     }
 
     // 【課費未支払管理】学费精算ボタンを押下して、【課費未支払管理】学费支付画面へ遷移すること
     @GetMapping("/kn_lsn_unpaid_001/{lsnFeeId}")
-    public String toLsnPay(@PathVariable("lsnFeeId") String lsnFeeId, 
-                                  Model model) {
+    public String toLsnPay(@PathVariable("lsnFeeId") String lsnFeeId,
+            Model model) {
         // 根据课费编号，取得未支付的课费信息
         Kn02F004UnpaidBean knLsnUnPaid001Bean = knLsnUnPaid001Dao.getLsnUnpayByID(lsnFeeId);
 
-        /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
+        /* ↓↓↓↓↓↓↓↓ 这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓ */
         // // 取得该生的银行信息
         // String stuId = knLsnUnPaid001Bean.getStuId();
         // // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
         // Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
-        /* ↑↑↑↑↑↑↑↑　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑　*/
-        
+        /* ↑↑↑↑↑↑↑↑ 这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑ */
+
         Map<String, String> bankMap = getTeacherBnkCodeValueMap();
         model.addAttribute("bankMap", bankMap);
 
@@ -174,7 +175,7 @@ public class Kn02F004UnpaidController{
         knLsnUnPaid001Dao.excuteLsnPay(knLsnUnPaid001Bean);
         return "redirect:/kn_lsn_unpaid_001_all";
     }
-    
+
     // 老师银行下拉列表框初期化
     private Map<String, String> getTeacherBnkCodeValueMap() {
         Collection<Kn03D003BnkBean> collection = kn03D003BnkMapper.getInfoList();
@@ -188,33 +189,34 @@ public class Kn02F004UnpaidController{
 
     // // 学生银行下拉列表框初期化 暂时不要删除
     // private Map<String, String> getStuBnkCodeValueMap(String stuId) {
-    //     Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
-    //     Map<String, String> map = new HashMap<>();
-    //     for (Kn03D003StubnkBean bean : collection) {
-    //         map.put(bean.getBankId(), bean.getBankName());
-    //     }
-    //     return map;
+    // Collection<Kn03D003StubnkBean> collection =
+    // kn05S002StubnkDao.getInfoById(stuId);
+    // Map<String, String> map = new HashMap<>();
+    // for (Kn03D003StubnkBean bean : collection) {
+    // map.put(bean.getBankId(), bean.getBankName());
+    // }
+    // return map;
     // }
 
     // // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
     private Map<String, String> getResultsTabStus(Collection<Kn02F004UnpaidBean> collection) {
         // 首先创建一个用于去重的Map
         Map<String, String> tempMap = new HashMap<>();
-        
+
         // 填充临时Map
         for (Kn02F004UnpaidBean bean : collection) {
             tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-        
+
         // 按值（学生姓名）排序并收集到新的LinkedHashMap中
         return tempMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue,  // 处理重复键的情况
-                    LinkedHashMap::new  // 使用LinkedHashMap保持排序
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, // 处理重复键的情况
+                        LinkedHashMap::new // 使用LinkedHashMap保持排序
                 ));
     }
 
@@ -226,13 +228,13 @@ public class Kn02F004UnpaidController{
             // 将学生交费信息响应送给前端
             model.addAttribute("selectedinfo", knLsnUnPaid001Bean);
 
-            /* ↓↓↓↓↓↓↓↓　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓　*/
+            /* ↓↓↓↓↓↓↓↓ 这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↓↓↓↓↓↓↓ */
             // // 取得该生的银行信息
             // String stuId = knLsnUnPaid001Bean.getStuId();
             // // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
             // Map<String, String> stuBankMap = getStuBnkCodeValueMap(stuId);
             // model.addAttribute("bankMap", stuBankMap);
-            /* ↑↑↑↑↑↑↑↑　这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑　*/
+            /* ↑↑↑↑↑↑↑↑ 这块的业务逻辑目前是不需要的，这里取的不是学生的银行，而是老师的银行信息 ↑↑↑↑↑↑↑↑ */
 
             Map<String, String> bankMap = getTeacherBnkCodeValueMap();
             model.addAttribute("bankMap", bankMap);
@@ -246,7 +248,7 @@ public class Kn02F004UnpaidController{
     }
 
     private boolean inputDataHasError(Kn02F004UnpaidBean knLsnUnPaid001Bean, List<String> msgList) {
-        if (knLsnUnPaid001Bean.getLsnPay() <= 0 ) {
+        if (knLsnUnPaid001Bean.getLsnPay() <= 0) {
             msgList.add("请输入実績支払金額。");
         }
 
@@ -265,7 +267,7 @@ public class Kn02F004UnpaidController{
         }
 
         if (knLsnUnPaid001Bean.getPayMonth() == null || knLsnUnPaid001Bean.getPayMonth().isEmpty()) {
-            msgList.add("请选择要精算月份");
+            msgList.add("请选择要结算月份");
         }
 
         return (msgList.size() != 0);

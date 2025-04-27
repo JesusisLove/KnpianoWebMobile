@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat;
 
 @Controller
 public class Kn02F003AdvcLsnFeePayController {
-    List<String> knYear = null; 
+    List<String> knYear = null;
     List<String> knMonth = null;
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
     List<Kn03D004StuDocBean> lsnStuList;
@@ -66,7 +66,7 @@ public class Kn02F003AdvcLsnFeePayController {
 
         // 画面初期化基本设定
         setModel(model);
-        // System.out.println("Received successMessage: " + successMessage); 
+        // System.out.println("Received successMessage: " + successMessage);
         if (!successMessage.isEmpty()) {
             model.addAttribute("successMessage", successMessage);
         }
@@ -76,22 +76,23 @@ public class Kn02F003AdvcLsnFeePayController {
 
     // 点击Web页面上的【推算排课日期】按钮
     @GetMapping("/kn_advc_pay_lsn/search")
-    public String search(@RequestParam Map<String, Object> queryParams, 
-                                       Model model) {
-        // 把画面传来的年和月拼接成yyyy-mm的形式        
+    public String search(@RequestParam Map<String, Object> queryParams,
+            Model model) {
+        // 把画面传来的年和月拼接成yyyy-mm的形式
         Map<String, Object> params = new HashMap<>();
         String lsnMonth = (String) queryParams.get("selectedmonth");
         params.put("lsn_month", queryParams.get("selectedyear") + "-" + lsnMonth);
         String stuId = (String) queryParams.get("stuId");
 
-        if (!validateHasError(model,queryParams,null)) {
+        if (!validateHasError(model, queryParams, null)) {
             String yearMonth = queryParams.get("selectedyear") + "-" + lsnMonth;
             // 将学生交费信息响应送给前端
             List<Kn02F003AdvcLsnFeePayBean> list = kn02F003LsnFeeAdvcPayDao.getAdvcFeePayLsnInfo(stuId, yearMonth);
             model.addAttribute("infoList", list);
 
-            // 提取#{引数.生徒番号}、#{引数.基準月}的预支付历史情况
-            List<Kn02F003AdvcLsnFeePayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0,4) ,null);
+            // 提取#{引数.生徒编号}、#{引数.基準月}的预支付历史情况
+            List<Kn02F003AdvcLsnFeePayBean> advcPaidHistorylist = kn02F003LsnFeeAdvcPayDao
+                    .getAdvcFeePaidInfoByCondition(stuId, yearMonth.substring(0, 4), null);
             model.addAttribute("historyList", advcPaidHistorylist);
 
             // 根据stuId从银行管理表，取得该学生使用的银行名称（复数个银行可能）
@@ -108,13 +109,13 @@ public class Kn02F003AdvcLsnFeePayController {
 
         return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
     }
-    
-    //点击Web页面上的【课费预支付】按钮
+
+    // 点击Web页面上的【课费预支付】按钮
     @PostMapping("/kn_advc_pay_lsn_execute")
-    public String executeAdvanceLsnFeePay(@RequestParam Map<String, Object> queryParams, 
-                                          @RequestBody List<Kn02F003AdvcLsnFeePayBean> beans,
-                                          RedirectAttributes redirectAttributes,
-                                          Model model) {
+    public String executeAdvanceLsnFeePay(@RequestParam Map<String, Object> queryParams,
+            @RequestBody List<Kn02F003AdvcLsnFeePayBean> beans,
+            RedirectAttributes redirectAttributes,
+            Model model) {
 
         // 执行之前先做check：是否同一个月的课费预支付在重复执行（查看课费预支付表 t_info_lsn_fee_advc_pay）
         String stuName = beans.get(0).getStuName();
@@ -125,35 +126,38 @@ public class Kn02F003AdvcLsnFeePayController {
             if (!hasPaid(bean)) {
                 // 对每个bean进行处理
                 kn02F003LsnFeeAdvcPayDao.executeAdvcLsnFeePay(bean);
-                
+
             } else {
                 // 如果有重复，则返回更新不可消息
-                redirectAttributes.addFlashAttribute("errorMessage", stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        stuName + "的" + yearMonth + "的预支付课费已经支付了，不能再重复支付。");
                 return "redirect:/kn_advc_pay_lsn";
             }
         }
-        
+
         // 添加成功消息
         redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费成功预支付。");
         return "redirect:/kn_advc_pay_lsn";
     }
 
     // 判断当前要预支付的课是否在对象月里已经预支付了（避免重复预支付）
-    private boolean hasPaid (Kn02F003AdvcLsnFeePayBean bean) {
+    private boolean hasPaid(Kn02F003AdvcLsnFeePayBean bean) {
 
         String stuId = bean.getStuId();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = formatter.format(bean.getSchedualDate());
-        String yearMonth = formattedDate.substring(0,7);
+        String yearMonth = formattedDate.substring(0, 7);
 
-        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId, null, yearMonth);
+        List<Kn02F003AdvcLsnFeePayBean> advcPaidList = kn02F003LsnFeeAdvcPayDao.getAdvcFeePaidInfoByCondition(stuId,
+                null, yearMonth);
         // true:表示已经预支付了
         return (advcPaidList.size() > 0);
     }
 
     // 学生银行下拉列表框初期化
     private Map<String, String> getStuBnkCodeValueMap(String stuId) {
-        // Collection<Kn03D003StubnkBean> collection = kn05S002StubnkDao.getInfoById(stuId);
+        // Collection<Kn03D003StubnkBean> collection =
+        // kn05S002StubnkDao.getInfoById(stuId);
         Collection<Kn03D003BnkBean> collection = kn03D003BnkMapper.getInfoList();
         Map<String, String> map = new HashMap<>();
         for (Kn03D003BnkBean bean : collection) {
@@ -195,24 +199,25 @@ public class Kn02F003AdvcLsnFeePayController {
         return hasError;
     }
 
-    private boolean inputDataHasError(Map<String, Object> queryParams,Kn02F003AdvcLsnFeePayBean bean, List<String> msgList) {
-        
+    private boolean inputDataHasError(Map<String, Object> queryParams, Kn02F003AdvcLsnFeePayBean bean,
+            List<String> msgList) {
+
         if (queryParams != null) {
-            String stuId = (String)queryParams.get("stuId");
+            String stuId = (String) queryParams.get("stuId");
             if (stuId.isEmpty()) {
                 msgList.add("请选择学生姓名。");
 
             }
         }
 
-        if(bean != null) {
+        if (bean != null) {
 
-            if(bean.getBankId().isEmpty()) {
+            if (bean.getBankId().isEmpty()) {
                 msgList.add("请选择该生使用的银行。");
 
             }
 
-            if (bean.getSchedualDate()==null) {
+            if (bean.getSchedualDate() == null) {
                 msgList.add("请输入‘yyyy-MM-dd hh:mm’格式的日期。");
             }
         }
