@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,7 +13,7 @@
 
 
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
-          rel="stylesheet">
+        rel="stylesheet">
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -32,52 +33,78 @@
 
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
+
 <body>
 
-<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
-<div class="container-fluid">
-    <div class="row">"
-        <div th:replace="~{commons/bar::sidebar(activeUri='kn_stu_001_link_active')}"></div>
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <!-- 显示错误消息 -->
-            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
-                <div th:each="errorMessage : ${errorMessageList}">
-                    <p th:text="${errorMessage}"></p>
+    <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+    <div class="container-fluid">
+        <div class="row">"
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_stu_001_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <!-- 显示错误消息 -->
+                <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                    <div th:each="errorMessage : ${errorMessageList}">
+                        <p th:text="${errorMessage}"></p>
+                    </div>
                 </div>
-            </div>
-            <form th:action="@{/kn_stu_001}" method="post">
-                <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/>
-                <br>
-                <div class="form-group"><br>  <label>学生番号</label> <input name="stuId"type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly th:value="${selectedinfo!=null}?${selectedinfo.stuId}"></div>
-                <div class="form-group"><br>  
-                    <label>学生名前</label> 
-                    <input name="stuName"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.stuName}">
-                </div>
-                <div class="form-group"><br>  
-                    <label>姓名略称</label> 
-                    <input name="nikName"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.nikName}">
-                </div>
-                <div class="form-group"><br>  
-                    <label>性別</label> 
-                    <select name="gender" class="form-control">
-                        <option value="" disabled selected>请选择</option>
-                        <option th:value="1" th:selected="${selectedinfo != null and selectedinfo.gender == 1}">男</option>
-                        <option th:value="2" th:selected="${selectedinfo != null and selectedinfo.gender == 2}">女</option>
-                    </select>
-                </div>                             
-                <div class="form-group"><br>  <label>誕生日</label> <input name="birthday"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.birthday}"></div>
-                <div class="form-group"><br>  <label>電話番号１</label> <input name="tel1"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.tel1}"></div>
-                <div class="form-group"><br>  <label>電話番号２</label> <input name="tel2"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.tel2}"></div>
-                <div class="form-group"><br>  <label>電話番号３</label> <input name="tel3"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.tel3}"></div>
-                <div class="form-group"><br>  <label>電話番号４</label> <input name="tel4"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.tel4}"></div>
-                <div class="form-group"><br>  <label>住所</label> <input name="address"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.address}"></div>
-                <div class="form-group"><br>  <label>郵便番号</label> <input name="postCode"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.postCode}"></div>
-                <div class="form-group"><br>  <label>紹介者</label> <input name="introducer"type="text" class="form-control"placeholder=""  th:value="${selectedinfo!=null}?${selectedinfo.introducer}"></div>
-                <div class="form-group"><br>  <label>削除フラグ</label> <input name="delFlg"type="text" class="form-control"placeholder="" readonly  th:value="${selectedinfo!=null}?${selectedinfo.delFlg}"></div>
-               <button type="submit" class="btn btn-primary" th:text="保存"></button>
-            </form>
-        </main>
+                <form th:action="@{/kn_stu_001}" method="post">
+                    <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" />
+                    <br>
+                    <div class="form-group"><br> <label>学生编号</label> <input name="stuId" type="text"
+                            class="form-control" placeholder="システム自動採番、入力不可" readonly
+                            th:value="${selectedinfo!=null}?${selectedinfo.stuId}"></div>
+                    <div class="form-group"><br>
+                        <label>学生姓名</label>
+                        <input name="stuName" type="text" class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.stuName}">
+                    </div>
+                    <div class="form-group"><br>
+                        <label>昵称</label>
+                        <input name="nikName" type="text" class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.nikName}">
+                    </div>
+                    <div class="form-group"><br>
+                        <label>性別</label>
+                        <select name="gender" class="form-control">
+                            <option value="" disabled selected>请选择</option>
+                            <option th:value="1" th:selected="${selectedinfo != null and selectedinfo.gender == 1}">男
+                            </option>
+                            <option th:value="2" th:selected="${selectedinfo != null and selectedinfo.gender == 2}">女
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group"><br> <label>出生日</label> <input name="birthday" type="text"
+                            class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.birthday}"></div>
+                    <div class="form-group"><br> <label>電話编号１</label> <input name="tel1" type="text"
+                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.tel1}">
+                    </div>
+                    <div class="form-group"><br> <label>電話编号２</label> <input name="tel2" type="text"
+                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.tel2}">
+                    </div>
+                    <div class="form-group"><br> <label>電話编号３</label> <input name="tel3" type="text"
+                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.tel3}">
+                    </div>
+                    <div class="form-group"><br> <label>電話编号４</label> <input name="tel4" type="text"
+                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.tel4}">
+                    </div>
+                    <div class="form-group"><br> <label>住所</label> <input name="address" type="text"
+                            class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.address}"></div>
+                    <div class="form-group"><br> <label>郵便编号</label> <input name="postCode" type="text"
+                            class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.postCode}"></div>
+                    <div class="form-group"><br> <label>紹介者</label> <input name="introducer" type="text"
+                            class="form-control" placeholder=""
+                            th:value="${selectedinfo!=null}?${selectedinfo.introducer}"></div>
+                    <div class="form-group"><br> <label>削除フラグ</label> <input name="delFlg" type="text"
+                            class="form-control" placeholder="" readonly
+                            th:value="${selectedinfo!=null}?${selectedinfo.delFlg}"></div>
+                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
+                </form>
+            </main>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

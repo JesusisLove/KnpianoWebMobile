@@ -27,7 +27,7 @@ public class Kn01L002ExtraToScheDao {
     @Autowired
     private Kn01L002LsnMapper kn01L002LsnMapper;
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private Kn01L002LsnBean knLsn001Bean;
 
     @Autowired
@@ -35,15 +35,15 @@ public class Kn01L002ExtraToScheDao {
 
     private TInfoLessonExtraToScheBean tblBean = new TInfoLessonExtraToScheBean();
 
-     // 根据Web页面上的检索部传过来的年月，取得有加课的学生番号，学生姓名。初期化页面的学生姓名下拉列表框
-     public List<Kn01L002ExtraToScheBean> getSearchInfo4Stu(String yearMonth) {
+    // 根据Web页面上的检索部传过来的年月，取得有加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
+    public List<Kn01L002ExtraToScheBean> getSearchInfo4Stu(String yearMonth) {
         List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getSearchInfo4Stu(yearMonth);
         return list;
     }
 
     // Web页面后段维护
     public List<Kn01L002ExtraToScheBean> getInfoList(String year) {
-        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(null,year);
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(null, year);
         return list;
     }
 
@@ -64,7 +64,7 @@ public class Kn01L002ExtraToScheDao {
     }
 
     // 执行加课换正课处理
-    /* 采用事务处理机制 */ 
+    /* 采用事务处理机制 */
     @Transactional
     public void executeExtraToSche(Kn01L002ExtraToScheBean kn01L002ExtraToScheBean) {
         // 从画面传过来的lessonId退避到变量中
@@ -84,15 +84,17 @@ public class Kn01L002ExtraToScheDao {
         // ③取得新lsn_fee_id（换成正课后的课费ID），取得条件：换正课的月份
         // getExtraToDurDate：是从前端页面传过来的换正课日期yyyy-MM-dd
         String targetLsnMonth = new java.text.SimpleDateFormat("yyyy-MM-dd")
-                                        .format(kn01L002ExtraToScheBean.getExtraToDurDate())
-                                        .substring(0, 7);
+                .format(kn01L002ExtraToScheBean.getExtraToDurDate())
+                .substring(0, 7);
         String studentId = kn01L002ExtraToScheBean.getStuId();
         String subjectId = kn01L002ExtraToScheBean.getSubjectId();
-        List<Kn02F002FeeBean> toScheLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, subjectId, targetLsnMonth, 1);
+        List<Kn02F002FeeBean> toScheLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, subjectId,
+                targetLsnMonth, 1);
 
         // ④加课换正课情報作成
         // ④-1:oldLsnFeeId的设置
-        tblBean.setLessonId(lessonId);tblBean.setOldLsnFeeId(oldLsnFeeId);
+        tblBean.setLessonId(lessonId);
+        tblBean.setOldLsnFeeId(oldLsnFeeId);
         tblBean.setToScheScanQrDate(kn01L002ExtraToScheBean.getExtraToDurDate());
         tblBean.setOldLsnFee(lsnFee); // 记录换正课之前的加课课费
         tblBean.setOldSubjectSubId(kn01L002ExtraToScheBean.getSubjectSubId());
@@ -101,21 +103,23 @@ public class Kn01L002ExtraToScheDao {
         // 换正课的lsn_fee_id採番（如果换正课所在月没有既存记录，就执行课费ID採番）
         if (toScheLsnFeeIdLst == null || toScheLsnFeeIdLst.size() == 0) {
             Map<String, Object> map = new HashMap<>();
-                map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);
-                // 课程费用的自動採番:採番番号 = new_lsn_fee_id = origin_lsn_fee_id 
-                knLsnFee001Mapper.getNextSequence(map);
-                String toScheLsnFeeId = KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer)map.get("parm_out");
-                tblBean.setToScheLsnFeeId(toScheLsnFeeId); 
-                // 加课换正课中间表字段设置
-                tblBean.setIsGoodChange(1);// 设置【有意义的换课】标识
-                tblBean.setToScheOwnFlg(0);
-        } 
+            map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);
+            // 课程费用的自動採番:採番编号 = new_lsn_fee_id = origin_lsn_fee_id
+            knLsnFee001Mapper.getNextSequence(map);
+            String toScheLsnFeeId = KNConstant.CONSTANT_KN_LSN_FEE_SEQ + (Integer) map.get("parm_out");
+            tblBean.setToScheLsnFeeId(toScheLsnFeeId);
+            // 加课换正课中间表字段设置
+            tblBean.setIsGoodChange(1);// 设置【有意义的换课】标识
+            tblBean.setToScheOwnFlg(0);
+        }
         // 换正课所在月的既存lsn_fee_id（换正课所在月有既存的lsn_fee_id记录）
         else {
             String toScheLsnFeeId = toScheLsnFeeIdLst.get(0).getLsnFeeId();
-            /*  newLsnFeeIdLst里的数组元素个数就是换正课的月份已经上完了的月计划的课数，
-            如果数组元素小于4，就表示该加课往这个月份上去换的正课是有效率的正课，它参与课费结算
-            如果数组元素大等于4，就表示这个正课白换了，因为超过4节之后的课费都不参与课费结算 */
+            /*
+             * newLsnFeeIdLst里的数组元素个数就是换正课的月份已经上完了的月计划的课数，
+             * 如果数组元素小于4，就表示该加课往这个月份上去换的正课是有效率的正课，它参与课费结算
+             * 如果数组元素大等于4，就表示这个正课白换了，因为超过4节之后的课费都不参与课费结算
+             */
 
             // 如果数组元素个数大于等于4，更新课费表（t_info_lesson_fee）表
             // 更新字段：lsn_fee, del_flg
@@ -127,14 +131,14 @@ public class Kn01L002ExtraToScheDao {
 
                 // 加课换正课中间表字段设置
                 tblBean.setIsGoodChange(0);// 设置【无意义的换课】标识
-            } 
+            }
 
             // 如果数组元素个数小于4，更新课费表（t_info_lesson_fee）表
             // 更新字段：del_flg
             // 更新值：del_flg = 1
             // 更新条件：lesson_id
             else {
-                
+
                 // 课费的设置处理なし
 
                 // 加课换正课中间表字段设置
@@ -145,12 +149,15 @@ public class Kn01L002ExtraToScheDao {
             tblBean.setToScheOwnFlg(toScheLsnFeeIdLst.get(0).getOwnFlg());
         }
 
-        /* 2025-02-24 追加了下面的业务逻辑处理 开始
-            加课换正课的时机如果赶上学生的子科目变动了，比如去年12月还在学钢琴5级，用的是5级的学费，到今年1月学生进入6级的学习，子科目和学费价格都发生了变化。
-            加课换正课表也追加了这4个字段，记录加课换正课后的课程属性发生的变化。加课换成正课，原来的加课课程属性跟着正课的属性走（即，原来虽然是5级，变成正课后，该课就被视为6级的钢琴课，价格也是按照6级的价格走）
-        */
+        /*
+         * 2025-02-24 追加了下面的业务逻辑处理 开始
+         * 加课换正课的时机如果赶上学生的子科目变动了，比如去年12月还在学钢琴5级，用的是5级的学费，到今年1月学生进入6级的学习，子科目和学费价格都发生了变化。
+         * 加课换正课表也追加了这4个字段，记录加课换正课后的课程属性发生的变化。加课换成正课，原来的加课课程属性跟着正课的属性走（即，原来虽然是5级，变成正课后，
+         * 该课就被视为6级的钢琴课，价格也是按照6级的价格走）
+         */
         // 从③那里取得的targetLsnMonth，去学生档案表里查找，该月份学生正在学习科目中的哪个一阶段的子科目以及该子科目的价格
-        Kn03D004StuDocBean toScheDocInfo = kn01l002ExtraToScheMapper.getToScheDocumentInfo(studentId, subjectId, targetLsnMonth);
+        Kn03D004StuDocBean toScheDocInfo = kn01l002ExtraToScheMapper.getToScheDocumentInfo(studentId, subjectId,
+                targetLsnMonth);
         // ④-3:toScheSubjectPrice的设置
         tblBean.setToScheLsnFee(toScheDocInfo.getLessonFee());
 
@@ -163,20 +170,19 @@ public class Kn01L002ExtraToScheDao {
 
         // ⑥执行保存加课换正课的处理（其实处理的是课费的结算，即原来准备按加课费收费，由于换成其他月份的正课，就不在当前月收取加课费了）
         kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),
-                                                        tblBean.getOldLsnFeeId(),
-                                                        tblBean.getToScheLsnFeeId(),
-                                                        tblBean.getOldSubjectSubId(),
-                                                        tblBean.getToScheSubjectSubId(),
-                                                        tblBean.getOldLsnFee(),
-                                                        tblBean.getToScheLsnFee(),
-                                                        tblBean.getToScheScanQrDate(),
-                                                        tblBean.getIsGoodChange(),
-                                                        tblBean.getToScheOwnFlg()
-                                                        );
+                tblBean.getOldLsnFeeId(),
+                tblBean.getToScheLsnFeeId(),
+                tblBean.getOldSubjectSubId(),
+                tblBean.getToScheSubjectSubId(),
+                tblBean.getOldLsnFee(),
+                tblBean.getToScheLsnFee(),
+                tblBean.getToScheScanQrDate(),
+                tblBean.getIsGoodChange(),
+                tblBean.getToScheOwnFlg());
     }
 
     // 撤销加课换正课处理
-    /* 采用事务处理机制 */ 
+    /* 采用事务处理机制 */
     @Transactional
     public void undoExtraToSche(String lessonId) {
 
@@ -193,11 +199,10 @@ public class Kn01L002ExtraToScheDao {
     }
 }
 
-
 /**
  * 加课换正课情報作成
  * 数据库t_info_lesson_extra_to_sche表的Bean类
-*/ 
+ */
 class TInfoLessonExtraToScheBean {
 
     // 课程ID
@@ -221,16 +226,17 @@ class TInfoLessonExtraToScheBean {
     // 正课时的课费
     float toScheLsnFee;
 
-    // @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9") // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9") //
+    // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
     // @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date toScheScanQrDate;
 
     Integer toScheOwnFlg;
 
     /**
-     *  1:有效率的加课换正课，换正课月份的计划课时不足4节课，加课能有效顶替正课，视为很有效率的加课换正课。
-     *  0:没有效率的加课换正课，换正课月份的计划课时已经够4节课了，在换正课就相当于白白浪费了一节加课课时，视为无效率的加课换正课。
-     * */
+     * 1:有效率的加课换正课，换正课月份的计划课时不足4节课，加课能有效顶替正课，视为很有效率的加课换正课。
+     * 0:没有效率的加课换正课，换正课月份的计划课时已经够4节课了，在换正课就相当于白白浪费了一节加课课时，视为无效率的加课换正课。
+     */
     int isGoodChange;
 
     public String getLessonId() {
