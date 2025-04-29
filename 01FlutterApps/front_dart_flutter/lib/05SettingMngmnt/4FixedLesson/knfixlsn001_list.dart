@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'dart:convert';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
 import 'knfixlsn001_add.dart';
 import 'knfixlsn001_edit.dart';
@@ -29,8 +30,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
     with SingleTickerProviderStateMixin {
   final String titleName = '固定排课一览';
   late TabController _tabController;
-  late Future<List<KnFixLsn001Bean>>
-      futureFixLsnList; // 增加一个Future列表，用于存储异步加载的数据
+  late Future<List<KnFixLsn001Bean>> futureFixLsnList;
+  late String subtitle;
+  bool _isLoading = false; // 添加加载状态变量
+
   final List<String> weekDays = [
     'Mon',
     'Tue',
@@ -41,16 +44,35 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
     'Sun'
   ];
 
-  // 画面初期化
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 7, vsync: this);
-    futureFixLsnList =
-        fetchLessons(); // 在初始化时调用fetchLessons，并将结果存储在futureFixLsnList中
+    _fetchLessonData();
   }
 
-  // 画面初期化：取得所有学生信息
+  // 新的数据加载方法
+  void _fetchLessonData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    futureFixLsnList = fetchLessons().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
+  }
+
+  // 画面初期化：取得所有固定排课信息
   Future<List<KnFixLsn001Bean>> fetchLessons() async {
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoView}';
     final response = await http.get(Uri.parse(apiUrl));
@@ -66,51 +88,49 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
+    subtitle = "${widget.pagePath} >> $titleName";
     return Scaffold(
       appBar: KnAppBar(
         title: titleName,
-        subtitle: '${widget.pagePath} >> $titleName',
+        subtitle: subtitle,
         context: context,
-        appBarBackgroundColor: widget.knBgColor, // 自定义AppBar背景颜色
+        appBarBackgroundColor: widget.knBgColor,
         titleColor: Color.fromARGB(
-            widget.knFontColor.alpha, // 自定义标题颜色
+            widget.knFontColor.alpha,
             widget.knFontColor.red - 20,
             widget.knFontColor.green - 20,
             widget.knFontColor.blue - 20),
-
         subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha, // 自定义底部文本框背景颜色
+            widget.knFontColor.alpha,
             widget.knFontColor.red + 20,
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
-
-        subtitleTextColor: Colors.white, // 自定义底部文本颜色
-        titleFontSize: 20.0, // 自定义标题字体大小
-        subtitleFontSize: 12.0, // 自定义底部文本字体大小
+        subtitleTextColor: Colors.white,
+        titleFontSize: 20.0,
+        subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            color: Colors.white,
-            onPressed: () {
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScheduleForm(
-                      knBgColor: Constants.settngThemeColor,
-                      knFontColor: Colors.white,
-                      pagePath: titleName,
-                    ),
-                  )).then((value) {
-                if (value == true) {
-                  setState(() {
-                    futureFixLsnList = fetchLessons();
-                  });
-                }
-              });
-            },
+            // 新規"➕"按钮的事件处理函数
+            onPressed: _isLoading
+                ? null // 如果正在加载，禁用按钮
+                : () {
+                    Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScheduleForm(
+                            knBgColor: Constants.settngThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: subtitle,
+                          ),
+                        )).then((value) {
+                      if (value == true) {
+                        _fetchLessonData();
+                      }
+                    });
+                  },
           ),
         ],
       ),
@@ -130,24 +150,39 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
             ],
           ),
           Expanded(
-            child: FutureBuilder<List<KnFixLsn001Bean>>(
-              future: futureFixLsnList,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (snapshot.hasData) {
-                  return TabBarView(
-                    controller: _tabController,
-                    children: weekDays
-                        .map((day) => buildLessonList(snapshot.data!, day))
-                        .toList(),
-                  );
-                } else {
-                  return const Center(child: Text("No data available"));
-                }
-              },
+            child: Stack(
+              children: [
+                // 原有的FutureBuilder
+                FutureBuilder<List<KnFixLsn001Bean>>(
+                  future: futureFixLsnList,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        !_isLoading) {
+                      // 当连接状态是等待中，但_isLoading为false时不显示任何内容
+                      // 因为我们将使用全屏的加载指示器
+                      return Container();
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text("Error: ${snapshot.error}"));
+                    } else if (snapshot.hasData) {
+                      return TabBarView(
+                        controller: _tabController,
+                        children: weekDays
+                            .map((day) => buildLessonList(snapshot.data!, day))
+                            .toList(),
+                      );
+                    } else {
+                      return const Center(child: Text(""));
+                    }
+                  },
+                ),
+
+                // 加载指示器层
+                if (_isLoading)
+                  Center(
+                    child: KnLoadingIndicator(
+                        color: widget.knBgColor), // 使用自定义的加载器进度条
+                  ),
+              ],
             ),
           ),
         ],
@@ -159,6 +194,11 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
     // 根据特定的日子过滤课程
     var dayLessons =
         lessons.where((lesson) => lesson.fixedWeek == dayIndex).toList();
+
+    if (dayLessons.isEmpty) {
+      return const Center(child: Text(""));
+    }
+
     return ListView.builder(
       itemCount: dayLessons.length,
       itemBuilder: (context, index) {
@@ -198,60 +238,62 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         trailing: Row(
           mainAxisSize: MainAxisSize.min, // Row的宽度只足够包含子控件
           children: <Widget>[
-            // 编辑按钮的事件处理函数
+            // 编辑按钮
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScheduleFormEdit(
-                      lesson: lesson,
-                      knBgColor: Constants.settngThemeColor,
-                      knFontColor: Colors.white,
-                      pagePath: titleName,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureFixLsnList = fetchLessons();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScheduleFormEdit(
+                            lesson: lesson,
+                            knBgColor: Constants.settngThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          _fetchLessonData();
+                        }
+                      });
+                    },
             ),
             // 删除按钮
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('删除确认'),
-                      content: Text('确定要删除${lesson.studentName}的固定排课吗？'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('取消'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('确定'),
-                          onPressed: () {
-                            // 执行删除操作
-                            deleteLesson(lesson);
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('删除确认'),
+                            content: Text('确定要删除${lesson.studentName}的固定排课吗？'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('取消'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('确定'),
+                                onPressed: () {
+                                  // 执行删除操作
+                                  deleteLesson(lesson);
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
             ),
           ],
         ),
@@ -261,6 +303,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
 
   // 删除课程的函数
   void deleteLesson(KnFixLsn001Bean lesson) {
+    setState(() {
+      _isLoading = true; // 开始删除操作前设置为true
+    });
+
     final String apiUrl =
         '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoDelete}/${lesson.studentId}/${lesson.subjectId}/${lesson.fixedWeek}';
     http.delete(
@@ -269,6 +315,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         'Content-Type': 'application/json', // 添加内容类型头
       },
     ).then((response) {
+      setState(() {
+        _isLoading = false; // 操作完成后设置为false
+      });
+
       if (response.statusCode == 200) {
         // 调用重新加载数据的函数
         reloadData(lesson.fixedWeek);
@@ -279,6 +329,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         }
       }
     }).catchError((error) {
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+
       // 错误处理
       if (kDebugMode) {
         print("出现错误: $error");
@@ -288,7 +342,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
 
   void reloadData(String fixedWeek) {
     // 重新加载数据
-    futureFixLsnList = fetchLessons();
+    _fetchLessonData();
+
     // 更新状态以重建UI
     futureFixLsnList.whenComplete(() {
       setState(() {

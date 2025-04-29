@@ -10,6 +10,7 @@ import '../../Constants.dart';
 import '../2subjectBasic/kn05S003SubEda_list.dart';
 import 'KnSub001Bean.dart';
 import 'knsub001_add_edit.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 
 // ignore: must_be_immutable
 class SubjectViewPage extends StatefulWidget {
@@ -33,15 +34,37 @@ class SubjectViewPage extends StatefulWidget {
 
 class _SubjectViewPageState extends State<SubjectViewPage> {
   late Future<List<KnSub001Bean>> futureSubjects;
+  bool _isLoading = false; // 添加加载状态变量
 
   @override
   void initState() {
     super.initState();
-    futureSubjects = fetchSubjects();
+    _fetchSubjectData();
+  }
+
+  void _fetchSubjectData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    // 确保在这里为futureSubjects赋值
+    futureSubjects = _fetchSubjects().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
   }
 
   // 画面初期化：取得所有科目信息
-  Future<List<KnSub001Bean>> fetchSubjects() async {
+  Future<List<KnSub001Bean>> _fetchSubjects() async {
     // 上课管理菜单画面，点击“学生科目管理”按钮的url请求
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.subjectView}';
     final response = await http.get(Uri.parse(apiUrl));
@@ -58,68 +81,84 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KnAppBar(
-        title: widget.titleName,
-        subtitle: widget.subtitle,
-        context: context,
-        appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red - 20,
-            widget.knFontColor.green - 20,
-            widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
-        subtitleTextColor: Colors.white,
-        titleFontSize: 20.0,
-        subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            // 新規”➕”按钮的事件处理函数
-            onPressed: () {
-              // Navigate to add subject page or handle add operation
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SubjectAddEdit(
-                            showMode: '新規',
-                            knBgColor: widget.knBgColor,
-                            knFontColor: widget.knFontColor,
-                            pagePath: widget.subtitle,
-                          ))).then((value) => {
-                    setState(() {
-                      futureSubjects = fetchSubjects();
-                    })
-                  });
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<KnSub001Bean>>(
-        future: futureSubjects,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return _buildSubjectItem(snapshot.data![index]);
+        appBar: KnAppBar(
+          title: widget.titleName,
+          subtitle: widget.subtitle,
+          context: context,
+          appBarBackgroundColor: widget.knBgColor,
+          titleColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red - 20,
+              widget.knFontColor.green - 20,
+              widget.knFontColor.blue - 20),
+          subtitleBackgroundColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red + 20,
+              widget.knFontColor.green + 20,
+              widget.knFontColor.blue + 20),
+          subtitleTextColor: Colors.white,
+          titleFontSize: 20.0,
+          subtitleFontSize: 12.0,
+          addInvisibleRightButton: true,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.add),
+              // 新規”➕”按钮的事件处理函数
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      // Navigate to add subject page or handle add operation
+                      Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SubjectAddEdit(
+                                    showMode: '新規',
+                                    knBgColor: widget.knBgColor,
+                                    knFontColor: widget.knFontColor,
+                                    pagePath: widget.subtitle,
+                                  ))).then((value) => {
+                            setState(() {
+                              _fetchSubjectData(); // 使用统一的加载方法
+                            })
+                          });
+                    },
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            FutureBuilder<List<KnSub001Bean>>(
+              future: futureSubjects,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !_isLoading) {
+                  // 当连接状态是等待中，但_isLoading为false时不显示任何内容
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      return _buildSubjectItem(snapshot.data![index]);
+                    },
+                  );
+                } else {
+                  /* 当页面首次加载时，snapshot.hasData 条件还没有满足，但也不是 ConnectionState.waiting 状态或有错误，所以代码执行到了最后的 else 分支，显示了 "No data available" 信息。 */
+                  // return const Center(child: Text('No data available'));
+                  // 在非加载状态下，如果没有数据且没有错误，才显示无数据提示
+                  return Container(); // 或者你可以选择显示一个更友好的提示
+                }
               },
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
-      ),
-    );
+            ),
+            // 加载指示器层
+            if (_isLoading)
+              Center(
+                child:
+                    KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+              ),
+          ],
+        ));
   }
 
   Widget _buildSubjectItem(KnSub001Bean subject) {
@@ -131,27 +170,6 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
           backgroundImage: AssetImage('images/student-placeholder.png'),
         ),
         title: Text(subject.subjectName),
-        // subtitle: Row(
-        //     children: <Widget>[
-        //       // 为科目编号设置像素的左间距
-        //       const SizedBox(width: 10 ),
-        //       Expanded(
-        //         child: Text(
-        //           subject.subjectId,
-        //           style: const TextStyle(fontSize: 14),
-        //         ),
-        //       ),
-        //       Container(
-        //         // 为科目名称设置像素的右间距
-        //         padding: const EdgeInsets.only(right: 16),
-        //         child: Text(
-        //           '科目名称: ${subject.subjectName}',
-        //           style: const TextStyle(fontSize: 14),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -159,85 +177,94 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blue),
               // 编辑按钮的事件处理函数
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubjectAddEdit(
-                      subject: subject,
-                      showMode: '編集',
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                      pagePath: widget.subtitle,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureSubjects = fetchSubjects();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SubjectAddEdit(
+                            subject: subject,
+                            showMode: '編集',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: widget.subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          setState(() {
+                            // futureSubjects = fetchSubjects();
+                            _fetchSubjectData();
+                          });
+                        }
+                      });
+                    },
             ),
 
             // 删除按钮
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('删除确认'),
-                      content: Text('确定要删除【${subject.subjectName}】这门科目吗？'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('取消'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('确定'),
-                          onPressed: () {
-                            deleteSubject(subject);
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () async {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('删除确认'),
+                            content:
+                                Text('确定要删除【${subject.subjectName}】这门科目吗？'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('取消'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('确定'),
+                                onPressed: () {
+                                  deleteSubject(subject);
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
             ),
 
             // 科目级别按钮
             IconButton(
               icon: const Icon(Icons.more_vert, color: Colors.blue),
               // 科目级别按钮的事件处理函数
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Kn05S003SubEdaView(
-                      subjectName: subject.subjectName,
-                      subjectId: subject.subjectId,
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                      pagePath: widget.subtitle,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureSubjects = fetchSubjects();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Kn05S003SubEdaView(
+                            subjectName: subject.subjectName,
+                            subjectId: subject.subjectId,
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: widget.subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          setState(() {
+                            // futureSubjects = fetchSubjects();
+                            _fetchSubjectData();
+                          });
+                        }
+                      });
+                    },
             ),
           ],
         ),
@@ -246,6 +273,10 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
   }
 
   deleteSubject(KnSub001Bean subject) {
+    setState(() {
+      _isLoading = true; // 开始删除操作前设置为true
+    });
+
     final String apiUrl =
         '${KnConfig.apiBaseUrl}${Constants.subjectInfoDelete}/${subject.subjectId}';
     try {
@@ -255,8 +286,12 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
           'Content-Type': 'application/json', // 添加内容类型头
         },
       ).then((response) {
+        setState(() {
+          _isLoading = false; // 操作完成后设置为false
+        });
+
         if (response.statusCode == 200) {
-          reloadData();
+          _fetchSubjectData(); // 使用统一的加载方法，不再使用reloadData
         } else {
           showDialog(
             context: context,
@@ -274,8 +309,32 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
             },
           );
         }
+      }).catchError((error) {
+        setState(() {
+          _isLoading = false; // 出错时也要设置为false
+        });
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('操作异常'),
+              content: Text('发生错误: $error'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
       });
     } catch (e) {
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -292,14 +351,5 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
         },
       );
     }
-  }
-
-  void reloadData() {
-    // 重新加载数据
-    futureSubjects = fetchSubjects();
-    // 更新状态以重建UI
-    futureSubjects.whenComplete(() {
-      setState(() {});
-    });
   }
 }

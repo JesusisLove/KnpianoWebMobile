@@ -5,6 +5,7 @@ class Kn03D004StuDocBean {
   final String subjectId;
   final String subjectSubId; // 枝番番号
   final String stuName;
+  final String nikName;
   final String subjectName;
   final String subjectSubName; // 枝番名称
   final String adjustedDate;
@@ -22,6 +23,7 @@ class Kn03D004StuDocBean {
     required this.subjectId,
     required this.subjectSubId,
     required this.stuName,
+    required this.nikName,
     required this.subjectName,
     required this.subjectSubName,
     required this.adjustedDate,
@@ -57,6 +59,7 @@ class Kn03D004StuDocBean {
       subjectId: json['subjectId'] ?? '',
       subjectSubId: json['subjectSubId'] ?? '',
       stuName: json['stuName'] ?? '',
+      nikName: json['nikName'] ?? '',
       subjectName: json['subjectName'] ?? '',
       subjectSubName: json['subjectSubName'] ?? '',
       adjustedDate: formattedAdjustedDate,

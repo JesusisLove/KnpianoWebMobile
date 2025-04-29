@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
+import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
 import 'Kn02f005FeeMonthlyUnpaidPage.dart';
 import 'Kn02f005FeeMonthlyReportBean.dart';
@@ -24,12 +25,15 @@ class MonthlyIncomeReportPage extends StatefulWidget {
   final String pagePath;
 
   @override
-  _MonthlyIncomeReportPageState createState() => _MonthlyIncomeReportPageState();
+  _MonthlyIncomeReportPageState createState() =>
+      _MonthlyIncomeReportPageState();
 }
 
 class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
   int selectedYear = DateTime.now().year;
-  List<int> years = List.generate(DateTime.now().year - 2017, (index) => DateTime.now().year - index).toList();
+  List<int> years = List.generate(
+          DateTime.now().year - 2017, (index) => DateTime.now().year - index)
+      .toList();
   List<Kn02f005FeeMonthlyReportBean> monthlyReports = [];
   double totalShouldPay = 0;
   double totalHasPaid = 0;
@@ -50,13 +54,16 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
       isLoading = true;
     });
     try {
-      final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.apiFeeMonthlyReport}/$selectedYear';
+      final String apiUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiFeeMonthlyReport}/$selectedYear';
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> jsonData = json.decode(decodedBody);
         setState(() {
-          monthlyReports = jsonData.map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json)).toList();
+          monthlyReports = jsonData
+              .map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json))
+              .toList();
           calculateTotals();
           isLoading = false;
         });
@@ -72,13 +79,20 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
   }
 
   void calculateTotals() {
-    totalShouldPay = monthlyReports.fold(0, (sum, item) => sum + item.shouldPayLsnFee);
-    totalHasPaid = monthlyReports.fold(0, (sum, item) => sum + item.hasPaidLsnFee);
-    totalUnpaid = monthlyReports.fold(0, (sum, item) => sum + item.unpaidLsnFee);
+    totalShouldPay =
+        monthlyReports.fold(0, (sum, item) => sum + item.shouldPayLsnFee);
+    totalHasPaid =
+        monthlyReports.fold(0, (sum, item) => sum + item.hasPaidLsnFee);
+    totalUnpaid =
+        monthlyReports.fold(0, (sum, item) => sum + item.unpaidLsnFee);
   }
 
   List<String> collectMonths() {
-    return monthlyReports.map((report) => report.lsnMonth.substring(5, 7)).toSet().toList()..sort();
+    return monthlyReports
+        .map((report) => report.lsnMonth.substring(5, 7))
+        .toSet()
+        .toList()
+      ..sort();
   }
 
   @override
@@ -89,14 +103,16 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
         subtitle: pagePath,
         context: context,
         appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red - 20,
-                                   widget.knFontColor.green - 20,
-                                   widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(widget.knFontColor.alpha,
-                                   widget.knFontColor.red + 20,
-                                   widget.knFontColor.green + 20,
-                                   widget.knFontColor.blue + 20),
+        titleColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red - 20,
+            widget.knFontColor.green - 20,
+            widget.knFontColor.blue - 20),
+        subtitleBackgroundColor: Color.fromARGB(
+            widget.knFontColor.alpha,
+            widget.knFontColor.red + 20,
+            widget.knFontColor.green + 20,
+            widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: false, // 显示Home按钮返回主菜单
         currentNavIndex: 1,
@@ -115,7 +131,10 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
           _buildTableHeader(),
           Expanded(
             child: isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: KnLoadingIndicator(
+                    color: widget.knBgColor,
+                  ))
                 : _buildIncomeList(),
           ),
           _buildBottomSection(),
@@ -132,10 +151,21 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
       ),
       child: const Row(
         children: [
-          Expanded(flex: 1, child: Text('月份', style: TextStyle(fontWeight: FontWeight.bold))),
-          Expanded(flex: 2, child: Text('应收入', style: TextStyle(fontWeight: FontWeight.bold))),
-          Expanded(flex: 2, child: Text('实收入', style: TextStyle(fontWeight: FontWeight.bold))),
-          Expanded(flex: 3, child: Text('平账结果', style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 1,
+              child: Text('月份', style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 2,
+              child:
+                  Text('应收入', style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 2,
+              child:
+                  Text('实收入', style: TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 3,
+              child:
+                  Text('平账结果', style: TextStyle(fontWeight: FontWeight.bold))),
         ],
       ),
     );
@@ -155,17 +185,24 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
             title: Row(
               children: [
                 Expanded(flex: 1, child: Text(item.lsnMonth.substring(5, 7))),
-                Expanded(flex: 2, child: Text(item.shouldPayLsnFee.toStringAsFixed(1))),
-                Expanded(flex: 2, child: Text(item.hasPaidLsnFee.toStringAsFixed(1))),
+                Expanded(
+                    flex: 2,
+                    child: Text(item.shouldPayLsnFee.toStringAsFixed(1))),
+                Expanded(
+                    flex: 2,
+                    child: Text(item.hasPaidLsnFee.toStringAsFixed(1))),
                 Expanded(
                   flex: 3,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('${item.unpaidLsnFee.toStringAsFixed(1)}欠', style: const TextStyle(color: Colors.red)),
+                      Text('${item.unpaidLsnFee.toStringAsFixed(1)}欠',
+                          style: const TextStyle(color: Colors.red)),
                       IconButton(
-                        icon: const Icon(Icons.info_outline, color: Colors.blue),
-                        onPressed: () => _navigateToUnpaidFeesPage(context, item.lsnMonth),
+                        icon:
+                            const Icon(Icons.info_outline, color: Colors.blue),
+                        onPressed: () =>
+                            _navigateToUnpaidFeesPage(context, item.lsnMonth),
                       ),
                     ],
                   ),
@@ -182,14 +219,14 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
     String yearMonth = '$selectedYear-${month.substring(5, 7)}';
     List<String> availableMonths = collectMonths();
     Navigator.push(
-      context, 
+      context,
       MaterialPageRoute(
         builder: (context) => UnpaidFeesPage(
           initialYearMonth: yearMonth,
           availableMonths: availableMonths,
           knBgColor: Constants.lsnfeeThemeColor,
-                                  knFontColor: Colors.white,
-                                  pagePath: "学费月度报告",
+          knFontColor: Colors.white,
+          pagePath: "学费月度报告",
         ),
       ),
     );
@@ -214,15 +251,24 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [const Text('应支付总额：'), Text(totalShouldPay.toStringAsFixed(2))],
+          children: [
+            const Text('应支付总额：'),
+            Text(totalShouldPay.toStringAsFixed(2))
+          ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [const Text('已支付总额：'), Text(totalHasPaid.toStringAsFixed(2))],
+          children: [
+            const Text('已支付总额：'),
+            Text(totalHasPaid.toStringAsFixed(2))
+          ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [const Text('未支付总额：'), Text(totalUnpaid.toStringAsFixed(2))],
+          children: [
+            const Text('未支付总额：'),
+            Text(totalUnpaid.toStringAsFixed(2))
+          ],
         ),
       ],
     );
@@ -237,7 +283,9 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
           color: Colors.lightBlue[100],
           borderRadius: BorderRadius.circular(5),
         ),
-        child: Center(child: Text('$selectedYear年', style: const TextStyle(fontSize: 18))),
+        child: Center(
+            child:
+                Text('$selectedYear年', style: const TextStyle(fontSize: 18))),
       ),
     );
   }
@@ -276,9 +324,13 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
               child: CupertinoPicker(
                 backgroundColor: Colors.white,
                 itemExtent: 40,
-                scrollController: FixedExtentScrollController(initialItem: years.indexOf(selectedYear)),
-                children: years.map((int year) => Center(child: Text('$year年'))).toList(),
-                onSelectedItemChanged: (int index) => setState(() => selectedYear = years[index]),
+                scrollController: FixedExtentScrollController(
+                    initialItem: years.indexOf(selectedYear)),
+                children: years
+                    .map((int year) => Center(child: Text('$year年')))
+                    .toList(),
+                onSelectedItemChanged: (int index) =>
+                    setState(() => selectedYear = years[index]),
               ),
             ),
           ],

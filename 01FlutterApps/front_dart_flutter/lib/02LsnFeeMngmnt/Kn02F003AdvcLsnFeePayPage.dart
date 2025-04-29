@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
+import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
 import 'Kn02F003AdvcLsnFeePayBean.dart';
 
@@ -546,24 +547,9 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
           ),
           // 仅在页面初始化加载时显示的进度指示器
           if (_isLoading)
-            Container(
-              color: Colors.white,
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 20),
-                    Text(
-                      "正在加载数据...",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            Center(
+              // 使用自定的加载器进度条
+              child: KnLoadingIndicator(color: widget.knBgColor), // 使用自定的加载器进度条
             ),
         ]));
   }

@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart' show HapticFeedback;
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import 'AddCourseDialog.dart';
 import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
@@ -942,7 +943,9 @@ class _CalendarPageState extends State<CalendarPage> {
                 // 加载指示器覆盖在时间轴上
                 if (_isLoading)
                   const Center(
-                    child: CircularProgressIndicator(),
+                    // child: CircularProgressIndicator(),
+                    child: KnLoadingIndicator(
+                        color: Constants.lessonThemeColor), // 使用自定的加载器进度条
                   ),
               ],
             ),
