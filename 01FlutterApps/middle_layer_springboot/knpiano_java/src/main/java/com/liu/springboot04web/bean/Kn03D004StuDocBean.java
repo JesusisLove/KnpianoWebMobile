@@ -11,6 +11,7 @@ public class Kn03D004StuDocBean implements KnPianoBean {
     protected String subjectId;
     protected String subjectSubId; // 子科目编号
     protected String stuName;
+    protected String nikName;
     protected String introducer;
     protected String subjectName;
     protected String subjectSubName;// 子科目名称
@@ -43,6 +44,14 @@ public class Kn03D004StuDocBean implements KnPianoBean {
 
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+    
+    public String getNikName() {
+        return nikName;
+    }
+
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
 
     public String getSubjectId() {

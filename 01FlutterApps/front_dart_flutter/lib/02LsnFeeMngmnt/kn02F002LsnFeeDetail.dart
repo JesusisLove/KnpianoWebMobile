@@ -11,6 +11,7 @@ import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F003AdvcLsnFeePayPage.dart';
 import 'Kn02F003LsnPay.dart';
+import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 
 // ignore: must_be_immutable
 class LsnFeeDetail extends StatefulWidget {
@@ -43,6 +44,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
   int stuFeeDetailCount = 0;
   final ValueNotifier<List<Kn02F002FeeBean>> stuFeeDetailNotifier =
       ValueNotifier([]);
+  // 添加一个加载状态变量
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -63,20 +66,38 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
 
   // 该学生已支付和未支付的账单信息
   Future<void> fetchFeeDetails() async {
-    final String apiLsnPaidAndUnpaidDetailUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiStuFeeDetailByYear}/${widget.stuId}/$selectedYear';
-    final responseFeeDetails =
-        await http.get(Uri.parse(apiLsnPaidAndUnpaidDetailUrl));
-    if (responseFeeDetails.statusCode == 200) {
-      final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
-      List<dynamic> stuDocJson = json.decode(decodedBody);
+    // 开始加载时设置加载状态为true
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final String apiLsnPaidAndUnpaidDetailUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiStuFeeDetailByYear}/${widget.stuId}/$selectedYear';
+      final responseFeeDetails =
+          await http.get(Uri.parse(apiLsnPaidAndUnpaidDetailUrl));
+      if (responseFeeDetails.statusCode == 200) {
+        final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
+        List<dynamic> stuDocJson = json.decode(decodedBody);
+        setState(() {
+          stuFeeDetailNotifier.value =
+              stuDocJson.map((json) => Kn02F002FeeBean.fromJson(json)).toList();
+          stuFeeDetailCount = stuFeeDetailNotifier.value.length;
+          // 数据加载完成，设置加载状态为false
+          _isLoading = false;
+        });
+      } else {
+        // 错误处理
+        setState(() {
+          _isLoading = false; // 即使发生错误也要结束加载状态
+        });
+        throw Exception('Failed to load archived students');
+      }
+    } catch (e) {
+      // 错误处理
       setState(() {
-        stuFeeDetailNotifier.value =
-            stuDocJson.map((json) => Kn02F002FeeBean.fromJson(json)).toList();
-        stuFeeDetailCount = stuFeeDetailNotifier.value.length;
+        _isLoading = false; // 确保任何异常情况下都会结束加载状态
       });
-    } else {
-      throw Exception('Failed to load archived students');
+      // 可以在这里添加错误提示逻辑
     }
   }
 
@@ -108,10 +129,9 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                     child:
                         Text('确定', style: TextStyle(color: widget.knFontColor)),
                     onPressed: () {
-                      setState(() {
-                        fetchFeeDetails();
-                      });
                       Navigator.of(context).pop();
+                      // 确定按钮点击后立即调用获取数据方法
+                      fetchFeeDetails();
                     },
                   ),
                 ],
@@ -242,41 +262,43 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             ),
           ),
           Expanded(
-            child: ValueListenableBuilder<List<Kn02F002FeeBean>>(
-              valueListenable: stuFeeDetailNotifier,
-              builder: (context, feeDetailList, child) {
-                if (feeDetailList.isEmpty) {
-                  return const Center(child: Text('No fee details available'));
-                }
-                final months = feeDetailList
-                    .map((detail) => detail.month)
-                    .where((month) => month > 0)
-                    .toSet()
-                    .toList()
-                  ..sort();
+            child: _isLoading
+                ? KnLoadingIndicator(color: widget.knBgColor)
+                : ValueListenableBuilder<List<Kn02F002FeeBean>>(
+                    valueListenable: stuFeeDetailNotifier,
+                    builder: (context, feeDetailList, child) {
+                      // if (feeDetailList.isEmpty) {
+                      //   return const Center(child: Text('No fee details available'));
+                      // }
+                      final months = feeDetailList
+                          .map((detail) => detail.month)
+                          .where((month) => month > 0)
+                          .toSet()
+                          .toList()
+                        ..sort();
 
-                return ListView.builder(
-                  itemCount: months.length,
-                  itemBuilder: (context, index) {
-                    final month = months[index];
-                    final monthData = feeDetailList
-                        .where((detail) => detail.month == month)
-                        .toList();
-                    monthData.first.stuId = widget.stuId;
-                    monthData.first.stuName = widget.stuName;
-                    // 修改：传递fetchFeeDetails函数给MonthLineItem
-                    return MonthLineItem(
-                      month: month,
-                      monthData: monthData,
-                      fetchFeeDetails: fetchFeeDetails,
-                      pagePath: widget.pagePath,
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                    );
-                  },
-                );
-              },
-            ),
+                      return ListView.builder(
+                        itemCount: months.length,
+                        itemBuilder: (context, index) {
+                          final month = months[index];
+                          final monthData = feeDetailList
+                              .where((detail) => detail.month == month)
+                              .toList();
+                          monthData.first.stuId = widget.stuId;
+                          monthData.first.stuName = widget.stuName;
+                          // 修改：传递fetchFeeDetails函数给MonthLineItem
+                          return MonthLineItem(
+                            month: month,
+                            monthData: monthData,
+                            fetchFeeDetails: fetchFeeDetails,
+                            pagePath: widget.pagePath,
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

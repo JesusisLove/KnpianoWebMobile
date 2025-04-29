@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
 import 'Kn01L003LsnExtraBean.dart';
 
@@ -47,6 +48,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   int paidCount = 0;
   int unpaidCount = 0;
   int convertedCount = 0;
+  // 添加加载状态变量
+  bool _isLoading = false;
 
   // 定义颜色常量
   final Map<FilterType, Color> tagColors = {
@@ -82,6 +85,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
     selectedYear = currentYear;
     widget.pagePath = '${widget.pagePath} >> 加课消化管理';
     futureLessons = fetchLessons();
+    // 启动初始数据加载
     _fetchLessonsData();
   }
 
@@ -396,13 +400,20 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   }
 
   Future<void> _fetchLessonsData() async {
+    setState(() {
+      _isLoading = true; // 开始加载，设置状态
+    });
     try {
       final lessons = await fetchLessons();
       setState(() {
         allLessons = lessons;
         updateCounts();
+        _isLoading = false; // 加载完成，更新状态
       });
     } catch (e) {
+      setState(() {
+        _isLoading = false; // 出错时也要更新状态
+      });
       // 处理错误
     }
   }
@@ -640,35 +651,41 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
         addInvisibleRightButton: false,
         currentNavIndex: 0,
       ),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: Container(
-              color: tagBgColors[selectedFilter]!.withOpacity(0.1),
-              child: FutureBuilder<List<Kn01L003LsnExtraBean>>(
-                future: futureLessons,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No data available'));
-                  }
+      body: _isLoading
+          ? KnLoadingIndicator(color: widget.knBgColor) // 使用统一的加载指示器
+          : Column(
+              children: [
+                _buildHeader(),
+                Expanded(
+                  child: Container(
+                    color: tagBgColors[selectedFilter]!.withOpacity(0.1),
+                    child: FutureBuilder<List<Kn01L003LsnExtraBean>>(
+                      future: futureLessons,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text('No data available'));
+                        }
 
-                  final filteredLessons = getFilteredLessons();
-                  return ListView.builder(
-                    itemCount: filteredLessons.length,
-                    itemBuilder: (context, index) =>
-                        _buildLessonCard(filteredLessons[index]),
-                  );
-                },
-              ),
+                        final filteredLessons = getFilteredLessons();
+                        return ListView.builder(
+                          itemCount: filteredLessons.length,
+                          itemBuilder: (context, index) =>
+                              _buildLessonCard(filteredLessons[index]),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 

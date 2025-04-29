@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
 import 'DurationBean.dart';
 
@@ -37,7 +38,9 @@ class StudentDocumentEditPage extends StatefulWidget {
 
 class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
   final String titleName = "学生档案编辑";
-  late Future<void> _initialData;
+  bool _isLoading = false; // 添加加载状态变量
+  bool _isDataLoaded = false; // 数据是否已加载完成
+
   String stuName = '';
   String subjectName = '';
   String subjectSubName = '';
@@ -52,12 +55,48 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
   void initState() {
     super.initState();
     selectedDuration = null; // 确保初始化为 null
-    _initialData = _fetchInitialData();
+    _fetchInitialData();
   }
 
   Future<void> _fetchInitialData() async {
-    await fetchStudentInfo();
-    await fetchDurations();
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    try {
+      await fetchStudentInfo();
+      await fetchDurations();
+      setState(() {
+        _isDataLoaded = true; // 数据加载完成
+      });
+    } catch (e) {
+      print('Error fetching initial data: $e');
+      // 显示错误对话框
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('加载错误'),
+              content: Text('加载数据时发生错误: $e'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // 返回上一页
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+    }
   }
 
   Future<void> fetchStudentInfo() async {
@@ -126,131 +165,141 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         addInvisibleRightButton: false, // 显示Home按钮返回主菜单
         currentNavIndex: 2,
       ),
-      body: FutureBuilder<void>(
-        future: _initialData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    initialValue: stuName,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: '学生姓名',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: subjectName,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: '科目名称',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: subjectSubName,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: '科目级别名称',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: widget.adjustedDate,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: '调整日期',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('科目支付方式'),
-                  Row(
+      body: Stack(
+        children: [
+          // 主要内容
+          _isDataLoaded
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('按月付费'),
-                          value: (payStyle == 1),
-                          groupValue: isMonthlyPayment,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              payStyle = 1;
-                            });
-                          },
+                      TextFormField(
+                        initialValue: stuName,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: '学生姓名',
+                          border: OutlineInputBorder(),
                         ),
                       ),
-                      Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('课时付费'),
-                          value: (payStyle == 0),
-                          groupValue: isMonthlyPayment,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              payStyle = 0;
-                            });
-                          },
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: subjectName,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: '科目名称',
+                          border: OutlineInputBorder(),
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: subjectSubName,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: '科目级别名称',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: widget.adjustedDate,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: '调整日期',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('科目支付方式'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<bool>(
+                              title: const Text('按月付费'),
+                              value: (payStyle == 1),
+                              groupValue: isMonthlyPayment,
+                              onChanged: _isLoading
+                                  ? null // 如果正在加载，禁用交互
+                                  : (bool? value) {
+                                      setState(() {
+                                        payStyle = 1;
+                                      });
+                                    },
+                            ),
+                          ),
+                          Expanded(
+                            child: RadioListTile<bool>(
+                              title: const Text('课时付费'),
+                              value: (payStyle == 0),
+                              groupValue: isMonthlyPayment,
+                              onChanged: _isLoading
+                                  ? null // 如果正在加载，禁用交互
+                                  : (bool? value) {
+                                      setState(() {
+                                        payStyle = 0;
+                                      });
+                                    },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: '课程时长',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: selectedDuration,
+                        items: duration.map((DurationBean durationBean) {
+                          return DropdownMenuItem<int>(
+                            value: durationBean.minutesPerLsn,
+                            child: Text('${durationBean.minutesPerLsn} 分钟'),
+                          );
+                        }).toList(),
+                        onChanged: _isLoading
+                            ? null // 如果正在加载，禁用交互
+                            : (int? newValue) {
+                                setState(() {
+                                  selectedDuration = newValue;
+                                });
+                              },
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: standardPrice.toStringAsFixed(2),
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: '标准价格',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: adjustedPriceController,
+                        decoration: const InputDecoration(
+                          labelText: '调整价格',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        enabled: !_isLoading, // 如果正在加载，禁用交互
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : saveData, // 如果正在加载，禁用按钮
+                        child: const Text('保存'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: '课程时长',
-                      border: OutlineInputBorder(),
-                    ),
-                    value: selectedDuration,
-                    items: duration.map((DurationBean durationBean) {
-                      return DropdownMenuItem<int>(
-                        value: durationBean.minutesPerLsn,
-                        child: Text('${durationBean.minutesPerLsn} 分钟'),
-                      );
-                    }).toList(),
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        selectedDuration = newValue;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: standardPrice.toStringAsFixed(2),
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: '标准价格',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: adjustedPriceController,
-                    decoration: const InputDecoration(
-                      labelText: '调整价格',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: saveData,
-                    child: const Text('保存'),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
+                )
+              : Container(), // 如果数据未加载完成，显示空容器
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+            ),
+        ],
       ),
     );
   }
@@ -308,26 +357,10 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
     };
 
     try {
-      // 显示进度对话框
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: const AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('正在更新学生档案信息...'),
-                ],
-              ),
-            ),
-          );
-        },
-      );
+      // 设置加载状态
+      setState(() {
+        _isLoading = true;
+      });
 
       final response = await http.post(
         Uri.parse('${KnConfig.apiBaseUrl}${Constants.stuDocInfoSave}'),
@@ -337,10 +370,10 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         body: jsonEncode(data),
       );
 
-      // 关闭进度对话框
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      // 重置加载状态
+      setState(() {
+        _isLoading = false;
+      });
 
       if (response.statusCode == 200) {
         showDialog(
@@ -379,10 +412,11 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         );
       }
     } catch (e) {
-      // 关闭进度对话框
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      // 重置加载状态
+      setState(() {
+        _isLoading = false;
+      });
+
       showDialog(
         context: context,
         builder: (BuildContext context) {

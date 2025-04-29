@@ -9,6 +9,7 @@ import '../../02LsnFeeMngmnt/Kn02F002FeeBean.dart';
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
 import 'CalendarPage.dart';
 import 'Kn01L002LsnBean.dart';
@@ -370,10 +371,15 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
             ),
             // 加载指示器
             if (_isLoading)
-              const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                ),
+              Center(
+                // 不要删除，留着学习用
+                // child: CircularProgressIndicator(
+                //   valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                // ),
+
+                // 使用自定的加载器进度条
+                child:
+                    KnLoadingIndicator(color: widget.knBgColor), // 使用自定的加载器进度条
               ),
           ],
         ));

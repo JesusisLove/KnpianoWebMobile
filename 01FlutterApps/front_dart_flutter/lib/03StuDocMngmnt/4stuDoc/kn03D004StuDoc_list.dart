@@ -10,6 +10,7 @@ import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import 'kn03D004StuDoc_Add.dart';
 import 'kn03D004StuDoc_Detial_list.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 
 // ignore: must_be_immutable
 class StudentDocPage extends StatefulWidget {
@@ -23,8 +24,8 @@ class StudentDocPage extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
-  }){
-     subtitle = '$pagePath >> 档案管理';
+  }) {
+    subtitle = '$pagePath >> 档案管理';
   }
 
   @override
@@ -37,6 +38,7 @@ class _StudentDocPageState extends State<StudentDocPage>
   late TabController _tabController;
   int archivedCount = 0;
   int unarchivedCount = 0;
+  bool _isLoading = false; // 添加加载状态变量
 
   // 使用 ValueNotifier 来管理状态
   final ValueNotifier<List<Kn03D004StuDocBean>> stuDocNotifier =
@@ -48,10 +50,33 @@ class _StudentDocPageState extends State<StudentDocPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _fetchStudent(); // 使用统一的数据加载方法
+    // 从DB取得该科目的科目级别信息，做画面初期化
     _fetchStudentData();
   }
 
-  Future<void> _fetchStudentData() async {
+  // 统一的数据加载方法
+  void _fetchStudentData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    _fetchStudent().then((_) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      // ignore: avoid_print
+      print('Error in _fetchStudentData: $error');
+    });
+  }
+
+  Future<void> _fetchStudent() async {
     try {
       // 获取已入档案学生
       final String apiStuDocUrl =
@@ -116,27 +141,38 @@ class _StudentDocPageState extends State<StudentDocPage>
             subtitleFontSize: 12.0,
             addInvisibleRightButton: true,
           ),
-          body: Column(
+          body: Stack(
             children: [
-              if (unDocStudents.isNotEmpty)
-                TabBar(
-                  controller: _tabController,
-                  tabs: [
-                    Tab(text: '已入档案 （$archivedCount人）'),
-                    Tab(text: '未入档案 （$unarchivedCount人）'),
-                  ],
-                ),
-              Expanded(
-                child: unDocStudents.isNotEmpty
-                    ? TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildStudentList(stuDocNotifier),
-                          _buildStudentUnDocList(stuUnDocNotifier),
-                        ],
-                      )
-                    : _buildStudentList(stuDocNotifier),
+              Column(
+                children: [
+                  if (unDocStudents.isNotEmpty)
+                    TabBar(
+                      controller: _tabController,
+                      tabs: [
+                        Tab(text: '已入档案 （$archivedCount人）'),
+                        Tab(text: '未入档案 （$unarchivedCount人）'),
+                      ],
+                    ),
+                  Expanded(
+                    child: unDocStudents.isNotEmpty
+                        ? TabBarView(
+                            controller: _tabController,
+                            children: [
+                              _buildStudentList(stuDocNotifier),
+                              _buildStudentUnDocList(stuUnDocNotifier),
+                            ],
+                          )
+                        : _buildStudentList(stuDocNotifier),
+                  ),
+                ],
               ),
+
+              // 加载指示器层
+              if (_isLoading)
+                Center(
+                  child: KnLoadingIndicator(
+                      color: widget.knBgColor), // 使用自定义的加载器进度条
+                ),
             ],
           ),
         );
@@ -148,8 +184,11 @@ class _StudentDocPageState extends State<StudentDocPage>
     return ValueListenableBuilder<List<Kn03D004StuDocBean>>(
       valueListenable: notifier,
       builder: (context, students, child) {
-        if (students.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+        if (students.isEmpty && !_isLoading) {
+          return const Center(child: Text('没有数据'));
+        }
+        if (students.isEmpty && _isLoading) {
+          return Container(); // 正在加载中，返回空容器
         }
         return ListView.builder(
           itemCount: students.length,
@@ -168,6 +207,7 @@ class _StudentDocPageState extends State<StudentDocPage>
                   const SizedBox(
                       width: 48.0), // 调整 Text 和 PopupMenuButton 之间的间距
                   PopupMenuButton<String>(
+                    enabled: !_isLoading, // 如果正在加载，禁用按钮
                     onSelected: (String result) {
                       switch (result) {
                         case 'detail':
@@ -213,8 +253,11 @@ class _StudentDocPageState extends State<StudentDocPage>
     return ValueListenableBuilder<List<Kn03D004StuDocBean>>(
       valueListenable: notifier,
       builder: (context, students, child) {
-        if (students.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+        if (students.isEmpty && !_isLoading) {
+          return const Center(child: Text('没有数据'));
+        }
+        if (students.isEmpty && _isLoading) {
+          return Container(); // 正在加载中，返回空容器
         }
         return ListView.builder(
           itemCount: students.length,
@@ -226,6 +269,7 @@ class _StudentDocPageState extends State<StudentDocPage>
               ),
               title: Text(student.stuName),
               trailing: PopupMenuButton<String>(
+                enabled: !_isLoading, // 如果正在加载，禁用按钮
                 onSelected: (String result) {
                   switch (result) {
                     case 'addnew':

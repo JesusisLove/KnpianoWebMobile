@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
 import 'customUI/KnAppBar.dart';
+import 'customUI/KnLoadingIndicator.dart';
 import 'pageIdMapping.dart';
 
 class StudentNameMenuCommon extends StatefulWidget {
@@ -144,7 +145,9 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
         bottom: null,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // 加载中显示进度条
+          ? Center(
+              child: KnLoadingIndicator(color: widget.knBgColor), // 使用自定的加载器进度条
+            ) // 加载中显示进度条
           : _buildStudentGrid(), // 加载完成显示网格
     );
   }

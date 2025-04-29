@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
 import 'knstu001_add.dart';
 import 'knstu001_edit.dart';
@@ -30,11 +31,33 @@ class StuEditListState extends State<StuEditList> {
   late Future<List<KnStu001Bean>> futureStudents;
   final String titleName = "学生基本信息一覧";
   late String subtitle;
+  bool _isLoading = false; // 添加加载状态变量
 
   @override
   void initState() {
     super.initState();
-    futureStudents = fetchStudents();
+    _fetchStudentData();
+  }
+
+  // 新的数据加载方法
+  void _fetchStudentData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    futureStudents = fetchStudents().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
   }
 
   // 画面初期化：取得所有学生信息
@@ -84,46 +107,64 @@ class StuEditListState extends State<StuEditList> {
           IconButton(
             icon: const Icon(Icons.add),
             // 新規”➕”按钮的事件处理函数
-            onPressed: () {
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StudentAdd(
-                      knBgColor: Constants.stuDocThemeColor,
-                      knFontColor: Colors.white,
-                      pagePath: subtitle,
-                    ),
-                  )).then((value) {
-                // 检查返回值，如果为true，则重新加载数据
-                if (value == true) {
-                  setState(() {
-                    futureStudents = fetchStudents();
-                  });
-                }
-              });
-            },
+            onPressed: _isLoading
+                ? null // 如果正在加载，禁用按钮
+                : () {
+                    Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentAdd(
+                            knBgColor: Constants.stuDocThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: subtitle,
+                          ),
+                        )).then((value) {
+                      // 检查返回值，如果为true，则重新加载数据
+                      if (value == true) {
+                        setState(() {
+                          // futureStudents = fetchStudents();
+                          _fetchStudentData();
+                        });
+                      }
+                    });
+                  },
           ),
         ],
       ),
-      body: FutureBuilder<List<KnStu001Bean>>(
-        future: futureStudents,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            //加载显示器，就是在转的小圈圈，通知用户数据正在加载中。
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return _buildStudentItem(snapshot.data![index]);
-              },
-            );
-          } else {
-            return const Center(child: Text("No data available"));
-          }
-        },
+      body: Stack(
+        children: [
+          // 原有的FutureBuilder
+          FutureBuilder<List<KnStu001Bean>>(
+            future: futureStudents,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !_isLoading) {
+                // 当连接状态是等待中，但_isLoading为false时不显示任何内容
+                // 因为我们将使用全屏的加载指示器
+                return Container();
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              } else if (snapshot.hasData) {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return _buildStudentItem(snapshot.data![index]);
+                  },
+                );
+              } else {
+                // return const Center(child: Text("No data available"));
+                return const Center(child: Text(""));
+              }
+            },
+          ),
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+            ),
+        ],
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
 import 'Kn03D003BnkBean.dart';
 import 'kn03D003Bank_add_edit.dart';
@@ -33,16 +34,38 @@ class _BankViewPageState extends State<BankViewPage> {
   final String titleName = "银行信息一览";
   late String subtitle;
   late Future<List<Kn03D003BnkBean>> futureBanks;
+  bool _isLoading = false; // 添加加载状态变量
 
   @override
   void initState() {
     super.initState();
-    futureBanks = fetchBanks();
+    _fetchBankData();
   }
 
-  // 画面初期化：取得所有科目信息
-  Future<List<Kn03D003BnkBean>> fetchBanks() async {
-    // 上课管理菜单画面，点击“学生科目管理”按钮的url请求
+  // 统一的数据加载方法
+  void _fetchBankData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    futureBanks = _fetchBanks().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
+  }
+
+  // 画面初期化：取得所有银行信息
+  Future<List<Kn03D003BnkBean>> _fetchBanks() async {
+    // 上课管理菜单画面，点击"学生科目管理"按钮的url请求
     final String apiUrl = '${KnConfig.apiBaseUrl}${Constants.bankView}';
     final response = await http.get(Uri.parse(apiUrl));
 
@@ -81,44 +104,62 @@ class _BankViewPageState extends State<BankViewPage> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
-            // 新規”➕”按钮的事件处理函数
-            onPressed: () {
-              // Navigate to add bank page or handle add operation
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BankAddEdit(
-                            showMode: '新規',
-                            knBgColor: widget.knBgColor,
-                            knFontColor: widget.knFontColor,
-                            pagePath: subtitle,
-                          ))).then((value) => {
-                    setState(() {
-                      futureBanks = fetchBanks();
-                    })
-                  });
-            },
+            // 新規"➕"按钮的事件处理函数
+            onPressed: _isLoading
+                ? null // 如果正在加载，禁用按钮
+                : () {
+                    // Navigate to add bank page or handle add operation
+                    Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BankAddEdit(
+                                  showMode: '新規',
+                                  knBgColor: widget.knBgColor,
+                                  knFontColor: widget.knFontColor,
+                                  pagePath: subtitle,
+                                ))).then((value) => {
+                          if (value == true)
+                            {
+                              _fetchBankData() // 使用统一的加载方法
+                            }
+                        });
+                  },
           ),
         ],
       ),
-      body: FutureBuilder<List<Kn03D003BnkBean>>(
-        future: futureBanks,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return _buildBankItem(snapshot.data![index]);
-              },
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
+      body: Stack(
+        children: [
+          // 原有的FutureBuilder
+          FutureBuilder<List<Kn03D003BnkBean>>(
+            future: futureBanks,
+            builder: (context, snapshot) {
+              if (_isLoading ||
+                  snapshot.connectionState == ConnectionState.waiting) {
+                // 当正在加载或连接状态是等待中时，返回空容器，因为我们有单独的加载指示器
+                return Container();
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (snapshot.hasData) {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return _buildBankItem(snapshot.data![index]);
+                  },
+                );
+              } else {
+                // 在非加载状态下，如果没有数据且没有错误，显示空容器
+                return Container();
+              }
+            },
+          ),
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+            ),
+        ],
       ),
     );
   }
@@ -127,8 +168,6 @@ class _BankViewPageState extends State<BankViewPage> {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(
-          // backgroundImage: NetworkImage(student.imageUrl), // 假设每个学生对象有一个imageUrl字段
-          // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
         ),
         title: Text(bank.bankName),
@@ -139,85 +178,87 @@ class _BankViewPageState extends State<BankViewPage> {
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blue),
               // 编辑按钮的事件处理函数
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BankAddEdit(
-                      bank: bank,
-                      showMode: '編集',
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                      pagePath: subtitle,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureBanks = fetchBanks();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BankAddEdit(
+                            bank: bank,
+                            showMode: '編集',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          _fetchBankData(); // 使用统一的加载方法
+                        }
+                      });
+                    },
             ),
 
             // 删除按钮
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('删除确认'),
-                      content: Text('确定要删除【${bank.bankName}】这门科目吗？'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('取消'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('确定'),
-                          onPressed: () {
-                            deleteBank(bank);
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () async {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('删除确认'),
+                            content: Text('确定要删除【${bank.bankName}】这门科目吗？'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('取消'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('确定'),
+                                onPressed: () {
+                                  deleteBank(bank);
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
             ),
 
             // 追加银行所属学生按钮
             IconButton(
               icon: const Icon(Icons.more_vert, color: Colors.blue),
               // 银行所属学生按钮的事件处理函数
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BankStuPageView(
-                      bankName: bank.bankName,
-                      bankId: bank.bankId,
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                      pagePath: subtitle,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureBanks = fetchBanks();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BankStuPageView(
+                            bankName: bank.bankName,
+                            bankId: bank.bankId,
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          _fetchBankData(); // 使用统一的加载方法
+                        }
+                      });
+                    },
             ),
           ],
         ),
@@ -226,6 +267,10 @@ class _BankViewPageState extends State<BankViewPage> {
   }
 
   deleteBank(Kn03D003BnkBean bank) {
+    setState(() {
+      _isLoading = true; // 开始删除操作前设置为true
+    });
+
     final String apiUrl =
         '${KnConfig.apiBaseUrl}${Constants.stuBankDelete}/${bank.bankId}';
     try {
@@ -235,8 +280,12 @@ class _BankViewPageState extends State<BankViewPage> {
           'Content-Type': 'application/json', // 添加内容类型头
         },
       ).then((response) {
+        setState(() {
+          _isLoading = false; // 操作完成后设置为false
+        });
+
         if (response.statusCode == 200) {
-          reloadData();
+          _fetchBankData(); // 使用统一的加载方法
         } else {
           showDialog(
             context: context,
@@ -254,8 +303,32 @@ class _BankViewPageState extends State<BankViewPage> {
             },
           );
         }
+      }).catchError((error) {
+        setState(() {
+          _isLoading = false; // 出错时也要设置为false
+        });
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('操作异常'),
+              content: Text('发生错误: $error'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
       });
     } catch (e) {
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -274,12 +347,5 @@ class _BankViewPageState extends State<BankViewPage> {
     }
   }
 
-  void reloadData() {
-    // 重新加载数据
-    futureBanks = fetchBanks();
-    // 更新状态以重建UI
-    futureBanks.whenComplete(() {
-      setState(() {});
-    });
-  }
+  // 不再需要reloadData方法，统一使用_fetchBankData
 }

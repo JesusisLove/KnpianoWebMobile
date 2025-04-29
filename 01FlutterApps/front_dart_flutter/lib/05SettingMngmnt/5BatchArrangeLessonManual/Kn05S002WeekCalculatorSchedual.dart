@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // Import the custom loading indicator
 import '../../Constants.dart';
 import 'Kn05S002FixedLsnStatusBean.dart';
 import 'package:intl/intl.dart';
@@ -34,41 +35,52 @@ class _Kn05S002WeekCalculatorSchedualState
     extends State<Kn05S002WeekCalculatorSchedual> {
   final String titleName = '周次排课设置';
   List<Kn05S002FixedLsnStatusBean> staticLsnList = [];
-  bool isLoading = false;
+  bool _isLoading = false; // Changed variable name to match student list page
 
   @override
   void initState() {
     super.initState();
-    fetchWeeklySchedual();
+    _fetchWeeklySchedual(); // Changed to use the new fetch method
   }
 
-  Future<void> fetchWeeklySchedual() async {
+  // New method to handle loading state consistently
+  void _fetchWeeklySchedual() {
     setState(() {
-      isLoading = true;
+      _isLoading = true; // Set loading to true before fetching
     });
-    final String apiUrl =
-        '${KnConfig.apiBaseUrl}${Constants.weeklySchedualDateForOneYear}';
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final decodedBody = utf8.decode(response.bodyBytes);
-        List<dynamic> jsonList = json.decode(decodedBody);
-        setState(() {
-          staticLsnList = jsonList
-              .map((json) => Kn05S002FixedLsnStatusBean.fromJson(json))
-              .toList();
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load weekly schedual');
-      }
-    } catch (e) {
+
+    fetchWeeklySchedual().then((_) {
+      // Data loading is complete
       setState(() {
-        isLoading = false;
+        _isLoading = false; // Set loading to false after fetching
+      });
+    }).catchError((error) {
+      // Error occurred during fetching
+      setState(() {
+        _isLoading = false; // Ensure loading is set to false on error
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('加载数据失败：$e')),
+        SnackBar(content: Text('加载数据失败：$error')),
       );
+    });
+  }
+
+  // Modified to return Future<void> and not handle loading state directly
+  Future<void> fetchWeeklySchedual() async {
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.weeklySchedualDateForOneYear}';
+
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      List<dynamic> jsonList = json.decode(decodedBody);
+      setState(() {
+        staticLsnList = jsonList
+            .map((json) => Kn05S002FixedLsnStatusBean.fromJson(json))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load weekly schedual');
     }
   }
 
@@ -107,7 +119,8 @@ class _Kn05S002WeekCalculatorSchedualState
       Navigator.pop(context); // 关闭进度对话框
 
       if (response.statusCode == 200) {
-        await fetchWeeklySchedual(); // 刷新页面
+        // Use the new fetch method
+        _fetchWeeklySchedual(); // Modified to use new method
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('排课成功！')),
         );
@@ -136,7 +149,7 @@ class _Kn05S002WeekCalculatorSchedualState
       if (response.statusCode == 200) {
         final responseBody = utf8.decode(response.bodyBytes);
         if (responseBody == "ok") {
-          await fetchWeeklySchedual(); // 刷新页面
+          _fetchWeeklySchedual(); // 刷新页面
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('撤销成功！')),
           );
@@ -180,7 +193,7 @@ class _Kn05S002WeekCalculatorSchedualState
     return SizedBox(
       height: 30,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: _isLoading ? null : onPressed, // Disable button when loading
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
@@ -217,11 +230,14 @@ class _Kn05S002WeekCalculatorSchedualState
         actions: [
           PopupMenuButton<String>(
             icon: Icon(Icons.more_horiz, color: widget.knFontColor),
-            onSelected: (String result) {
-              if (result == 'prepay') {
-                print('预支付学费被选中');
-              }
-            },
+            // Disable popup menu button when loading
+            onSelected: _isLoading
+                ? null
+                : (String result) {
+                    if (result == 'prepay') {
+                      print('预支付学费被选中');
+                    }
+                  },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'prepay',
@@ -231,73 +247,86 @@ class _Kn05S002WeekCalculatorSchedualState
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text('周次', textAlign: TextAlign.center)),
-                      Expanded(child: Text('开始日', textAlign: TextAlign.center)),
-                      Expanded(child: Text('结束日', textAlign: TextAlign.center)),
-                      Expanded(child: Text('操作', textAlign: TextAlign.center)),
-                    ],
-                  ),
+      // Modified body to use Stack for overlay loading indicator
+      body: Stack(
+        children: [
+          // Main content
+          Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(child: Text('周次', textAlign: TextAlign.center)),
+                    Expanded(child: Text('开始日', textAlign: TextAlign.center)),
+                    Expanded(child: Text('结束日', textAlign: TextAlign.center)),
+                    Expanded(child: Text('操作', textAlign: TextAlign.center)),
+                  ],
                 ),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: staticLsnList.length,
-                    separatorBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Divider(
-                        color: Colors.grey[300],
-                        height: 1,
-                      ),
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = staticLsnList[index];
-                      return ListTile(
-                        title: Row(
-                          children: [
-                            Expanded(
-                                child: Text(
-                                    '第${item.weekNumber.toString().padLeft(2, '0')}周',
-                                    textAlign: TextAlign.center)),
-                            Expanded(
-                                child: Text(formatDate(item.startWeekDate),
-                                    textAlign: TextAlign.center)),
-                            Expanded(
-                                child: Text(formatDate(item.endWeekDate),
-                                    textAlign: TextAlign.center)),
-                            Expanded(
-                              child: Center(
-                                child: item.fixedStatus == 0
-                                    ? _buildButton(
-                                        '排课',
-                                        Colors.blue,
-                                        () => executeWeeklySchedual(
-                                            item.weekNumber,
-                                            item.startWeekDate,
-                                            item.endWeekDate))
-                                    : _buildButton(
-                                        '撤销',
-                                        Colors.red,
-                                        () => cancelWeeklySchedual(
-                                            item.weekNumber,
-                                            item.startWeekDate,
-                                            item.endWeekDate)),
-                              ),
-                            ),
-                          ],
+              ),
+              Expanded(
+                child: staticLsnList.isEmpty && !_isLoading
+                    ? const Center(child: Text("暂无数据"))
+                    : ListView.separated(
+                        itemCount: staticLsnList.length,
+                        separatorBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Divider(
+                            color: Colors.grey[300],
+                            height: 1,
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                        itemBuilder: (context, index) {
+                          final item = staticLsnList[index];
+                          return ListTile(
+                            title: Row(
+                              children: [
+                                Expanded(
+                                    child: Text(
+                                        '第${item.weekNumber.toString().padLeft(2, '0')}周',
+                                        textAlign: TextAlign.center)),
+                                Expanded(
+                                    child: Text(formatDate(item.startWeekDate),
+                                        textAlign: TextAlign.center)),
+                                Expanded(
+                                    child: Text(formatDate(item.endWeekDate),
+                                        textAlign: TextAlign.center)),
+                                Expanded(
+                                  child: Center(
+                                    child: item.fixedStatus == 0
+                                        ? _buildButton(
+                                            '排课',
+                                            Colors.blue,
+                                            () => executeWeeklySchedual(
+                                                item.weekNumber,
+                                                item.startWeekDate,
+                                                item.endWeekDate))
+                                        : _buildButton(
+                                            '撤销',
+                                            Colors.red,
+                                            () => cancelWeeklySchedual(
+                                                item.weekNumber,
+                                                item.startWeekDate,
+                                                item.endWeekDate)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+
+          // Loading indicator overlay
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
             ),
+        ],
+      ),
     );
   }
 }
