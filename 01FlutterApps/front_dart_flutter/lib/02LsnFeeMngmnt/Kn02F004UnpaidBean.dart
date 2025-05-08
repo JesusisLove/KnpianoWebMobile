@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../CommonProcess/CommonMethod.dart';
+
 class Kn02F004UnpaidBean {
   final String? lsnPayId;
   final String lsnFeeId;
@@ -53,9 +55,12 @@ class Kn02F004UnpaidBean {
     String formattedPayDate = '';
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['schedualDate']);
-        formattedPayDate =
-            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        // DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // formattedPayDate =
+        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['schedualDate']);
+        formattedPayDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
     } catch (e) {
       print('Error parsing or formatting schedualDate: $e');

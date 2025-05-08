@@ -1,6 +1,8 @@
 // ignore: file_names
 import 'package:intl/intl.dart';
 
+import '../../CommonProcess/CommonMethod.dart';
+
 class Kn01L002LsnBean {
   final String lessonId;
   final String stuId;
@@ -52,37 +54,62 @@ class Kn01L002LsnBean {
 
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // formattedSchedualDate =
+        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['schedualDate']);
+
+        // 不再需要toLocal()，因为时区已经在parseServerDate中处理
         formattedSchedualDate =
-            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+        formattedTime = DateFormat('HH:mm').format(parsedDate);
       }
 
       if (json['scanQrDate'] != null && json['scanQrDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['scanQrDate']);
-        formattedScanQrDate =
-            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        // DateTime parsedDate = DateTime.parse(json['scanQrDate']);
+        // formattedScanQrDate =
+        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+
+        DateTime parsedDate = CommonMethod.parseServerDate(json['scanQrDate']);
+        formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
 
       if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
+        // DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
+        // formattedLsnAdjustedDate =
+        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['lsnAdjustedDate']);
         formattedLsnAdjustedDate =
-            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+        formattedTime = DateFormat('HH:mm').format(parsedDate);
       }
 
       if (json['extraToDurDate'] != null && json['extraToDurDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
-        formattedExtraToDurDate =
-            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        // DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
+        // formattedExtraToDurDate =
+        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['extraToDurDate']);
+        formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
 
       if (json['originalSchedualDate'] != null &&
           json['originalSchedualDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
+        // DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
+        // formattedOriginalSchedualDate =
+        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['originalSchedualDate']);
         formattedOriginalSchedualDate =
-            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+        formattedTime = DateFormat('HH:mm').format(parsedDate);
       }
     } catch (e) {
       print('Error parsing or formatting schedualDate: $e');

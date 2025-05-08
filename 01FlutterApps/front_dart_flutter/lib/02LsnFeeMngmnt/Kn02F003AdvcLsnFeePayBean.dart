@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../CommonProcess/CommonMethod.dart';
+
 class Kn02F003AdvcLsnFeePayBean {
   final String lessonId;
   final String lsnFeeId;
@@ -52,9 +54,12 @@ class Kn02F003AdvcLsnFeePayBean {
     String formattedSchedualDate = '';
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // formattedSchedualDate =
+        //     DateFormat('yyyy-MM-dd hh:mm').format(parsedDate.toLocal());
+        DateTime parsedDate = CommonMethod.parseServerDate(json['schedualDate']);
         formattedSchedualDate =
-            DateFormat('yyyy-MM-dd hh:mm').format(parsedDate.toLocal());
+            DateFormat('yyyy-MM-dd hh:mm').format(parsedDate);
       }
     } catch (e) {
       // ignore: avoid_print

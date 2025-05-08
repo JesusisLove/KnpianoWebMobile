@@ -12,12 +12,15 @@ public class Kn02F004UnpaidBean implements KnPianoBean {
     protected String lsnFeeId;
     protected float lsnPay;
     protected String payMonth;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
-    // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
-    timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
-    )
-    @DateTimeFormat(pattern = "yyyy-MM-dd")// 后台维护页面的请求响应处理
+    
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date payDate;
+
     protected String bankId;
     protected Integer delFlg;
     protected Date createDate;
