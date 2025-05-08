@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../CommonProcess/CommonMethod.dart';
+
 class Kn02F002FeeBean {
   final String lsnPayId;
   final String lsnFeeId;
@@ -63,9 +65,12 @@ class Kn02F002FeeBean {
 
     try {
       if (json['payDate'] != null && json['payDate'] != '') {
-        DateTime parsedDate = DateTime.parse(json['payDate']);
+        // DateTime parsedDate = DateTime.parse(json['payDate']);
+        // formattedPayDate =
+        //     DateFormat('yyyy-MM-dd').format(parsedDate);
+        DateTime parsedDate = CommonMethod.parseServerDate(json['payDate']);
         formattedPayDate =
-            DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+            DateFormat('yyyy-MM-dd').format(parsedDate);
       }
     } catch (e) {
       // ignore: avoid_print
