@@ -92,7 +92,7 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "碎课拼凑正课",
+            text: "加课碎片整理",
             onPressed: () {},
             bgcolor: consts.Constants.lessonThemeColor,
           ),

@@ -4,7 +4,7 @@ class CommonMethod {
   static String getWeekday(String dateStr) {
     if (dateStr.isEmpty) return '';
     try {
-      final date = DateTime.parse(dateStr);
+      final date = parseServerDate(dateStr);
       switch (date.weekday) {
         case 1:
           return '(Mon)';
@@ -39,7 +39,21 @@ class CommonMethod {
 
     // 假设服务器发送的是GMT+8时间但没有时区标记
     // 添加+0800时区标记以明确这是新加坡时间
-    String dateWithTimezone = "$dateString +0800";
+
+    /* 解释这里为什么要改成+0000
+    非常非常重要的认识：Docker容器里的时间和Nas系统的时间是两个不同的系统时间，
+    对于KnPiano工程来说，因为knpiano.jar是运行在docker容器里，所以，
+    Knpiano里的代码取得日期是Docker容器的系统时间，而不是Nas的系统时间，
+    这一点一定要明确切记切记
+
+    正因为我把Docker容器的系统时间调整到新加坡的时间，又因为服务器设备也是在新加坡
+    那么，TimeZone的时间差就为0，这就是为什么要改成+0000的原因。
+    另外要说明的一点就是：Docker容器采用的不是GMT，而是UTC
+    我的调查参考文档：https://www.notion.so/Nas-knpiano-jar-1eb1f881c50d800f8bc5ea706b2293f1
+    */
+    // String dateWithTimezone = "$dateString +0800";
+    String dateWithTimezone = "$dateString +0000";
+
     try {
       return DateTime.parse(dateWithTimezone);
     } catch (e) {
