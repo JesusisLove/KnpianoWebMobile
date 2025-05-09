@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
@@ -339,7 +340,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
-                    final paymentDate = DateTime.parse(fee.payDate!);
+                    final paymentDate = CommonMethod.parseServerDate(fee.payDate!);
                     isPaymentToday =
                         DateFormat('yyyy-MM-dd').format(paymentDate) ==
                             DateFormat('yyyy-MM-dd').format(DateTime.now());

@@ -397,7 +397,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
         // 根据最大课时决定图表高度
         double chartHeight =
-            maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 200.0 : 250.0) : 150;
+            maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 250.0 : 200.0) : 150;
 
         // 计算计划课时合计和额外加课合计
         double totalPlanned =
@@ -411,25 +411,40 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                title: Text(
-                  subject,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Row(
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 0), // 减少垂直内边距
+                title: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween, // 使子元素分散对齐（一个在左，一个在右）
                   children: [
+                    // 左侧显示科目名称
                     Text(
-                      '计划课时合计: ${totalPlanned.toStringAsFixed(1)}',
-                      style: const TextStyle(color: Colors.blue),
+                      subject,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 16), // 在两个文本之间添加间距
-                    if (totalExtra > 0)
-                      Text(
-                        '额外加课合计: ${totalExtra.toStringAsFixed(1)}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
+
+                    // 右侧显示合计信息
+                    Row(
+                      mainAxisSize: MainAxisSize.min, // 使Row只占用必要的空间
+                      children: [
+                        Text(
+                          '计划课合计: ${totalPlanned.toStringAsFixed(1)}',
+                          style:
+                              const TextStyle(color: Colors.blue, fontSize: 14),
+                        ),
+                        const SizedBox(width: 8), // 减小间距以节省空间
+                        if (totalExtra > 0)
+                          Text(
+                            '加时课合计: ${totalExtra.toStringAsFixed(1)}',
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 14),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
+                // 移除subtitle，因为我们已经把合计信息放到title中了
               ),
               SizedBox(
                 height: chartHeight, // Chart图的高度
@@ -468,7 +483,32 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                           sideTitles: SideTitles(showTitles: false),
                         ),
                       ),
-                      gridData: const FlGridData(show: true),
+                      // gridData: const FlGridData(show: true),
+                      // 修改网格线样式从虚线为点线
+                      gridData: FlGridData(
+                        show: true,
+                        // 注释掉原来的默认虚线设置
+                        // drawVerticalLine: true,
+                        // drawHorizontalLine: true,
+
+                        // 添加新的点线样式设置
+                        horizontalInterval: 1,
+                        verticalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.black.withOpacity(0.3),
+                            strokeWidth: 0.3,
+                            // dashArray: [2, 4], // 这里设置点线样式：2像素绘制，4像素空白
+                          );
+                        },
+                        getDrawingVerticalLine: (value) {
+                          return FlLine(
+                            color: Colors.black.withOpacity(0.3),
+                            strokeWidth: 0.3,
+                            // dashArray: [2, 4], // 这里设置点线样式：2像素绘制，4像素空白
+                          );
+                        },
+                      ),
                       borderData: FlBorderData(show: true),
                     ),
                   ),
@@ -721,12 +761,14 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   }
 
   double _getMaxLessonCount(List<LessonCount> lessonCounts) {
-    double maxCount = 0;
+    double maxValue = 0;
     for (var count in lessonCounts) {
-      double total = count.monthRegular + count.monthPlan + count.monthExtra;
-      if (total > maxCount) maxCount = total;
+      // 检查每个对象的三个属性
+      if (count.monthRegular > maxValue) maxValue = count.monthRegular;
+      if (count.monthPlan > maxValue) maxValue = count.monthPlan;
+      if (count.monthExtra > maxValue) maxValue = count.monthExtra;
     }
-    return maxCount;
+    return maxValue;
   }
 
   List<LineChartBarData> _generateLineBarsData(List<LessonCount> lessonCounts) {
@@ -799,10 +841,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   // 计算Y轴最大值的方法
   double _calculateMaxY(List<LessonCount> lessonCounts) {
     double maxY = 0;
+
+    // 找出所有值中的最大值（不累加，而是分别比较）
     for (var count in lessonCounts) {
-      double total = count.monthRegular + count.monthPlan + count.monthExtra;
-      if (total > maxY) maxY = total;
+      // 检查各个值，找出最大值
+      if (count.monthRegular > maxY) maxY = count.monthRegular;
+      if (count.monthPlan > maxY) maxY = count.monthPlan;
+      if (count.monthExtra > maxY) maxY = count.monthExtra;
     }
+
+    // 向上取整，确保有足够空间显示最大值
     return maxY.ceilToDouble();
   }
 
