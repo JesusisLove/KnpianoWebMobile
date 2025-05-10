@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../ApiConfig/KnApiConfig.dart';
-import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // Import the custom loading indicator
 import '../../Constants.dart';
@@ -186,7 +185,7 @@ class _Kn05S002WeekCalculatorSchedualState
   }
 
   String formatDate(String date) {
-    final DateTime dateTime = CommonMethod.parseServerDate(date);
+    final DateTime dateTime = DateTime.parse(date);
     return DateFormat('MM-dd').format(dateTime);
   }
 
