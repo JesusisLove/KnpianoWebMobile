@@ -19,8 +19,8 @@ class Kn05S002FixedLsnStatusBean {
     final dateFormat = DateFormat('yyyy-MM-dd');
     return Kn05S002FixedLsnStatusBean(
       weekNumber      : json['weekNumber'],
-      startWeekDate   : dateFormat.format(CommonMethod.parseServerDate(json['startWeekDate'])),
-      endWeekDate     : dateFormat.format(CommonMethod.parseServerDate(json['endWeekDate'])),
+      startWeekDate   : dateFormat.format(DateTime.parse(json['startWeekDate'])),
+      endWeekDate     : dateFormat.format(DateTime.parse(json['endWeekDate'])),
       fixedStatus     : json['fixedStatus'],
     );
   }
