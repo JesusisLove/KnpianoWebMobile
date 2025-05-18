@@ -62,4 +62,5 @@ mybatis:
 # 测试环境：https://test.yourwebsite.com
 # 生产环境：https://www.yourwebsite.com
 cors:
-  allowed-origin: http://10.8.0.6:8080
+  allowed-origin: http://192.168.50.101:8080
+  # allowed-origin: http://10.8.0.6:8080
