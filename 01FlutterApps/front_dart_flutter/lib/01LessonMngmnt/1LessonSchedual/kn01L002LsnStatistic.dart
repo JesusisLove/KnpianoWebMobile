@@ -460,11 +460,30 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
+                            interval: 1,
                             getTitlesWidget: (double value, TitleMeta meta) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text('${value.toInt() + 1}月'),
-                              );
+                              const months = [
+                                '1月',
+                                '2月',
+                                '3月',
+                                '4月',
+                                '5月',
+                                '6月',
+                                '7月',
+                                '8月',
+                                '9月',
+                                '10月',
+                                '11月',
+                                '12月'
+                              ];
+                              int index = value.toInt();
+                              if (index >= 0 && index < months.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(months[index]),
+                                );
+                              }
+                              return const SizedBox.shrink();
                             },
                             reservedSize: 40,
                           ),

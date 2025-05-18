@@ -158,8 +158,8 @@ public class Kn01L002ExtraToScheDao {
         // 从③那里取得的targetLsnMonth，去学生档案表里查找，该月份学生正在学习科目中的哪个一阶段的子科目以及该子科目的价格
         Kn03D004StuDocBean toScheDocInfo = kn01l002ExtraToScheMapper.getToScheDocumentInfo(studentId, subjectId,
                 targetLsnMonth);
-        // ④-3:toScheSubjectPrice的设置
-        tblBean.setToScheLsnFee(toScheDocInfo.getLessonFee());
+        // ④-3:toScheSubjectPrice的设置(调课价格优先)
+        tblBean.setToScheLsnFee(toScheDocInfo.getLessonFeeAdjusted() > 0 ? toScheDocInfo.getLessonFeeAdjusted() : toScheDocInfo.getLessonFee());
 
         // ④-4:toScheSubjectSubId的设置
         tblBean.setToScheSubjectSubId(toScheDocInfo.getSubjectSubId());
