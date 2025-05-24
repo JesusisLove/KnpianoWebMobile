@@ -43,6 +43,65 @@
         .action-column {
             display: table-cell !important;
         }
+
+        /* 撤销控制开关样式 */
+        .undo-control-toggle {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            margin: 0 5px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-label {
+            font-size: 11px;
+            color: #666;
+        }
     </style>
 </head>
 
@@ -125,7 +184,17 @@
                         <th class="col-actualMemo">备注</th>
                         <th class="col-createDate">作成日</th>
                         <th class="col-updateDate">更新日</th>
-                        <th class="action-column">操作</th>
+                        <th class="action-column">
+                            操作
+                            <div class="undo-control-toggle">
+                                <span class="toggle-label">撤销控制:</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" th:id="'undoControlToggle_' + ${stuid}" checked onchange="toggleUndoControl()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" th:id="'undoToggleStatus_' + ${stuid}">ON</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,8 +235,10 @@
                                 th:disabled="${!info.isUsableDelete}">削除</button>
                             <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
                                 th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
-                            <a class="btn btn-sm btn-danger" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
-                                th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" th:method="GET">撤销</a>
+                            <a class="btn btn-sm btn-danger undo-btn" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
+                                th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
+                                th:method="GET"
+                                th:attr="data-original-disabled=${!info.isUsableCancel}">撤销</a>
                         </td>
                     </tr>
                 </tbody>
@@ -183,6 +254,9 @@
         <script th:inline="javascript">
             // 存储列显示状态
             var columnStates = JSON.parse(localStorage.getItem('columnStates') || '{}');
+            
+            // 存储撤销控制状态 - 全局状态，所有Tab共享
+            var undoControlEnabled = JSON.parse(localStorage.getItem('undoControlEnabled') || 'true');
 
             // 控制列显示菜单的显示/隐藏
             function toggleColumnMenu(event) {
@@ -213,6 +287,55 @@
                 });
             }
 
+            // 撤销控制开关处理函数 - 全局函数，任何Tab都可以调用
+            function toggleUndoControl() {
+                // 切换全局状态
+                undoControlEnabled = !undoControlEnabled;
+                
+                // 保存状态到本地存储
+                localStorage.setItem('undoControlEnabled', JSON.stringify(undoControlEnabled));
+                
+                // 同步所有Tab中的开关状态和按钮状态
+                syncAllTabsUndoControl();
+            }
+
+            // 同步所有Tab中的撤销控制状态
+            function syncAllTabsUndoControl() {
+                // 更新所有Tab中的开关状态显示
+                const allToggles = document.querySelectorAll('[id^="undoControlToggle_"]');
+                const allStatuses = document.querySelectorAll('[id^="undoToggleStatus_"]');
+                
+                allToggles.forEach(toggle => {
+                    toggle.checked = undoControlEnabled;
+                });
+                
+                allStatuses.forEach(status => {
+                    status.textContent = undoControlEnabled ? 'ON' : 'OFF';
+                });
+                
+                // 更新所有Tab中的撤销按钮状态
+                updateAllUndoButtons();
+            }
+
+            // 更新所有撤销按钮状态
+            function updateAllUndoButtons() {
+                const allUndoButtons = document.querySelectorAll('.undo-btn');
+                allUndoButtons.forEach(button => {
+                    if (undoControlEnabled) {
+                        // ON状态：恢复原有的控制逻辑
+                        const originalDisabled = button.getAttribute('data-original-disabled') === 'true';
+                        if (originalDisabled) {
+                            button.classList.add('disabled');
+                        } else {
+                            button.classList.remove('disabled');
+                        }
+                    } else {
+                        // OFF状态：所有按钮都可用
+                        button.classList.remove('disabled');
+                    }
+                });
+            }
+
             // 应用保存的列状态
             function applyColumnStates() {
                 Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
@@ -229,23 +352,121 @@
                 });
             }
 
+            // 初始化新Tab的撤销控制状态
+            function initializeTabUndoControl(tabElement) {
+                const toggle = tabElement.querySelector('[id^="undoControlToggle_"]');
+                const status = tabElement.querySelector('[id^="undoToggleStatus_"]');
+                
+                if (toggle && status) {
+                    toggle.checked = undoControlEnabled;
+                    status.textContent = undoControlEnabled ? 'ON' : 'OFF';
+                }
+                
+                // 初始化该Tab中的撤销按钮状态
+                const undoButtons = tabElement.querySelectorAll('.undo-btn');
+                undoButtons.forEach(button => {
+                    if (undoControlEnabled) {
+                        const originalDisabled = button.getAttribute('data-original-disabled') === 'true';
+                        if (originalDisabled) {
+                            button.classList.add('disabled');
+                        } else {
+                            button.classList.remove('disabled');
+                        }
+                    } else {
+                        button.classList.remove('disabled');
+                    }
+                });
+            }
+
+            // 应用撤销控制状态到所有现有Tab
+            function applyUndoControlState() {
+                // 从localStorage获取保存的状态
+                undoControlEnabled = JSON.parse(localStorage.getItem('undoControlEnabled') || 'true');
+                
+                // 同步所有Tab
+                syncAllTabsUndoControl();
+            }
+
             // 点击其他地方关闭菜单
             document.addEventListener('click', function (event) {
                 const menu = document.getElementById('columnMenu');
-                if (!event.target.closest('.column-control')) {
+                if (menu && !event.target.closest('.column-control')) {
                     menu.classList.remove('show');
                 }
             });
 
-            // 页面加载时初始化列状态
+            // 页面加载时初始化
             document.addEventListener('DOMContentLoaded', function () {
                 applyColumnStates();
+                applyUndoControlState();
             });
 
-            // 监听Tab切换事件
-            document.addEventListener('shown.bs.tab', function () {
+            // 监听Tab切换事件（Bootstrap）
+            document.addEventListener('shown.bs.tab', function (event) {
                 applyColumnStates();
+                applyUndoControlState();
             });
+
+            // 监听Tab内容变化（适用于动态加载）
+            if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver(function(mutations) {
+                    let hasNewTabs = false;
+                    
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            // 检查是否有新的Tab内容被添加
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) {
+                                    // 检查是否包含Tab面板
+                                    if (node.classList && node.classList.contains('tab-pane')) {
+                                        hasNewTabs = true;
+                                        initializeTabUndoControl(node);
+                                    }
+                                    // 检查子元素中是否有Tab面板
+                                    const tabPanes = node.querySelectorAll && node.querySelectorAll('.tab-pane');
+                                    if (tabPanes && tabPanes.length > 0) {
+                                        hasNewTabs = true;
+                                        tabPanes.forEach(tabPane => {
+                                            initializeTabUndoControl(tabPane);
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    
+                    if (hasNewTabs) {
+                        // 延迟应用状态，确保DOM完全加载
+                        setTimeout(function() {
+                            applyColumnStates();
+                            applyUndoControlState();
+                        }, 100);
+                    }
+                });
+
+                // 开始观察整个文档的变化
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            // 定期检查并同步状态（备用方案）
+            setInterval(function() {
+                // 检查是否有新的撤销控制开关没有正确初始化
+                const allToggles = document.querySelectorAll('[id^="undoControlToggle_"]');
+                let needSync = false;
+                
+                allToggles.forEach(toggle => {
+                    if (toggle.checked !== undoControlEnabled) {
+                        needSync = true;
+                    }
+                });
+                
+                if (needSync) {
+                    syncAllTabsUndoControl();
+                }
+            }, 2000); // 每2秒检查一次
         </script>
     </div>
 </body>
