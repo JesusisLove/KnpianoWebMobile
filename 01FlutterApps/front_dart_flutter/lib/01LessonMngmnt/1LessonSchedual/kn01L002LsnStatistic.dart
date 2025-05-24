@@ -43,7 +43,8 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   Map<String, List<LessonCount>> subjectsScanedLsnData = {};
   final String titleName = '课程进度统计';
   bool _isLoading = false; // 添加加载状态变量
-
+  int _selectedMonthIndex =
+      DateTime.now().month - 1; // 状态变量来跟踪当前选中的月份，好根据该月份的课程数量计算高度。
   // 选择年份相关变量
   late List<int> _years;
   late int _selectedYear;
@@ -76,8 +77,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
     try {
       // 已上完课的结果集取得
+      // 上课完了统计Tab页的Chart图的数据源
       final String apiLsnSignedStatisticUrl =
           '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+      // 还未上课统计Tab页的未上课的数据源
       final String apiLsnUnScanedStatisticUrl =
           '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
 
@@ -128,7 +131,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     }
   }
 
-  // 新增：获取课程详细信息的方法
+  // 新增：获取课程详细信息的方法（Tab明细部的数据源）
   Future<void> _fetchScanedLsnDetails() async {
     final String apiLsnScanedLsnStatisticUrl =
         '${KnConfig.apiBaseUrl}${Constants.apiLsnScanedLsnStatistic}/${widget.stuId}/$_selectedYear';
@@ -544,30 +547,93 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
   Widget _buildMonthlyTabs(String subject) {
     List<int> months = List.generate(12, (index) => index + 1);
-    return DefaultTabController(
-      length: months.length,
-      // 修改：初始化Tab时设置当前月份为默认选中
-      initialIndex: DateTime.now().month - 1,
-      child: Column(
-        children: [
-          TabBar(
-            isScrollable: true,
-            tabs: months.map((month) => Tab(text: '$month月')).toList(),
-            labelColor: Colors.green, // 选中Tab的文字颜色
-            unselectedLabelColor: Colors.black54, // 未选中Tab的文字颜色
-            indicatorColor: Colors.green, // 指示器颜色
+
+    return StatefulBuilder(
+      builder: (context, setTabState) {
+        return DefaultTabController(
+          length: months.length,
+          initialIndex: DateTime.now().month - 1,
+          child: Builder(
+            builder: (context) {
+              final TabController tabController =
+                  DefaultTabController.of(context);
+
+              // 监听Tab切换
+              tabController.addListener(() {
+                if (!tabController.indexIsChanging) {
+                  setTabState(() {
+                    _selectedMonthIndex = tabController.index;
+                  });
+                }
+              });
+
+              return Column(
+                children: [
+                  TabBar(
+                    isScrollable: true,
+                    tabs: months.map((month) => Tab(text: '$month月')).toList(),
+                    labelColor: Colors.green,
+                    unselectedLabelColor: Colors.black54,
+                    indicatorColor: Colors.green,
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100), // 添加动画效果
+                    height: _calculateTabViewHeight(
+                        subject, _selectedMonthIndex + 1),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.yellow[100], // 淡黄色背景
+                      ),
+                      child: TabBarView(
+                        children: months
+                            .map((month) => _buildMonthTab(subject, month))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-          SizedBox(
-            height: 200, // 调整高度以适应内容
-            child: TabBarView(
-              children: months
-                  .map((month) => _buildMonthTab(subject, month))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  double _calculateTabViewHeight(String subject, int month) {
+    // 获取该月份的课程数量
+    List<Kn01L002LsnBean> monthLessons =
+        staticScanedLsnDetailsList.where((lesson) {
+      if (lesson.subjectName != subject) return false;
+      int schedualMonth = int.parse(lesson.schedualDate.substring(5, 7));
+      int adjustedMonth = lesson.lsnAdjustedDate.isNotEmpty
+          ? int.parse(lesson.lsnAdjustedDate.substring(5, 7))
+          : schedualMonth;
+      return schedualMonth == month || adjustedMonth == month;
+    }).toList();
+
+    int lessonCount = monthLessons.length;
+
+    if (lessonCount == 0) {
+      return 0.0;
+    }
+
+    // 精确计算每个Card组件的高度
+    // Card margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8) = 上下8px
+    // Card padding: EdgeInsets.all(8) = 16px
+    // CircleAvatar: 默认radius 20 = 40px高度
+    // 文字行高: 大约20px
+    // Row的crossAxisAlignment.start + SizedBox(width: 16)
+
+    double singleCardHeight = 8 + // Card的上下margin
+        16 + // Card的上下padding
+        40 + // 主要内容高度（CircleAvatar或文字的最大高度）
+        0; // 其他间距
+
+    double totalContentHeight = lessonCount * singleCardHeight;
+
+    // 可以添加一点缓冲，避免内容被截断
+    return totalContentHeight + 4; // 只加4px的小缓冲
   }
 
   // 新增：构建单个月份Tab的内容
@@ -584,6 +650,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     return ListView.builder(
       itemCount: monthLessons.length,
       itemBuilder: (context, index) {
+        // 显示每个月上完课的详细信息
         return _buildLessonItem(monthLessons[index], month);
       },
     );
