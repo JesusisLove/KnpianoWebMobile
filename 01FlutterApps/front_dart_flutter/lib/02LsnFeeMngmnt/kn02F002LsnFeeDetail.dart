@@ -1,4 +1,3 @@
-// ignore: file_names
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
@@ -345,6 +344,7 @@ class MonthLineItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: knBgColor.withOpacity(0.1),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(4)),
@@ -485,8 +485,7 @@ class MonthLineItem extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            if (item.bankName != null &&
-                                item.bankName!.isNotEmpty)
+                            if (item.bankName.isNotEmpty)
                               Text(
                                 '银行名称: ${item.bankName}',
                                 style: const TextStyle(
