@@ -176,8 +176,9 @@
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-bar"></i> 学生上课进度统计
+                            <a class="nav-link" href="#" th:href="@{/kn_lsn_counting}"
+                                th:class="${activeUri == 'kn_lsn_counting_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-chart-bar"></i> 学生课时进度统计
                             </a>
                         </li>
                         <li>
