@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '04IntegratMngmnt/Kn04I003LsnCounting.dart';
 import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
@@ -268,8 +269,17 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.calendar_month,
-            text: "年度课程汇总",
-            onPressed: () {},
+            text: "课时统计查看",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Kn04I003LsnCounting(
+                            knBgColor: consts.Constants.ingergThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "学费管理",
+                          )));
+            },
             bgcolor: consts.Constants.ingergThemeColor,
           ),
           const SizedBox(
