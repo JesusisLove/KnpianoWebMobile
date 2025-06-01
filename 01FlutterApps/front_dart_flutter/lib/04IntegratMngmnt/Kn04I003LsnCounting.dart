@@ -466,7 +466,8 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                   width: double.infinity, // ← 在这里！
                   height: 8,
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    // color: Colors.grey[200],
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
