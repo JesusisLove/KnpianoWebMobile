@@ -356,9 +356,12 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 第一行：学生姓名、科目、总计、完成度
             Row(
               children: [
+                // 学生姓名
                 Expanded(
+                  flex: 2,
                   child: Text(
                     item.stuName,
                     style: const TextStyle(
@@ -368,6 +371,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                     ),
                   ),
                 ),
+                // 科目标签
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -384,39 +388,38 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (item.totalLsnCnt0 > 0)
-              _buildLessonBar('时费课', item.totalLsnCnt0, Colors.green),
-            if (item.totalLsnCnt1 > 0)
-              _buildLessonBar('计划课', item.totalLsnCnt1, Colors.blue),
-            if (item.totalLsnCnt2 > 0)
-              _buildLessonBar('加时课', item.totalLsnCnt2, Colors.pink),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const SizedBox(width: 8),
+                // 总计
                 Text(
                   '总计: ${item.totalLessons.toStringAsFixed(1)}节',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                 ),
+                const SizedBox(width: 8),
+                // 完成度
                 Text(
                   '完成度: ${((item.totalLsnCnt1 / maxLessons) * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: item.totalLsnCnt1 >= maxLessons // 只判断计划课
+                    color: item.totalLsnCnt1 >= maxLessons
                         ? Colors.green
                         : Colors.orange,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            // 课程进度条
+            if (item.totalLsnCnt0 > 0)
+              _buildLessonBar('时费课', item.totalLsnCnt0, Colors.green),
+            if (item.totalLsnCnt1 > 0)
+              _buildLessonBar('计划课', item.totalLsnCnt1, Colors.blue),
+            if (item.totalLsnCnt2 > 0)
+              _buildLessonBar('加时课', item.totalLsnCnt2, Colors.pink),
           ],
         ),
       ),
@@ -453,21 +456,33 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             ],
           ),
           const SizedBox(height: 4),
+          // 分层进度条容器
           Container(
             height: 8,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: barWidth,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(4),
+            child: Stack(
+              children: [
+                // 底层：灰色进度条（固定长度，代表满额43节课）
+                Container(
+                  width: double.infinity, // ← 在这里！
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
-              ),
+                // 上层：彩色进度条
+                FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: barWidth,
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -486,19 +501,26 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             Container(
               height: 50,
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: widget.knBgColor, // 添加背景颜色
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
-                    child: const Text('取消'),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(color: Colors.white), // 白色文字
+                    ),
                   ),
                   const Text(
                     '选择年度',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      color: Colors.white, // 白色文字
                     ),
                   ),
                   CupertinoButton(
@@ -508,7 +530,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                       searchWithFilters();
                     },
                     padding: EdgeInsets.zero,
-                    child: const Text('确定'),
+                    child: const Text(
+                      '确定',
+                      style: TextStyle(color: Colors.white), // 白色文字
+                    ),
                   ),
                 ],
               ),
@@ -545,19 +570,26 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             Container(
               height: 50,
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: widget.knBgColor, // 添加背景颜色
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
-                    child: const Text('取消'),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(color: Colors.white), // 白色文字
+                    ),
                   ),
                   Text(
                     isFromMonth ? '选择开始月份' : '选择结束月份',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      color: Colors.white, // 白色文字
                     ),
                   ),
                   CupertinoButton(
@@ -567,7 +599,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                       searchWithFilters();
                     },
                     padding: EdgeInsets.zero,
-                    child: const Text('确定'),
+                    child: const Text(
+                      '确定',
+                      style: TextStyle(color: Colors.white), // 白色文字
+                    ),
                   ),
                 ],
               ),
