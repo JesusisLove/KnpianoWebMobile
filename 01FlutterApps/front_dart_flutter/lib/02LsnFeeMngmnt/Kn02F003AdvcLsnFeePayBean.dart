@@ -1,7 +1,5 @@
 import 'package:intl/intl.dart';
 
-import '../CommonProcess/CommonMethod.dart';
-
 class Kn02F003AdvcLsnFeePayBean {
   final String lessonId;
   final String lsnFeeId;
