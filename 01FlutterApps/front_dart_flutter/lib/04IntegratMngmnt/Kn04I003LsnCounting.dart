@@ -182,7 +182,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: false,
-        currentNavIndex: 1,
+        currentNavIndex: 3,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
       ),
@@ -225,7 +225,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
               Expanded(
                 child: _buildFilterItem(
                   '统计年度',
-                  '${selectedYear}年',
+                  '$selectedYear年',
                   () => _showYearPicker(context),
                 ),
               ),
@@ -294,7 +294,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildLegendItem('按课时收费', Colors.green),
+          _buildLegendItem('课时课', Colors.green),
           _buildLegendItem('计划课', Colors.blue),
           _buildLegendItem('加时课', Colors.pink),
         ],
@@ -388,7 +388,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             ),
             const SizedBox(height: 12),
             if (item.totalLsnCnt0 > 0)
-              _buildLessonBar('按课时收费', item.totalLsnCnt0, Colors.green),
+              _buildLessonBar('时费课', item.totalLsnCnt0, Colors.green),
             if (item.totalLsnCnt1 > 0)
               _buildLessonBar('计划课', item.totalLsnCnt1, Colors.blue),
             if (item.totalLsnCnt2 > 0)
@@ -406,11 +406,11 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                   ),
                 ),
                 Text(
-                  '完成度: ${((item.totalLessons / maxLessons) * 100).toStringAsFixed(1)}%',
+                  '完成度: ${((item.totalLsnCnt1 / maxLessons) * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: item.totalLessons >= maxLessons
+                    color: item.totalLsnCnt1 >= maxLessons // 只判断计划课
                         ? Colors.green
                         : Colors.orange,
                   ),
