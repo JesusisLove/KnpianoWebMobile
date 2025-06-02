@@ -295,7 +295,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildLegendItem('课时课', Colors.green),
-          _buildLegendItem('计划课', Colors.blue),
+          _buildLegendItem('计划课', widget.knBgColor),
           _buildLegendItem('加时课', Colors.pink),
         ],
       ),
@@ -407,7 +407,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                     fontWeight: FontWeight.w600,
                     color: item.totalLsnCnt1 >= maxLessons
                         ? Colors.green
-                        : Colors.orange,
+                        : widget.knBgColor,
                   ),
                 ),
               ],
@@ -417,7 +417,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             if (item.totalLsnCnt0 > 0)
               _buildLessonBar('时费课', item.totalLsnCnt0, Colors.green),
             if (item.totalLsnCnt1 > 0)
-              _buildLessonBar('计划课', item.totalLsnCnt1, Colors.blue),
+              _buildLessonBar('计划课', item.totalLsnCnt1, widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
               _buildLessonBar('加时课', item.totalLsnCnt2, Colors.pink),
           ],
