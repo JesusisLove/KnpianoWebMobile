@@ -124,9 +124,9 @@
     <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
         <div class="row">
-            <div th:replace="~{commons/bar::sidebar(activeUri='kn_pieses_into_one_link_active')}"></div>
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_pieses_hasbeen_sche_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">碎课拼接整课</h2>
+                <h2 class="mt-4 mb-2">碎课已换成正课</h2>
 
                 <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
                 <div class="business-description mb-4">
@@ -156,7 +156,7 @@
                 </div>
                 
                 <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_pieses_into_one/search}" th:object="${searchForm}" method="get">
+                <form action="#" th:action="@{/kn_pieses_hasbeen_sche/search}" th:object="${searchForm}" method="get">
                     <div class="form-row align-items-end">
                         <div class="form-group col-md-1">
                             <label>年度</label>
@@ -212,7 +212,7 @@
                         }
                     </style>
                     
-                    <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <div class="form-group" th:if="${infoListPicesExtra == null || #lists.isEmpty(infoListPicesExtra)}">
                         <p class="no-info-message">目前没有学生零碎的课程信息！</p>
                     </div>
                 </form>
@@ -232,7 +232,7 @@
                         th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
                         th:aria-labelledby="${entry.key + '-tab'}">
                         <div
-                            th:replace="kn_lsn_extra_pieses_into_one/tab_pieces_by_stu :: lessonTable(${entry.key}, ${entry.value})">
+                            th:replace="kn_lsn_extra_pis_hsbn_sche/tab_pis_hsbn_sche_by_stu :: lessonTable(${entry.key}, ${entry.value})">
                         </div>
                     </div>
                 </div>

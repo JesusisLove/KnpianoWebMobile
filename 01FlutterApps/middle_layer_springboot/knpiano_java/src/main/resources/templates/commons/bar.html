@@ -104,6 +104,12 @@
                             </a>
                         </li>
                         <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_pieses_hasbeen_sche}"
+                                th:class="${activeUri}=='kn_pieses_hasbeen_sche_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 碎课已成正课
+                            </a>
+                        </li>
+                        <li>
                             <a class="nav-link" href="#" th:href="@{/kn_err_lsn_watch}"
                                 th:class="${activeUri == 'kn_err_lsn_watch_link_active'} ? 'nav-link active' : 'nav-link'">
                                 <i class="fas fa-database"></i> 监视排课异常数据
