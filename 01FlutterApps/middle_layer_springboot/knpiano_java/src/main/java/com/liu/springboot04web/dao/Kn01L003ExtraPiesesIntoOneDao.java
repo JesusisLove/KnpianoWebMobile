@@ -39,12 +39,20 @@ public class Kn01L003ExtraPiesesIntoOneDao {
         return kn01L003ExtraPiesesIntoOneMapper.getExtraPiesesLsnList(year, stuId);
     }
 
-
-    // 年度，学生姓名的联动变化
+    // WEB页面：年度，学生姓名的联动变化
     public List<Kn01L003ExtraPicesesBean> getSearchInfo4Stu(String year) {
         return kn01L003ExtraPiesesIntoOneMapper.getSearchInfo4Stu(year);
     }
 
+    // 手机设备：学生名单显示在学生在课一览画面上
+    public List<Kn03D004StuDocBean> getStuName4Mobile(String year) {
+        return kn01L003ExtraPiesesIntoOneMapper.getStuName4Mobile(year);
+    }
+
+    // 手机设备：获取有零碎加课的学生正在上课的各科价格
+    public List<Kn03D004StuDocBean> getLatestPrice4Mobile(String year, String stuId) {
+        return kn01L003ExtraPiesesIntoOneMapper.getLatestLsnPriceInfo4Mobile(year, stuId);
+    }
 
     // 执行拼凑完成的加课换正课
     public void excutePicesesIntoOneAndChangeToSche(Kn01L002LsnBean knLsn001Bean) {
@@ -83,7 +91,6 @@ public class Kn01L003ExtraPiesesIntoOneDao {
         addNewLsnFee(knLsn001Bean);
 
     }
-
 
     // 将该签到课程新规登录到《课费管理表》里
     private void addNewLsnFee(Kn01L002LsnBean knLsn001Bean) {

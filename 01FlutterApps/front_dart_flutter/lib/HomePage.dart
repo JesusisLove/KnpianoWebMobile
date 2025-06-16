@@ -93,8 +93,21 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "加课碎片整理",
-            onPressed: () {},
+            text: "碎课拼成整课",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: consts.Constants.lessonThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "碎课拼成整课>>在课学生一览",
+                            pageId: Constants.kn01L003ExtraPiesesIntoOne,
+                            // 使用正确的学生列表API
+                            strUri:
+                                '${Constants.piceseLsnStuName}/${DateTime.now().year}',
+                          )));
+            },
             bgcolor: consts.Constants.lessonThemeColor,
           ),
         ];
