@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraPiesesIntoOne.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
 import '../02LsnFeeMngmnt/Kn02F003AdvcLsnFeePayPage.dart';
 import '../02LsnFeeMngmnt/kn02F002LsnFeeDetail.dart';
@@ -48,6 +49,16 @@ class PageIdMapping extends StatelessWidget {
           knBgColor: Constants.lessonThemeColor,
           knFontColor: Colors.white,
           pagePath: "加课消化管理 >> 在课学生一览",
+        );
+        break;
+
+      case Constants.kn01L003ExtraPiesesIntoOne:
+        page = Kn01L003ExtraPiesesIntoOne(
+          stuId: stuId,
+          stuName: stuName,
+          knBgColor: Constants.lessonThemeColor,
+          knFontColor: Colors.white,
+          pagePath: "碎课拼成整课 >> 在课学生一览",
         );
         break;
 

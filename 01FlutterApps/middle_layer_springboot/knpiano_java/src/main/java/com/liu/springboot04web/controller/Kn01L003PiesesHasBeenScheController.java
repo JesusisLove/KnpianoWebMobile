@@ -28,7 +28,7 @@ import com.liu.springboot04web.service.ComboListInfoService;
 public class Kn01L003PiesesHasBeenScheController {
 
     final List<String> knYear;
-    final List<String> knMonth;
+    // final List<String> knMonth;
 
     // 把要付费的学生信息拿到前台画面，给学生下拉列表框做初期化
     Collection<Kn01L003ExtraPicesesBean> extra2ScheStuList;
@@ -41,7 +41,7 @@ public class Kn01L003PiesesHasBeenScheController {
         this.knYear = DateUtils.getYearList();
 
         // 初期化月份下拉列表框
-        this.knMonth = combListInfo.getMonths();
+        // this.knMonth = combListInfo.getMonths();
         this.extra2ScheStuList = null;
     }
 
@@ -95,7 +95,7 @@ public class Kn01L003PiesesHasBeenScheController {
         model.addAttribute("extra2ScheMap", extra2ScheMap);
 
         model.addAttribute("knyearlist", knYear);
-        model.addAttribute("knmonthlist", knMonth);
+        // model.addAttribute("knmonthlist", knMonth);
 
         return "kn_lsn_extra_pis_hsbn_sche/kn_pis_hsbn_sche_list";
     }
@@ -114,6 +114,9 @@ public class Kn01L003PiesesHasBeenScheController {
         Collection<Kn01L003ExtraPicesesBean> collectionOld = kn01L003PiesesHasBeenScheDao.getExtraPicesesIntoOneLsnList(lsnYear,
                 stuId);
         model.addAttribute("infoListPicesExtra", collectionOld);
+
+        // TODO 还要看课费支付表，对于已经结算完了的课，就让撤销按钮不可用。（课费结算完了，不能撤销）
+
 
         // 回传参数设置（画面检索部的查询参数）
         Map<String, Object> backForwordMap = new HashMap<>();
@@ -134,6 +137,7 @@ public class Kn01L003PiesesHasBeenScheController {
     }
     
 
+    // 对零碎加课已经换正课的记录执行撤销
     @PostMapping("/kn_revoke_assembled_lesson")
     @Transactional(rollbackFor = Exception.class)
     public String undoAssembledLesson(@RequestParam Map<String, Object> queryParams, Model model) {
