@@ -17,13 +17,3 @@ CREATE TABLE `t_info_lesson_extra_to_sche` (
   `new_own_flg` int DEFAULT '0',
   INDEX idx_fee_id_date (new_lsn_fee_id, new_scanqr_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-use prod_KNStudent;
--- 备份t_info_lesson_extra_to_sche表
-CREATE TABLE t_info_lesson_extra_to_sche_BK 
-AS SELECT * FROM t_info_lesson_extra_to_sche 
-WHERE 1=0;
-
--- 把t_info_lesson_extra_to_sche里的数据备份到t_info_lesson_extra_to_sche_BK表里
-insert into t_info_lesson_extra_to_sche_BK
-select * from t_info_lesson_extra_to_sche;

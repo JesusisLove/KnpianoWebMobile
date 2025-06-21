@@ -14,6 +14,14 @@ VIEW v_info_lesson AS
         case when b.del_flg = 1 then  CONCAT(b.stu_name, '(已退学)')
              else b.stu_name
         end AS stu_name,
+        CASE 
+            WHEN b.del_flg = 1 THEN 
+                CASE 
+                    WHEN b.nik_name IS NOT NULL AND b.nik_name != '' THEN CONCAT(b.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(b.stu_name, '未知姓名'), '(已退学)')
+                END              
+            ELSE b.nik_name         
+        END AS nik_name,
         a.class_duration AS class_duration,
         a.lesson_type AS lesson_type,
         a.schedual_type AS schedual_type,
@@ -21,7 +29,7 @@ VIEW v_info_lesson AS
         a.scanqr_date AS scanQR_date,
         a.lsn_adjusted_date AS lsn_adjusted_date,
         a.extra_to_dur_date AS extra_to_dur_date,
-        b.del_flg AS del_flg,
+        a.del_flg AS del_flg,
         a.memo AS memo,
         a.create_date AS create_date,
         a.update_date AS update_date

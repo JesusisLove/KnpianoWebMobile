@@ -9,6 +9,7 @@ VIEW `v_info_student_document` AS
     SELECT 
         `doc`.`stu_id` AS `stu_id`,
         `stu`.`stu_name` AS `stu_name`,
+        `stu`.`nik_name` AS `nik_name`,
         `doc`.`subject_id` AS `subject_id`,
         `jct`.`subject_name` AS `subject_name`,
         `doc`.`subject_sub_id` AS `subject_sub_id`,
