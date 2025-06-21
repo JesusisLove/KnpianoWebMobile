@@ -30,6 +30,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             <if test="year != null and year != ''">
                 substring(schedual_date, 1, 4) = #{year}
             </if>
+            and del_flg = 0
         </where>
         order by stu_name, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
     </select>
@@ -121,6 +122,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             <if test="params.lsn_status == 0">
                 AND scanQR_date is null
             </if>
+            AND del_flg = 0
         </where> 
         order by stu_id, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
     </select> 

@@ -32,8 +32,8 @@ public class Kn01L003PiesesHasBeenScheDao {
         return kn01L003PiesesHasBeenScheMapper.undoLogicalDelLesson(lessonId);
     }
 
-    public int undoLogicalDelLsfFee(String lessonId) {
-        return kn01L003PiesesHasBeenScheMapper.undoLogicalDelLesson(lessonId);
+    public int undoLogicalDelLsnFee(String lessonId) {
+        return kn01L003PiesesHasBeenScheMapper.undoLogicalDelLsnFee(lessonId);
     }
     // 因为有外键约束，所以要先删除课费表里lessonId记录
     public int deletePiesHsbnScheFee(String lessonId) {

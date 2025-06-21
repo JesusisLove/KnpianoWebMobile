@@ -2,8 +2,6 @@ package com.liu.springboot04web.controller_mobile;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -163,6 +161,4 @@ public class Kn01L003ExtraPiesesIntoOneController4Mobile {
         return ResponseEntity.ok("sucessd");
 
     }
-
-
 }

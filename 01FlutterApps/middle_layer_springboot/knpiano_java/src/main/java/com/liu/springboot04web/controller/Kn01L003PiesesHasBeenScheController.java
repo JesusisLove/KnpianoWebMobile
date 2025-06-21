@@ -152,7 +152,7 @@ public class Kn01L003PiesesHasBeenScheController {
             for (String oldLsnId : lsnIdsList) {
                 // 更新课程表零碎课的逻辑删除flg（set del_flg = 0)，恢复成零碎课的状态：更新条件： old_lesson_id
                 kn01L003PiesesHasBeenScheDao.undoLogicalDelLesson(oldLsnId);
-                kn01L003PiesesHasBeenScheDao.undoLogicalDelLsfFee(oldLsnId);
+                kn01L003PiesesHasBeenScheDao.undoLogicalDelLsnFee(oldLsnId);
             }
 
             kn01L003PiesesHasBeenScheDao.deletePiesHsbnScheFee(lessonId);
