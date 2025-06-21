@@ -13,11 +13,19 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         fee.lsn_fee_id AS lsn_fee_id,
         fee.lesson_id AS lesson_id,
         lsn.lesson_type AS lesson_type,
-        (lsn.class_duration / doc.minutes_per_lsn) AS lsn_count,
+        ( CAST(lsn.class_duration AS DECIMAL(10,4))/ doc.minutes_per_lsn) AS lsn_count, -- 乘以1.0，就能强制MySQL进行浮点数运算，保证15/60就会得到0.25的正确结果。
         doc.stu_id AS stu_id,
         case when doc.del_flg = 1 then  CONCAT(doc.stu_name, '(已退学)')
              else doc.stu_name
         end AS stu_name,
+        CASE 
+            WHEN doc.del_flg = 1 THEN 
+                CASE 
+                    WHEN doc.nik_name IS NOT NULL AND doc.nik_name != '' THEN CONCAT(doc.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(doc.nik_name, '未知姓名'), '(已退学)')
+                END              
+            ELSE doc.nik_name
+        END AS nik_name,
         doc.subject_id AS subject_id,
         doc.subject_name AS subject_name,
         doc.pay_style AS pay_style,

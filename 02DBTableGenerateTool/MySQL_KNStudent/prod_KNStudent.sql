@@ -88,6 +88,7 @@ INSERT INTO sequence VALUES ('kn-pay-','精算番号',   0, 1);
 CREATE TABLE `t_mst_student` (
   `stu_id` varchar(255) NOT NULL,
   `stu_name` varchar(56) NOT NULL,
+  `nik_name` varchar(31) NOT NULL,
   `gender` int DEFAULT NULL,
   `birthday` varchar(10) DEFAULT NULL,
   `address` varchar(64) DEFAULT NULL,
@@ -331,6 +332,20 @@ CREATE TABLE `t_info_lesson_extra_to_sche` (
   INDEX idx_fee_id_date (new_lsn_fee_id, new_scanqr_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 建立零碎的加课换正课中间表
+-- USE prod_KNStudent;
+-- DROP TABLE IF EXISTS `t_info_lesson_pieces_extra_to_sche`;
+/* 添加索引的原由：
+对加课换正课的新的课费id做已经支付的更新处理，
+由于这个表没有主键，所以程序在执行的时候启动safe update模式（安全更新模式）
+没有主键或没有索引，不让更新，索引添加了idx_fee_id_date
+*/
+CREATE TABLE t_info_lesson_pieces_extra_to_sche (
+  lesson_id varchar(32) NOT NULL,
+  old_lesson_id varchar(32) NOT NULL,
+  own_flg INT DEFAULT 0,
+PRIMARY KEY (lesson_id,old_lesson_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ///// VIEW ///////////////////////////////////////////////////////////////////////////////
 -- 02学科基本情報マスタ
@@ -426,6 +441,7 @@ VIEW `v_info_student_document` AS
     SELECT 
         `doc`.`stu_id` AS `stu_id`,
         `stu`.`stu_name` AS `stu_name`,
+        `stu`.`nik_name` AS `nik_name`,
         `doc`.`subject_id` AS `subject_id`,
         `jct`.`subject_name` AS `subject_name`,
         `doc`.`subject_sub_id` AS `subject_sub_id`,
@@ -512,6 +528,9 @@ select subquery.stu_id AS stu_id,
        case when subquery.del_flg = 1 then  CONCAT(subquery.stu_name, '(已退学)')
             else subquery.stu_name
        end AS stu_name,
+       case when subquery.del_flg = 1 then  CONCAT(subquery.nik_name, '(已退学)')
+            else subquery.nik_name
+       end AS nik_name,
        subquery.subject_id AS subject_id,
        subquery.subject_name AS subject_name,
        subquery.subject_sub_id AS subject_sub_id,
@@ -524,6 +543,7 @@ select subquery.stu_id AS stu_id,
 from (
     select vDoc.stu_id AS stu_id,
             vDoc.stu_name AS stu_name,
+            vDoc.nik_name AS nik_name,
             vDoc.subject_id AS subject_id,
             vDoc.subject_name AS subject_name,
             vDoc.subject_sub_id AS subject_sub_id,
@@ -542,10 +562,10 @@ from (
                                             ORDER BY vDoc.adjusted_date desc 
                             )  AS rn 
     from v_info_student_document vDoc
+        -- 价格调整日期小于系统当前日期，防止学生下一学期调整的科目不合时机的出现
+    where adjusted_date <= CURDATE()
     ) subquery 
 where subquery.rn = 1
--- 价格调整日期小于系统当前日期，防止学生下一学期调整的科目不合时机的出现
-and subquery.adjusted_date < CURDATE()
 ;
 
 
@@ -564,6 +584,14 @@ CREATE VIEW v_info_lesson AS
         case when b.del_flg = 1 then  CONCAT(b.stu_name, '(已退学)')
              else b.stu_name
         end AS stu_name,
+        CASE 
+            WHEN b.del_flg = 1 THEN 
+                CASE 
+                    WHEN b.nik_name IS NOT NULL AND b.nik_name != '' THEN CONCAT(b.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(b.stu_name, '未知姓名'), '(已退学)')
+                END              
+            ELSE b.nik_name         
+        END AS nik_name
         a.class_duration AS class_duration,
         a.lesson_type AS lesson_type,
         a.schedual_type AS schedual_type,
@@ -571,7 +599,7 @@ CREATE VIEW v_info_lesson AS
         a.scanqr_date AS scanQR_date,
         a.lsn_adjusted_date AS lsn_adjusted_date,
         a.extra_to_dur_date AS extra_to_dur_date,
-        b.del_flg AS del_flg,
+        a.del_flg AS del_flg,
         a.memo AS memo,
         a.create_date AS create_date,
         a.update_date AS update_date
@@ -818,7 +846,8 @@ VIEW v_info_lesson_and_extraToScheDataCorrect AS
 				lsn.create_date AS create_date,
 				lsn.update_date AS update_date 
 			from t_info_lesson lsn
-			inner join t_info_lesson_extra_to_sche extr on extr.lesson_id = lsn.lesson_id and lsn.extra_to_dur_date is not null
+			inner join t_info_lesson_extra_to_sche extr 
+			on extr.lesson_id = lsn.lesson_id and lsn.extra_to_dur_date is not NULL
         )lsn
         INNER JOIN t_mst_student mst ON lsn.stu_id = mst.stu_id
         INNER JOIN v_info_subject_edaban eda ON lsn.subject_id = eda.subject_id
@@ -986,6 +1015,14 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         case when doc.del_flg = 1 then  CONCAT(doc.stu_name, '(已退学)')
              else doc.stu_name
         end AS stu_name,
+        CASE 
+            WHEN doc.del_flg = 1 THEN 
+                CASE 
+                    WHEN doc.nik_name IS NOT NULL AND doc.nik_name != '' THEN CONCAT(doc.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(doc.nik_name, '未知姓名'), '(已退学)')
+                END              
+            ELSE doc.nik_name         
+        END AS nik_name,
         doc.subject_id AS subject_id,
         doc.subject_name AS subject_name,
         doc.pay_style AS pay_style,
@@ -1351,13 +1388,15 @@ VIEW `v_info_lesson_pay_over` AS
 -- ①每个学生每个月未支付状况的分组合计 v_sum_unpaid_lsnfee_by_stu_and_month
 create view v_sum_unpaid_lsnfee_by_stu_and_month as
 select stu_id
-	    ,stu_name
+	  ,stu_name
+      ,nik_name
       ,SUM(lsn_fee) AS lsn_fee
       ,lsn_month
 from v_info_lesson_sum_fee_unpaid_yet
 group by stu_id
 		 ,stu_name
-     ,lsn_month
+         ,nik_name
+         ,lsn_month
 ;
 
 -- ②未支付学费统计（分组查询月份Only）
@@ -1373,12 +1412,14 @@ group by stu_id
 create view v_sum_haspaid_lsnfee_by_stu_and_month as
 select stu_id
 	    ,stu_name
-      ,SUM(lsn_fee) AS lsn_fee
-      ,lsn_month
+        ,nik_name
+        ,SUM(lsn_fee) AS lsn_fee
+        ,lsn_month
 from v_info_lesson_sum_fee_pay_over
 group by stu_id
-		  ,stu_name
-      ,lsn_month
+		,stu_name
+        ,nik_name
+        ,lsn_month
 ;
 
 -- ④对课费管理视图的学费（已支付未支付都包括在内）的总计算按学生按月的分组查询
@@ -1395,6 +1436,7 @@ create view v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month AS
         aa.lsn_fee_id AS lsn_fee_id,
         aa.stu_id AS stu_id,
         aa.stu_name AS stu_name,
+        aa.nik_name AS nik_name,
         aa.subject_id AS subject_id,
         aa.subject_name AS subject_name,
         aa.subject_sub_id AS subject_sub_id,
@@ -1412,6 +1454,7 @@ create view v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month AS
             T1.lsn_fee_id AS lsn_fee_id,
                 T1.stu_id AS stu_id,
                 T1.stu_name AS stu_name,
+                T1.nik_name AS nik_name,
                 T1.subject_id AS subject_id,
                 T1.subject_name AS subject_name,
                 T1.subject_sub_id AS subject_sub_id,
@@ -1424,8 +1467,10 @@ create view v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month AS
                 T1.lsn_month AS lsn_month
         FROM
             v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect T1
-        GROUP BY T1.lsn_fee_id , T1.stu_id , T1.stu_name , T1.subject_id , T1.subject_name , T1.subject_sub_id , T1.subject_sub_name , T1.lsn_month , T1.subject_price , T1.pay_style , T1.lesson_type) aa
-    GROUP BY aa.lsn_fee_id , aa.stu_id , aa.stu_name , aa.subject_id , aa.subject_name , aa.subject_sub_id , aa.subject_sub_name , aa.lsn_month , aa.subject_price , aa.pay_style , aa.lesson_type , aa.lsn_count
+        GROUP BY T1.lsn_fee_id , T1.stu_id , T1.stu_name ,T1.nik_name , T1.subject_id , T1.subject_name , T1.subject_sub_id , 
+        T1.subject_sub_name , T1.lsn_month , T1.subject_price , T1.pay_style , T1.lesson_type) aa
+    GROUP BY aa.lsn_fee_id , aa.stu_id , aa.stu_name ,aa.nik_name , aa.subject_id , aa.subject_name , aa.subject_sub_id , aa.subject_sub_name , 
+    aa.lsn_month , aa.subject_price , aa.pay_style , aa.lesson_type , aa.lsn_count
 ;
 
 -- (学生总综合)所有学生当前年度每月总课费的总支付，未支付状况查询
@@ -1477,6 +1522,7 @@ create view v_total_lsnfee_with_paid_unpaid_every_month as
 create view v_total_lsnfee_with_paid_unpaid_every_month_every_student as
 select stu_id
 	  ,stu_name
+      ,nik_name
 	  ,sum(should_pay_lsn_fee) as should_pay_lsn_fee
       ,sum(has_paid_lsn_fee) as has_paid_lsn_fee
       ,sum(unpaid_lsn_fee) as unpaid_lsn_fee
@@ -1485,38 +1531,42 @@ from (
 	SELECT 
 		stu_id,
 		stu_name,
+        nik_name,
 		SUM(lsn_fee) AS should_pay_lsn_fee,
 		0.0 AS has_paid_lsn_fee,
 		0.0 AS unpaid_lsn_fee,
 		lsn_month
 	From v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month
-	group by stu_id, stu_name,lsn_month
+	group by stu_id, stu_name,nik_name,lsn_month
 	union all
 	select 
 		stu_id,
 		stu_name,
+        nik_name,
 		0.0 as should_pay_lsn_fee,
 		sum(lsn_fee) as has_paid_lsn_fee,
 		0.0 as unpaid_lsn_fee,
 		lsn_month
 	from v_sum_haspaid_lsnfee_by_stu_and_month
-	group by stu_id,stu_name,lsn_month
+	group by stu_id,stu_name,nik_name,lsn_month
 	union all
 	select 
 		stu_id,
 		stu_name,
+        nik_name,
 		0.0 as should_pay_lsn_fee,  
 		0.0 as has_paid_lsn_fee,
 		sum(lsn_fee) as unpaid_lsn_fee,
 		lsn_month
 	from v_sum_unpaid_lsnfee_by_stu_and_month
-	group by stu_id,stu_name,lsn_month
+	group by stu_id,stu_name,nik_name,lsn_month
 ) lsn_fee_status_by_stu_and_month
-group by stu_id, stu_name, lsn_month;
+group by stu_id, stu_name, nik_name,lsn_month;
 
 -- USE prod_KNStudent;
 -- DROP VIEW IF EXISTS v_info_all_extra_lsns;
 -- 前提条件，加课都已经签到完了，找出那些已经结算和还未结算的加课信息
+-- 零碎加课拼凑成整课，并且已经把整课换成正课的零碎课除外（即，零碎课的del_flg=1的除外了 2025-06-07追加）
 -- 已经结算的加课费
 CREATE VIEW v_info_all_extra_lsns AS 
 SELECT 
@@ -1536,7 +1586,7 @@ FROM
 	t_info_lesson lsn
 	inner join 
 	t_info_lesson_fee fee
-	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0
+	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0 and lsn.del_flg = 0
 	inner join
 	t_info_lesson_pay pay
 	on fee.lsn_fee_id = pay.lsn_fee_id
@@ -1560,6 +1610,7 @@ SELECT
 FROM t_info_lesson main
 WHERE main.scanqr_date IS NOT NULL 
   AND main.lesson_type = 2
+  AND main.del_flg = 0
   AND NOT EXISTS (
     SELECT 1 
     FROM t_info_lesson lsn

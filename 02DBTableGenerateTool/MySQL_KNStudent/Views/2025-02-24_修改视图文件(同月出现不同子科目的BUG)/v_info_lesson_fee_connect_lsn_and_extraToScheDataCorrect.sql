@@ -17,6 +17,14 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         case when doc.del_flg = 1 then  CONCAT(doc.stu_name, '(已退学)')
              else doc.stu_name
         end AS stu_name,
+        CASE 
+            WHEN doc.del_flg = 1 THEN 
+                CASE 
+                    WHEN doc.nik_name IS NOT NULL AND doc.nik_name != '' THEN CONCAT(doc.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(doc.nik_name, '未知姓名'), '(已退学)')
+                END              
+            ELSE doc.nik_name         
+        END AS nik_name,
         doc.subject_id AS subject_id,
         doc.subject_name AS subject_name,
         doc.pay_style AS pay_style,

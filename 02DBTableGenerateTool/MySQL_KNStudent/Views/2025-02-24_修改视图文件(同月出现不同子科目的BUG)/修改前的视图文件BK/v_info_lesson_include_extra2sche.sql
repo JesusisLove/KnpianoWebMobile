@@ -56,4 +56,6 @@ VIEW v_info_lesson_include_extra2sche AS
         ((t_info_lesson lsn
         INNER JOIN t_mst_student mst ON ((lsn.stu_id = mst.stu_id)))
         INNER JOIN v_info_subject_edaban eda ON (((lsn.subject_id = eda.subject_id)
-            AND (lsn.subject_sub_id = eda.subject_sub_id))))
+            AND (lsn.subject_sub_id = eda.subject_sub_id)
+            AND lsn.del_flg = 0)))
+            
