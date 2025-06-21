@@ -83,7 +83,7 @@
     </update>
 
     <!-- 回复零碎课的课费记录 -->
-    <update id="undoLogicalDelLsfFee" parameterType="String">
+    <update id="undoLogicalDelLsnFee" parameterType="String">
         UPDATE t_info_lesson_fee
         SET del_flg = 0
         WHERE lesson_id = #{lessonId}

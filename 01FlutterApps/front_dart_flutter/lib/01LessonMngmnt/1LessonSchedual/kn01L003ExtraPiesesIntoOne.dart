@@ -294,6 +294,7 @@ class _Kn01L003ExtraPiesesIntoOneState
 
       if (pickedDate != null) {
         final TimeOfDay? pickedTime = await showTimePicker(
+          // ignore: use_build_context_synchronously
           context: context,
           initialTime:
               TimeOfDay.fromDateTime(selectedDateTime ?? DateTime.now()),
@@ -331,8 +332,8 @@ class _Kn01L003ExtraPiesesIntoOneState
       }
     } catch (e) {
       // 如果日期选择器出现错误，显示错误消息
-      print('日期选择器错误: $e');
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -547,7 +548,7 @@ class _Kn01L003ExtraPiesesIntoOneState
       final firstPiece = selectedPieces.first;
 
       // 从最新价格列表中获取目标课程信息
-      final targetPrice = latestPrices.firstWhere(
+      latestPrices.firstWhere(
         (price) =>
             price.subjectId == baseSubjectId &&
             price.subjectSubId == targetSubjectSubId,
@@ -1022,7 +1023,7 @@ class _Kn01L003ExtraPiesesIntoOneState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '进度: $totalClassDuration/$targetMinutesPerLsn 分钟',
+                        '加课拼凑状况: $totalClassDuration/$targetMinutesPerLsn 分钟',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
