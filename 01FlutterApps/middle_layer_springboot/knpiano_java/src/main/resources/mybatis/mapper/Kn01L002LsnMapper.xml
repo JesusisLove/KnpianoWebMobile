@@ -11,7 +11,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn01L002LsnMapper">
 
-    <!-- 后台维护，获取所有学生的排课课程 -->
+    <!-- 手机前端：课程信息的在课学生一览 -->
     <select id= "getStuNameList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         select distinct stu_id,stu_name,nik_name from v_info_lesson 
         <where>
@@ -25,7 +25,19 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <!-- 后台维护，获取所有学生的排课课程 -->
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        select * from v_info_lesson 
+        SELECT 
+            main.*, 
+            CASE 
+                WHEN sub.lesson_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_from_picese_lsn
+        FROM v_info_lesson  main
+        LEFT JOIN (
+            <!-- 查看是否有零碎加课拼凑整课转正课的课程记录 -->
+            SELECT DISTINCT lesson_id 
+            FROM t_info_lesson_pieces_extra_to_sche
+        ) sub 
+        ON main.lesson_id = sub.lesson_id
         <where>
             <if test="year != null and year != ''">
                 substring(schedual_date, 1, 4) = #{year}
@@ -77,54 +89,61 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <!-- 手机前端： XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息 -->
     <select id="getScanSQLsnInfoByYear" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        select * from v_info_lesson_include_extra2sche
-        where stu_id = #{stuId}
-        and substring(schedual_date,1,4) = #{year}
-        and scanQR_date is not null;
+        SELECT 
+            main.*,
+            CASE 
+                WHEN sub.lesson_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_from_picese_lsn
+        FROM v_info_lesson_include_extra2sche main
+        LEFT JOIN (
+            <!-- 查看是否有零碎加课拼凑整课转正课的课程记录 -->
+            SELECT DISTINCT lesson_id 
+            FROM t_info_lesson_pieces_extra_to_sche
+        ) sub 
+        ON main.lesson_id = sub.lesson_id
+        WHERE main.stu_id = #{stuId}
+        AND substring(main.schedual_date,1,4) = #{year}
+        AND main.scanQR_date is not null;
     </select>
 
     <select id="searchLessons" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        SELECT
-            *
-        FROM
-            v_info_lesson
+        SELECT 
+            main.*,
+            CASE 
+                WHEN sub.lesson_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_from_picese_lsn
+        FROM v_info_lesson_include_extra2sche main
+        LEFT JOIN (
+            <!-- 查看是否有零碎加课拼凑整课转正课的课程记录 -->
+            SELECT DISTINCT lesson_id 
+            FROM t_info_lesson_pieces_extra_to_sche
+        ) sub 
+        ON main.lesson_id = sub.lesson_id
         <where>
-            <!-- <foreach item="value" index="key" collection="params">
-                <if test="value != null and value != ''">
-                    AND ${key} like CONCAT('%', #{value}, '%')
-                </if>
-            </foreach> -->
             <if test="params.lsn_month != null and params.lsn_month != ''">
                 <choose>
                     <when test="params.lsn_month.length() == 4">
-                        AND substring(schedual_date,1,4) = #{params.lsn_month}
+                        AND substring(main.schedual_date,1,4) = #{params.lsn_month}
                     </when>
                     <otherwise>
-                        AND substring(schedual_date,1,7) = #{params.lsn_month}
+                        AND substring(main.schedual_date,1,7) = #{params.lsn_month}
                     </otherwise>
                 </choose>
             </if>
-           <if test="params.stu_id != null and params.stu_id != ''">
-                AND stu_id = #{params.stu_id}
+            <if test="params.stu_id != null and params.stu_id != ''">
+                AND main.stu_id = #{params.stu_id}
             </if>
-             <!-- <if test="params.lesson_id != null and params.lesson_id != ''">
-                AND lesson_id = #{params.lesson_id}
-            </if>
-            <if test="params.lesson_type != null and params.lesson_type != ''">
-                AND lesson_type = #{params.lesson_type}
-            </if>
-            <if test="params.subject_id != null and params.subject_id != ''">
-                AND subject_id = #{params.subject_id}
-            </if> -->
             <if test="params.lsn_status == 1">
-                AND scanQR_date is not null
+                AND main.scanQR_date is not null
             </if>
             <if test="params.lsn_status == 0">
-                AND scanQR_date is null
+                AND main.scanQR_date is null
             </if>
-            AND del_flg = 0
+            AND main.del_flg = 0
         </where> 
-        order by stu_id, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
+        order by main.stu_id, main.schedual_date desc, main.lesson_id desc, main.subject_sub_id desc, main.lesson_type
     </select> 
 
     <!-- 排课记录的变更，调课，签到 处理-->

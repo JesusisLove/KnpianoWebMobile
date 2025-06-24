@@ -663,15 +663,22 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     // 2024-11-04 添加：检查是否是月加课类型
     bool isExtraLesson = lesson.lessonType == 2;
 
+    // 检查是否是拼凑课程
+    bool isPiecesLesson = lesson.isFromPiceseLsn == 1;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      // 设置Card背景颜色
+      color: isPiecesLesson ? Colors.grey[200]! : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start, // 添加顶部对齐
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: Colors.green,
+              // 设置CircleAvatar背景颜色
+              backgroundColor:
+                  isPiecesLesson ? Colors.grey[600]! : Colors.green,
               foregroundColor: Colors.white,
               child: Text(lesson.classDuration.toString()),
             ),
@@ -684,7 +691,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                   Text(
                     '种别: $lessonType',
                     style: TextStyle(
-                        color: isExtraLesson ? Colors.pink : textColor,
+                        // 设置种别文字颜色
+                        color: isPiecesLesson
+                            ? Colors.grey[700]!
+                            : (isExtraLesson ? Colors.pink : textColor),
                         fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -726,7 +736,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     Text(
                       '上课: ${CommonMethod.getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
                       style: TextStyle(
-                          color: isExtraLesson ? Colors.pink : textColor),
+                          // 如果是零碎加课拼凑成的整课后再换正课，课程卡片背景就显示浅灰色，同时字体程深灰色
+                          color: isPiecesLesson
+                              ? Colors.grey[700]!
+                              : (isExtraLesson ? Colors.pink : textColor)),
                     ),
                   ],
                 ],
@@ -750,6 +763,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
         if (isExtraToSche) {
           return '转'; // 加课转正课
         } else {
+          if (lesson.isFromPiceseLsn == 1) {
+            return '拼'; // 零碎加课拼凑成的整课，再去转换正课
+          }
           return '计'; // 月计划课
         }
       case 2:

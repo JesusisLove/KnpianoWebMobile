@@ -102,6 +102,12 @@
             font-size: 11px;
             color: #666;
         }
+
+        /* 新增：拼凑课样式 */
+        .pieces-lesson-row {
+            color: #666666 !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
 
@@ -198,9 +204,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
-                                 info.lessonType == 1 ? 'color: #2196F3;' : 
-                                 info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
+                    <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
+                        th:style="${info.isFromPiceseLsn == 1 ? 'color: #b8b8b5 !important; font-weight: bold !important;' : 
+                                   info.lessonType == 0 ? 'color: #4CAF50;' : 
+                                   info.lessonType == 1 ? 'color: #2196F3;' : 
+                                   info.lessonType == 2 ? 'color: #FF69B4;' : ''}"
+                        th:classappend="${info.isFromPiceseLsn == 1 ? 'pieces-lesson-row' : ''}">
                         <td class="col-lessonId">[[${info.lessonId}]]</td>
                         <td class="col-subjectId">[[${info.subjectId}]]</td>
                         <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
@@ -208,8 +217,10 @@
                         <td class="col-subjectName">[[${info.subjectName}]]</td>
                         <td class="col-subjectLevel">[[${info.subjectSubName}]]</td>
                         <td class="col-classDuration">[[${info.classDuration}]]</td>
-                        <td class="col-lessonType"
-                            th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                        <td class="col-lessonType" 
+                            th:text="${info.isFromPiceseLsn == 1 ? '拼凑课' : 
+                                     info.lessonType == 0 ? '课结算' : 
+                                     info.lessonType == 1 ? '月计划' : '月加课'}"></td>
                         <td class="col-schedualType"
                             th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
                         </td>
@@ -227,18 +238,21 @@
                         <td class="col-updateDate">[[${info.updateDate != null ?
                             #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="action-column">
-                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
-                                th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
-                            <button type="button" class="btn btn-sm btn-danger deleteBtn"
-                                th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}"
-                                th:classappend="${info.isUsableDelete ? ''  : 'disabled'}"
-                                th:disabled="${!info.isUsableDelete}">削除</button>
-                            <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
-                                th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
-                            <a class="btn btn-sm btn-danger undo-btn" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
-                                th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
-                                th:method="GET"
-                                th:attr="data-original-disabled=${!info.isUsableCancel}">撤销</a>
+                            <!-- 拼凑课时隐藏所有按钮 -->
+                            <div th:if="${info.isFromPiceseLsn != 1}">
+                                <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
+                                <button type="button" class="btn btn-sm btn-danger deleteBtn"
+                                    th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableDelete ? ''  : 'disabled'}"
+                                    th:disabled="${!info.isUsableDelete}">削除</button>
+                                <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
+                                <a class="btn btn-sm btn-danger undo-btn" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
+                                    th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
+                                    th:method="GET"
+                                    th:attr="data-original-disabled=${!info.isUsableCancel}">撤销</a>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

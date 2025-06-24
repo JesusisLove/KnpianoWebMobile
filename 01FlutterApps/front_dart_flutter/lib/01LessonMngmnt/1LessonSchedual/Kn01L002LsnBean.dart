@@ -21,6 +21,7 @@ class Kn01L002LsnBean {
   final String extraToDurDate;
   final String originalSchedualDate;
   String? memo; //为了可以NULL，不用final关键字
+  final int isFromPiceseLsn; // 添加这个字段
 
   // 更新构造函数以正确赋值
   Kn01L002LsnBean({
@@ -41,6 +42,7 @@ class Kn01L002LsnBean {
     required this.extraToDurDate,
     required this.originalSchedualDate,
     this.memo, //为了可以NULL，不用required关键字
+    required this.isFromPiceseLsn, // 添加这个参数
   });
 
   // 更新工厂方法以正确解析和格式化日期
@@ -54,35 +56,22 @@ class Kn01L002LsnBean {
 
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
-        // DateTime parsedDate = DateTime.parse(json['schedualDate']);
-        // formattedSchedualDate =
-        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
-
         DateTime parsedDate =
             CommonMethod.parseServerDate(json['schedualDate']);
 
-        // 不再需要toLocal()，因为时区已经在parseServerDate中处理
+        // 已经不再需要DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());的处理了
+        // 因为时区已经在parseServerDate中处理
         formattedSchedualDate =
             DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
         formattedTime = DateFormat('HH:mm').format(parsedDate);
       }
 
       if (json['scanQrDate'] != null && json['scanQrDate'] != '') {
-        // DateTime parsedDate = DateTime.parse(json['scanQrDate']);
-        // formattedScanQrDate =
-        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
-
         DateTime parsedDate = CommonMethod.parseServerDate(json['scanQrDate']);
         formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
 
       if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'] != '') {
-        // DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
-        // formattedLsnAdjustedDate =
-        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
-
         DateTime parsedDate =
             CommonMethod.parseServerDate(json['lsnAdjustedDate']);
         formattedLsnAdjustedDate =
@@ -91,9 +80,6 @@ class Kn01L002LsnBean {
       }
 
       if (json['extraToDurDate'] != null && json['extraToDurDate'] != '') {
-        // DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
-        // formattedExtraToDurDate =
-        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
         DateTime parsedDate =
             CommonMethod.parseServerDate(json['extraToDurDate']);
         formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate);
@@ -101,10 +87,6 @@ class Kn01L002LsnBean {
 
       if (json['originalSchedualDate'] != null &&
           json['originalSchedualDate'] != '') {
-        // DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
-        // formattedOriginalSchedualDate =
-        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
-        // formattedTime = DateFormat('HH:mm').format(parsedDate.toLocal());
         DateTime parsedDate =
             CommonMethod.parseServerDate(json['originalSchedualDate']);
         formattedOriginalSchedualDate =
@@ -132,7 +114,9 @@ class Kn01L002LsnBean {
       lsnAdjustedDate: formattedLsnAdjustedDate,
       extraToDurDate: formattedExtraToDurDate,
       originalSchedualDate: formattedOriginalSchedualDate,
-      memo: json['memo'] as String?, //为了可以NULL
+      memo: json['memo'] as String?,
+      // 关键：确保字段名与后端返回的JSON字段名完全一致
+      isFromPiceseLsn: json['isFromPiceseLsn'] as int? ?? 0, // 添加默认值保护
     );
   }
 }

@@ -43,6 +43,11 @@
         .action-column {
             display: table-cell !important;
         }
+        /* 新增：拼凑课样式 */
+        .pieces-lesson-row {
+            color: #666666 !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
 
@@ -110,12 +115,19 @@
                 </thead>
                 <tbody>
                     <tr th:each="info:${infoList}" th:if="${info.stuName == stuName}"
-                        th:style="${info.extra2scheFlg == 1 ? 'color: brown;font-weight: bold;' : (info.lessonType == 2 ? 'color: #FF69B4; font-weight: bold;' : '')}">
+                        th:style="${info.isFromPiceseLsn == 1 ? 'color: #b8b8b5 !important; font-weight: bold !important;' : 
+                            info.extra2scheFlg == 1 ? 'color: brown;font-weight: bold;' : 
+                            (info.lessonType == 2 ? 'color: #FF69B4; font-weight: bold;' : '')
+                            }"
+                        th:classappend="${info.isFromPiceseLsn == 1 ? 'pieces-lesson-row' : ''}"
+                            >
                         <td class="col-lsnFeeId">[[${info.lsnFeeId}]]</td>
                         <td class="col-lessonId">[[${info.lessonId}]]</td>
                         <td class="col-subjectName">[[${info.subjectName}]]</td>
                         <td class="col-lessonType"
-                            th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                            th:text="${info.isFromPiceseLsn == 1 ? '拼凑课' : 
+                                     info.lessonType == 0 ? '课结算' : 
+                                     info.lessonType == 1 ? '月计划' : '月加课'}"></td>
                         <td class="col-lsnCount">[[${info.lsnCount}]]</td>
                         <td class="col-lsnFee">[[${info.lsnFee}]]</td>
                         <td class="col-payStyle" th:text="${info.payStyle == 0 ? '课支付' : '月支付'}"></td>
@@ -124,11 +136,14 @@
                         <td class="col-createDate">[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td class="col-updateDate">[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
                         <td class="action-column">
-                            <a class="btn btn-sm btn-primary"
-                                th:href="@{/kn_lsn_fee_001/{lsnFeeId}/{lessonId}(lsnFeeId=${info.lsnFeeId},lessonId=${info.lessonId})}"
-                                methods="GET">変更</a>
-                            <button class="btn btn-sm btn-danger deleteBtn"
-                                th:attr="liu_del_uri=@{/kn_lsn_fee_001/{lsnFeeId}/{lessonId}(lsnFeeId=${info.lsnFeeId},lessonId=${info.lessonId})}">削除</button>
+                            <!-- 拼凑课时隐藏所有按钮 -->
+                            <div th:if="${info.isFromPiceseLsn != 1}">
+                                <a class="btn btn-sm btn-primary"
+                                    th:href="@{/kn_lsn_fee_001/{lsnFeeId}/{lessonId}(lsnFeeId=${info.lsnFeeId},lessonId=${info.lessonId})}"
+                                    methods="GET">変更</a>
+                                <button class="btn btn-sm btn-danger deleteBtn"
+                                    th:attr="liu_del_uri=@{/kn_lsn_fee_001/{lsnFeeId}/{lessonId}(lsnFeeId=${info.lsnFeeId},lessonId=${info.lessonId})}">削除</button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
