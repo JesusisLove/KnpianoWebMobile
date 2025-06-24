@@ -261,7 +261,7 @@ public class Kn01L002LsnDao {
         return knLsn001Mapper.getUnScanSQDateLsnInfoByYear(stuId, year);
     }
 
-    // 手机前端：课程进度统计，提取当前年度已经签到完了的课程详细记录（体现排课信息和调课信息）
+    // 手机前端：课程进度统计，提取当前年度已经签到完了的课程详细记录（体现排课信息【计】和调课信息【调？】，加课换正课【转】零碎课拼凑1整节课之后换正课信息【拼】）
     public List<Kn01L002LsnBean> getScanSQDateLsnInfoByYear(String stuId, String year) {
         return knLsn001Mapper.getScanSQLsnInfoByYear(stuId, year);
     }

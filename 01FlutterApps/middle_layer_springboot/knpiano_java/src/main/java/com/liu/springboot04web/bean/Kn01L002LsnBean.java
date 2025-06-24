@@ -18,12 +18,6 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String stuId;
     protected String stuName;
     protected String nikName;
-    public String getNikName() {
-        return nikName;
-    }
-    public void setNikName(String nikName) {
-        this.nikName = nikName;
-    }
     protected Integer classDuration;
     protected Integer lessonType;
     protected Integer schedualType;
@@ -68,6 +62,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected Date originalSchedualDate; // 加课换正课后记录原来实际的计划上课日期
     protected String memo;
     protected Integer delFlg;
+    protected Integer isFromPiceseLsn; // 是不是用零碎加课拼凑的课[0:不是拼凑的课。 1:是拼凑的课]
     protected Date createDate;
     protected Date updateDate;
 // 变更，删除，签到，撤销，四个按钮在画面上活性/非活性的状态设置
@@ -122,6 +117,12 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+        public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
     public Integer getClassDuration() {
         return classDuration;
@@ -252,5 +253,11 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+    public Integer getIsFromPiceseLsn() {
+        return isFromPiceseLsn;
+    }
+    public void setIsFromPiceseLsn(Integer isFromPiceseLsn) {
+        this.isFromPiceseLsn = isFromPiceseLsn;
     }
 }

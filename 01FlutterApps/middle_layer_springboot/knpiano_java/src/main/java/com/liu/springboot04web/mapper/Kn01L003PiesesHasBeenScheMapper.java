@@ -12,7 +12,7 @@ public interface Kn01L003PiesesHasBeenScheMapper {
     // 撤销
     public List<String> getOldLessonIds(String lessonId);
     public int undoLogicalDelLesson(String lessonId);
-    public int undoLogicalDelLsfFee(String lessonId);
+    public int undoLogicalDelLsnFee(String lessonId);
     public int deletePiesHsbnScheFee(String lessonId);
     public int deletePiesHsbnSche(String lessonId);
     public int deletePiceseExtraIntoOne(String lessonId);

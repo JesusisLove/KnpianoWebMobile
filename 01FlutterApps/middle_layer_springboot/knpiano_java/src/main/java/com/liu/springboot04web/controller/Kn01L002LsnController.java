@@ -110,10 +110,6 @@ public class Kn01L002LsnController{
 
         // 检索条件
          params.put("stu_id", queryParams.get("stuId"));
-        //  params.put("lesson_id", queryParams.get("lessonId"));
-        //  params.put("subject_id", queryParams.get("subjectId"));
-        //  params.put("subject_name", queryParams.get("subjectName"));
-        //  params.put("lesson_type", queryParams.get("lessonType"));
  
          // 回传参数设置（画面检索部的查询参数）
          Map<String, Object> backForwordMap = new HashMap<>();
