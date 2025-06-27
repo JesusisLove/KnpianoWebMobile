@@ -86,6 +86,12 @@ public class Kn01L002LsnDao {
     public void excuteSign(Kn01L002LsnBean knLsn001Bean) {
         // 检查该课程是否是有效的课程
         if (checkThisLsn(knLsn001Bean)) {
+
+            // 确认该生到目前为止的计划课有没有上完43节课，如果超过43节课了，这个课即便拍的是计划课，也要强行按照加课来计算
+            if (knLsn001Bean.getLessonType() == 1) {
+                correctLessonTypeIfOverLimit_43(knLsn001Bean);
+            }
+            
             // 进行签到登记：对knLsn001Bean里的上课日期执行数据库表的更新操作
             // 签到日期的yyyy/mm/dd，必须和计划课日期或者调课日期的yyyy/mm/dd一致。不一致的情况下，web端（后台维护）放开让其继续执行，手机端则需要check，不能执行，需要通知后台管理人员在web（后台维护）平台替用户执行。
             Date scanQRDate = knLsn001Bean.getLsnAdjustedDate() == null ? knLsn001Bean.getSchedualDate()
@@ -143,6 +149,23 @@ public class Kn01L002LsnDao {
         // TODO
 
         return true;
+    }
+
+    private void correctLessonTypeIfOverLimit_43(Kn01L002LsnBean knLsn001Bean) {
+        // 取得该生到目前为止，本年度计划课总课时
+        float lsnCnt =  knLsn001Mapper.stuLsnCountByNow(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        /* TODO
+        * 
+         - 上满43节课的パターン
+            - 1月份到12月份 **上满43**
+            - 入学未满1年，比如3月份来上课的学生  **满课课时手动修正**
+            - 年中退学未满1年，比如今年8月份退学  **满课课时手动修正** 
+        */
+        // 到目前为止的总课时还没有达到43节课的，返回
+        if (lsnCnt <= 43) return;
+
+        // 超过43节课了，该课由计划课转换为加课
+        knLsn001Bean.setLessonType(2);
     }
 
     // 将该签到课程新规登录到《课费管理表》里

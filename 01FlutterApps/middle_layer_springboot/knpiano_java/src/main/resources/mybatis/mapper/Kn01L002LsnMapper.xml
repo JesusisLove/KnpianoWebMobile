@@ -146,6 +146,14 @@ https://mybatis.org/mybatis-3/getting-started.html
         order by main.stu_id, main.schedual_date desc, main.lesson_id desc, main.subject_sub_id desc, main.lesson_type
     </select> 
 
+    <select id="stuLsnCountByNow" resultType="java.lang.Long">
+        SELECT SUM(lsn_count) AS lsn_count 
+        FROM v_info_lsn_statistics_by_stuid
+        WHERE stu_id = #{stuId}
+        AND subject_id = #{subjectId}
+        AND lsn_month BETWEEN DATE_FORMAT(CURDATE(), '%Y-01') AND DATE_FORMAT(CURDATE(), '%Y-%m')
+    </select>
+
     <!-- 排课记录的变更，调课，签到 处理-->
     <update id="updateInfo">
         <!-- 通过使用动态 SQL 的方式来实现根据参数是否为 null 或空来决定是否更新对应的字 -->

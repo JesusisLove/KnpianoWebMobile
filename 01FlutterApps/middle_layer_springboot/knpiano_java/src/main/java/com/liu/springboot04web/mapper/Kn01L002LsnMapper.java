@@ -20,6 +20,15 @@ public interface Kn01L002LsnMapper  {
     // 获取所有学生最新正在上课的科目信息
     public List<Kn01L002LsnBean>  getLatestSubjectList();
 
+    /**
+     * 获取学生到目前为止的课程数量（年初至今）
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Long stuLsnCountByNow(@Param("stuId") String stuId, 
+                          @Param("subjectId") String subjectId);
+
     public Kn01L002LsnBean getInfoById(String id);
 
     List<Kn01L002LsnBean> searchLessons(@Param("params") Map<String, Object> queryparams);

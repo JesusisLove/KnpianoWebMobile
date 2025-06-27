@@ -777,7 +777,7 @@ class _CalendarPageState extends State<CalendarPage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
       ),
       body: Column(
         children: [
