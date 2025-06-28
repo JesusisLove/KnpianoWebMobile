@@ -19,6 +19,7 @@ VIEW `v_info_student_document` AS
         `doc`.`minutes_per_lsn` AS `minutes_per_lsn`,
         `doc`.`lesson_fee` AS `lesson_fee`,
         `doc`.`lesson_fee_adjusted` AS `lesson_fee_adjusted`,
+        `doc`.`year_lsn_cnt` AS `year_lsn_cnt`,
         `stu`.`del_flg` AS `del_flg`,
         `doc`.`create_date` AS `create_date`,
         `doc`.`update_date` AS `update_date`

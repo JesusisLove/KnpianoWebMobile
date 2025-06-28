@@ -23,6 +23,7 @@ public class Kn03D004StuDocBean implements KnPianoBean {
     protected float lessonFee;
     protected float lessonFeeAdjusted;
     protected Integer subjectCount;
+    protected Integer yearLsnCnt;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date examDate;
     protected float examDcore;
@@ -184,6 +185,14 @@ public class Kn03D004StuDocBean implements KnPianoBean {
 
     public void setSubjectCount(Integer subjectCount) {
         this.subjectCount = subjectCount;
+    }
+    
+    public Integer getYearLsnCnt() {
+        return yearLsnCnt;
+    }
+
+    public void setYearLsnCnt(Integer yearLsnCnt) {
+        this.yearLsnCnt = yearLsnCnt;
     }
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

@@ -85,6 +85,9 @@
                     <input type="checkbox" checked onchange="toggleColumn('col-lessonFeeAdjusted')" /> 調整価格
                 </label>
                 <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-yearLsnCnt')" /> 计划总课时/年
+                </label>
+                <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-createDate')" /> 作成日
                 </label>
                 <label>
@@ -107,6 +110,7 @@
                         <th class="col-minutesPerLsn">上课时长</th>
                         <th class="col-lessonFee">標準価格</th>
                         <th class="col-lessonFeeAdjusted">調整価格</th>
+                        <th class="col-yearLsnCnt">计划总课时/年</th>
                         <th class="col-createDate">作成日</th>
                         <th class="col-updateDate">更新日</th>
                         <th class="action-column">操作</th>
@@ -141,6 +145,9 @@
                         </td>
                         <td class="col-createDate"
                             th:text="${studoc != null && studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}">
+                        </td>
+                        <td class="col-yearLsnCnt"
+                            th:text="${studoc != null && studoc.yearLsnCnt > 0 ? studoc.yearLsnCnt : '--'}">
                         </td>
                         <td class="col-updateDate"
                             th:text="${studoc != null && studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}">

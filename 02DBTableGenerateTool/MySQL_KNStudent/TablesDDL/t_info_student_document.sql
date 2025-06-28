@@ -7,6 +7,7 @@ CREATE TABLE `t_info_student_document` (
   `minutes_per_lsn` int DEFAULT NULL,
   `lesson_fee` float DEFAULT NULL,
   `lesson_fee_adjusted` float DEFAULT NULL,
+  `year_lsn_cnt` int DEFAULT '0',
   `exam_date` date DEFAULT NULL,
   `exam_score` float DEFAULT NULL,
   `del_flg` int DEFAULT '0',

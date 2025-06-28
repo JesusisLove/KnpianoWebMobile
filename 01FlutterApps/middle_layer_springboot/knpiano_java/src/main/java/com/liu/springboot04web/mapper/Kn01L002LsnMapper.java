@@ -29,6 +29,15 @@ public interface Kn01L002LsnMapper  {
     Long stuLsnCountByNow(@Param("stuId") String stuId, 
                           @Param("subjectId") String subjectId);
 
+    /**
+     * 获取学生最新在课科目的年度总课时
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Long getYearLsnCnt(@Param("stuId") String stuId, 
+                       @Param("subjectId") String subjectId);
+
     public Kn01L002LsnBean getInfoById(String id);
 
     List<Kn01L002LsnBean> searchLessons(@Param("params") Map<String, Object> queryparams);
