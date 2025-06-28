@@ -110,6 +110,7 @@
                 minutes_per_lsn = #{minutesPerLsn},
                 lesson_fee = #{lessonFee},
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
+                year_lsn_cnt = #{yearLsnCnt}
                 pay_style = #{payStyle},
                 exam_date = #{examDate},
                 exam_score = #{examDcore}

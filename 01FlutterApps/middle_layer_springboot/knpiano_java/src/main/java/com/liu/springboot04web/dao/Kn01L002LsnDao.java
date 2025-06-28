@@ -151,20 +151,18 @@ public class Kn01L002LsnDao {
         return true;
     }
 
+    // 超过年度总课时（43）以后的计划排课在签到的时候，都要被强行转为加课
     private void correctLessonTypeIfOverLimit_43(Kn01L002LsnBean knLsn001Bean) {
         // 取得该生到目前为止，本年度计划课总课时
         float lsnCnt =  knLsn001Mapper.stuLsnCountByNow(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
-        /* TODO
-        * 
-         - 上满43节课的パターン
-            - 1月份到12月份 **上满43**
-            - 入学未满1年，比如3月份来上课的学生  **满课课时手动修正**
-            - 年中退学未满1年，比如今年8月份退学  **满课课时手动修正** 
-        */
-        // 到目前为止的总课时还没有达到43节课的，返回
-        if (lsnCnt <= 43) return;
+        
+        // 获取该生该科目年度总课时
+        float yearLsnCnt = knLsn001Mapper.getYearLsnCnt(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
 
-        // 超过43节课了，该课由计划课转换为加课
+        // 到目前为止的总课时还没有达到43节课的，返回
+        if (lsnCnt < yearLsnCnt) return;  // if (lsnCnt < 43) return;
+
+        // 总课时超过43节课的，该课由计划课强行转换为加课
         knLsn001Bean.setLessonType(2);
     }
 

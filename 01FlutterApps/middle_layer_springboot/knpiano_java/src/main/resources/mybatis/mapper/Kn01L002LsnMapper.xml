@@ -146,13 +146,24 @@ https://mybatis.org/mybatis-3/getting-started.html
         order by main.stu_id, main.schedual_date desc, main.lesson_id desc, main.subject_sub_id desc, main.lesson_type
     </select> 
 
+    <!-- 获取到目前为止学生上完了的计划课课时 -->
     <select id="stuLsnCountByNow" resultType="java.lang.Long">
         SELECT SUM(lsn_count) AS lsn_count 
-        FROM v_info_lsn_statistics_by_stuid
-        WHERE stu_id = #{stuId}
-        AND subject_id = #{subjectId}
-        AND lsn_month BETWEEN DATE_FORMAT(CURDATE(), '%Y-01') AND DATE_FORMAT(CURDATE(), '%Y-%m')
+          FROM v_info_lsn_statistics_by_stuid
+         WHERE stu_id = #{stuId}
+           AND subject_id = #{subjectId}
+           AND lesson_type = 1
+           AND lsn_month BETWEEN DATE_FORMAT(CURDATE(), '%Y-01') AND DATE_FORMAT(CURDATE(), '%Y-%m')
     </select>
+
+    <!-- 获取到目前为止学生上完了的计划课课时 -->
+    <select id="getYearLsnCnt" resultType="java.lang.Long">
+        SELECT year_lsn_cnt
+          FROM v_latest_subject_info_from_student_document
+         WHERE stu_id = #{stuId}
+           AND subject_id = #{subjectId}
+           AND pay_style = 1
+     </select>
 
     <!-- 排课记录的变更，调课，签到 处理-->
     <update id="updateInfo">
