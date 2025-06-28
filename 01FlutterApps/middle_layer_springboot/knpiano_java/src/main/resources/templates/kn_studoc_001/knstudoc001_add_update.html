@@ -105,18 +105,42 @@
                     <div class="card" style="padding: 20px; border-radius: 10px;">
                         <div class="d-flex align-items-center gap-2" style="padding-left: 10px;">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payStyle" value="1"
-                                    th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==1 : true">
-                                <label class="form-check-label">按月付费</label>
+                                <input class="form-check-input" type="radio" name="payStyle" value="1" id="payStyleMonthly"
+                                    th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==1 : true"
+                                    th:style="${!isAddNewMode} ? 'pointer-events: none; opacity: 0.6;' : ''">
+                                <label class="form-check-label" th:style="${!isAddNewMode} ? 'color: #6c757d;' : ''">按月付费</label>
                             </div>
                             <div class="form-check" style="padding-left: 50px;">
-                                <input class="form-check-input" type="radio" name="payStyle" value="0"
-                                    th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==0 : false">
-                                <label class="form-check-label">课时付费</label>
+                                <input class="form-check-input" type="radio" name="payStyle" value="0" id="payStyleHourly"
+                                    th:checked="${selectedStuDoc!=null}?${selectedStuDoc.payStyle}==0 : false"
+                                    th:style="${!isAddNewMode} ? 'pointer-events: none; opacity: 0.6;' : ''">
+                                <label class="form-check-label" th:style="${!isAddNewMode} ? 'color: #6c757d;' : ''">课时付费</label>
                             </div>
                         </div>
                     </div>
                     <br>
+
+                    <!-- 年度计划总课时 - 新增的字段 -->
+                    <div class="form-group" id="yearLsnCntGroup">
+                        <label>年度计划总课时</label>
+                        <!-- 新规登录模式：普通文本框 -->
+                        <div th:if="${isAddNewMode}">
+                            <input name="yearLsnCnt" type="text" class="form-control" placeholder=""
+                                th:value="${selectedStuDoc!=null}?${selectedStuDoc.yearLsnCnt}:''">
+                        </div>
+                        <!-- 变更编辑模式：带开启按钮的文本框 -->
+                        <div th:if="${!isAddNewMode}" class="input-group">
+                            <input id="yearLsnCntInput" name="yearLsnCnt" type="text" class="form-control" readonly
+                                th:value="${selectedStuDoc != null ? selectedStuDoc.yearLsnCnt : ''}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleYearLsnCntReadonly">
+                                    <span id="toggleYearLsnCntButtonText"><i class="fas fa-lock"></i> 开启</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
                     <!-- 新规登陆，变更编辑 下拉列表框 选择学生上课时长 -->
                     <div class="form-group"><label>课程时长</label>
                         <select class="form-control" name="minutesPerLsn">
@@ -167,7 +191,9 @@
         var selectedSubjectSubId = /*[[${selectedStuDoc != null ? selectedStuDoc.subjectSubId : ''}]]*/'';
         var selectedLessonFee = /*[[${selectedStuDoc != null ? selectedStuDoc.lessonFee : '0.0'}]]*/'';
         var stuDoc =  /*[[${selectedStuDoc}]]*/[];
+        var isAddNewMode = /*[[${isAddNewMode}]]*/false;
         console.log('selectedStuDoc:', stuDoc);
+        console.log('isAddNewMode:', isAddNewMode);
 
         $(document).ready(function () {
             // 页面加载时设置标准价格
@@ -200,6 +226,14 @@
             if (selectedSubjectSubId) {
                 $('#subSubjectSelect').val(selectedSubjectSubId);
             }
+
+            // 初始化年度计划总课时的显示状态
+            updateYearLsnCntVisibility();
+
+            // 监听支付方式变化
+            $('input[name="payStyle"]').change(function() {
+                updateYearLsnCntVisibility();
+            });
         });
 
         function updateSubjectSubSelect(subjectId) {
@@ -234,26 +268,67 @@
                 $('#subjectPrice').val('0.0');
             }
         }
+
+        // 更新年度计划总课时的显示状态
+        function updateYearLsnCntVisibility() {
+            var isMonthlyPayment = $('#payStyleMonthly').is(':checked');
+            var yearLsnCntGroup = $('#yearLsnCntGroup');
+            
+            if (isAddNewMode) {
+                // 新规登录模式：根据支付方式显示/隐藏
+                if (isMonthlyPayment) {
+                    yearLsnCntGroup.show();
+                } else {
+                    yearLsnCntGroup.hide();
+                }
+            } else {
+                // 变更编辑模式：始终显示
+                yearLsnCntGroup.show();
+            }
+        }
         /*]]>*/
     </script>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
+            // 标准价格的开启/关闭按钮
             const subjectPrice = document.getElementById('subjectPrice');
             const toggleButton = document.getElementById('toggleReadonly');
             const toggleButtonText = document.getElementById('toggleButtonText');
             let isReadonly = true;
 
-            toggleButton.addEventListener('click', function () {
-                isReadonly = !isReadonly;
-                subjectPrice.readOnly = isReadonly;
+            if (toggleButton) {
+                toggleButton.addEventListener('click', function () {
+                    isReadonly = !isReadonly;
+                    subjectPrice.readOnly = isReadonly;
 
-                // 更新按钮文本和图标
-                if (isReadonly) {
-                    toggleButtonText.innerHTML = '<i class="fas fa-lock"></i> 开启';
-                } else {
-                    toggleButtonText.innerHTML = '<i class="fas fa-lock-open"></i> 关闭';
-                }
-            });
+                    // 更新按钮文本和图标
+                    if (isReadonly) {
+                        toggleButtonText.innerHTML = '<i class="fas fa-lock"></i> 开启';
+                    } else {
+                        toggleButtonText.innerHTML = '<i class="fas fa-lock-open"></i> 关闭';
+                    }
+                });
+            }
+
+            // 年度计划总课时的开启/关闭按钮（仅在变更模式下存在）
+            const yearLsnCntInput = document.getElementById('yearLsnCntInput');
+            const toggleYearLsnCntButton = document.getElementById('toggleYearLsnCntReadonly');
+            const toggleYearLsnCntButtonText = document.getElementById('toggleYearLsnCntButtonText');
+            let isYearLsnCntReadonly = true;
+
+            if (toggleYearLsnCntButton && yearLsnCntInput) {
+                toggleYearLsnCntButton.addEventListener('click', function () {
+                    isYearLsnCntReadonly = !isYearLsnCntReadonly;
+                    yearLsnCntInput.readOnly = isYearLsnCntReadonly;
+
+                    // 更新按钮文本和图标
+                    if (isYearLsnCntReadonly) {
+                        toggleYearLsnCntButtonText.innerHTML = '<i class="fas fa-lock"></i> 开启';
+                    } else {
+                        toggleYearLsnCntButtonText.innerHTML = '<i class="fas fa-lock-open"></i> 关闭';
+                    }
+                });
+            }
         });
     </script>
     <script th:inline="javascript">

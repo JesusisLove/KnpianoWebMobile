@@ -84,8 +84,8 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
     return Scaffold(
       appBar: KnAppBar(
         // 设置本页面的标题：例如 邱彦涛 的科目明细，要求邱彦涛的名字底下有下划线。
-        title: '${widget.stuName}\u{0332} 的课程', // \u{0332} 是下划线 Unicode 字符,
-        subtitle: '${widget.pagePath} >> ${widget.stuName}\u{0332} 的课程',
+        title: '${widget.stuName}\u{0332} 的科目级别明细', // \u{0332} 是下划线 Unicode 字符,
+        subtitle: '${widget.pagePath} >> ${widget.stuName}\u{0332} 的科目级别明细',
         context: context,
         appBarBackgroundColor: widget.knBgColor,
         titleColor: Color.fromARGB(
@@ -144,6 +144,17 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
     );
   }
 
+  // 新增：格式化年度计划总课时显示文本
+  String _formatYearLsnCnt(Kn03D004StuDocBean student) {
+    // 如果是按月付费且有年度计划总课时数据
+    if (student.payStyle == 1 &&
+        student.yearLsnCnt != null &&
+        student.yearLsnCnt! > 0) {
+      return '年计划: ${student.yearLsnCnt}课时';
+    }
+    return ''; // 课时付费或没有数据时返回空字符串
+  }
+
   // 风格二：編集、削除
   Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
     return ValueListenableBuilder<List<Kn03D004StuDocBean>>(
@@ -159,19 +170,79 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
           itemCount: students.length,
           itemBuilder: (context, index) {
             final student = students[index];
+            final yearLsnCntText = _formatYearLsnCnt(student);
+
             return ListTile(
               leading: const CircleAvatar(
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
               title: Text('${student.subjectName} ${student.subjectSubName}'),
-              subtitle: Row(
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(student.lessonFeeAdjusted > 0
-                        ? '＄${student.lessonFeeAdjusted}'
-                        : '＄${student.lessonFee}'),
+                  // 第一行：课程单价和级别调整日期
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          student.lessonFeeAdjusted > 0
+                              ? '课程单价: ＄${student.lessonFeeAdjusted.toStringAsFixed(2)}'
+                              : '课程单价: ＄${student.lessonFee.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                      Text(
+                        '级别调整日期: ${student.adjustedDate.substring(0, 10)}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
                   ),
-                  Text(student.adjustedDate.substring(0, 10)),
+                  // 第二行：年度计划总课时（只在有数据时显示）
+                  if (yearLsnCntText.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          yearLsnCntText,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          student.payStyle == 1 ? '按月付费' : '课时付费',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: student.payStyle == 1
+                                ? Colors.green[600]
+                                : Colors.orange[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  // 如果没有年度计划总课时，也显示支付方式
+                  if (yearLsnCntText.isEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Spacer(),
+                        Text(
+                          student.payStyle == 1 ? '按月付费' : '课时付费',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: student.payStyle == 1
+                                ? Colors.green[600]
+                                : Colors.orange[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
               trailing: PopupMenuButton<String>(

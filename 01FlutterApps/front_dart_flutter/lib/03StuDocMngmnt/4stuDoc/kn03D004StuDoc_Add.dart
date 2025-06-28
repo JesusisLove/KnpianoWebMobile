@@ -45,6 +45,9 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   double standardPrice = 0.0;
   TextEditingController adjustedPriceController = TextEditingController();
 
+  // 新增：年度计划总课时
+  TextEditingController yearLsnCntController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +118,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     } else {
       throw Exception('Failed to load duration');
     }
+  }
+
+  // 新增：判断是否应该显示年度计划总课时
+  bool _shouldShowYearLsnCnt() {
+    return payStyle == 1; // 按月付费时显示
   }
 
   Widget _buildSubjectDropdown() {
@@ -250,25 +258,27 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
             Row(
               children: [
                 Expanded(
-                  child: RadioListTile<bool>(
+                  child: RadioListTile<int>(
                     title: const Text('按月付费'),
-                    value: (payStyle == 1),
-                    groupValue: isMonthlyPayment,
-                    onChanged: (bool? value) {
+                    value: 1,
+                    groupValue: payStyle,
+                    onChanged: (int? value) {
                       setState(() {
-                        payStyle = 1;
+                        payStyle = value;
+                        isMonthlyPayment = (value == 1);
                       });
                     },
                   ),
                 ),
                 Expanded(
-                  child: RadioListTile<bool>(
+                  child: RadioListTile<int>(
                     title: const Text('课时付费'),
-                    value: (payStyle == 0),
-                    groupValue: isMonthlyPayment,
-                    onChanged: (bool? value) {
+                    value: 0,
+                    groupValue: payStyle,
+                    onChanged: (int? value) {
                       setState(() {
-                        payStyle = 0;
+                        payStyle = value;
+                        isMonthlyPayment = (value == 1);
                       });
                     },
                   ),
@@ -276,6 +286,22 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               ],
             ),
             const SizedBox(height: 8),
+
+            // 年度计划总课时 - 新增字段，只在按月付费时显示
+            if (_shouldShowYearLsnCnt()) ...[
+              TextFormField(
+                controller: yearLsnCntController,
+                decoration: const InputDecoration(
+                  labelText: '年度计划总课时',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                minLines: 1,
+              ),
+              const SizedBox(height: 8),
+            ],
+
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(
                 labelText: '课程时长',
@@ -378,6 +404,31 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   }
 
   Future<void> saveData() async {
+    // 解析年度计划总课时
+    int? yearLsnCntValue;
+    if (payStyle == 1 && yearLsnCntController.text.isNotEmpty) {
+      // 按月付费且有值
+      yearLsnCntValue = int.tryParse(yearLsnCntController.text);
+      if (yearLsnCntValue == null || yearLsnCntValue < 0) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('输入错误'),
+              content: const Text('请输入有效的年度计划总课时'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+    }
+
     // 准备要发送的数据
     Map<String, dynamic> data = {
       'stuId': widget.stuId,
@@ -389,6 +440,7 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
       'minutesPerLsn': selectedDuration,
       'lessonFee': standardPrice,
       'lessonFeeAdjusted': double.tryParse(adjustedPriceController.text) ?? 0.0,
+      'yearLsnCnt': yearLsnCntValue, // 新增：年度计划总课时
     };
 
     try {
@@ -506,9 +558,18 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
       subjectSubs.clear();
       adjustmentDate = DateTime.now();
       isMonthlyPayment = true;
+      payStyle = 1; // 重置为按月付费
       selectedDuration = null;
       standardPrice = 0.0;
       adjustedPriceController.clear();
+      yearLsnCntController.clear(); // 新增：清空年度计划总课时
     });
+  }
+
+  @override
+  void dispose() {
+    adjustedPriceController.dispose();
+    yearLsnCntController.dispose(); // 新增：释放年度计划总课时控制器
+    super.dispose();
   }
 }
