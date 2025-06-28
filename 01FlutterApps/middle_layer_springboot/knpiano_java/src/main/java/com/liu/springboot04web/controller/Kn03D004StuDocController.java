@@ -274,6 +274,10 @@ public class Kn03D004StuDocController {
             msgList.add("请选择价格调整日期");
         }
 
+        if (knStudoc001Bean.getPayStyle() == 1 && knStudoc001Bean.getYearLsnCnt() == null) {
+            msgList.add("请输入年度计划总课时");
+        }
+
         if (knStudoc001Bean.getMinutesPerLsn() == null || knStudoc001Bean.getMinutesPerLsn() == 0) {
             msgList.add("请选择上课时长");
         }

@@ -45,11 +45,14 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
   String subjectName = '';
   String subjectSubName = '';
   List<DurationBean> duration = []; // 初始化为空列表
-  bool isMonthlyPayment = true;
   int? payStyle;
   int? selectedDuration;
   double standardPrice = 0.0;
   TextEditingController adjustedPriceController = TextEditingController();
+
+  // 年度计划总课时相关变量
+  TextEditingController yearLsnCntController = TextEditingController();
+  bool _isYearLsnCntReadonly = true; // 年度计划总课时的只读状态
 
   @override
   void initState() {
@@ -116,6 +119,14 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         adjustedPriceController.text =
             (studentInfo['lessonFeeAdjusted'] ?? 0.0).toStringAsFixed(2);
         payStyle = studentInfo['payStyle'];
+
+        // 设置年度计划总课时的值
+        yearLsnCntController.text =
+            (studentInfo['yearLsnCnt'] ?? '').toString();
+        if (yearLsnCntController.text == '0' ||
+            yearLsnCntController.text == 'null') {
+          yearLsnCntController.text = '';
+        }
       });
     } else {
       throw Exception('Failed to load student info');
@@ -139,6 +150,18 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
     } else {
       throw Exception('Failed to load duration');
     }
+  }
+
+  // 切换年度计划总课时的只读状态
+  void _toggleYearLsnCntReadonly() {
+    setState(() {
+      _isYearLsnCntReadonly = !_isYearLsnCntReadonly;
+    });
+  }
+
+  // 判断是否应该显示年度计划总课时
+  bool _shouldShowYearLsnCnt() {
+    return payStyle == 1; // 按月付费时显示
   }
 
   @override
@@ -210,40 +233,88 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
+
+                      // 科目支付方式 - 在变更模式下禁用交互但保持提交值
                       const Text('科目支付方式'),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: RadioListTile<bool>(
-                              title: const Text('按月付费'),
-                              value: (payStyle == 1),
-                              groupValue: isMonthlyPayment,
-                              onChanged: _isLoading
-                                  ? null // 如果正在加载，禁用交互
-                                  : (bool? value) {
-                                      setState(() {
-                                        payStyle = 1;
-                                      });
-                                    },
+                      Container(
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Colors.grey.withOpacity(0.3)),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: IgnorePointer(
+                                // 禁用交互但保持视觉状态
+                                child: RadioListTile<int>(
+                                  title: Text('按月付费',
+                                      style: TextStyle(
+                                          color: Colors.grey[600])), // 灰色文字
+                                  value: 1,
+                                  groupValue: payStyle,
+                                  onChanged: null, // 禁用交互
+                                ),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: RadioListTile<bool>(
-                              title: const Text('课时付费'),
-                              value: (payStyle == 0),
-                              groupValue: isMonthlyPayment,
-                              onChanged: _isLoading
-                                  ? null // 如果正在加载，禁用交互
-                                  : (bool? value) {
-                                      setState(() {
-                                        payStyle = 0;
-                                      });
-                                    },
+                            Expanded(
+                              child: IgnorePointer(
+                                // 禁用交互但保持视觉状态
+                                child: RadioListTile<int>(
+                                  title: Text('课时付费',
+                                      style: TextStyle(
+                                          color: Colors.grey[600])), // 灰色文字
+                                  value: 0,
+                                  groupValue: payStyle,
+                                  onChanged: null, // 禁用交互
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 8),
+
+                      // 年度计划总课时 - 新增字段
+                      if (_shouldShowYearLsnCnt()) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: yearLsnCntController,
+                                readOnly: _isYearLsnCntReadonly,
+                                decoration: InputDecoration(
+                                  labelText: '年度计划总课时',
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isYearLsnCntReadonly
+                                          ? Icons.lock
+                                          : Icons.lock_open,
+                                      color: _isYearLsnCntReadonly
+                                          ? Colors.grey
+                                          : widget.knBgColor,
+                                    ),
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _toggleYearLsnCntReadonly,
+                                    tooltip:
+                                        _isYearLsnCntReadonly ? '开启编辑' : '关闭编辑',
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                style: TextStyle(
+                                  color: _isYearLsnCntReadonly
+                                      ? Colors.grey[600]
+                                      : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+
                       DropdownButtonFormField<int>(
                         decoration: const InputDecoration(
                           labelText: '课程时长',
@@ -345,6 +416,31 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
       return;
     }
 
+    // 解析年度计划总课时
+    int? yearLsnCntValue;
+    if (payStyle == 1 && yearLsnCntController.text.isNotEmpty) {
+      // 按月付费且有值
+      yearLsnCntValue = int.tryParse(yearLsnCntController.text);
+      if (yearLsnCntValue == null || yearLsnCntValue < 0) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('输入错误'),
+              content: const Text('请输入有效的年度计划总课时'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+    }
+
     Map<String, dynamic> data = {
       'stuId': widget.stuId,
       'subjectId': widget.subjectId,
@@ -354,6 +450,7 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
       'lessonFee': standardPrice,
       'lessonFeeAdjusted': adjustedPriceValue,
       'minutesPerLsn': selectedDuration,
+      'yearLsnCnt': yearLsnCntValue, // 年度计划总课时
     };
 
     try {
@@ -433,5 +530,12 @@ class _StudentDocumentEditPageState extends State<StudentDocumentEditPage> {
         },
       );
     }
+  }
+
+  @override
+  void dispose() {
+    adjustedPriceController.dispose();
+    yearLsnCntController.dispose(); // 释放年度计划总课时控制器
+    super.dispose();
   }
 }

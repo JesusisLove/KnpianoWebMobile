@@ -16,6 +16,7 @@ class Kn03D004StuDocBean {
   final int subjectCount;
   final double lessonFee;
   final double lessonFeeAdjusted;
+  final int yearLsnCnt;
   final String examDate;
   final double examScore;
   final String introducer;
@@ -34,6 +35,7 @@ class Kn03D004StuDocBean {
     required this.subjectCount,
     required this.lessonFee,
     required this.lessonFeeAdjusted,
+    required this.yearLsnCnt,
     required this.examDate,
     required this.examScore,
     required this.introducer,
@@ -71,6 +73,7 @@ class Kn03D004StuDocBean {
       subjectCount: json['subjectCount'] ?? 0,
       lessonFee: json['lessonFee']?.toDouble() ?? 0.0,
       lessonFeeAdjusted: json['lessonFeeAdjusted']?.toDouble() ?? 0.0,
+      yearLsnCnt: json['yearLsnCnt'] ?? 0,
       examDate: json['examDate'] ?? '',
       examScore: json['examScore']?.toDouble() ?? 0.0,
       introducer: json['introducer'] ?? '',

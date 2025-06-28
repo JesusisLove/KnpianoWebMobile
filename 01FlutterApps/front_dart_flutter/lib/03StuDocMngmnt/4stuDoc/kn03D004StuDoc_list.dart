@@ -199,47 +199,37 @@ class _StudentDocPageState extends State<StudentDocPage>
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
               title: Text(student.stuName),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('${student.subjectCount} 科',
-                      style: const TextStyle(fontSize: 16.0)),
-                  const SizedBox(
-                      width: 48.0), // 调整 Text 和 PopupMenuButton 之间的间距
-                  PopupMenuButton<String>(
-                    enabled: !_isLoading, // 如果正在加载，禁用按钮
-                    onSelected: (String result) {
-                      switch (result) {
-                        case 'detail':
-                          Navigator.push<bool>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StudentDocDetailPage(
-                                stuId: student.stuId,
-                                stuName: student.stuName,
-                                knBgColor: widget.knBgColor,
-                                knFontColor: widget.knFontColor,
-                                pagePath: widget.subtitle,
-                              ),
-                            ),
-                          ).then((value) {
-                            _fetchStudentData();
-                          });
-                          break;
-                      }
-                    },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'detail',
-                        child: ListTile(
-                          leading: Icon(Icons.edit),
-                          title: Text('详细'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              trailing: SizedBox(
+                width: 100, // 固定宽度，保证对齐
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${student.subjectCount} 科',
+                        style: const TextStyle(fontSize: 16.0)),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, size: 24.0),
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              // 直接跳转到详细页面
+                              Navigator.push<bool>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentDocDetailPage(
+                                    stuId: student.stuId,
+                                    stuName: student.stuName,
+                                    knBgColor: widget.knBgColor,
+                                    knFontColor: widget.knFontColor,
+                                    pagePath: widget.subtitle,
+                                  ),
+                                ),
+                              ).then((value) {
+                                _fetchStudentData();
+                              });
+                            },
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -268,37 +258,35 @@ class _StudentDocPageState extends State<StudentDocPage>
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
               title: Text(student.stuName),
-              trailing: PopupMenuButton<String>(
-                enabled: !_isLoading, // 如果正在加载，禁用按钮
-                onSelected: (String result) {
-                  switch (result) {
-                    case 'addnew':
-                      Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StudentDocumentPage(
-                            stuId: student.stuId,
-                            stuName: student.stuName,
-                            knBgColor: widget.knBgColor,
-                            knFontColor: widget.knFontColor,
-                            pagePath: widget.subtitle,
-                          ),
-                        ),
-                      ).then((value) {
-                        _fetchStudentData();
-                      });
-                      break;
-                  }
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'addnew',
-                    child: ListTile(
-                      leading: Icon(Icons.edit),
-                      title: Text('新規'),
+              trailing: SizedBox(
+                width: 80, // 固定宽度，保证对齐
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, size: 24.0),
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              // 直接跳转到新增页面
+                              Navigator.push<bool>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentDocumentPage(
+                                    stuId: student.stuId,
+                                    stuName: student.stuName,
+                                    knBgColor: widget.knBgColor,
+                                    knFontColor: widget.knFontColor,
+                                    pagePath: widget.subtitle,
+                                  ),
+                                ),
+                              ).then((value) {
+                                _fetchStudentData();
+                              });
+                            },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

@@ -105,15 +105,11 @@
     <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
     <!-- 绑定变量并格式化日期 -->
     <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
-
             update t_info_student_document set
                 minutes_per_lsn = #{minutesPerLsn},
                 lesson_fee = #{lessonFee},
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
                 year_lsn_cnt = #{yearLsnCnt}
-                pay_style = #{payStyle},
-                exam_date = #{examDate},
-                exam_score = #{examDcore}
             WHERE stu_id = #{stuId}
               AND subject_id = #{subjectId}
               AND subject_sub_id = #{subjectSubId} 
