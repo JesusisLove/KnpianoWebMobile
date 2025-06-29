@@ -1042,7 +1042,7 @@ class _Kn01L003ExtraPiesesIntoOneState
                     valueColor: AlwaysStoppedAnimation<Color>(
                       progressPercentage >= 1.0 ? Colors.green : Colors.blue,
                     ),
-                    minHeight: 8,
+                    minHeight: 4,
                   ),
                 ],
               ),
