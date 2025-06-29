@@ -442,7 +442,8 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+                  // color: Colors.grey,
+                  color: Colors.black,
                 ),
               ),
               Text(
@@ -464,7 +465,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 // 底层：灰色进度条（固定长度，代表满额43节课）
                 Container(
                   width: double.infinity, // ← 在这里！
-                  height: 8,
+                  height: 4,
                   decoration: BoxDecoration(
                     // color: Colors.grey[200],
                     color: Colors.white,
@@ -476,7 +477,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                   alignment: Alignment.centerLeft,
                   widthFactor: barWidth,
                   child: Container(
-                    height: 8,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: color,
                       borderRadius: BorderRadius.circular(4),
