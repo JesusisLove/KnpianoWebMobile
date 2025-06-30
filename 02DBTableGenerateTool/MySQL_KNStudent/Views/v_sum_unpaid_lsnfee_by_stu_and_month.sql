@@ -1,3 +1,12 @@
+-- 学费月度报告的分组查询 
+-- ①未支付学费统计（分组查询学生，月份）
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_sum_unpaid_lsnfee_by_stu_and_month`;
+-- 后台维护用
+-- 本视图被下列视图单独调用
+   -- v_total_lsnfee_with_paid_unpaid_every_month
+   -- v_total_lsnfee_with_paid_unpaid_every_month_every_student
+-- ①每个学生每个月未支付状况的分组合计 v_sum_unpaid_lsnfee_by_stu_and_month
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 
@@ -11,4 +20,8 @@ VIEW v_sum_unpaid_lsnfee_by_stu_and_month AS
         lsn_month AS lsn_month
     FROM
         v_info_lesson_sum_fee_unpaid_yet
-    GROUP BY stu_id , stu_name , nik_name, lsn_month
+    GROUP BY 
+        stu_id, 
+        stu_name, 
+        nik_name, 
+        lsn_month

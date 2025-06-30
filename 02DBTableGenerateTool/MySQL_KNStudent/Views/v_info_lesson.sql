@@ -1,4 +1,7 @@
-DROP VIEW IF EXISTS v_info_lesson;
+-- 学生授業情報管理
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_info_lesson`;
+-- 视图
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 
@@ -11,9 +14,10 @@ VIEW v_info_lesson AS
         a.subject_sub_id AS subject_sub_id,
         c.subject_sub_name AS subject_sub_name,
         a.stu_id AS stu_id,
-        case when b.del_flg = 1 then  CONCAT(b.stu_name, '(已退学)')
-             else b.stu_name
-        end AS stu_name,
+        CASE 
+            WHEN b.del_flg = 1 THEN CONCAT(b.stu_name, '(已退学)')
+            ELSE b.stu_name
+        END AS stu_name,
         CASE 
             WHEN b.del_flg = 1 THEN 
                 CASE 
@@ -37,4 +41,4 @@ VIEW v_info_lesson AS
         ((t_info_lesson a
         INNER JOIN t_mst_student b ON ((a.stu_id = b.stu_id)))
         INNER JOIN v_info_subject_edaban c ON (((a.subject_id = c.subject_id)
-            AND (a.subject_sub_id = c.subject_sub_id))))
+            AND (a.subject_sub_id = c.subject_sub_id))));

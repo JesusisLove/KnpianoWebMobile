@@ -1,4 +1,13 @@
-DROP VIEW IF EXISTS v_earliest_fixed_week_info;
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_earliest_fixed_week_info`;
+/* 给AI的提示词：
+这是t_info_fixedlesson中stu_id是，'kn-stu-3'的结果集，这个条件下的结果集里，
+你看kn-sub-20的记录，有2条记录，从fixed_week字段上看有“Fri”和“Thu”，因为Thu比Fri早，所以kn-sub-20的记录中“Thu”的这条记录是我要的记录，同理，
+你看kn-sub-22的记录，有2条记录，从fixed_week字段上看有“Tue”和“Wed”，因为Tue比Wed早，所以kn-sub-22的记录中“Tue”的这条记录是我要的记录，同理，
+你看kn-sub-6的记录，有3条记录，从fixed_week字段上看有“Mon”和“Tue”和“Thu”，因为这三个星期中“Mon”是最早的，所以kn-sub-6的记录中“Mon”的这条记录是我要的记录，
+同样道理，如果换成stu_id是其他的学生编号，也是按照这个要求，在他的当前科目中找出星期最早的那个记录显示出来。
+理解了我的要求了吗？请你按照我的要求给我写一个Mysql的Sql语句。
+*/
 CREATE VIEW v_earliest_fixed_week_info AS
 SELECT 
     t1.stu_id AS stu_id,

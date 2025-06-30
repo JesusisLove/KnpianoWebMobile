@@ -1,5 +1,8 @@
 
-DROP VIEW IF EXISTS v_info_fixedlesson;
+-- 学生固定授業計画管理
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_info_fixedlesson`;
+-- 不要做驼峰命名变更，为了java程序处理的统一性。
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 

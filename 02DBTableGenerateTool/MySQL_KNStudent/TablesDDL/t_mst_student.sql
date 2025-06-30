@@ -1,6 +1,8 @@
+-- DROP TABLE IF EXISTS `t_mst_student`;
 CREATE TABLE `t_mst_student` (
   `stu_id` varchar(255) NOT NULL,
-  `stu_name` varchar(20) NOT NULL,
+  `stu_name` varchar(56) NOT NULL,
+  `nik_name` varchar(31) NOT NULL,
   `gender` int DEFAULT NULL,
   `birthday` varchar(10) DEFAULT NULL,
   `address` varchar(64) DEFAULT NULL,
@@ -14,4 +16,4 @@ CREATE TABLE `t_mst_student` (
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`stu_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

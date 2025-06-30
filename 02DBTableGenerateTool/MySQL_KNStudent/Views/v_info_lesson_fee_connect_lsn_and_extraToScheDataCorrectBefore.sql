@@ -53,4 +53,4 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrectBefore AS
                     AND (studoc.subject_id = doc.subject_id)
                     AND (studoc.subject_sub_id = doc.subject_sub_id)
                     AND (DATE_FORMAT(studoc.adjusted_date, '%Y/%m/%d') <= DATE_FORMAT(lsn.schedual_date, '%Y/%m/%d'))))))))
-    ORDER BY fee.lsn_month
+    ORDER BY fee.lsn_month;
