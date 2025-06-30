@@ -130,8 +130,8 @@ CREATE TABLE `t_info_subject_edaban` (
   `del_flg` int DEFAULT '0',
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NULL DEFAULT NULL,
-  CONSTRAINT subject_edaban FOREIGN KEY (subject_id) REFERENCES t_mst_subject(subject_id),
-  PRIMARY KEY (`subject_id`,`subject_sub_id`)
+  PRIMARY KEY (`subject_id`,`subject_sub_id`),
+  CONSTRAINT subject_edaban FOREIGN KEY (subject_id) REFERENCES t_mst_subject(subject_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 03銀行基本情報マスタ
@@ -241,8 +241,7 @@ CREATE TABLE `t_info_lesson_fee` (
   `del_flg` int DEFAULT '0',
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`lsn_fee_id`),
-  UNIQUE KEY `uk_fee_lesson` (`lsn_fee_id`, `lesson_id`),
+  PRIMARY KEY (`lsn_fee_id`, `lesson_id`),
   KEY `fk_lesson_id` (`lesson_id`),
   CONSTRAINT `fk_lesson_id` FOREIGN KEY (`lesson_id`) REFERENCES `t_info_lesson` (`lesson_id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -260,12 +259,10 @@ CREATE TABLE `t_info_lesson_pay` (
   `del_flg` int DEFAULT '0',
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`lsn_pay_id`),
-  UNIQUE KEY `uk_pay_fee` (`lsn_pay_id`, `lsn_fee_id`),
-  KEY `fk_bank_id` (`bank_id`),
+  PRIMARY KEY (`lsn_pay_id`,`lsn_fee_id`),
   KEY `fk_lsn_fee_id` (`lsn_fee_id`),
-  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_lsn_fee_id` FOREIGN KEY (`lsn_fee_id`) REFERENCES `t_info_lesson_fee` (`lsn_fee_id`) ON DELETE RESTRICT
+  KEY `fk_bank_id` (`bank_id`),
+  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 23年度星期生成表

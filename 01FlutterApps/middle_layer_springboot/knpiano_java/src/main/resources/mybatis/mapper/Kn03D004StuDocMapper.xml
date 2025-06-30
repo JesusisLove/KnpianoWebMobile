@@ -85,6 +85,7 @@
             minutes_per_lsn,
             lesson_fee,
             lesson_fee_adjusted,
+            year_lsn_cnt,
             exam_date,
             exam_score
             )
@@ -97,6 +98,7 @@
             #{minutesPerLsn},
             #{lessonFee},
             #{lessonFeeAdjusted},
+            #{yearLsnCnt},
             #{examDate},
             #{examDcore}
         )
