@@ -1,5 +1,8 @@
-use prod_KNStudent;
-DROP VIEW IF EXISTS v_total_lsnfee_with_paid_unpaid_every_month_every_student;
+-- （学生明细综合）每个学生当前年度每月总课费的总支付，未支付状况查询
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS v_total_lsnfee_with_paid_unpaid_every_month_every_student;
+-- 后台维护用
+-- 每个学生当前年度每月总课费的总支付，未支付状况查询 v_total_lsnfee_with_paid_unpaid_every_month_every_student
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = root@localhost 

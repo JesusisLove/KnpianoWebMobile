@@ -1,4 +1,4 @@
-
+-- DROP TABLE IF EXISTS `t_info_lesson_extra_to_sche`;
 /* 添加索引的原由：
 对加课换正课的新的课费id做已经支付的更新处理，
 由于这个表没有主键，所以程序在执行的时候启动safe update模式（安全更新模式）

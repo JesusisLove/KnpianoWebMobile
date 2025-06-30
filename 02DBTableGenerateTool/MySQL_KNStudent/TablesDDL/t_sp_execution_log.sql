@@ -1,4 +1,5 @@
 -- 建立调用课费预支付存储过程日志表
+-- DROP TABLE IF EXISTS `t_sp_execution_log`;
 CREATE TABLE t_sp_execution_log (
     id INT AUTO_INCREMENT PRIMARY KEY,
     procedure_name VARCHAR(100),
