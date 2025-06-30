@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class Kn01L002LsnDao {
@@ -154,7 +155,8 @@ public class Kn01L002LsnDao {
     // 超过年度总课时（43）以后的计划排课在签到的时候，都要被强行转为加课
     private void correctLessonTypeIfOverLimit_43(Kn01L002LsnBean knLsn001Bean) {
         // 取得该生到目前为止，本年度计划课总课时
-        float lsnCnt =  knLsn001Mapper.stuLsnCountByNow(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        // ✅ 使用Optional处理当返回的对象为null时返回值为0L
+        float lsnCnt =  Optional.ofNullable(knLsn001Mapper.stuLsnCountByNow(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId())).orElse(0L);
         
         // 获取该生该科目年度总课时
         float yearLsnCnt = knLsn001Mapper.getYearLsnCnt(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());

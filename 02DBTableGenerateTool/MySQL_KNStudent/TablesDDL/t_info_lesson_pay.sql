@@ -12,6 +12,5 @@ CREATE TABLE `t_info_lesson_pay` (
   PRIMARY KEY (`lsn_pay_id`,`lsn_fee_id`),
   KEY `fk_lsn_fee_id` (`lsn_fee_id`),
   KEY `fk_bank_id` (`bank_id`),
-  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_lsn_fee_id` FOREIGN KEY (`lsn_fee_id`) REFERENCES `t_info_lesson_fee` (`lsn_fee_id`) ON DELETE RESTRICT
+  CONSTRAINT `fk_bank_id` FOREIGN KEY (`bank_id`) REFERENCES `t_mst_bank` (`bank_id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
