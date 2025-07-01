@@ -29,7 +29,7 @@ DROP VIEW IF EXISTS `v_earliest_fixed_week_info`;
 DROP VIEW IF EXISTS `v_info_lesson`;
 DROP VIEW IF EXISTS `v_info_lesson_include_extra2sche`;
 DROP VIEW IF EXISTS `v_info_lsn_statistics_by_stuid`;
-DROP VIEW IF EXISTS `v_info_lesson_fee_connect_lsn`;
+-- DROP VIEW IF EXISTS `v_info_lesson_fee_connect_lsn`;
 DROP VIEW IF EXISTS `v_info_lesson_sum_fee_unpaid_yet`;
 DROP VIEW IF EXISTS `v_info_lesson_sum_fee_pay_over`;
 DROP VIEW IF EXISTS `v_info_lesson_pay_over`;
@@ -2010,7 +2010,7 @@ DELIMITER ;
 -- USE prod_KNStudent;
 DELIMITER //
 -- DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_get_advance_pay_subjects_and_lsnschedual_info`(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
+CREATE DEFINER = root@localhost PROCEDURE `sp_get_advance_pay_subjects_and_lsnschedual_info`(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
 BEGIN
     DECLARE v_first_day DATE;
     -- 临时禁用安全更新模式，以允许不使用主键的更新操作

@@ -15,6 +15,7 @@ class Kn04I003LsnCountingBean {
   final String stuName;
   final String subjectId;
   final String subjectName;
+  final double yearLsnCnt;
   final double totalLsnCnt0; // 按课时收费
   final double totalLsnCnt1; // 计划课
   final double totalLsnCnt2; // 加时课
@@ -24,6 +25,7 @@ class Kn04I003LsnCountingBean {
     required this.stuName,
     required this.subjectId,
     required this.subjectName,
+    required this.yearLsnCnt,
     required this.totalLsnCnt0,
     required this.totalLsnCnt1,
     required this.totalLsnCnt2,
@@ -35,6 +37,7 @@ class Kn04I003LsnCountingBean {
       stuName: json['stuName'] as String? ?? '',
       subjectId: json['subjectId'] as String? ?? '',
       subjectName: json['subjectName'] as String? ?? '',
+      yearLsnCnt: json['yearLsnCnt']?.toDouble() ?? 0.0,
       totalLsnCnt0: json['totalLsnCnt0']?.toDouble() ?? 0.0,
       totalLsnCnt1: json['totalLsnCnt1']?.toDouble() ?? 0.0,
       totalLsnCnt2: json['totalLsnCnt2']?.toDouble() ?? 0.0,
@@ -76,7 +79,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   final String titleName = '学生课程统计';
   late String pagePath;
 
-  final double maxLessons = 43.0; // 满课时数
+  // final double maxLessons = 43.0; // 满课时数
 
   @override
   void initState() {
@@ -399,13 +402,24 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // 计划总课时
+                Text(
+                  '计划: ${item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt.toStringAsFixed(1)}节',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 // 完成度
                 Text(
-                  '完成度: ${((item.totalLsnCnt1 / maxLessons) * 100).toStringAsFixed(1)}%',
+                  '完成度: ${((item.totalLsnCnt1 / (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)) * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: item.totalLsnCnt1 >= maxLessons
+                    color: item.totalLsnCnt1 >=
+                            (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)
                         ? Colors.green
                         : widget.knBgColor,
                   ),
@@ -415,18 +429,22 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             const SizedBox(height: 12),
             // 课程进度条
             if (item.totalLsnCnt0 > 0)
-              _buildLessonBar('时费课', item.totalLsnCnt0, Colors.green),
+              _buildLessonBar(
+                  '时费课', item.totalLsnCnt0, item.yearLsnCnt, Colors.green),
             if (item.totalLsnCnt1 > 0)
-              _buildLessonBar('计划课', item.totalLsnCnt1, widget.knBgColor),
+              _buildLessonBar(
+                  '计划课', item.totalLsnCnt1, item.yearLsnCnt, widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
-              _buildLessonBar('加时课', item.totalLsnCnt2, Colors.pink),
+              _buildLessonBar(
+                  '加时课', item.totalLsnCnt2, item.yearLsnCnt, Colors.pink),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLessonBar(String label, double count, Color color) {
+  Widget _buildLessonBar(
+      String label, double count, double maxLessons, Color color) {
     double barWidth = (count / maxLessons).clamp(0.0, 1.0);
 
     return Padding(
