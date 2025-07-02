@@ -429,14 +429,17 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             const SizedBox(height: 12),
             // 课程进度条
             if (item.totalLsnCnt0 > 0)
-              _buildLessonBar(
-                  '时费课', item.totalLsnCnt0, item.yearLsnCnt, Colors.green),
+              _buildLessonBar('时费课', item.totalLsnCnt0,
+                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.green),
             if (item.totalLsnCnt1 > 0)
               _buildLessonBar(
-                  '计划课', item.totalLsnCnt1, item.yearLsnCnt, widget.knBgColor),
+                  '计划课',
+                  item.totalLsnCnt1,
+                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt),
+                  widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
-              _buildLessonBar(
-                  '加时课', item.totalLsnCnt2, item.yearLsnCnt, Colors.pink),
+              _buildLessonBar('加时课', item.totalLsnCnt2,
+                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.pink),
           ],
         ),
       ),
