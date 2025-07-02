@@ -38,6 +38,15 @@ public interface Kn01L002LsnMapper  {
     Long getYearLsnCnt(@Param("stuId") String stuId, 
                        @Param("subjectId") String subjectId);
 
+    /**
+     * 获取该生该科目的1节课的课时
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Integer getMinutesPerLsn(@Param("stuId") String stuId, 
+                          @Param("subjectId") String subjectId);
+
     public Kn01L002LsnBean getInfoById(String id);
 
     List<Kn01L002LsnBean> searchLessons(@Param("params") Map<String, Object> queryparams);

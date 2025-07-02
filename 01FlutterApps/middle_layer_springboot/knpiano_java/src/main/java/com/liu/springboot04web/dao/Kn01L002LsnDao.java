@@ -48,11 +48,17 @@ public class Kn01L002LsnDao {
         List<Kn01L002LsnBean> list = knLsn001Mapper.getStuNameList(year);
         return list;
     }
+
     // 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程
     public List<Kn01L002LsnBean> getInfoListByDay(String schedualDate) {
         List<Kn01L002LsnBean> list = knLsn001Mapper.getInfoListByDay(schedualDate);
         return list;
     }
+
+    // 获取该生最新正在上课的1节课时长
+    public Integer getMinutesPerLsn(String stuId, String subjectId) {
+        return knLsn001Mapper.getMinutesPerLsn(stuId, subjectId);
+    } 
 
     // 获取所有符合查询条件的课程信息
     public List<Kn01L002LsnBean> searchLessons(Map<String, Object> params) {
