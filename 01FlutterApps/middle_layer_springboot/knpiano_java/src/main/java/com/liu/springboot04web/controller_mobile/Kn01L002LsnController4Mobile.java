@@ -1,5 +1,6 @@
 package com.liu.springboot04web.controller_mobile;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
+import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
 @RestController
@@ -31,7 +33,7 @@ public class Kn01L002LsnController4Mobile {
     private Kn01L002LsnDao kn01L002LsnDao;
 
     @Autowired
-    private Kn03D004StuDocDao kn03D004StuSubjectDao;
+    private Kn03D004StuDocDao kn03D004StuDocDao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn01L002LsnController4Mobile(ComboListInfoService combListInfo) {
@@ -91,8 +93,19 @@ public class Kn01L002LsnController4Mobile {
 
     // 【学生排课新規、编辑、调课】画面にて、【保存】ボタンを押下
     @PostMapping("/mb_kn_lsn_001_save")
-    public void excuteInfoAdd(@RequestBody Kn01L002LsnBean knStudoc001Bean) {
-        kn01L002LsnDao.save(knStudoc001Bean);
+    public ResponseEntity<String>  excuteInfoAdd(@RequestBody Kn01L002LsnBean knStudoc001Bean) {
+        // 确认是不是有效的排课日期
+        Kn03D004StuDocBean bean = kn03D004StuDocDao.getLatestMinAdjustDateByStuId(knStudoc001Bean.getStuId(), knStudoc001Bean.getSubjectId());
+        // 如果排课日期大于学生档案里第一次的调整日期（第一次入档可以上课的日期），则允许执行排课操作
+        if (DateUtils.compareDatesMethod2(bean.getAdjustedDate(), knStudoc001Bean.getSchedualDate() )) {
+            kn01L002LsnDao.save(knStudoc001Bean);
+            return ResponseEntity.ok("success");
+        } else {
+            // 定义目标日期格式
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("排课操作被禁止：该生的排课请在【" + formatter.format(bean.getAdjustedDate()) + "】以后执行排课！");
+        }
     }
 
     // 【课程表一覧】取消调课的请求处理
@@ -175,7 +188,7 @@ public class Kn01L002LsnController4Mobile {
     // @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_latest_subjects/{stuId}")
     public ResponseEntity<List<Kn03D004StuDocBean>> getLatestSubjectListByStuId(@PathVariable("stuId") String stuId) {
-        List<Kn03D004StuDocBean> subjectList = kn03D004StuSubjectDao.getLatestSubjectListByStuId(stuId);
+        List<Kn03D004StuDocBean> subjectList = kn03D004StuDocDao.getLatestSubjectListByStuId(stuId);
         return ResponseEntity.ok(subjectList);
     }
 

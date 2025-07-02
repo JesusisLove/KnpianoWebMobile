@@ -2,6 +2,7 @@ package com.liu.springboot04web.othercommon;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +56,71 @@ public class DateUtils {
             yearList.add(String.valueOf(year));
         }
         return yearList;
+    }
+
+    /**
+     * 方法1: 灵活解析日期格式并比较（推荐）
+     * 自动识别日期格式并比较两个日期，只比较到年月日
+     * @param firstDate 可能的格式: yyyy-MM-dd 或 yyyy-MM-dd HH:mm
+     * @param secondDate 可能的格式: yyyy-MM-dd 或 yyyy-MM-dd HH:mm
+     * @return 如果firstDate <= secondDate返回true，否则返回false
+     */
+    public static boolean compareDatesMethod1(String firstDate, String secondDate) {
+        // 解析第一个日期，自动识别格式
+        LocalDate date1 = parseToLocalDate(firstDate);
+        
+        // 解析第二个日期，自动识别格式
+        LocalDate date2 = parseToLocalDate(secondDate);
+        
+        // 比较：date1 <= date2
+        return !date1.isAfter(date2);
+    }
+    
+    /**
+     * 辅助方法：自动识别日期格式并转换为LocalDate
+     * @param dateString 日期字符串，格式可能是 yyyy-MM-dd 或 yyyy-MM-dd HH:mm
+     * @return LocalDate对象
+     */
+    private static LocalDate parseToLocalDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            throw new IllegalArgumentException("日期字符串不能为空");
+        }
+        
+        dateString = dateString.trim();
+        
+        try {
+            // 尝试解析为 yyyy-MM-dd HH:mm 格式
+            if (dateString.contains(" ") && dateString.length() > 10) {
+                LocalDateTime dateTime = LocalDateTime.parse(dateString, 
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                return dateTime.toLocalDate();
+            } else {
+                // 解析为 yyyy-MM-dd 格式
+                return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("无法解析日期格式: " + dateString + 
+                ". 支持的格式: yyyy-MM-dd 或 yyyy-MM-dd HH:mm", e);
+        }
+    }
+    
+    /**
+     * 方法2: 如果bean返回的是Date对象
+     * @param firstDate Date对象
+     * @param secondDate Date对象
+     * @return 如果adjustedDate <= schedualDate返回true，否则返回false
+     */
+    public static boolean compareDatesMethod2(Date firstDate, Date secondDate) {
+        // 将Date转换为LocalDate进行比较
+        LocalDate date1 = firstDate.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+        
+        LocalDate date2 = secondDate.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+        
+        return date1.isBefore(date2) || date1.isEqual(date2);
     }
 }
 
