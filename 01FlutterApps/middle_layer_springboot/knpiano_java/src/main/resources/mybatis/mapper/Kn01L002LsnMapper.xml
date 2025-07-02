@@ -156,7 +156,7 @@ https://mybatis.org/mybatis-3/getting-started.html
            AND lsn_month BETWEEN DATE_FORMAT(CURDATE(), '%Y-01') AND DATE_FORMAT(CURDATE(), '%Y-%m')
     </select>
 
-    <!-- 获取到目前为止学生上完了的计划课课时 -->
+    <!-- 获取该生该科目的年度计划总课时 -->
     <select id="getYearLsnCnt" resultType="java.lang.Long">
         SELECT year_lsn_cnt
           FROM v_latest_subject_info_from_student_document
@@ -164,6 +164,14 @@ https://mybatis.org/mybatis-3/getting-started.html
            AND subject_id = #{subjectId}
            AND pay_style = 1
      </select>
+
+    <!-- 获取该生该科目的1节课的课时 -->
+    <select id="getMinutesPerLsn" resultType="java.lang.Integer">
+        SELECT minutes_per_lsn
+          FROM v_latest_subject_info_from_student_document
+         WHERE stu_id = #{stuId}
+           AND subject_id = #{subjectId}
+    </select>
 
     <!-- 排课记录的变更，调课，签到 处理-->
     <update id="updateInfo">

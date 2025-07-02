@@ -95,17 +95,37 @@ public class Kn01L002LsnController4Mobile {
     @PostMapping("/mb_kn_lsn_001_save")
     public ResponseEntity<String>  excuteInfoAdd(@RequestBody Kn01L002LsnBean knStudoc001Bean) {
         // 确认是不是有效的排课日期
-        Kn03D004StuDocBean bean = kn03D004StuDocDao.getLatestMinAdjustDateByStuId(knStudoc001Bean.getStuId(), knStudoc001Bean.getSubjectId());
-        // 如果排课日期大于学生档案里第一次的调整日期（第一次入档可以上课的日期），则允许执行排课操作
-        if (DateUtils.compareDatesMethod2(bean.getAdjustedDate(), knStudoc001Bean.getSchedualDate() )) {
-            kn01L002LsnDao.save(knStudoc001Bean);
-            return ResponseEntity.ok("success");
-        } else {
+        Kn03D004StuDocBean docBeanForDate = kn03D004StuDocDao.getLatestMinAdjustDateByStuId(knStudoc001Bean.getStuId(), knStudoc001Bean.getSubjectId());
+        // 如果不符合排课日期大于学生档案里第一次的调整日期（第一次入档可以上课的日期），则禁止排课操作
+        if (DateUtils.compareDatesMethod2(docBeanForDate.getAdjustedDate(), knStudoc001Bean.getSchedualDate()) == false) {
             // 定义目标日期格式
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("排课操作被禁止：该生的排课请在【" + formatter.format(bean.getAdjustedDate()) + "】以后执行排课！");
+                        .body("排课操作被禁止：该生的排课请在【" + formatter.format(docBeanForDate.getAdjustedDate()) + "】以后执行排课！");
         }
+
+        // 获取该生一整节课的分钟数
+        Integer lsnMinutes = kn01L002LsnDao.getMinutesPerLsn(knStudoc001Bean.getStuId(), knStudoc001Bean.getSubjectId());
+        // 月计划，课结算的制约：必须按1整节课排课
+        if ((knStudoc001Bean.getLessonType() == 0 || knStudoc001Bean.getLessonType() == 1) 
+                                            && !(knStudoc001Bean.getClassDuration() == lsnMinutes)) {
+            String lsnType = knStudoc001Bean.getLessonType() == 1 ? "月计划" : "课结算";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("排课操作被禁止：【" + lsnType +"】必须按1整节课【" + lsnMinutes + "】分钟排课。\n 要想排小于1节课的零碎课，请选择「月加课」的排课方式。");
+        }
+
+        // 月加课的制约：不得超过1节整课
+        if ((knStudoc001Bean.getLessonType() == 2) 
+                            && (knStudoc001Bean.getClassDuration() > lsnMinutes)) {
+            String lsnType = "月加课";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("排课操作被禁止：【" + lsnType +"】必须按小于等于1整节课【" + lsnMinutes + "】分钟来排课");
+        }
+
+        // 执行排课
+        kn01L002LsnDao.save(knStudoc001Bean);
+        return ResponseEntity.ok("success");
+
     }
 
     // 【课程表一覧】取消调课的请求处理
