@@ -31,7 +31,12 @@ public interface Kn03D004StuDocMapper  {
     public List<Kn03D004StuDocBean> getLatestSubjectList();
 
     // 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息
-    public List<Kn03D004StuDocBean>  getLatestSubjectListByStuId(@Param("stuId") String stuId);
+    public List<Kn03D004StuDocBean> getLatestSubjectListByStuId(@Param("stuId") String stuId);
+
+    // 手机前端添加课程的排课画面：排课点击保存按钮时，验证该日期的排课是否时有效的排课
+    // 何为有效排课：学生档案第一次调整日期以后的日期都是有效排课，第一次调整日期以前的排课是无效排课
+    // 就好像，你还没出生就上学了，这是不合理的
+    public Kn03D004StuDocBean getLatestMinAdjustDateByStuId(@Param("stuId") String stuId, @Param("subjectId") String subjectId);
 
     public void updateInfo(Kn03D004StuDocBean bean);
 
