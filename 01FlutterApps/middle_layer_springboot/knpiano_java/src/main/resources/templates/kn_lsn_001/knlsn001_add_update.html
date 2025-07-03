@@ -39,6 +39,23 @@
             display: block;
             margin-bottom: 10px;
         }
+
+        /* 调整控件最右侧按钮的宽度 */
+        .input-group-append .input-group-text {
+            min-width: 60px;
+            /* 设置按钮的最小宽度 */
+        }
+        
+        /* 确保日期时间选择器的样式 */
+        .datetime-container {
+            margin-bottom: 20px;
+        }
+        
+        .datetime-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
@@ -47,7 +64,7 @@
 
     <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
     <div class="container-fluid">
-        <div class="row">"
+        <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <!-- 显示错误消息 -->
@@ -162,27 +179,27 @@
                         </select>
                     </div>
                     <br>
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br>
-                        <label>计划上课日期：</label> <br>
-                        <input id="datetimepickerInput" name="schedualDate" type="text"
-                            class="form-control datetimepicker-input"
+                    
+                    <!-- 计划上课日期 - 使用text输入配合pattern -->
+                    <div class="form-group">
+                        <label>计划上课日期：</label>
+                        <input id="schedualDateInput" name="schedualDate" type="text"
+                            class="form-control"
                             th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                            data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm" />
-                        <div class="input-group-append" data-target="#datetimepickerContainer"
-                            data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+                            placeholder="yyyy-MM-dd HH:mm" 
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}"
+                            title="请输入格式：yyyy-MM-dd HH:mm" />
                     </div>
-                    <br>
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest">
-                        <label>课程调整日期：</label> <br>
-                        <input name="lsnAdjustedDate" type="text" class="form-control datetimepicker-input"
+                    
+                    <!-- 课程调整日期 - 使用text输入配合pattern -->
+                    <div class="form-group">
+                        <label>课程调整日期：</label>
+                        <input id="adjustedDateInput" name="lsnAdjustedDate" type="text"
+                            class="form-control"
                             th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
-                            data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm" />
-                        <div class="input-group-append" data-target="#datetimepickerContainer"
-                            data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+                            placeholder="yyyy-MM-dd HH:mm" 
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}"
+                            title="请输入格式：yyyy-MM-dd HH:mm" />
                     </div>
 
                     <div class="form-group"><br>
@@ -201,7 +218,6 @@
         </div>
     </div>
 
-    <!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 开始 -->
     <!-- 引入 Bootstrap JavaScript 和 jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -211,21 +227,29 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
-        // 初始化 DateTime Picker
+        // 简化的JavaScript，添加日期格式验证
         $(document).ready(function () {
-            $('#datetimepickerInput').datetimepicker({
-                format: 'YYYY-MM-DD HH:mm',
-                locale: moment.locale('zh-cn'),  // 设置地区为中国
-                icons: {
-                    time: 'fa fa-clock-o',
-                    date: 'fa fa-calendar',
-                    up: 'fa fa-chevron-up',
-                    down: 'fa fa-chevron-down',
-                    previous: 'fa fa-chevron-left',
-                    next: 'fa fa-chevron-right',
-                    today: 'fa fa-calendar-check-o',
-                    clear: 'fa fa-trash',
-                    close: 'fa fa-times'
+            // 为日期输入框添加点击事件，显示日期选择器
+            $('#schedualDateInput, #adjustedDateInput').on('focus', function() {
+                // 临时改为datetime-local来显示选择器
+                if (this.type === 'text') {
+                    this.type = 'datetime-local';
+                    // 转换现有值的格式
+                    if (this.value && this.value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)) {
+                        this.value = this.value.replace(' ', 'T');
+                    }
+                }
+            });
+            
+            // 失去焦点时转换回text格式
+            $('#schedualDateInput, #adjustedDateInput').on('blur', function() {
+                if (this.type === 'datetime-local') {
+                    const value = this.value;
+                    this.type = 'text';
+                    // 转换为后端期望的格式
+                    if (value && value.includes('T')) {
+                        this.value = value.replace('T', ' ');
+                    }
                 }
             });
         });
@@ -238,6 +262,7 @@
         var selectedSubjectId = /*[[${selectedinfo != null ? selectedinfo.subjectId : ''}]]*/'';
         var selectedClassDuration = /*[[${selectedinfo != null ? selectedinfo.classDuration : ''}]]*/'';
         var selectedSchedualDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
+        var selectedAdjustedDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
         var selectedSubjectSubName = /*[[${selectedinfo != null ? selectedinfo.subjectSubName : ''}]]*/'';
         var selectedSubjectSubId = /*[[${selectedinfo != null ? selectedinfo.subjectSubId : ''}]]*/'';
         var selectedLessonType = /*[[${selectedinfo != null ? selectedinfo.lessonType : ''}]]*/'';
@@ -275,7 +300,12 @@
 
             // 设置计划上课日期的初始值
             if (selectedSchedualDate) {
-                document.getElementById('datetimepickerInput').value = selectedSchedualDate;
+                document.getElementById('schedualDateInput').value = selectedSchedualDate;
+            }
+
+            // 设置课程调整日期的初始值
+            if (selectedAdjustedDate) {
+                document.getElementById('adjustedDateInput').value = selectedAdjustedDate;
             }
 
             // 设置课程属性的初始值
@@ -359,14 +389,6 @@
             }
         }
     </script>
-    <style>
-        /* 调整控件最右侧按钮的宽度 */
-        .input-group-append .input-group-text {
-            min-width: 60px;
-            /* 设置按钮的最小宽度 */
-        }
-    </style>
-    <!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 结束 -->
 </body>
 
 </html>
