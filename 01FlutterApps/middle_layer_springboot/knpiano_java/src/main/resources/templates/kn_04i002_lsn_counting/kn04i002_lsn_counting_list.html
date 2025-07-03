@@ -87,6 +87,8 @@
                         <th>科目编号</th>
                         <th>科目名称</th>
                         <th>计划课</th>
+                        <th>年度总课时</th>
+                        <th>计划课完成度</th>
                         <th>加时课</th>
                    </tr>
                     </thead>
@@ -100,9 +102,20 @@
                             <span th:if="${info.totalLsnCnt0 != null and info.totalLsnCnt0 != 0.0}" 
                                   style="color: green; font-weight: bold;" 
                                   th:text="${info.totalLsnCnt0}"></span>
+
                             <span th:if="${info.totalLsnCnt1 != null and info.totalLsnCnt1 != 0.0}" 
                                   style="color: blue; font-weight: bold;" 
                                   th:text="${info.totalLsnCnt1}"></span>
+                        </td>
+                        <td>[[${(info.yearLsnCnt == null or info.yearLsnCnt == 0.0) ? 43.0 : info.yearLsnCnt}]]</td>
+                        <td>
+                            <span th:if="${info.totalLsnCnt0 != null and info.totalLsnCnt0 != 0.0}" 
+                                  style="color: green; font-weight: bold;" 
+                                  th:text="${#numbers.formatDecimal((info.totalLsnCnt0/43) * 100,1,1)}+'%'"></span>
+
+                            <span th:if="${info.totalLsnCnt1 != null and info.totalLsnCnt1 != 0.0}" 
+                                  style="color: blue; font-weight: bold;" 
+                                  th:text="${#numbers.formatDecimal((info.totalLsnCnt1/(info.yearLsnCnt == 0.0 ? 43 : info.yearLsnCnt)) * 100, 1, 1)} + '%'"></span>
                         </td>
                         <td>
                             <span th:if="${info.totalLsnCnt2 != null and info.totalLsnCnt2 != 0.0}" 

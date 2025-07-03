@@ -35,7 +35,7 @@ public class Kn04I003LsnCountingController {
         this.knMonth = allMonths.stream()
                             .filter(month -> !"ALL".equals(month))
                             .collect(Collectors.toList());
-}
+    }
 
     @GetMapping("/kn_lsn_counting")
     public String list(Model model) {

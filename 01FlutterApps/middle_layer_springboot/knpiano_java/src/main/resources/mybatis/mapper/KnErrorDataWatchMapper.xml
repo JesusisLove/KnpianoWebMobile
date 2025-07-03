@@ -80,9 +80,9 @@
                     END as lsn_month,
                     COUNT(DISTINCT subject_sub_id) as sub_subject_count
                 FROM v_info_lesson
-                WHERE left(schedual_date,4) = '2025' 
-                    OR left(lsn_adjusted_date,4) = '2025' 
-                    OR left(extra_to_dur_date,4) = '2025' 
+                WHERE YEAR(schedual_date) = YEAR(NOW()) 
+                   OR YEAR(lsn_adjusted_date) = YEAR(NOW()) 
+                   OR YEAR(extra_to_dur_date) = YEAR(NOW())
                     AND scanQR_date is not null -- 已上完课
                 GROUP BY 
                     stu_id, 
