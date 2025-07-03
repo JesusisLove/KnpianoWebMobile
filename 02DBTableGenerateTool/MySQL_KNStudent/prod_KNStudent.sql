@@ -1618,10 +1618,10 @@ VIEW v_total_lsnfee_with_paid_unpaid_every_month_every_student AS
         feeStatus.stu_id AS stu_id,
         feeStatus.stu_name AS stu_name,
         feeStatus.nik_name AS nik_name,
+        feeStatus.lsn_month AS lsn_month,
         SUM(feeStatus.should_pay_lsn_fee) AS should_pay_lsn_fee,
         SUM(feeStatus.has_paid_lsn_fee) AS has_paid_lsn_fee,
-        SUM(feeStatus.unpaid_lsn_fee) AS unpaid_lsn_fee,
-        feeStatus.lsn_month AS lsn_month
+        SUM(feeStatus.unpaid_lsn_fee) AS unpaid_lsn_fee
     FROM
         (SELECT 
             T1.stu_id AS stu_id,
@@ -1657,8 +1657,8 @@ VIEW v_total_lsnfee_with_paid_unpaid_every_month_every_student AS
             T3.lsn_month AS lsn_month
         FROM
             v_sum_unpaid_lsnfee_by_stu_and_month T3
-        GROUP BY T3.stu_id , T3.stu_name , T3.nik_name, T3.lsn_month) feeStatus
-    GROUP BY feeStatus.stu_id , feeStatus.stu_name , feeStatus.stu_name , feeStatus.lsn_month;
+        GROUP BY T3.stu_id, T3.stu_name, T3.nik_name, T3.lsn_month) feeStatus
+    GROUP BY feeStatus.stu_id, feeStatus.stu_name, feeStatus.nik_name, feeStatus.lsn_month;
 
 -- USE prod_KNStudent;
 -- DROP VIEW IF EXISTS v_info_all_extra_lsns;
