@@ -24,6 +24,7 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
     protected String lsnFeeId;
     protected float lsnFee;
     protected Integer isGoodChange;
+    protected String memoReason;
 
     // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
     // // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
@@ -237,5 +238,13 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
 
     public void setOriginalSchedualDate(Date originalSchedualDate) {
         this.originalSchedualDate = originalSchedualDate;
+    }
+
+    public String getMemoReason() {
+        return memoReason;
+    }
+
+    public void setMemoReason(String memoReason) {
+        this.memoReason = memoReason;
     }
 }

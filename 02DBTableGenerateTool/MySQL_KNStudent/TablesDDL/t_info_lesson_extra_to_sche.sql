@@ -14,6 +14,7 @@ CREATE TABLE `t_info_lesson_extra_to_sche` (
   `new_lsn_fee` decimal(4,0) DEFAULT NULL,
   `new_scanqr_date` datetime DEFAULT NULL,
   `is_good_change` int DEFAULT NULL,
+  `memo_reason` varchar(255) NOT NULL,
   `new_own_flg` int DEFAULT '0',
   INDEX idx_fee_id_date (new_lsn_fee_id, new_scanqr_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
