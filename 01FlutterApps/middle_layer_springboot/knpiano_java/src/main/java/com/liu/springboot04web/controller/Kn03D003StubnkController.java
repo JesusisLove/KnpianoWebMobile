@@ -34,7 +34,7 @@ public class Kn03D003StubnkController {
     public String list(Model model) {
         Collection<Kn03D003StubnkBean> collection = Kn03D003StubnkDao.getInfoList();
         model.addAttribute("infoList", collection);
-        return "kn_05s002_stubnk/Kn05S002stubnk_list";
+        return "kn_05s002_stubnk/kn05s002stubnk_list";
     }
 
     // 【学生银行ID号管理】新規ボタンを押下して、【学生银行ID号管理】新規画面へ遷移すること
