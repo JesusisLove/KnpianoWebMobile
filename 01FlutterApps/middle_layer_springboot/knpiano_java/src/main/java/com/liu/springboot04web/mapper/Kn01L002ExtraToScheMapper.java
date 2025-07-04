@@ -19,7 +19,7 @@ public interface Kn01L002ExtraToScheMapper {
         public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("year") String year);
 
         public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("stuId") String stuId,
-                        @Param("year") String year);
+                                                                       @Param("year") String year);
 
         List<Kn01L002ExtraToScheBean> searchUnpaidExtraLessons(@Param("params") Map<String, Object> queryparams);
 
@@ -46,7 +46,7 @@ public interface Kn01L002ExtraToScheMapper {
         public void insertExtraToScheInfo(String lessonId, String oldLsnFeeId, String toScheLsnFeeId,
                         String oldSubjectSubId, String toScheSubjectSubId,
                         float oldLsnFee, float toScheLsnFee,
-                        Date toScheScanQrDate, int isGoodChange,
+                        Date toScheScanQrDate, int isGoodChange, String memoReason,
                         int newOwnFlg);
 
         // 课程表里的课程记录，还原为原来的月加课状态

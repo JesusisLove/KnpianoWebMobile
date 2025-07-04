@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class Kn01L002ExtraToScheDao {
@@ -131,6 +132,8 @@ public class Kn01L002ExtraToScheDao {
 
                 // 加课换正课中间表字段设置
                 tblBean.setIsGoodChange(0);// 设置【无意义的换课】标识
+                tblBean.setMemoReason("该月的计划课任务已完成，<br>再转正课就会白白浪费这节课时数。");
+                // 无意义理由：该月的计划课X节任务已完成，再转正课就会白白浪费这节课时数。
             }
 
             // 如果数组元素个数小于4，更新课费表（t_info_lesson_fee）表
@@ -143,6 +146,9 @@ public class Kn01L002ExtraToScheDao {
 
                 // 加课换正课中间表字段设置
                 tblBean.setIsGoodChange(1);// 设置【有意义的换课】标识
+
+                // 虽然上面的条件满足了（即，这次的加课换正课在当前月看来是 有意义的），还要再看，目前上完了的计划课总课时有没有超过计划课年度计划总课时（比如：43节）
+                correctLessonTypeIfOverLimit_43(tblBean, studentId, subjectId);
             }
             // 设置换正课后的lsn_fee_id
             tblBean.setToScheLsnFeeId(toScheLsnFeeId);
@@ -170,15 +176,16 @@ public class Kn01L002ExtraToScheDao {
 
         // ⑥执行保存加课换正课的处理（其实处理的是课费的结算，即原来准备按加课费收费，由于换成其他月份的正课，就不在当前月收取加课费了）
         kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),
-                tblBean.getOldLsnFeeId(),
-                tblBean.getToScheLsnFeeId(),
-                tblBean.getOldSubjectSubId(),
-                tblBean.getToScheSubjectSubId(),
-                tblBean.getOldLsnFee(),
-                tblBean.getToScheLsnFee(),
-                tblBean.getToScheScanQrDate(),
-                tblBean.getIsGoodChange(),
-                tblBean.getToScheOwnFlg());
+                                                        tblBean.getOldLsnFeeId(),
+                                                        tblBean.getToScheLsnFeeId(),
+                                                        tblBean.getOldSubjectSubId(),
+                                                        tblBean.getToScheSubjectSubId(),
+                                                        tblBean.getOldLsnFee(),
+                                                        tblBean.getToScheLsnFee(),
+                                                        tblBean.getToScheScanQrDate(),
+                                                        tblBean.getIsGoodChange(),
+                                                        tblBean.getMemoReason(),
+                                                        tblBean.getToScheOwnFlg());
     }
 
     // 撤销加课换正课处理
@@ -196,6 +203,27 @@ public class Kn01L002ExtraToScheDao {
 
         // ③删除《加课换正课中间表》的记录，删除条件：lessonId
         kn01l002ExtraToScheMapper.deleteOldNewLsnFeeId(lessonId);
+    }
+
+    /* 再进一步判断该加课是否是有意义的换正课 
+    * 该学生目前已经上完的计划课和该生预定的年度计划总课时进行比较
+    * 如果上完的计划总课时小于预定的年度计划总课时：有意义的换正课，否则是无意义的换正课【无意义理由：年度计划课X节任务已完成，再转正课就会白白浪费这节课时数。】
+    * 
+    */
+    private void correctLessonTypeIfOverLimit_43(TInfoLessonExtraToScheBean tblBean, String stuId, String subjectId) {
+        // 取得该生到目前为止，本年度计划课总课时
+        // ✅ 使用Optional处理当返回的对象为null时返回值为0L
+        float lsnCnt =  Optional.ofNullable(kn01L002LsnMapper.stuLsnCountByNow(stuId, subjectId)).orElse(0L);
+        
+        // 获取该生该科目年度总课时
+        float yearLsnCnt = kn01L002LsnMapper.getYearLsnCnt(stuId, subjectId);
+
+        // 到目前为止的总课时还没有达到43节课的，返回
+        if (lsnCnt < yearLsnCnt) return;  // if (lsnCnt < 43) return;
+
+        // 总课时超过43节课的，该课由计划课强行转换为加课
+        tblBean.setIsGoodChange(0);// 设置【无意义的换课】标识
+        tblBean.setMemoReason("年度计划课["+yearLsnCnt+"节]任务已完成，<br>再转正课就会白白浪费这节课时数。");
     }
 }
 
@@ -238,6 +266,9 @@ class TInfoLessonExtraToScheBean {
      * 0:没有效率的加课换正课，换正课月份的计划课时已经够4节课了，在换正课就相当于白白浪费了一节加课课时，视为无效率的加课换正课。
      */
     int isGoodChange;
+
+    // 如果是无意义的排课，写下无意义排课的理由
+    String memoReason;
 
     public String getLessonId() {
         return lessonId;
@@ -317,5 +348,13 @@ class TInfoLessonExtraToScheBean {
 
     public void setToScheLsnFee(float newLsnFee) {
         this.toScheLsnFee = newLsnFee;
+    }
+
+    public String getMemoReason() {
+        return memoReason;
+    }
+
+    public void setMemoReason(String memoReason) {
+        this.memoReason = memoReason;
     }
 }

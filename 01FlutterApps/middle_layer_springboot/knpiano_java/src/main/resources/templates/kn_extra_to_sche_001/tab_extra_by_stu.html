@@ -99,6 +99,9 @@
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-changingEffect')" /> 换正课果效
                 </label>
+                <label>
+                    <input type="checkbox" checked onchange="toggleColumn('col-memoReason')" /> 换正课果效
+                </label>
             </div>
         </div>
         <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'">
@@ -120,6 +123,7 @@
                         <th class="col-scanQrDate">上课签到<br>日期</th>
                         <th class="col-payFlg">支付状况</th>
                         <th class="col-changingEffect">换正课果效</th>
+                        <th class="col-memoReason">无意义理由</th>
                         <th class="action-column">操作</th>
                     </tr>
                 </thead>
@@ -162,6 +166,9 @@
                                           'color: #FF0000; font-weight: bold;'}">
                             </span>
                         </td>
+                        
+                        <!-- th:utext 会把 HTML 标签正确解析， memoReason里面有<br>,会把<br>解析成THML的换行符，达到文本的换行显示👍-->
+                        <td class="col-memoReason" style="font-size: 8px;" th:utext="${info.memoReason}">[[${info.memoReason}]]</td>
 
                         <td class="action-column">
                             <div th:if="${info.payFlg == 0}">

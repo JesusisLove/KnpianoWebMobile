@@ -54,12 +54,18 @@ https://mybatis.org/mybatis-3/getting-started.html
                 when tosche.new_own_flg = 1 then 1
                 else allextra.pay_flg
             end as pay_flg,
-            tosche.is_good_change
+            tosche.is_good_change,
+            tosche.memo_reason
         FROM             v_info_all_extra_lsns allextra
         INNER JOIN             t_mst_student stu ON allextra.stu_id = stu.stu_id
         INNER JOIN             t_mst_subject sub ON allextra.subject_id = sub.subject_id
         INNER JOIN             t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id
-        AND allextra.subject_sub_id = eda.subject_sub_id
+                                                        AND allextra.subject_sub_id = eda.subject_sub_id
+        INNER JOIN             v_latest_subject_info_from_student_document doc
+                                     on allextra.stu_id = doc.stu_id
+                                    and allextra.subject_id = doc.subject_id
+                                    and allextra.subject_sub_id = doc.subject_sub_id
+                                    and allextra.class_duration = doc.minutes_per_lsn
         LEFT JOIN             t_info_lesson_extra_to_sche tosche on allextra.lesson_id = tosche.lesson_id
         <where>
             <if test="stuId != null and stuId != ''">
@@ -96,7 +102,8 @@ https://mybatis.org/mybatis-3/getting-started.html
                     WHEN tosche.new_own_flg = 1 THEN 1  
                     ELSE allextra.pay_flg 
                 END AS pay_flg,
-                tosche.is_good_change 
+                tosche.is_good_change,
+                tosche.memo_reason
             FROM v_info_all_extra_lsns allextra              
             INNER JOIN t_mst_student stu ON allextra.stu_id = stu.stu_id        
             INNER JOIN t_mst_subject sub ON allextra.subject_id = sub.subject_id     
@@ -152,7 +159,8 @@ https://mybatis.org/mybatis-3/getting-started.html
                 when tosche.new_own_flg = 1 then 1  
                 else allextra.pay_flg 
             end as pay_flg,
-            tosche.is_good_change 
+            tosche.is_good_change,
+            tosche.memo_reason 
         FROM             v_info_all_extra_lsns allextra              
         INNER JOIN             t_mst_student stu ON allextra.stu_id = stu.stu_id        
         INNER JOIN             t_mst_subject sub ON allextra.subject_id = sub.subject_id     
@@ -260,6 +268,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         new_lsn_fee,
         new_scanqr_date,
         is_good_change,
+        memo_reason,
         new_own_flg
         ) values (
         #{lessonId},
@@ -271,6 +280,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         #{toScheLsnFee},
         #{toScheScanQrDate},
         #{isGoodChange},
+        #{memoReason},
         #{newOwnFlg}
         )
     </insert>
