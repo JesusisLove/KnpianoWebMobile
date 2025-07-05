@@ -104,9 +104,9 @@
                              aria-labelledby="searchDescriptionHeader">
                             <div class="card-body">
                                 <dl>
-                                    <dd class="indented">①画面初期化时，年度：系统当前年度，学生姓名：当前年度有加课的学生。</dd>
-                                    <dd class="indented">②选择年度时，学生下拉列表框初始化为当前年度所有有加课的学生</dd>
-                                    <dd class="indented">③Radio按钮，已结算：表示加课费已经支付完了 为消化：表示可以执行加课换正课  所有加课：除已经换成正课以外的所有加课（换成正课的加课不再显示）。</dd>
+                                    <dd class="indented">①画面初期化时，年度：系统当前年度，学生姓名：当前年度的加课已换成正课的学生名单。</dd>
+                                    <dd class="indented">②选择年度时，学生下拉列表框初始化为当前年度所有有加课已换成正课的学生名单</dd>
+                                    <dd class="indented">③。</dd>
                                 </dl>
                             </div>
                         </div>
@@ -145,32 +145,6 @@
                        </div>
                     </div>
                     <hr />
-
-                    <!-- 明细部业务说明折叠组件 -->
-                    <div class="card mt-4">
-                        <div class="card-header" id="detailDescriptionHeader">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" 
-                                        data-target="#detailDescriptionCollapse" aria-expanded="true" 
-                                        aria-controls="detailDescriptionCollapse">
-                                    明细部业务说明【只显示1整节加课的课程，零碎加课信息请参照：「碎课拼成整课」的课程管理页面。】
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="detailDescriptionCollapse" class="collapse" 
-                             aria-labelledby="detailDescriptionHeader">
-                            <div class="card-body">
-                                <dl>
-                                    <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
-                                    <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
-                                    <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
-                                    <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
-                                    <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- 如果没有学生的已支付信息，显示提示信息 -->
                     <style>
                         .no-info-message {

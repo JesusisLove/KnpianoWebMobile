@@ -147,18 +147,18 @@
                 </thead>
                 <tbody>
                     <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}">
-                        <td class="col-stuId">[[${info.stuId}]]</td>
-                        <td class="col-lessonId">[[${info.lessonId}]]</td>
-                        <td class="col-subjectId">[[${info.subjectId}]]</td>
-                        <td class="col-subjectName">[[${info.subjectName}]]</td>
-                        <td class="col-oldSubjectSubName">[[${info.oldSubjectSubName}]]</td>
-                        <td class="col-oldLsnFee">[[${info.oldLsnFee}]]</td>
-                        <td class="col-newSubjectSubName">[[${info.newSubjectSubName}]]</td>
-                        <td class="col-newLsnFee">[[${info.newLsnFee}]]</td>
-                        <td class="col-fromExtraScanDate">[[${info.fromExtraScanDate != null ?
-                            #dates.format(info.fromExtraScanDate,'yyyy/MM/dd') : ''}]]</td>
-                        <td class="col-toScheScanDate">[[${info.toScheScanDate != null ?
-                            #dates.format(info.toScheScanDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-stuId" th:style="'color: #8B4513; font-weight: bold;'">[[${info.stuId}]]</td>
+                        <td class="col-lessonId" th:style="'color: #8B4513; font-weight: bold;'">[[${info.lessonId}]]</td>
+                        <td class="col-subjectId" th:style="'color: #8B4513; font-weight: bold;'">[[${info.subjectId}]]</td>
+                        <td class="col-subjectName" th:style="'color: #8B4513; font-weight: bold;'">[[${info.subjectName}]]</td>
+                        <td class="col-oldSubjectSubName" th:style="'color: #8B4513; font-weight: bold;'">[[${info.oldSubjectSubName}]]</td>
+                        <td class="col-oldLsnFee" th:style="'color: #8B4513; font-weight: bold;'">[[${info.oldLsnFee}]]</td>
+                        <td class="col-newSubjectSubName" th:style="'color: #8B4513; font-weight: bold;'">[[${info.newSubjectSubName}]]</td>
+                        <td class="col-newLsnFee" th:style="'color: #8B4513; font-weight: bold;'">[[${info.newLsnFee}]]</td>
+                        <td class="col-fromExtraScanDate" th:style="'color: #8B4513; font-weight: bold;'">[[${info.fromExtraScanDate != null ?
+                        #dates.format(info.fromExtraScanDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-toScheScanDate" th:style="'color: #8B4513; font-weight: bold;'">[[${info.toScheScanDate != null ?
+                        #dates.format(info.toScheScanDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-isGoodChange">
                             <span th:if="${info.isGoodChange == 1}" class="change-effect-good" style="color: #4CAF50; font-weight: bold; font-size: 15px;">有意义的换正课</span>
                             <span th:if="${info.isGoodChange == 0}" class="change-effect-bad" style="color: #FF0000; font-weight: bold; font-size: 15px;">无意义的换正课</span>
