@@ -95,6 +95,7 @@ public class Kn01L002ExtraToScheDao {
         // ④加课换正课情報作成
         // ④-1:oldLsnFeeId的设置
         tblBean.setLessonId(lessonId);
+        tblBean.setSubjectId(subjectId);
         tblBean.setOldLsnFeeId(oldLsnFeeId);
         tblBean.setToScheScanQrDate(kn01L002ExtraToScheBean.getExtraToDurDate());
         tblBean.setOldLsnFee(lsnFee); // 记录换正课之前的加课课费
@@ -178,6 +179,7 @@ public class Kn01L002ExtraToScheDao {
         kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),
                                                         tblBean.getOldLsnFeeId(),
                                                         tblBean.getToScheLsnFeeId(),
+                                                        tblBean.getSubjectId(),
                                                         tblBean.getOldSubjectSubId(),
                                                         tblBean.getToScheSubjectSubId(),
                                                         tblBean.getOldLsnFee(),
@@ -241,6 +243,9 @@ class TInfoLessonExtraToScheBean {
 
     // 换正课之前的课费ID
     String oldLsnFeeId;
+
+    // 科目ID
+    String subjectId;
 
     // 换正课之后的子科目ID
     String toScheSubjectSubId;
@@ -356,5 +361,13 @@ class TInfoLessonExtraToScheBean {
 
     public void setMemoReason(String memoReason) {
         this.memoReason = memoReason;
+    }
+
+    public String getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 }

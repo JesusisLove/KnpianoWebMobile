@@ -63,6 +63,7 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String memo;
     protected Integer delFlg;
     protected Integer isFromPiceseLsn; // 是不是用零碎加课拼凑的课[0:不是拼凑的课。 1:是拼凑的课]
+    protected Integer isExtraToScheLsn; // 是不是用加课换成的正课[0:不是。 1:是]
     protected Date createDate;
     protected Date updateDate;
 // 变更，删除，签到，撤销，四个按钮在画面上活性/非活性的状态设置
@@ -259,5 +260,11 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setIsFromPiceseLsn(Integer isFromPiceseLsn) {
         this.isFromPiceseLsn = isFromPiceseLsn;
+    }
+    public Integer getIsExtraToScheLsn() {
+        return isExtraToScheLsn;
+    }
+    public void setIsExtraToScheLsn(Integer isExtraToScheLsn) {
+        this.isExtraToScheLsn = isExtraToScheLsn;
     }
 }
