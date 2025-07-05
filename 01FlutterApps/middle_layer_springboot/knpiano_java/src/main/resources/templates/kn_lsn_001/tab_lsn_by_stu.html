@@ -108,6 +108,12 @@
             color: #666666 !important;
             font-weight: bold !important;
         }
+
+        /* 新增：换正课样式 */
+        .extra-to-sche-lesson-row {
+            color: #8B4513 !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
 
@@ -206,10 +212,12 @@
                 <tbody>
                     <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
                         th:style="${info.isFromPiceseLsn == 1 ? 'color: #b8b8b5 !important; font-weight: bold !important;' : 
+                                   info.isExtraToScheLsn == 1 ? 'color: #8B4513 !important; font-weight: bold !important;' :
                                    info.lessonType == 0 ? 'color: #4CAF50;' : 
                                    info.lessonType == 1 ? 'color: #2196F3;' : 
                                    info.lessonType == 2 ? 'color: #FF69B4;' : ''}"
-                        th:classappend="${info.isFromPiceseLsn == 1 ? 'pieces-lesson-row' : ''}">
+                        th:classappend="${info.isFromPiceseLsn == 1 ? 'pieces-lesson-row' : 
+                                         info.isExtraToScheLsn == 1 ? 'extra-to-sche-lesson-row' : ''}">
                         <td class="col-lessonId">[[${info.lessonId}]]</td>
                         <td class="col-subjectId">[[${info.subjectId}]]</td>
                         <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
@@ -219,6 +227,7 @@
                         <td class="col-classDuration">[[${info.classDuration}]]</td>
                         <td class="col-lessonType" 
                             th:text="${info.isFromPiceseLsn == 1 ? '拼凑课' : 
+                                     info.isExtraToScheLsn == 1 ? '换正课' :
                                      info.lessonType == 0 ? '课结算' : 
                                      info.lessonType == 1 ? '月计划' : '月加课'}"></td>
                         <td class="col-schedualType"
@@ -238,8 +247,8 @@
                         <td class="col-updateDate">[[${info.updateDate != null ?
                             #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="action-column">
-                            <!-- 拼凑课时隐藏所有按钮 -->
-                            <div th:if="${info.isFromPiceseLsn != 1}">
+                            <!-- 拼凑课或换正课时隐藏所有按钮 -->
+                            <div th:if="${info.isFromPiceseLsn != 1 && info.isExtraToScheLsn != 1}">
                                 <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
                                     th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
                                 <button type="button" class="btn btn-sm btn-danger deleteBtn"

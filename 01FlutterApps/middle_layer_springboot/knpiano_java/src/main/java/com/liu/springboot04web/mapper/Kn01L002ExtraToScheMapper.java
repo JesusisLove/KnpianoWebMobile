@@ -43,7 +43,7 @@ public interface Kn01L002ExtraToScheMapper {
                         @Param("yearMonth") String yearMonth);
 
         // 执行加课换正课的信息保存
-        public void insertExtraToScheInfo(String lessonId, String oldLsnFeeId, String toScheLsnFeeId,
+        public void insertExtraToScheInfo(String lessonId, String subjectId, String oldLsnFeeId, String toScheLsnFeeId,
                         String oldSubjectSubId, String toScheSubjectSubId,
                         float oldLsnFee, float toScheLsnFee,
                         Date toScheScanQrDate, int isGoodChange, String memoReason,

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+    <!-- <script src="knScriptfunctions.js"></script> -->
+    <!-- src
+        └── main
+            └── resources
+                └── static
+                    └── knScriptfunctions.js 
+        -->
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <!--<link href="../assets/dist/css/bootstrap.css" rel="stylesheet">-->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+        /* 添加以下样式 */
+        .nav-tabs .nav-link.active {
+            color: #fff !important;
+            background-color: #ff009d !important;
+            border-color: #ff009d #ff009d #fff !important;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border-color: #ff009d #ff009d #fff;
+        }
+
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+        }
+        
+        .indented {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_extra_hasbeen_sche_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h2 class="mt-4 mb-2">加课已换正课</h2>
+
+                <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
+                <div class="business-description mb-4">
+                    <!-- 检索部业务说明折叠组件 -->
+                    <div class="card">
+                        <div class="card-header" id="searchDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#searchDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="searchDescriptionCollapse">
+                                    ★检索部业务说明
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="searchDescriptionCollapse" class="collapse" 
+                             aria-labelledby="searchDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①画面初期化时，年度：系统当前年度，学生姓名：当前年度有加课的学生。</dd>
+                                    <dd class="indented">②选择年度时，学生下拉列表框初始化为当前年度所有有加课的学生</dd>
+                                    <dd class="indented">③Radio按钮，已结算：表示加课费已经支付完了 为消化：表示可以执行加课换正课  所有加课：除已经换成正课以外的所有加课（换成正课的加课不再显示）。</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 検索部 -->
+                <form action="#" th:action="@{/kn_extra_hasbeen_sche_all/search}" th:object="${searchForm}" method="get">
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-md-1">
+                            <label>年度</label>
+                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                <option th:each="year : ${knyearlist}" 
+                                        th:value="${year}" 
+                                        th:text="${year}" 
+                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>学生姓名</label> 
+                            <select class="form-control" id="studentSelect" name="stuId">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>换正课类型</label>
+                            <select class="form-control" id="goodChangeSelect" name="isGoodChange">
+                                <option value="">请选择</option>
+                                <option value="1" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '1'}">有意义的换正课</option>
+                                <option value="0" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '0'}">无意义的换正课</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-1">
+                            <button type="submit" class="btn btn-primary">検 索</button>
+                       </div>
+                    </div>
+                    <hr />
+
+                    <!-- 明细部业务说明折叠组件 -->
+                    <div class="card mt-4">
+                        <div class="card-header" id="detailDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#detailDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="detailDescriptionCollapse">
+                                    明细部业务说明【只显示1整节加课的课程，零碎加课信息请参照：「碎课拼成整课」的课程管理页面。】
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="detailDescriptionCollapse" class="collapse" 
+                             aria-labelledby="detailDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
+                                    <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
+                                    <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
+                                    <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
+                                    <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                    <style>
+                        .no-info-message {
+                            font-size: 18px;
+                        }
+                    </style>
+                    
+                    <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                        <p class="no-info-message">目前没有学生的消化转正课课程信息！</p>
+                    </div>
+                </form>
+
+                <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                        <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                            th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}" role="tab"
+                            th:aria-controls="${entry.key}"
+                            th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                    </li>
+                </ul>
+                <!-- Tab 卡片项里显示 学生的排课一览 -->
+                <div class="tab-content" id="myTabContent">
+                    <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                        th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
+                        th:aria-labelledby="${entry.key + '-tab'}">
+                        <div
+                            th:replace="kn_extra_been_sche_001/tab_extra_been_sche_by_stu :: lessonTable(${entry.key}, ${entry.value})">
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- 削除処理-->
+            <form id="deleteEmpForm" action="" method="post">
+                <input type="hidden" name="_method" value="Delete" />
+            </form>
+        </div>
+    </div>
+    <!--Bootstrap core JavaScrip
+=============================-->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+    <!-- Icons -->
+
+    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+    <script>
+        $(".deleteBtn").click(function () {
+            if (confirm('本当に削除しますか？')) {
+                //thisが削除ボタンである
+                let del_uri = $(this).attr("liu_del_uri");
+                //対象フォームのsubmitを実行する
+                $("#deleteEmpForm").attr("action", del_uri).submit();
+                return false;
+            }
+        });
+    </script>
+    <!-- 初期话学生下拉列表框 -->
+    <script th:inline="javascript">
+        // 从后端传递的学生数据
+        var jsonStuSubList = /*[[${extra2ScheStuList}]]*/ [];
+        
+        // 页面加载完成后，初始化学生下拉列表
+        window.onload = function() {
+            // 初始化已结算课程的学生
+            var studentSelect = document.getElementById('studentSelect');
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            
+            console.log('完整的extra2ScheMap:', /*[[${extra2ScheMap}]]*/ {});
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            console.log('获取到的selectedStuId:', selectedStuId);
+
+            var uniqueStudentIds = new Set(); // 使用集合来避免重复
+            
+            // 从stuSubList添加学生姓名到下拉列表，确保不重复
+            jsonStuSubList.forEach(function(item) {
+                if (!uniqueStudentIds.has(item.stuId)) {
+                    uniqueStudentIds.add(item.stuId);
+                    var option = new Option(item.stuName, item.stuId);
+                    // 向ChatGPT，此处用stuId特定stuName赋值给下拉列框
+                    if (item.stuId === selectedStuId) {
+                        option.selected = true;
+                    }
+                    studentSelect.add(option);
+                }
+            });
+        };
+    </script>
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const yearSelect = document.getElementById('lsnfeeyear');
+        const studentSelect = document.getElementById('studentSelect');
+
+        yearSelect.addEventListener('change', function() {
+            const selectedYear = this.value;
+            // 创建一个临时表单来提交请求
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `/liu/kn_extra_hasbeen_sche_all/${selectedYear}`;
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+</script>
+</html>

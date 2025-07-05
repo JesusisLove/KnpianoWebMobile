@@ -260,6 +260,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <insert id="insertExtraToScheInfo">
         insert into t_info_lesson_extra_to_sche (
         lesson_id,
+        subject_id,
         old_lsn_fee_id,
         new_lsn_fee_id,
         old_subject_sub_id,
@@ -272,6 +273,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         new_own_flg
         ) values (
         #{lessonId},
+        #{subjectId},
         #{oldLsnFeeId},
         #{toScheLsnFeeId},
         #{oldSubjectSubId},
@@ -298,4 +300,6 @@ https://mybatis.org/mybatis-3/getting-started.html
     <delete id="deleteOldNewLsnFeeId" parameterType="String">
         DELETE FROM t_info_lesson_extra_to_sche WHERE lesson_id = #{lessonId}
     </delete>
+
+    
 </mapper>

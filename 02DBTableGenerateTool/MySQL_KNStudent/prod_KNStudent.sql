@@ -313,6 +313,7 @@ CREATE TABLE t_sp_execution_log (
 */
 CREATE TABLE `t_info_lesson_extra_to_sche` (
   `lesson_id` varchar(45) NOT NULL,
+  `subject_id` varchar(45) NOT NULL,
   `old_lsn_fee_id` varchar(255) NOT NULL,
   `new_lsn_fee_id` varchar(255) NOT NULL,
   `old_subject_sub_id` varchar(255) NOT NULL,
