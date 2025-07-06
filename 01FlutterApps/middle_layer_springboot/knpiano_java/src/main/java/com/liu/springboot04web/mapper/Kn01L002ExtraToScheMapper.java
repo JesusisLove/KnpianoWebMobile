@@ -16,10 +16,10 @@ public interface Kn01L002ExtraToScheMapper {
         // 根据Web页面上的检索部传过来的年月，取得有加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
         public List<Kn01L002ExtraToScheBean> getSearchInfo4Stu(@PathParam("lsnMonth") String yearMonth);
 
-        public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("year") String year);
-
+        // 取得选择年度的加课记录。year 抽取当前年度的加课记录，adjustedBaseDate 学生档案科目调整基准日
         public List<Kn01L002ExtraToScheBean> getInfoListExtraCanBeSche(@Param("stuId") String stuId,
-                                                                       @Param("year") String year);
+                                                                       @Param("year") String year,
+                                                                       @Param("adjustedBaseDate") String adjustedBaseDate);
 
         List<Kn01L002ExtraToScheBean> searchUnpaidExtraLessons(@Param("params") Map<String, Object> queryparams);
 
