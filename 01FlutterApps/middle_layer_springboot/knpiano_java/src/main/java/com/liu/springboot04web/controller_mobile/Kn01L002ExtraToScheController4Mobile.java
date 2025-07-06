@@ -1,5 +1,7 @@
 package com.liu.springboot04web.controller_mobile;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +26,14 @@ public class Kn01L002ExtraToScheController4Mobile {
     // 因为有了配置类CorsConfig，这里的CrossOrigin的配置不需要了
     @GetMapping("/mb_kn_extratosche_all/{stuId}/{year}")
     public ResponseEntity<List<Kn01L002ExtraToScheBean>> getExtraLsnList(@PathVariable String stuId,
-            @PathVariable String year) {
+                                                                         @PathVariable String year) {
+
+        // 学生最新档案基准日调整的设置（如果手机前端选择的是系统当前年度，基准日调整设置为null，如果是非系统当前年度，基准日调整设置为yyyy-12-31）
+        String systemYear = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+        String adjustedBaseDate = year.equals(systemYear) ? null : year + "-12-31";
+
         // 获取当前正在上课的所有学生的加课信息
-        List<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(stuId, year);
+        List<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getInfoList(stuId, year, adjustedBaseDate);
         return ResponseEntity.ok(collection);
     }
 

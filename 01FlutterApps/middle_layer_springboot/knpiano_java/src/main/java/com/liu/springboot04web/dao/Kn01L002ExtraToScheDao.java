@@ -44,13 +44,13 @@ public class Kn01L002ExtraToScheDao {
 
     // Web页面后段维护
     public List<Kn01L002ExtraToScheBean> getInfoList(String year) {
-        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(null, year);
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(null, year,null);
         return list;
     }
 
-    // 手机前端页面
-    public List<Kn01L002ExtraToScheBean> getInfoList(String stuId, String year) {
-        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(stuId, year);
+    // 手机前端页面:year 抽取当前年度的加课记录，adjustedBaseDate 学生档案科目调整基准日
+    public List<Kn01L002ExtraToScheBean> getInfoList(String stuId, String year, String adjustedBaseDate) {
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(stuId, year, adjustedBaseDate);
         return list;
     }
 
