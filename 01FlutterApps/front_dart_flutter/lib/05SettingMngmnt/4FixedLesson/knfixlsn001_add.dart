@@ -14,11 +14,14 @@ class ScheduleForm extends StatefulWidget {
   final Color knBgColor;
   final Color knFontColor;
   late String pagePath;
+  final String? preSelectedDay; // 新增：接收预选中的星期
+
   ScheduleForm({
     super.key,
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    this.preSelectedDay, // 新增：可选参数
   });
 
   @override
@@ -56,6 +59,10 @@ class ScheduleFormState extends State<ScheduleForm> {
   @override
   void initState() {
     super.initState();
+    // 设置预选中的星期
+    if (widget.preSelectedDay != null && days.contains(widget.preSelectedDay)) {
+      selectedDay = widget.preSelectedDay;
+    }
     fetchLessons(); // 在初始化时调用fetchLessons，并将结果存储在futureFixLsnList中
   }
 
@@ -268,7 +275,7 @@ class ScheduleFormState extends State<ScheduleForm> {
         },
       );
       _formKey.currentState!.save();
-      // 学生固定排课新规登录画面，点击“保存”按钮的url请求
+      // 学生固定排课新规登录画面，点击"保存"按钮的url请求
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoAdd}';
 

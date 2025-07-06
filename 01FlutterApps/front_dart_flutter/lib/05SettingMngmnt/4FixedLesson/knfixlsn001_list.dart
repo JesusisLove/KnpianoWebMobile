@@ -47,8 +47,26 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    // 获取当前日期并计算星期几的索引
+    int currentDayIndex = _getCurrentDayIndex();
+    _tabController =
+        TabController(length: 7, vsync: this, initialIndex: currentDayIndex);
     _fetchLessonData();
+  }
+
+  // 新增方法：获取当前日期对应的星期几索引
+  int _getCurrentDayIndex() {
+    DateTime now = DateTime.now();
+    // DateTime.weekday 返回 1-7，其中 1=Monday, 7=Sunday
+    // 我们的weekDays数组是 [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+    // 所以需要将 weekday-1 来匹配数组索引
+    int weekday = now.weekday; // 1=Monday, 2=Tuesday, ..., 7=Sunday
+    return weekday - 1; // 转换为0-6的索引
+  }
+
+  // 新增方法：获取当前选中的星期
+  String getCurrentSelectedDay() {
+    return weekDays[_tabController.index];
   }
 
   // 新的数据加载方法
@@ -117,6 +135,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
             onPressed: _isLoading
                 ? null // 如果正在加载，禁用按钮
                 : () {
+                    // 获取当前选中的星期并传递给子画面
+                    String currentDay = getCurrentSelectedDay();
                     Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
@@ -124,6 +144,7 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
                             knBgColor: Constants.settngThemeColor,
                             knFontColor: Colors.white,
                             pagePath: subtitle,
+                            preSelectedDay: currentDay, // 传递当前选中的星期
                           ),
                         )).then((value) {
                       if (value == true) {
