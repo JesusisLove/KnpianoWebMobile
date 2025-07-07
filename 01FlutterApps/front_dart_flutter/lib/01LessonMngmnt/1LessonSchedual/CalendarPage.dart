@@ -533,12 +533,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: RescheduleLessonDialog(
-                stuId: event.stuId,
-                subjectId: event.subjectId,
                 lessonId: event.lessonId,
-                lessonType: event.lessonType,
-                schedualDate: event.schedualDate,
-                classDuration: event.classDuration,
               ),
             ),
           ),
