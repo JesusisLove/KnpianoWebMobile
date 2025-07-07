@@ -22,6 +22,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ON doc.stu_id = stu.stu_id 
             AND stu.del_flg = 0
         WHERE doc.del_flg = 0
+          AND doc.pay_style = 1
         GROUP BY doc.stu_id, doc.stu_name
         ORDER BY doc.stu_name;
     </select>
