@@ -7,20 +7,10 @@ import 'dart:convert';
 
 class RescheduleLessonDialog extends StatefulWidget {
   final String lessonId;
-  final String stuId;
-  final String subjectId;
-  final int lessonType;
-  final int classDuration;
-  final String schedualDate;
 
   const RescheduleLessonDialog({
     super.key,
     required this.lessonId,
-    required this.stuId,
-    required this.subjectId,
-    required this.lessonType,
-    required this.classDuration,
-    required this.schedualDate,
   });
 
   @override
@@ -162,17 +152,9 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
     final lsnAdjustedDate =
         '${DateFormat('yyyy-MM-dd').format(selectedDate!)} $formattedTime';
 
-    final schedualDateTime = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.parse(widget.schedualDate));
-
     final Map<String, dynamic> adjustedStuLsn = {
-      'stuId': widget.stuId,
-      'subjectId': widget.subjectId,
       'lessonId': widget.lessonId,
       'lsnAdjustedDate': lsnAdjustedDate,
-      'lessonType': widget.lessonType,
-      'classDuration': widget.classDuration,
-      'schedualDate': schedualDateTime,
     };
 
     _saveLesson(adjustedStuLsn);
