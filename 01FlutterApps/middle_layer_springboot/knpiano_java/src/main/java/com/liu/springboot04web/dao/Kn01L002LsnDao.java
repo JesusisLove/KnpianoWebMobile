@@ -94,7 +94,7 @@ public class Kn01L002LsnDao {
         // 检查该课程是否是有效的课程
         if (checkThisLsn(knLsn001Bean)) {
 
-            // 确认该生到目前为止的计划课有没有上完43节课，如果超过43节课了，这个课即便拍的是计划课，也要强行按照加课来计算
+            // 确认该生到目前为止的计划课有没有上完43节课，如果超过43节课了，这节课即便拍的是计划课，也要强行按照加课来计算
             if (knLsn001Bean.getLessonType() == 1) {
                 correctLessonTypeIfOverLimit_43(knLsn001Bean);
             }
@@ -113,10 +113,10 @@ public class Kn01L002LsnDao {
                     null);
             if (knLsn001Bean.getLessonType() == 1 && advcPaidBean != null) {
                 // 对课费预支付表里的该当lesson_id的advc_flg值做更新操作（advc_flg值，从0更新为1）
-                advcPaidBean.setAdvcFlg(1);
+                advcPaidBean.setAdvcFlg(1); // 设置成1，表示课费预支付状态结束。
                 kn02F003LsnFeeAdvcPayDao.update(advcPaidBean);
 
-                // 对课程表不做任何操作（月计划课程在课费预支付表里存在的话，不能再往课费表里执行插入操作）。
+                // 对课费表不做任何操作（月计划课程在课费预支付表里存在的话，不能再往课费表里执行插入操作）。
                 // 重复的lesson_id会导致主键冲突的数据库错误。
             } else {
                 // 对签到的课程执行课费计算
