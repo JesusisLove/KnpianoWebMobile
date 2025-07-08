@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+        }
+        
+        .indented {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* 列控制功能样式 */
+        .column-control {
+            position: relative;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .column-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 180px;
+            padding: 10px;
+        }
+
+        .column-menu.show {
+            display: block;
+        }
+
+        .column-menu label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .no-info-message {
+            font-size: 18px;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_lsn_pay_list_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h2 class="mt-4 mb-2">预支付历史记录一览</h2>
+
+                <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
+                <div class="business-description mb-4">
+                    <!-- 检索部业务说明折叠组件 -->
+                    <div class="card">
+                        <div class="card-header" id="searchDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#searchDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="searchDescriptionCollapse">
+                                    ★检索部业务说明
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="searchDescriptionCollapse" class="collapse" 
+                             aria-labelledby="searchDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①</dd>
+                                    <dd class="indented">②</dd>
+                                    <dd class="indented">③</dd>
+                                    <dd class="indented">③</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 検索部 -->
+                <form action="#" th:action="@{/kn_advc_lsn_pay_list/search}" th:object="${searchForm}" method="get">
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-md-1">
+                            <label>年度</label>
+                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                <option th:each="year : ${knyearlist}" 
+                                        th:value="${year}" 
+                                        th:text="${year}" 
+                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>学生姓名</label> 
+                            <select class="form-control" id="studentSelect" name="stuId">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-1">
+                            <button type="submit" class="btn btn-primary">検 索</button>
+                       </div>
+                    </div>
+                </form>
+
+                <!-- 课费预支付历史明細 -->
+                <div class="form-group" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
+                    <p class="no-info-message">学生课费预支付的历史记录</p>
+                    
+                    <!-- 列控制按钮和菜单 -->
+                    <div class="column-control">
+                        <button onclick="toggleColumnMenu(event)" class="btn btn-sm btn-secondary">
+                            显示/隐藏列
+                        </button>
+                        <div id="columnMenu" class="column-menu">
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-no')" /> No.
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 课程编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnFeeId')" /> 课费编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnPayId')" /> 支付编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-stuName')" /> 学生名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 子科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubName')" /> 子科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 排课日期
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnPay')" /> 预支付金额
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankId')" /> 银行编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankName')" /> 银行名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-advcFlg')" /> 预支付使用状态
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th class="col-no">No.</th>
+                                <th class="col-lessonId">课程编号</th>
+                                <th class="col-lsnFeeId">课费编号</th>
+                                <th class="col-lsnPayId">支付编号</th>
+                                <th class="col-stuId">学生编号</th>
+                                <th class="col-stuName">学生名称</th>
+                                <th class="col-subjectId">科目编号</th>
+                                <th class="col-subjectName">科目名称</th>
+                                <th class="col-subjectSubId">子科目编号</th>
+                                <th class="col-subjectSubName">子科目名称</th>
+                                <th class="col-schedualDate">排课日期</th>
+                                <th class="col-lsnPay">预支付金额</th>
+                                <th class="col-bankId">银行编号</th>
+                                <th class="col-bankName">银行名称</th>
+                                <th class="col-advcFlg">预支付使用状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="info, stat:${historyList}">
+                                <td class="col-no" th:text="${stat.index + 1}"></td>
+                                <td class="col-lessonId">[[${info.lessonId}]]</td>
+                                <td class="col-lsnFeeId">[[${info.lsnFeeId}]]</td>
+                                <td class="col-lsnPayId">[[${info.lsnPayId}]]</td>
+                                <td class="col-stuId">[[${info.stuId}]]</td>
+                                <td class="col-stuName">[[${info.stuName}]]</td>
+                                <td class="col-subjectId">[[${info.subjectId}]]</td>
+                                <td class="col-subjectName">[[${info.subjectName}]]</td>
+                                <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
+                                <td class="col-subjectSubName">[[${info.subjectSubName}]]</td>
+                                <td class="col-schedualDate">
+                                    <span th:if="${info.schedualDate != null}"
+                                        th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                        th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
+                                    <input th:if="${info.schedualDate == null}" type="text"
+                                        class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                                </td>
+                                <td class="col-lsnPay">[[${info.lsnPay}]]</td>
+                                <td class="col-bankId">[[${info.bankId}]]</td>
+                                <td class="col-bankName">[[${info.bankName}]]</td>
+                                <td class="col-advcFlg">[[${info.advcFlg == 0 ? '使用中' : '已废弃'}]]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!--Bootstrap core JavaScript-->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+    <!-- 初始化学生下拉列表框 -->
+    <script th:inline="javascript">
+        // 从后端传递的学生数据
+        var jsonStuSubList = /*[[${advcPaystuNmList}]]*/ [];
+        
+        // 页面加载完成后，初始化学生下拉列表
+        window.onload = function() {
+            var studentSelect = document.getElementById('studentSelect');
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            var uniqueStudentIds = new Set();
+            
+            // 从stuSubList添加学生姓名到下拉列表，确保不重复
+            jsonStuSubList.forEach(function(item) {
+                if (!uniqueStudentIds.has(item.stuId)) {
+                    uniqueStudentIds.add(item.stuId);
+                    var option = new Option(item.stuName, item.stuId);
+                    if (item.stuId === selectedStuId) {
+                        option.selected = true;
+                    }
+                    studentSelect.add(option);
+                }
+            });
+
+            // 初始化列控制功能
+            applyColumnStates();
+        };
+
+        // ===== 列控制功能 JavaScript 代码 =====
+        // 存储列显示状态
+        var columnStates = JSON.parse(localStorage.getItem('paymentColumnStates') || '{}');
+
+        // 控制列显示菜单的显示/隐藏
+        function toggleColumnMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('columnMenu');
+            menu.classList.toggle('show');
+        }
+
+        // 控制列的显示/隐藏
+        function toggleColumn(columnClass) {
+            columnStates[columnClass] = !columnStates[columnClass];
+            const isVisible = columnStates[columnClass];
+
+            // 更新所有具有该类名的元素
+            const cells = document.getElementsByClassName(columnClass);
+            Array.from(cells).forEach(cell => {
+                cell.style.display = isVisible ? '' : 'none';
+            });
+
+            // 保存状态
+            localStorage.setItem('paymentColumnStates', JSON.stringify(columnStates));
+
+            // 同步复选框状态
+            const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isVisible;
+            });
+        }
+
+        // 应用保存的列状态
+        function applyColumnStates() {
+            Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
+                const cells = document.getElementsByClassName(columnClass);
+                Array.from(cells).forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+
+                // 更新复选框状态
+                const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isVisible;
+                });
+            });
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('columnMenu');
+            if (!event.target.closest('.column-control')) {
+                menu.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

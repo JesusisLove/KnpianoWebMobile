@@ -71,7 +71,7 @@ public class Kn02F003AdvcLsnFeePayController {
             model.addAttribute("successMessage", successMessage);
         }
 
-        return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
+        return "kn_02f003_advc_pay/kn_02f001_advc_pay";
     }
 
     // 点击Web页面上的【推算排课日期】按钮
@@ -107,7 +107,7 @@ public class Kn02F003AdvcLsnFeePayController {
         // 画面初期化基本设定
         setModel(model);
 
-        return "kn_02f003_advc_pay/kn_02f003_advc_pay_list";
+        return "kn_02f003_advc_pay/kn_02f001_advc_pay";
     }
 
     // 点击Web页面上的【课费预支付】按钮
