@@ -36,6 +36,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 lsn.stu_id,
                 lsn.stu_name,
                 sche.lesson_id,
+                sche.subject_id,
                 sub.subject_name,
                 oldEda.subject_sub_name AS old_subject_sub_name,
                 old_lsn_fee,
