@@ -177,9 +177,9 @@ public class Kn01L002ExtraToScheDao {
 
         // ⑥执行保存加课换正课的处理（其实处理的是课费的结算，即原来准备按加课费收费，由于换成其他月份的正课，就不在当前月收取加课费了）
         kn01l002ExtraToScheMapper.insertExtraToScheInfo(tblBean.getLessonId(),
+                                                        tblBean.getSubjectId(),
                                                         tblBean.getOldLsnFeeId(),
                                                         tblBean.getToScheLsnFeeId(),
-                                                        tblBean.getSubjectId(),
                                                         tblBean.getOldSubjectSubId(),
                                                         tblBean.getToScheSubjectSubId(),
                                                         tblBean.getOldLsnFee(),
