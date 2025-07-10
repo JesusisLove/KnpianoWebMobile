@@ -302,7 +302,7 @@
                                 <td class="col-bankId">[[${info.bankId}]]</td>
                                 <td class="col-bankName">[[${info.bankName}]]</td>
                                 <td class="col-advcFlg">[[${info.advcFlg == 0 ? '使用中' : '使用完'}]]</td>
-                                <td class="col-dataStatus">[[${info.dataStatus == 0 ? '正常数据' : '异常数据'}]]</td>
+                                <td class="col-dataStatus">[[${info.dataStatus == 0 ? '数据状态正常' : '数据状态异常'}]]</td>
                                 <td class="col-action">
                                     <button th:if="${info.dataStatus == 1}" 
                                             class="btn btn-sm btn-warning" 

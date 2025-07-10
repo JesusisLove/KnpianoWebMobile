@@ -28,6 +28,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         <where>
             substring(schedual_date,1,4) = #{year}
         </where>
+        ORDER BY lsn.stu_name
     </select>
 
     <!-- 追加 data_status来判断预支付记录是正常数据还是异常数据 -->
