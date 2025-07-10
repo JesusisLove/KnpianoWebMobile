@@ -35,6 +35,7 @@
         and lsn.pay_flg = 0
         <!-- 加课时长少于1节课的课程 -->
         and lsn.class_duration &lt; doc.minutes_per_lsn
+        order by doc.stu_name
     </select>
 
     <!-- Web页面
@@ -51,7 +52,8 @@
         JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
             AND doc.subject_id = extraPiecesLsn.subject_id
             AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
-        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn;
+        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
+        ORDER BY doc.stu_name
     </select>
 
     <!-- 前端设备，
@@ -69,7 +71,7 @@
             AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
         WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
         <!-- 去掉重复的学生名单 -->
-        GROUP BY stu_id, stu_name, nik_name;
+        GROUP BY stu_name, nik_name;
     </select>
 
     <!-- 前端设备，
