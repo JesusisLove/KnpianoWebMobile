@@ -236,6 +236,10 @@ public class Kn01L002LsnDao {
 
         // 此处虽然用的是Kn02F002FeeMapper的模糊查询，因为lesson_id在课费管理表里也是唯一值，所以不会出现多条记录的现象，所以使用该函数没有问题。
         List<Kn02F002FeeBean> searchResults = kn02F002FeeDao.searchLsnFee(condition);
+        
+        // 增强代码健壮性，防止抛出null异常
+        if (searchResults.size() == 0) return;
+
         Kn02F002FeeBean feeBean = searchResults.get(0);
 
         // 如果课费预支付表里已经有了该课的预支付记录，就表示不必再往课费表里进行插入操作，否则会发生主键冲突
