@@ -30,6 +30,12 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
     </select>
 
+    <!-- 追加 data_status来判断预支付记录是正常数据还是异常数据 -->
+    <!-- advc.advc_flg = 1 表示 预支付状态已经结束，该记录的数据状态是正常数据。打个比方，就好像你预约了会议室，会已经开完了，会议室都没人了，会议室预约取消了，这是正常状态 -->
+    <!-- advc.advc_flg = 0，再看该月份还有没有其他已经签到完了的排课，如果其他课都签完了，预支付状态还在，该记录的数据状态是异常数据。
+        打个比方，就好像你预约的会议室，而且会都已经开完了（这月其他星期的课都上完了），其他人都开完会离开会议室了（其他课都签到了），因为你当天缺席不在，会议室还是处在预约的状态，这是不正常的状态。  -->
+    <!-- advc.advc_flg = 0，再看该月份还有没有其他已经签到完了的排课，如果其他课也都是还没有签到，预支付状态还在，该记录的数据状态是正常数据。
+        打个比方，你事先预约了个会议室，其他同事也进来了（这月其他星期的课也排了），会议还没有开始（签到还没有执行），大家都在会议室准备开会，而且你自己也在，这也是正常的状态。  -->
     <select id="getAdvcLsnPayList" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnPayListBean">
         SELECT
             advc.lesson_id,
@@ -46,7 +52,19 @@ https://mybatis.org/mybatis-3/getting-started.html
             pay.lsn_pay,
             pay.bank_id,
             bnk.bank_Name,
-            advc.advc_flg
+            advc.advc_flg,
+            CASE 
+                WHEN advc.advc_flg = 1 THEN 0
+                WHEN advc.advc_flg = 0 AND EXISTS (
+                    SELECT 1 FROM t_info_lesson t_check 
+                    WHERE t_check.stu_id = lsn.stu_id 
+                    AND t_check.subject_id = lsn.subject_id 
+                    AND LEFT(t_check.schedual_date, 7) = LEFT(lsn.schedual_date, 7)
+                    AND t_check.scanqr_date IS NOT NULL
+                ) THEN 1
+                WHEN advc.advc_flg = 0 THEN 0
+                ELSE -1
+            END AS data_status
         FROM
             v_info_lesson lsn
         INNER JOIN 
@@ -66,5 +84,44 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
         ORDER BY schedual_date DESC
     </select>
+
+    <!-- 课费预支付再调整用 -->
+    <select id="getValidAdvancePaymentLessonId" resultType="java.lang.String">
+        SELECT lesson_id 
+        FROM v_info_lesson 
+        <where>
+            <if test="stuId != null and stuId != ''">
+                AND stu_id = #{stuId}
+            </if>
+            <if test="subjectId != null and subjectId != ''">
+                AND subject_id = #{subjectId}
+            </if>
+            AND LEFT(schedual_date, 7) = (
+                SELECT LEFT(schedual_date, 7) 
+                FROM t_info_lesson 
+                WHERE lesson_id = #{lessonId}
+            )
+            AND scanqr_date IS NOT NULL
+        </where>
+        ORDER BY schedual_date ASC
+        LIMIT 1;
+    </select>
+
+    <!-- 课费预支付再调整用 -->
+    <update id="updateAdvancePayment">
+        UPDATE t_info_lsn_fee_advc_pay
+        SET
+            lesson_id = #{lessonId},
+            advc_flg = 1
+        WHERE lesson_id = #{oldLessonId}
+        AND   lsn_fee_id = #{lsnFeeId}
+        AND   lsn_pay_id = #{lsnPayId}
+    </update>
+
+    <!-- 课费预支付再调整用 -->
+    <delete id="deleteInvalidAdvancePaymentLessonId">
+        DELETE FROM t_info_lesson_fee 
+         WHERE lesson_id = #{lessonId}
+    </delete>
 
 </mapper>
