@@ -172,7 +172,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             <if test="params.lsn_status == 0">
                 AND main.scanQR_date is null
             </if>
-            AND main.del_flg = 0
+            <!-- AND main.del_flg = 0  这个del_flg是学生表里的伦理删除字段，这样设计不合理，视图里已经将该字段删除掉-->
         </where> 
         order by main.stu_id, main.schedual_date desc, main.lesson_id desc, main.subject_sub_id desc, main.lesson_type
     </select> 
