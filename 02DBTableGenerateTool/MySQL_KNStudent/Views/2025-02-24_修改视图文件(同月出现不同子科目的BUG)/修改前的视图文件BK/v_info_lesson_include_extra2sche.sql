@@ -5,7 +5,7 @@
 *执行v_info_lesson_include_extra2sche，只能看到加课换成正课之后，变成正课的样貌（相当于姑娘结婚后在婆家的样貌）
 *该视图只针对加课换正课的数据处理，对其调课记录，正课记录没有影响。
 */
-use prod_KNStudent;
+-- use prod_KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_include_extra2sche;
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -49,7 +49,7 @@ VIEW v_info_lesson_include_extra2sche AS
             then 1 -- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
             else lsn.lesson_type -- 上记以外的场合
         end AS lesson_type,
-        mst.del_flg AS del_flg,
+        -- mst.del_flg AS del_flg,
         lsn.create_date AS create_date,
         lsn.update_date AS update_date
     FROM

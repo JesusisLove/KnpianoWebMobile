@@ -123,7 +123,18 @@ public class Kn01L002LsnController4Mobile {
     @DeleteMapping("/mb_kn_lsn_001_delete/{lessonId}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("lessonId") String lessonId) {
         try {
-            kn01L002LsnDao.delete(lessonId);
+            // 拿到该课程信息
+            Kn01L002LsnBean knLsn001Bean = kn01L002LsnDao.getInfoById(lessonId);
+            // 取出该课程，判断是原课还是调课
+            if (knLsn001Bean.getLsnAdjustedDate() != null) {
+                // 是调课，退回到原课状态
+                kn01L002LsnDao.reScheduleLsnCancel(lessonId);
+
+            } else {
+                // 是原课，执行物理删除
+                kn01L002LsnDao.delete(lessonId);
+
+            }
             return ResponseEntity.ok("success");
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)  // 409 Conflict

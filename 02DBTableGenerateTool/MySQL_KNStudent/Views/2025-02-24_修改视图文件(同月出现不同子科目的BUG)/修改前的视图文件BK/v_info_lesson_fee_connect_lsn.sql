@@ -2,7 +2,7 @@
 /**
 * 获取所有学生签完到的上课记录和课费记录
 */
-use prod_KNStudent;
+-- use prod_KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_fee_connect_lsn;
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -39,7 +39,8 @@ VIEW v_info_lesson_fee_connect_lsn AS
         JOIN v_info_lesson_include_extra2sche lsn   -- 包含了加课换正课后的记录
         ON (((fee.lesson_id = lsn.lesson_id)
             AND (fee.del_flg = 0)
-            AND (lsn.del_flg = 0))))
+            -- AND (lsn.del_flg = 0) -- 此处的del_flg=0 不是课程的理论删除值，而是学生表的理论删除，这样的处理是不合理的。
+            )))
         LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
             AND (lsn.subject_id = doc.subject_id)
             AND (lsn.subject_sub_id = doc.subject_sub_id)

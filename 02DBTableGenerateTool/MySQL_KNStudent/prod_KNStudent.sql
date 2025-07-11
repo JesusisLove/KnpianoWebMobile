@@ -633,39 +633,37 @@ VIEW v_info_lesson_include_extra2sche AS
         lsn.subject_sub_id AS subject_sub_id,
         eda.subject_sub_name AS subject_sub_name,
         lsn.stu_id AS stu_id,
-        CASE 
-            WHEN mst.del_flg = 1 THEN CONCAT(mst.stu_name, '(已退学)')
-            ELSE mst.stu_name
-        END AS stu_name,
+        case when mst.del_flg = 1 then  CONCAT(mst.stu_name, '(已退学)')
+             else mst.stu_name
+        end AS stu_name,
         lsn.class_duration AS class_duration,
         lsn.schedual_type AS schedual_type,
-        CASE 
-            -- 如果该记录是加课换正课记录
-            WHEN lsn.extra_to_dur_date IS NOT NULL THEN lsn.extra_to_dur_date
-            ELSE lsn.schedual_date
-        END as schedual_date,
-        CASE 
-            -- 如果该记录是加课换正课记录，那么，成了正课记录的情况下，就让调课日期为null，这样手机页面的加课换正课记录就不会再显示调课日期了👍
-            WHEN lsn.extra_to_dur_date IS NOT NULL THEN NULL
-            ELSE lsn.lsn_adjusted_date
-        END AS lsn_adjusted_date,
+        case 
+			when lsn.extra_to_dur_date is not null -- 如果该记录是加课换正课记录
+            then  lsn.extra_to_dur_date
+            else lsn.schedual_date
+        end as schedual_date,
+        case 
+			when lsn.extra_to_dur_date is not null -- 如果该记录是加课换正课记录
+            then null -- 成了正课记录的情况下，就让调课日期为null，这样手机页面的加课换正课记录就不会再显示调课日期了👍
+            else lsn.lsn_adjusted_date
+		end AS lsn_adjusted_date,
         lsn.scanqr_date,
-        CASE 
-            -- 如果该记录是加课换正课记录 加课换正课的场合，记住原来真正签到的日期
-            WHEN lsn.extra_to_dur_date IS NOT NULL THEN 
-                CASE
-                    -- 调课日期是原来实际的上课日期
-                    WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
-                    -- 计划日期是原来实际的上课日期
-                    ELSE schedual_date
-                END
-        END as original_schedual_date,
-        CASE 
-            -- NOT NULL表示该课是加课换正课记录，因为已经成为其他日期的正课，所以强行成为正课区分
-            WHEN extra_to_dur_date IS NOT NULL THEN 1
-            ELSE lsn.lesson_type
-        END AS lesson_type,
-        mst.del_flg AS del_flg,
+		case 
+			when lsn.extra_to_dur_date is not null  -- 如果该记录是加课换正课记录 -- 加课换正课的场合，记住原来真正签到的日期
+            then 
+				case
+					when lsn.lsn_adjusted_date is not null
+                    then lsn.lsn_adjusted_date -- 调课日期是原来实际的上课日期
+                    else lsn.schedual_date     -- 计划日期是原来实际的上课日期
+				end
+        end as original_schedual_date,
+        case 
+			when extra_to_dur_date is not null  -- 如果该记录是加课换正课记录
+            then 1 -- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
+            else lsn.lesson_type -- 上记以外的场合
+        end AS lesson_type,
+        -- mst.del_flg AS del_flg,
         lsn.create_date AS create_date,
         lsn.update_date AS update_date
     FROM
@@ -673,7 +671,7 @@ VIEW v_info_lesson_include_extra2sche AS
         INNER JOIN t_mst_student mst ON ((lsn.stu_id = mst.stu_id)))
         INNER JOIN v_info_subject_edaban eda ON (((lsn.subject_id = eda.subject_id)
             AND (lsn.subject_sub_id = eda.subject_sub_id)
-            AND lsn.del_flg = 0)));
+            AND lsn.del_flg = 0)))
 
 
 
@@ -1076,60 +1074,61 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
 
 -- 21授業料金情報管理
 -- USE prod_KNStudent;
--- DROP VIEW IF EXISTS `v_info_lesson_fee_connect_lsn`;
+DROP VIEW IF EXISTS `v_info_lesson_fee_connect_lsn`;
 -- 视图 从t_info_lesson_fee表里抽出学生各自科目的费用信息
 -- 这里的课程都是已经签到完了的课程记录
 -- 月计划的情况下（lesson_type=1),4个lesson_id对应1个lsn_fee_id
 -- 月加课和课结算的情况下（lesson_type=0，1),1个lesson_id对应1个lsn_fee_id
--- CREATE 
---     ALGORITHM = UNDEFINED 
---     DEFINER = root@localhost 
---     SQL SECURITY DEFINER
--- VIEW v_info_lesson_fee_connect_lsn AS
---     SELECT 
---         fee.lsn_fee_id AS lsn_fee_id,
---         fee.lesson_id AS lesson_id,
---         lsn.lesson_type AS lesson_type,
---         (lsn.class_duration / doc.minutes_per_lsn) AS lsn_count,
---         doc.stu_id AS stu_id,
---         CASE 
---             WHEN doc.del_flg = 1 THEN CONCAT(doc.stu_name, '(已退学)')
---             ELSE doc.stu_name
---         END AS stu_name,
---         doc.subject_id AS subject_id,
---         doc.subject_name AS subject_name,
---         doc.pay_style AS pay_style,
---         lsn.subject_sub_id AS subject_sub_id,
---         doc.subject_sub_name AS subject_sub_name,
---         (CASE
---             WHEN (doc.lesson_fee_adjusted > 0) THEN doc.lesson_fee_adjusted
---             ELSE doc.lesson_fee
---         END) AS subject_price,
---         (fee.lsn_fee * (lsn.class_duration / doc.minutes_per_lsn)) AS lsn_fee,
---         fee.lsn_month AS lsn_month,
---         fee.own_flg AS own_flg,
---         fee.del_flg AS del_flg,
---         fee.extra2sche_flg,
---         fee.create_date AS create_date,
---         fee.update_date AS update_date
---     FROM
---         ((v_info_lesson_fee_include_extra2sche fee
---         JOIN v_info_lesson_include_extra2sche lsn ON (((fee.lesson_id = lsn.lesson_id)
---             AND (fee.del_flg = 0)
---             AND (lsn.del_flg = 0))))
---         LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
---             AND (lsn.subject_id = doc.subject_id)
---             AND (lsn.subject_sub_id = doc.subject_sub_id)
---             AND (doc.adjusted_date = (SELECT 
---                 MAX(studoc.adjusted_date)
---             FROM
---                 v_info_student_document studoc
---             WHERE
---                 ((studoc.stu_id = doc.stu_id)
---                     AND (studoc.subject_id = doc.subject_id)
---                     AND (studoc.subject_sub_id = doc.subject_sub_id)
---                     AND (DATE_FORMAT(studoc.adjusted_date, '%Y/%m/%d') <= DATE_FORMAT(lsn.schedual_date, '%Y/%m/%d'))))))))
---     ORDER BY fee.lsn_month;
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = root@localhost 
+    SQL SECURITY DEFINER
+VIEW v_info_lesson_fee_connect_lsn AS
+    SELECT 
+        fee.lsn_fee_id AS lsn_fee_id,
+        fee.lesson_id AS lesson_id,
+        lsn.lesson_type AS lesson_type,
+        (lsn.class_duration / doc.minutes_per_lsn) AS lsn_count,
+        doc.stu_id AS stu_id,
+        case when doc.del_flg = 1 then  CONCAT(doc.stu_name, '(已退学)')
+             else doc.stu_name
+        end AS stu_name,
+        doc.subject_id AS subject_id,
+        doc.subject_name AS subject_name,
+        doc.pay_style AS pay_style,
+        lsn.subject_sub_id AS subject_sub_id,
+        doc.subject_sub_name AS subject_sub_name,
+        (CASE
+            WHEN (doc.lesson_fee_adjusted > 0) THEN doc.lesson_fee_adjusted
+            ELSE doc.lesson_fee
+        END) AS subject_price,
+        (fee.lsn_fee * (lsn.class_duration / doc.minutes_per_lsn)) AS lsn_fee,
+        fee.lsn_month AS lsn_month,
+        fee.own_flg AS own_flg,
+        fee.del_flg AS del_flg,
+        fee.extra2sche_flg,
+        fee.create_date AS create_date,
+        fee.update_date AS update_date
+    FROM
+        ((v_info_lesson_fee_include_extra2sche fee -- 包含了加课换正课后的记录
+        JOIN v_info_lesson_include_extra2sche lsn   -- 包含了加课换正课后的记录
+        ON (((fee.lesson_id = lsn.lesson_id)
+            AND (fee.del_flg = 0)
+            -- AND (lsn.del_flg = 0) -- 此处的del_flg=0 不是课程的理论删除值，而是学生表的理论删除，这样的处理是不合理的。
+            )))
+        LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
+            AND (lsn.subject_id = doc.subject_id)
+            AND (lsn.subject_sub_id = doc.subject_sub_id)
+            AND (doc.adjusted_date = (SELECT 
+                MAX(studoc.adjusted_date)
+            FROM
+                v_info_student_document studoc
+            WHERE
+                ((studoc.stu_id = doc.stu_id)
+                    AND (studoc.subject_id = doc.subject_id)
+                    AND (studoc.subject_sub_id = doc.subject_sub_id)
+                    AND (DATE_FORMAT(studoc.adjusted_date, '%Y/%m/%d') <= DATE_FORMAT(lsn.schedual_date, '%Y/%m/%d'))))))))
+    ORDER BY fee.lsn_month
 
 -- 📱手机端用视图 课程进度统计，用该视图取出的数据初期化手机页面的graph图
 -- USE prod_KNStudent;
