@@ -12,7 +12,6 @@ import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
 import java.time.LocalDate;
-import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,7 +61,7 @@ public class Kn01L002ExtraToScheController {
         return "kn_extra_to_sche_001/kn_extra_list";
     }
 
-    // 【KNPiano后台维护】点击“加课消化管理”画面初期化
+    // 【KNPiano后台维护】点击“加课消化管理”画面初期化、初期化条件是系统当前年度（数据库取得最新课程档案信息是以当前年月日为查询基准日）
     @GetMapping("/kn_extratosche_all")
     public String list(Model model) {
         // 画面检索条件保持变量初始化前端检索部
@@ -98,7 +97,12 @@ public class Kn01L002ExtraToScheController {
         return "kn_extra_to_sche_001/kn_extra_list";
     }
 
-    // 【一覧画面検索部】検索ボタンを押下
+    /* 【一覧画面検索部】検索ボタンを押下，
+     *  取得要换正课的加课明细。取得条件是:年度和月份是下拉列表框选择的年度和月份
+     *  对于学生历史档案的最新科目取得的业务逻辑说明如下：
+     *     如果下拉列表框取得的年份是系统当前年度，那么，最新课程档案信息视图里的最新截止日期是以当前年月日为查询基准日，基准日传递null即可。
+     *     如果下拉列表框取得的年份非系统当前年度，那么，最新课程档案信息视图里的最新截止日期是yyyy-12-31
+    */
     @GetMapping("/kn_extratosche_all/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 把画面传来的年和月拼接成yyyy-mm的        
@@ -122,6 +126,11 @@ public class Kn01L002ExtraToScheController {
 
         // 检索条件
         params.put("stu_id", queryParams.get("stuId"));
+
+        // 学生最新档案基准日调整的设置（如果下拉列表框是系统当前年度，基准日调整设置为null，如果是非系统当前年度，基准日调整设置为yyyy-12-31）
+        String systemYear = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+        String adjustedBaseDate = lsnYear.equals(systemYear) ? null : lsnYear + "-12-31";
+        params.put("adjustedBaseDate", adjustedBaseDate);
 
         // 回传参数设置（画面检索部的查询参数）
         Map<String, Object> backForwordMap = new HashMap<>();

@@ -35,7 +35,7 @@ public class Kn02F002FeeController4Mobile {
     // 取得当前年度要付课费的学生名称一览
     @GetMapping("/mb_kn_lsn_fee_001_all/{selectedYear}")
     public ResponseEntity<List<Kn02F002FeeBean>> list(@PathVariable("selectedYear") Integer year) {
-        List<Kn02F002FeeBean> list = knLsnFee001Dao.getInfoList(Integer.toString(year));
+        List<Kn02F002FeeBean> list = knLsnFee001Dao.getStuNameList(Integer.toString(year));
         return ResponseEntity.ok(list);
     }
 

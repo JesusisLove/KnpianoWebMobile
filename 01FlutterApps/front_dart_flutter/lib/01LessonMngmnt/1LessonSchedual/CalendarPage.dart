@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart' show HapticFeedback;
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import 'AddCourseDialog.dart';
 import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
@@ -24,11 +25,11 @@ class RescheduleLessonTimeDialog extends StatefulWidget {
   final Function(String) onSave;
 
   const RescheduleLessonTimeDialog({
-    Key? key,
+    super.key,
     required this.initialDate,
     required this.initialTime,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   _RescheduleLessonTimeDialogState createState() =>
@@ -207,6 +208,8 @@ class _CalendarPageState extends State<CalendarPage> {
   final ScrollController _scrollController = ScrollController(); // 新增
   Timer? _highlightTimer; // 新增
 
+  bool _isLoading = false; // 添加加载状态变量
+
   CalendarFormat _calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay;
   late DateTime _selectedDay;
@@ -283,6 +286,11 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Future<void> _fetchStudentLsn(String schedualDate) async {
+    // 开始加载，设置加载状态为true
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final String apilsnInfoByDayUrl =
           '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$schedualDate';
@@ -291,16 +299,28 @@ class _CalendarPageState extends State<CalendarPage> {
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         List<dynamic> responseStuLsnsJson = json.decode(decodedBody);
-        setState(() {
-          studentLsns = responseStuLsnsJson
-              .map((json) => Kn01L002LsnBean.fromJson(json))
-              .toList();
-        });
+        if (mounted) {
+          // 检查组件是否仍然挂载
+          setState(() {
+            studentLsns = responseStuLsnsJson
+                .map((json) => Kn01L002LsnBean.fromJson(json))
+                .toList();
+            _isLoading = false; // 加载完成，设置加载状态为false
+          });
+        }
       } else {
         throw Exception('Failed to load archived lessons of the day');
       }
     } catch (e) {
       print('Error fetching current-day\'s lessons data: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // 出错时也要结束加载状态
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('加载数据出错: $e')),
+        );
+      }
     }
   }
 
@@ -512,7 +532,9 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: RescheduleLessonDialog(lessonId: event.lessonId),
+              child: RescheduleLessonDialog(
+                lessonId: event.lessonId,
+              ),
             ),
           ),
         );
@@ -757,10 +779,11 @@ class _CalendarPageState extends State<CalendarPage> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
       ),
       body: Column(
         children: [
+          // 日历部分始终显示
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -808,6 +831,8 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
           ),
+
+          // 日期标题部分始终显示
           Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -816,39 +841,115 @@ class _CalendarPageState extends State<CalendarPage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController, // 新增
-              itemCount: ((22 - 8) * 4), // 从8点到22点，每小时4个时间段
-              itemBuilder: (context, index) {
-                int hour = 8 + (index ~/ 4);
-                int minute = (index % 4) * 15;
-                String time =
-                    '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
-                return TimeTile(
-                  key: ValueKey(time),
-                  time: time,
-                  events: getSchedualLessonForTime(time),
-                  onTap: () => _handleTimeSelection(context, time),
-                  onSign: _handleSignCourse,
-                  onRestore: _handleRestoreCourse,
-                  // onEdit: _handleEditCourse,
-                  highlightedStuId: highlightedStuId, // 新增
-                  onDelete: _handleDeleteCourse,
-                  onReschLsn: _handleReschLsnCourse,
-                  onCancel: _handleCancelRescheCourse,
-                  onAddmemo: _handleNoteCourse,
-                  selectedDay: _selectedDay,
-                  onTimeChanged: _updateLessonTime,
-                  highlightedTime: currentHighlightedTime,
-                  onHighlightChanged: (time) {
-                    setState(() {
-                      currentHighlightedTime = time;
-                    });
+          // 课程时间轴部分，包含加载状态
+          Expanded(
+            child: Stack(
+              children: [
+                // 时间轴内容
+                ListView.builder(
+                  controller: _scrollController,
+                  itemCount: ((22 - 8) * 4), // 从8点到22点，每小时4个时间段
+                  itemBuilder: (context, index) {
+                    int hour = 8 + (index ~/ 4);
+                    int minute = (index % 4) * 15;
+                    String time =
+                        '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+                    // 始终显示时间轴，但只在不加载时显示事件
+                    if (!_isLoading) {
+                      return TimeTile(
+                        key: ValueKey(time),
+                        time: time,
+                        events: getSchedualLessonForTime(time),
+                        onTap: () => _handleTimeSelection(context, time),
+                        onSign: _handleSignCourse,
+                        onRestore: _handleRestoreCourse,
+                        // onEdit: _handleEditCourse,
+                        highlightedStuId: highlightedStuId,
+                        onDelete: _handleDeleteCourse,
+                        onReschLsn: _handleReschLsnCourse,
+                        onCancel: _handleCancelRescheCourse,
+                        onAddmemo: _handleNoteCourse,
+                        selectedDay: _selectedDay,
+                        onTimeChanged: _updateLessonTime,
+                        highlightedTime: currentHighlightedTime,
+                        onHighlightChanged: (time) {
+                          setState(() {
+                            currentHighlightedTime = time;
+                          });
+                        },
+                      );
+                    } else {
+                      // 加载时只显示时间轴，不显示事件
+                      return GestureDetector(
+                        onTap: () {}, // 加载时禁用点击
+                        child: Container(
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 50,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 0, right: 0),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: time.endsWith(':00')
+                                        ? Text(
+                                            time,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w300,
+                                              color: Colors.black,
+                                            ),
+                                          )
+                                        : RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: time.substring(0, 3),
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w300,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: time.substring(3),
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w300,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  height: 0.5,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
                   },
-                );
-              },
+                ),
+
+                // 加载指示器覆盖在时间轴上
+                if (_isLoading)
+                  const Center(
+                    // child: CircularProgressIndicator(),
+                    child: KnLoadingIndicator(
+                        color: Constants.lessonThemeColor), // 使用自定的加载器进度条
+                  ),
+              ],
             ),
           ),
         ],

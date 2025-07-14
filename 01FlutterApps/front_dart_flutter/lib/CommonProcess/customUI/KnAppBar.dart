@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../HomePage.dart';
 // ignore: non_constant_identifier_names
 PreferredSizeWidget KnAppBar({
   required String title,
@@ -15,6 +16,7 @@ PreferredSizeWidget KnAppBar({
   bool refreshPreviousPage = false,
   TabBar? bottom, // 修改为可选参数
   bool addInvisibleRightButton = false, // 新增参数：是否添加不可见的右侧按钮，使AppBar的布局左右对称
+  int currentNavIndex = 0,
 }) {
   final double topPadding = MediaQuery.of(context).padding.top;
   const double sidePadding = 16.0; // 侧边距
@@ -61,11 +63,18 @@ PreferredSizeWidget KnAppBar({
                   ),
                   if (actions != null) ...actions,
                   // 此处是在KnAppBar右侧添加了隐藏的按钮，为了使Title内容的布局可以在Bar里剧中显示。
-                  if (addInvisibleRightButton &&
-                      (actions == null || actions.isEmpty))
-                    const IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.transparent),
-                      onPressed: null,
+                  if (!addInvisibleRightButton)
+                    IconButton(
+                      icon: Icon(Icons.home,
+                          color: titleColor), // 将透明图标改为可见的Home图标
+                      onPressed: () {
+                        // 使用Navigator.pushAndRemoveUntil来清除所有路由历史并返回到主页
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => HomePage(currentNavIndex: currentNavIndex,)),
+                          (route) => false, // 这会清除所有路由历史
+                        );
+                      },
                     ),
                   const SizedBox(width: sidePadding),
                 ],

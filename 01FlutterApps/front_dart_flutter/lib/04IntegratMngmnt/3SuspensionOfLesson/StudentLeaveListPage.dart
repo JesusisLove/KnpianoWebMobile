@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kn_piano/03StuDocMngmnt/1studentBasic/KnStu001Bean.dart';
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
 import 'package:http/http.dart' as http;
 import 'StudentLeaveSettingPage.dart';
@@ -34,8 +35,9 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
   final ValueNotifier<List<KnStu001Bean>> stuOffLsnNotifier = ValueNotifier([]);
   int stuInfoCount = 0;
   List<KnStu001Bean> students = [];
-  bool _isLoading = true; // 新增加载状态标志
-  bool _showDeleteButtons = false; // 新增：控制删除按钮显示的状态
+  bool _isLoading = false; // 修改加载状态标志
+  bool _showDeleteButtons = false; // 控制删除按钮显示的状态
+  bool _isDataLoaded = false; // 数据是否已加载完成
 
   @override
   void initState() {
@@ -70,7 +72,8 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
               stuDocJson.map((json) => KnStu001Bean.fromJson(json)).toList();
           stuInfoCount = stuOffLsnNotifier.value.length;
           students = stuOffLsnNotifier.value;
-          _isLoading = false; // 数据加载完成
+          _isDataLoaded = true; // 数据加载完成
+          _isLoading = false; // 加载状态结束
         });
       } else {
         throw Exception('Failed to load archived students');
@@ -88,15 +91,21 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
     }
   }
 
-  // 新增：切换删除按钮显示状态的方法
+  // 切换删除按钮显示状态的方法
   void toggleDeleteButtons() {
     setState(() {
       _showDeleteButtons = !_showDeleteButtons;
     });
   }
 
-  // 新增：处理学生退学的方法
+  // 处理学生退学的方法
   Future<void> handleStudentReturn(String stuId) async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true; // 开始处理操作
+    });
+
     try {
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.intergStuReturnExecute}/$stuId';
@@ -104,6 +113,12 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
       );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false; // 操作完成
+      });
 
       if (response.statusCode == 200) {
         // 请求成功，刷新页面
@@ -120,12 +135,18 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
         throw Exception('Failed to process student return');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // 确保出错时也重置加载状态
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -153,115 +174,123 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
         actions: [
-          // 修改：更新蓝色❌按钮的行为
+          // 当加载中时禁用按钮
           IconButton(
             icon: Icon(
               _showDeleteButtons ? Icons.close : Icons.add,
               color: Colors.white,
             ),
-            onPressed: toggleDeleteButtons,
+            onPressed: _isLoading ? null : toggleDeleteButtons,
           ),
         ],
       ),
-
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GridView.builder(
-                padding: const EdgeInsets.all(10),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: 1.5,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: students.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == students.length) {
-                    return GestureDetector(
-                      onTap: () {
-                        // 处理添加新学生的逻辑
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => StudentLeaveSettingPage(
-                                    knBgColor: Constants.ingergThemeColor,
-                                    knFontColor: Colors.white,
-                                    pagePath:
-                                        '${widget.pagePath} >> $titleName',
-                                  )),
-                        ).then((value) {
-                          // 如果需要，在返回时刷新学生列表
-                          if (value == true) {
-                            fetchStuOffLsnInfo();
-                          }
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Icon(Icons.add_circle,
-                            // color: Colors.green, size: 50),
-                            color: widget.knBgColor,
-                            size: 50),
-                      ),
-                    );
-                  }
-                  KnStu001Bean student = students[index];
-                  return Stack(
-                    children: [
-                      Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: widget.knBgColor, // const Color(0xFF7BA5B6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          student.stuName,
-                          style: const TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      // 修改：根据_showDeleteButtons状态显示或隐藏删除按钮
-                      if (_showDeleteButtons)
-                        Positioned(
-                          left: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              // 修改：调用handleStudentReturn方法
-                              handleStudentReturn(student.stuId);
-                            },
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
-                                ),
-                              ),
-                              child: const Icon(Icons.close,
-                                  color: Colors.white, size: 18),
+      body: Stack(
+        children: [
+          // 主要内容
+          _isDataLoaded
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(10),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 1.5,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: students.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == students.length) {
+                        return GestureDetector(
+                          onTap: _isLoading
+                              ? null
+                              : () {
+                                  // 处理添加新学生的逻辑
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            StudentLeaveSettingPage(
+                                              knBgColor:
+                                                  Constants.ingergThemeColor,
+                                              knFontColor: Colors.white,
+                                              pagePath:
+                                                  '${widget.pagePath} >> $titleName',
+                                            )),
+                                  ).then((value) {
+                                    // 如果需要，在返回时刷新学生列表
+                                    if (value == true) {
+                                      fetchStuOffLsnInfo();
+                                    }
+                                  });
+                                },
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Icon(Icons.add_circle,
+                                color: _isLoading
+                                    ? Colors.grey // 加载中时使用灰色
+                                    : widget.knBgColor,
+                                size: 50),
+                          ),
+                        );
+                      }
+                      KnStu001Bean student = students[index];
+                      return Stack(
+                        children: [
+                          Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: widget.knBgColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              student.nikName.isNotEmpty
+                                  ? student.nikName
+                                  : student.stuName,
+                              style: const TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+                          // 根据_showDeleteButtons状态显示或隐藏删除按钮
+                          if (_showDeleteButtons && !_isLoading) // 加载中时不显示
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // 调用handleStudentReturn方法
+                                  handleStudentReturn(student.stuId);
+                                },
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      bottomRight: Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Icon(Icons.close,
+                                      color: Colors.white, size: 18),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                )
+              : Container(), // 如果数据未加载完成，显示空容器
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
             ),
-      // 不要删除 保留（学习用）
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.green,
-      //   onPressed: () {
-      //     Navigator.push(
-      //         context,
-      //         MaterialPageRoute(
-      //             builder: (context) => const StudentLeaveSettingPage()));
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
+        ],
+      ),
     );
   }
 }

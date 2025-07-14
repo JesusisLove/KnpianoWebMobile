@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../../CommonProcess/CommonMethod.dart';
+
 class Kn05S002FixedLsnStatusBean {
   final int weekNumber;
   final String startWeekDate;

@@ -33,8 +33,10 @@
 
         /* 添加以下样式 */
         .nav-tabs .nav-link.active {
-            background-color: #28a745; /* 绿色背景 */
-            color: white; /* 白色文字 */
+            background-color: #28a745;
+            /* 绿色背景 */
+            color: white;
+            /* 白色文字 */
         }
 
         .nav-tabs .nav-link:hover {
@@ -70,8 +72,9 @@
                                 <dl>
                                     <dd class="indented">①这里不体现学生月课费信息</dd>
                                     <dd class="indented">②记录每上一节课的课费</dd>
-                                    <dd class="indented">③如果超过四节课的计划课，它的课程费用显示0。0元</dd>
-                                    <dd class="indented">③</dd>
+                                    <dd class="indented">③如果超过四节课的计划课，它的课程费用显示0.0元</dd>
+                                    <dd class="indented">④棕色粗体的课程信息是加课转正课（计划课）的课程信息</dd>
+                                    <dd class="indented">⑤灰色粗体的课程信息是零碎的加课拼凑成整节课后再转成正课（计划课）的课程信息</dd>
                                 </dl>
                             </div>
                         </div>
@@ -109,14 +112,14 @@
                             <button type="submit" class="btn btn-primary">検 索</button>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <!-- <div class="form-row">
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lsnFeeId" name="lsnFeeId"
-                                th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnFeeId'] : ''}" placeholder="课费番号">
+                                th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lsnFeeId'] : ''}" placeholder="课费编号">
                         </div>
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lessonId" name="lessonId"
-                                th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lessonId'] : ''}" placeholder="课程番号">
+                                th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['lessonId'] : ''}" placeholder="课程编号">
                         </div>
                         <div class="form-group col-md-2">
                             <input type="text" class="form-control" id="lessonType" name="lessonType"
@@ -127,7 +130,7 @@
                                 th:value="${stuLsnFeeMap != null ? stuLsnFeeMap['ownFlg'] : ''}"
                                 placeholder="支付种别（已支付/未支付）">
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- 如果没有学生的未支付信息，显示提示信息 -->
                     <style>

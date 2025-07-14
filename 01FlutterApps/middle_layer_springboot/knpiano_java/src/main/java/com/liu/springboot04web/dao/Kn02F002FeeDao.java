@@ -29,6 +29,12 @@ public class Kn02F002FeeDao {
         return list;
     }
 
+    // 手机前端：学费支付管理的在课学生一览
+    public List<Kn02F002FeeBean> getStuNameList(String year) {
+        List<Kn02F002FeeBean> list = knLsnFee001Mapper.getStuNameList(year);
+        return list;
+    }
+
     // 获取所有符合查询条件的课费信息
     public List<Kn02F002FeeBean> searchLsnFee(Map<String, Object> params) {
         return knLsnFee001Mapper.searchLsnFee(params);
@@ -74,7 +80,8 @@ public class Kn02F002FeeDao {
 
     /*
      * 根据该当科目是按月交费（月课费），还是按课时交费（时课费）
-     * 只限按月交费的课程（加课除外）：一个月内的所有按计划的上课编号（课程id）对应一个课费id，是一对多的关系(即lesson_id:lsn_fee_id是一对多的关系)
+     * 只限按月交费的课程（加课除外）：一个月内的所有按计划的上课编号（课程id）对应一个课费id，是一对多的关系(即lesson_id:
+     * lsn_fee_id是一对多的关系)
      * 注意，如果月计划课已经上完了4节课的话，第五周的第5节课不能收钱（即，课费应设置为0.0元）。
      * 另外，课结算和月加课的课程id和课费id（lsn_fee_id和lesson_id）是一对一的关系
      */
@@ -102,7 +109,7 @@ public class Kn02F002FeeDao {
             }
 
         }
-        // 上课种别是“课结算” 或者 “月加课”
+        // 课程属性是“课结算” 或者 “月加课”
         else {
             Map<String, Object> map = new HashMap<>();
             map.put("parm_in", KNConstant.CONSTANT_KN_LSN_FEE_SEQ);

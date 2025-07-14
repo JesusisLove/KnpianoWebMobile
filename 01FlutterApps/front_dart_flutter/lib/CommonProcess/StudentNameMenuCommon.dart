@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
 import 'customUI/KnAppBar.dart';
+import 'customUI/KnLoadingIndicator.dart';
 import 'pageIdMapping.dart';
 
 class StudentNameMenuCommon extends StatefulWidget {
@@ -35,6 +36,7 @@ class StudentNameMenuCommon extends StatefulWidget {
 class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   List<Map<String, dynamic>> students = [];
   DisplayMode _displayMode = DisplayMode.medium;
+  bool _isLoading = true; // 添加加载状态变量
 
   @override
   void initState() {
@@ -43,35 +45,41 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
   }
 
   Future<void> fetchStudents() async {
+    setState(() {
+      _isLoading = true; // 开始加载
+    });
     final String apiUrl = '${KnConfig.apiBaseUrl}${widget.strUri}';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
-        // 使用 Set 来去重
-        final Set<String> uniqueIds = {};
-        final List<Map<String, dynamic>> uniqueStudents = [];
-
-        for (var item in data) {
-          final String id = item['stuId'].toString();
-          if (!uniqueIds.contains(id)) {
-            uniqueIds.add(id);
-            uniqueStudents.add({
-              'id': id,
-              'name': item['stuName'] ?? '未知姓名',
-            });
-          }
-        }
+        // 直接转换数据而不去重
+        final List<Map<String, dynamic>> studentsList = data.map((item) {
+          return {
+            'id': item['stuId'].toString(),
+            'name':
+                item['nikName'] != null && item['nikName'].toString().isNotEmpty
+                    ? item['nikName']
+                    : (item['stuName'] ?? '未知姓名'),
+          };
+        }).toList();
 
         setState(() {
-          students = uniqueStudents;
+          students = studentsList;
+          _isLoading = false; // 加载完成
         });
       } else {
-        print('Failed to load students');
+        print('Failed to load students: ${response.statusCode}');
+        setState(() {
+          _isLoading = false; // 请求失败时结束加载状态
+        });
       }
     } catch (e) {
       print('Error: $e');
+      setState(() {
+        _isLoading = false; // 出错也要结束加载状态
+      });
     }
   }
 
@@ -106,6 +114,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
+        addInvisibleRightButton: true,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         actions: [
@@ -135,7 +144,11 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon> {
         ],
         bottom: null,
       ),
-      body: _buildStudentGrid(),
+      body: _isLoading
+          ? Center(
+              child: KnLoadingIndicator(color: widget.knBgColor), // 使用自定的加载器进度条
+            ) // 加载中显示进度条
+          : _buildStudentGrid(), // 加载完成显示网格
     );
   }
 

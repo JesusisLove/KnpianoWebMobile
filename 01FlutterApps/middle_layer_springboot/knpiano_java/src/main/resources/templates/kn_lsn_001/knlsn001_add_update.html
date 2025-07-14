@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,12 +12,13 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
-          rel="stylesheet">
+        rel="stylesheet">
     <!-- 引入 Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
     <!-- 引入 Bootstrap DateTime Picker CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -32,37 +34,57 @@
                 font-size: 3.5rem;
             }
         }
+
         .radio-group .form-check {
             display: block;
             margin-bottom: 10px;
         }
+
+        /* 调整控件最右侧按钮的宽度 */
+        .input-group-append .input-group-text {
+            min-width: 60px;
+            /* 设置按钮的最小宽度 */
+        }
+        
+        /* 确保日期时间选择器的样式 */
+        .datetime-container {
+            margin-bottom: 20px;
+        }
+        
+        .datetime-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
+
 <body>
 
-<div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
-<div class="container-fluid">
-    <div class="row">"
-        <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <!-- 显示错误消息 -->
-            <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
-                <div th:each="errorMessage : ${errorMessageList}">
-                    <p th:text="${errorMessage}"></p>
+    <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <!-- 显示错误消息 -->
+                <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
+                    <div th:each="errorMessage : ${errorMessageList}">
+                        <p th:text="${errorMessage}"></p>
+                    </div>
                 </div>
-            </div>
-            <form th:action="@{/kn_lsn_001}" method="post">
-                <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/><br>
+                <form th:action="@{/kn_lsn_001}" method="post">
+                    <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" /><br>
 
-                    <div class="form-group"><br>  <label>授業番号</label> 
-                        <input name="lessonId"type="text" class="form-control"placeholder="システム自動採番、入力不可" readonly 
-                        th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
+                    <div class="form-group"><br> <label>课程编号</label>
+                        <input name="lessonId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
+                            th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
                     </div><br>
 
                     <!-- 新規登録 模式下 学生姓名用 下拉列表框显示 -->
-                    <div class="form-group" th:if="${(selectedinfo==null ) || (#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>学生姓名</label> 
+                    <div class="form-group"
+                        th:if="${(selectedinfo==null ) || (#strings.isEmpty(selectedinfo.lessonId))}">
+                        <label>学生姓名</label>
                         <select class="form-control" id="studentSelect" name="stuId">
                             <option value="">请选择</option>
                             <!-- 动态内容将被插入 -->
@@ -71,57 +93,53 @@
 
                     <!-- 変更編集 模式下 学生姓名用 文本框且readonly显示 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>学生姓名</label> 
-                        <input name="stuName" type="text" class="form-control" 
-                               th:value="${selectedinfo.stuName}" 
-                               readonly>
+                        <label>学生姓名</label>
+                        <input name="stuName" type="text" class="form-control" th:value="${selectedinfo.stuName}"
+                            readonly>
                         <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
                     </div>
                     <br>
 
                     <!-- 新規登録 模式下 科目名称用 下拉列表框显示 -->
-                    <div class="form-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}" >
-                        <label>科目名称</label> 
+                    <div class="form-group"
+                        th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
+                        <label>科目名称</label>
                         <select class="form-control" id="subjectSelect" name="subjectId">
                             <option value="">请选择</option>
                         </select>
                     </div>
 
-                    <!-- 新規登録 模式下 科目级别名称用 文本框且操作不可 -->
-                    <div class="form-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目级别名称</label> 
-                        <input id="subjectSubName" 
-                               name="subjectSubName" 
-                               type="text" 
-                               th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" 
-                               readonly>
-                        <input id="subjectSubId" name="subjectSubId" type="hidden" th:value="${selectedinfo != null ? selectedinfo.subjectSubId : ''}">
+                    <!-- 新規登録 模式下 子科目名称用 文本框且操作不可 -->
+                    <div class="form-group"
+                        th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
+                        <label>子科目名称</label>
+                        <input id="subjectSubName" name="subjectSubName" type="text"
+                            th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" readonly>
+                        <input id="subjectSubId" name="subjectSubId" type="hidden"
+                            th:value="${selectedinfo != null ? selectedinfo.subjectSubId : ''}">
                     </div>
 
                     <!-- 変更編集 模式下 科目名称用 文本框且readonly显示 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目名称</label> 
-                        <input name="subjectName" 
-                               type="text" class="form-control" 
-                               th:value="${selectedinfo.subjectName}" 
-                               readonly>
+                        <label>科目名称</label>
+                        <input name="subjectName" type="text" class="form-control"
+                            th:value="${selectedinfo.subjectName}" readonly>
                         <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
                         <input name="delFlg" type="hidden" th:value="${selectedinfo.delFlg}">
                     </div>
 
-                    <!-- 変更編集 模式下 科目级别名称用 文本框且操作不 -->
+                    <!-- 変更編集 模式下 子科目名称用 文本框且操作不 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目级别名称</label> 
-                        <input name="subjectSubName" 
-                               type="text" 
-                               th:value="${selectedinfo.subjectSubName}" 
-                               readonly>
+                        <label>子科目名称</label>
+                        <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" readonly>
                         <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
                     </div>
 
-                    <!-- 新規登録 模式下的上课种别 使用 Radio button -->
-                    <br><label>上课种别</label>
-                    <div class="radio-group" th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}" style="padding-left: 30px;">
+                    <!-- 新規登録 模式下的课程属性 使用 Radio button -->
+                    <br><label>课程属性</label>
+                    <div class="radio-group"
+                        th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}"
+                        style="padding-left: 30px;">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="lessonType" id="option0" value="0"
                                 th:checked="${selectedinfo != null and selectedinfo.lessonType == 0}">
@@ -139,11 +157,12 @@
                         </div>
                     </div>
 
-                    <!-- 变更编辑 模式下的上课种别 使用 文本框 -->
+                    <!-- 变更编辑 模式下的课程属性 使用 文本框 -->
                     <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                         <!-- 显示用的文本框，用户无法编辑 -->
-                        <input type="text" class="form-control" 
-                        th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}" readonly>
+                        <!-- 显示用的文本框，用户无法编辑 -->
+                        <input type="text" class="form-control"
+                            th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}"
+                            readonly>
                         <!-- 隐藏的实际提交值的输入框 -->
                         <input name="lessonType" type="hidden" th:value="${selectedinfo.lessonType}">
                     </div>
@@ -154,213 +173,222 @@
                         <select class="form-control" name="classDuration" id="lsnduration">
                             <option value="">请选择上课时长 </option>
                             <option th:selected="${selectedinfo!=null}?${selectedinfo.classDuration}==${element}"
-                                    th:each="element:${duration}" 
-                                    th:value="${element}" 
-                                    th:utext="${element}">
+                                th:each="element:${duration}" th:value="${element}" th:utext="${element}">
                             </option>
                             </option>
                         </select>
                     </div>
                     <br>
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br> 
-                        <label>计划上课日期：</label> <br>
-                        <input id="datetimepickerInput" name="schedualDate" type="text" class="form-control datetimepicker-input"
-                               th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                               data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm"/>
-                        <div class="input-group-append" data-target="#datetimepickerContainer" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"> 
-                        <label>课程调整日期：</label> <br> 
-                        <input name="lsnAdjustedDate"type="text" class="form-control datetimepicker-input"
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
-                        data-target="#datetimepickerContainer" placeholder="yyyy-MM-dd HH:mm"/>
-                        <div class="input-group-append" data-target="#datetimepickerContainer" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group"><br> 
-                         <label>授業変換日付（学生用额外追加的课顶替来周或来月哪天的计划课程）</label> 
-                        <input name="extraToDurDate"type="date" class="form-control" 
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
+                    
+                    <!-- 计划上课日期 - 使用text输入配合pattern -->
+                    <div class="form-group">
+                        <label>计划上课日期：</label>
+                        <input id="schedualDateInput" name="schedualDate" type="text"
+                            class="form-control"
+                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                            placeholder="yyyy-MM-dd HH:mm" 
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}"
+                            title="请输入格式：yyyy-MM-dd HH:mm" />
                     </div>
                     
-                    <div class="form-group"><br>  <label>実績授業日付（学生实际来上课的时间）</label> 
-                        <input name="scanQrDate"type="date" class="form-control" 
-                        th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}">
+                    <!-- 课程调整日期 - 使用text输入配合pattern -->
+                    <div class="form-group">
+                        <label>课程调整日期：</label>
+                        <input id="adjustedDateInput" name="lsnAdjustedDate" type="text"
+                            class="form-control"
+                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
+                            placeholder="yyyy-MM-dd HH:mm" 
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}"
+                            title="请输入格式：yyyy-MM-dd HH:mm" />
                     </div>
-              <button type="submit" class="btn btn-primary" th:text="保存"></button>
-            </form>
-        </main>
+
+                    <div class="form-group"><br>
+                        <label>课程属性变换日期（学生用额外追加的课顶替来周或来月哪天的计划课程）</label>
+                        <input name="extraToDurDate" type="date" class="form-control"
+                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
+                    </div>
+
+                    <div class="form-group"><br> <label>实际上课日期（学生实际来上课的时间）</label>
+                        <input name="scanQrDate" type="date" class="form-control"
+                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}">
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
+                </form>
+            </main>
+        </div>
     </div>
-</div>
 
-<!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 开始 -->
-<!-- 引入 Bootstrap JavaScript 和 jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- 引入 Bootstrap JavaScript 和 jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-<script>
-    // 初始化 DateTime Picker
-    $(document).ready(function () {
-        $('#datetimepickerInput').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm',
-            locale: moment.locale('zh-cn') ,  // 设置地区为中国
-            icons: {
-                time: 'fa fa-clock-o',
-                date: 'fa fa-calendar',
-                up: 'fa fa-chevron-up',
-                down: 'fa fa-chevron-down',
-                previous: 'fa fa-chevron-left',
-                next: 'fa fa-chevron-right',
-                today: 'fa fa-calendar-check-o',
-                clear: 'fa fa-trash',
-                close: 'fa fa-times'
-            }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        // 简化的JavaScript，添加日期格式验证
+        $(document).ready(function () {
+            // 为日期输入框添加点击事件，显示日期选择器
+            $('#schedualDateInput, #adjustedDateInput').on('focus', function() {
+                // 临时改为datetime-local来显示选择器
+                if (this.type === 'text') {
+                    this.type = 'datetime-local';
+                    // 转换现有值的格式
+                    if (this.value && this.value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)) {
+                        this.value = this.value.replace(' ', 'T');
+                    }
+                }
+            });
+            
+            // 失去焦点时转换回text格式
+            $('#schedualDateInput, #adjustedDateInput').on('blur', function() {
+                if (this.type === 'datetime-local') {
+                    const value = this.value;
+                    this.type = 'text';
+                    // 转换为后端期望的格式
+                    if (value && value.includes('T')) {
+                        this.value = value.replace('T', ' ');
+                    }
+                }
+            });
         });
-    });
-</script>
+    </script>
 
-<script th:inline="javascript">
-    // 从后端传递的 stuSubList 数据
-    var jsonStuSubList = /*[[${stuSubList}]]*/[];
-    var selectedStuId = /*[[${selectedinfo != null ? selectedinfo.stuId : ''}]]*/'';
-    var selectedSubjectId = /*[[${selectedinfo != null ? selectedinfo.subjectId : ''}]]*/'';
-    var selectedClassDuration = /*[[${selectedinfo != null ? selectedinfo.classDuration : ''}]]*/'';
-    var selectedSchedualDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
-    var selectedSubjectSubName = /*[[${selectedinfo != null ? selectedinfo.subjectSubName : ''}]]*/'';
-    var selectedSubjectSubId = /*[[${selectedinfo != null ? selectedinfo.subjectSubId : ''}]]*/'';
-    var selectedLessonType = /*[[${selectedinfo != null ? selectedinfo.lessonType : ''}]]*/'';
-    
-    // 页面加载完成后，初始化学生下拉列表和其他控件
-    window.onload = function() {
-        var studentSelect = document.getElementById('studentSelect');
-        var subjectSelect = document.getElementById('subjectSelect');
-        var uniqueStudentIds = new Set(); // 使用集合来避免重复
-    
-        // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
-        jsonStuSubList.forEach(function(item) {
-            if (!uniqueStudentIds.has(item.stuId)) {
-                uniqueStudentIds.add(item.stuId);
-                var option = new Option(item.stuName, item.stuId);
-                studentSelect.add(option);
+    <script th:inline="javascript">
+        // 从后端传递的 stuSubList 数据
+        var jsonStuSubList = /*[[${stuSubList}]]*/[];
+        var selectedStuId = /*[[${selectedinfo != null ? selectedinfo.stuId : ''}]]*/'';
+        var selectedSubjectId = /*[[${selectedinfo != null ? selectedinfo.subjectId : ''}]]*/'';
+        var selectedClassDuration = /*[[${selectedinfo != null ? selectedinfo.classDuration : ''}]]*/'';
+        var selectedSchedualDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
+        var selectedAdjustedDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm') : ''}]]*/'';
+        var selectedSubjectSubName = /*[[${selectedinfo != null ? selectedinfo.subjectSubName : ''}]]*/'';
+        var selectedSubjectSubId = /*[[${selectedinfo != null ? selectedinfo.subjectSubId : ''}]]*/'';
+        var selectedLessonType = /*[[${selectedinfo != null ? selectedinfo.lessonType : ''}]]*/'';
+
+        // 页面加载完成后，初始化学生下拉列表和其他控件
+        window.onload = function () {
+            var studentSelect = document.getElementById('studentSelect');
+            var subjectSelect = document.getElementById('subjectSelect');
+            var uniqueStudentIds = new Set(); // 使用集合来避免重复
+
+            // 从 stuSubList 添加学生姓名到下拉列表，确保不重复
+            jsonStuSubList.forEach(function (item) {
+                if (!uniqueStudentIds.has(item.stuId)) {
+                    uniqueStudentIds.add(item.stuId);
+                    var option = new Option(item.stuName, item.stuId);
+                    studentSelect.add(option);
+                }
+            });
+
+            // 如果页面加载时有选中的学生，初始化科目下拉列表
+            if (selectedStuId) {
+                studentSelect.value = selectedStuId;
+                updateSubjectSelect(selectedStuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId);
             }
-        });
-    
-        // 如果页面加载时有选中的学生，初始化科目下拉列表
-        if (selectedStuId) {
-            studentSelect.value = selectedStuId;
-            updateSubjectSelect(selectedStuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId);
-        }
-    
-        // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
-        studentSelect.onchange = function() {
-            updateSubjectSelect(this.value, '', '', '');
+
+            // 监听学生下拉列表的变化，并更新该生正在学的科目下拉列表
+            studentSelect.onchange = function () {
+                updateSubjectSelect(this.value, '', '', '');
+            };
+
+            // 设置上课时长的初始值
+            if (selectedClassDuration) {
+                document.getElementById('lsnduration').value = selectedClassDuration;
+            }
+
+            // 设置计划上课日期的初始值
+            if (selectedSchedualDate) {
+                document.getElementById('schedualDateInput').value = selectedSchedualDate;
+            }
+
+            // 设置课程调整日期的初始值
+            if (selectedAdjustedDate) {
+                document.getElementById('adjustedDateInput').value = selectedAdjustedDate;
+            }
+
+            // 设置课程属性的初始值
+            if (selectedLessonType) {
+                document.getElementById('option' + selectedLessonType).checked = true;
+                updateLessonType(selectedStuId, selectedSubjectId);
+            }
         };
-    
-        // 设置上课时长的初始值
-        if (selectedClassDuration) {
-            document.getElementById('lsnduration').value = selectedClassDuration;
-        }
-    
-        // 设置计划上课日期的初始值
-        if (selectedSchedualDate) {
-            document.getElementById('datetimepickerInput').value = selectedSchedualDate;
-        }
-    
-        // 设置上课种别的初始值
-        if (selectedLessonType) {
-            document.getElementById('option' + selectedLessonType).checked = true;
-            updateLessonType(selectedStuId, selectedSubjectId);
-        }
-    };
-    
-    // 根据选中的学生 ID 更新科目下拉列表
-    function updateSubjectSelect(stuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId) {
-        var subjectSelect = document.getElementById('subjectSelect');
-        var subjectSubNameInput = document.getElementById('subjectSubName');
-        subjectSubNameInput.readonly = true;
-        var subjectSubIdInput = document.getElementById('subjectSubId');
-        subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
-    
-        // 添加与选中学生 ID 相关的科目到科目下拉列表
-        jsonStuSubList.forEach(function(item) {
-            if (item.stuId === stuId) {
-                var option = new Option(item.subjectName, item.subjectId);
-                subjectSelect.add(option);
+
+        // 根据选中的学生 ID 更新科目下拉列表
+        function updateSubjectSelect(stuId, selectedSubjectId, selectedSubjectSubName, selectedSubjectSubId) {
+            var subjectSelect = document.getElementById('subjectSelect');
+            var subjectSubNameInput = document.getElementById('subjectSubName');
+            subjectSubNameInput.readonly = true;
+            var subjectSubIdInput = document.getElementById('subjectSubId');
+            subjectSelect.innerHTML = '<option value="">请选择</option>'; // 清空现有的科目选项
+
+            // 添加与选中学生 ID 相关的科目到科目下拉列表
+            jsonStuSubList.forEach(function (item) {
+                if (item.stuId === stuId) {
+                    var option = new Option(item.subjectName, item.subjectId);
+                    subjectSelect.add(option);
+                }
+            });
+
+            // 设置科目下拉列表的初始值
+            if (selectedSubjectId) {
+                subjectSelect.value = selectedSubjectId;
+                subjectSubNameInput.value = selectedSubjectSubName;
+                subjectSubIdInput.value = selectedSubjectSubId;
             }
-        });
-    
-        // 设置科目下拉列表的初始值
-        if (selectedSubjectId) {
-            subjectSelect.value = selectedSubjectId;
-            subjectSubNameInput.value = selectedSubjectSubName;
-            subjectSubIdInput.value = selectedSubjectSubId;
+
+            // 监听科目下拉列表的变化，并更新课程属性的 radio button和《学生档案》表里设置的上课时长
+            subjectSelect.onchange = function () {
+                updateLessonType(stuId, this.value);
+            };
         }
-    
-        // 监听科目下拉列表的变化，并更新上课种别的 radio button和《学生档案》表里设置的上课时长
-        subjectSelect.onchange = function() {
-            updateLessonType(stuId, this.value);
-        };
-    }
-    
-    // 根据选中的学生 ID 和科目 ID 更新上课种别的 radio button和《学生档案》表里设置的上课时长
-    function updateLessonType(stuId, subjectId) {
-        var subjectSubNameInput = document.getElementById('subjectSubName');
-        var subjectSubIdInput = document.getElementById('subjectSubId');
-        
-        // item是从v_latest_subject_info_from_student_document视图里抽出来的结果集
-        var selectedItem = jsonStuSubList.find(function(item) {
-            return item.stuId === stuId && item.subjectId === subjectId;
-        });
-    
-        // 遍历item，找到了对象记录
-        if (selectedItem) {
-            // 课费支付种别
-            var payStyle = selectedItem.payStyle;
-    
-            // 根据课费支付种别来更新上课种别的 radio button
-            if (payStyle === 0) {
-                document.getElementById("option0").checked = true;
-                document.getElementById("option0").disabled = false;
-    
-                document.getElementById("option1").disabled = true;
-                document.getElementById("option2").disabled = true;
-            } else if (payStyle === 1) {
-                document.getElementById("option0").disabled = true;
-    
-                document.getElementById("option1").checked = true;
-                document.getElementById("option1").disabled = false;
-    
-                document.getElementById("option2").disabled = false;
+
+        // 根据选中的学生 ID 和科目 ID 更新课程属性的 radio button和《学生档案》表里设置的上课时长
+        function updateLessonType(stuId, subjectId) {
+            var subjectSubNameInput = document.getElementById('subjectSubName');
+            var subjectSubIdInput = document.getElementById('subjectSubId');
+
+            // item是从v_latest_subject_info_from_student_document视图里抽出来的结果集
+            var selectedItem = jsonStuSubList.find(function (item) {
+                return item.stuId === stuId && item.subjectId === subjectId;
+            });
+
+            // 遍历item，找到了对象记录
+            if (selectedItem) {
+                // 课费支付种别
+                var payStyle = selectedItem.payStyle;
+
+                // 根据课费支付种别来更新课程属性的 radio button
+                if (payStyle === 0) {
+                    document.getElementById("option0").checked = true;
+                    document.getElementById("option0").disabled = false;
+
+                    document.getElementById("option1").disabled = true;
+                    document.getElementById("option2").disabled = true;
+                } else if (payStyle === 1) {
+                    document.getElementById("option0").disabled = true;
+
+                    document.getElementById("option1").checked = true;
+                    document.getElementById("option1").disabled = false;
+
+                    document.getElementById("option2").disabled = false;
+                }
+                // 将该学生的该科目在《学生档案》表里设定的上课时长取出来
+                var minutesPerLsn = selectedItem.minutesPerLsn;
+
+                // 拿到上课时长下拉列表框控件
+                var select = document.getElementById('lsnduration');
+
+                // 设置下拉列表的选定值为 minutesPerLsn
+                select.value = minutesPerLsn;
+
+                // 设置子科目名称
+                subjectSubNameInput.value = selectedItem.subjectSubName;
+                subjectSubIdInput.value = selectedItem.subjectSubId;
             }
-            // 将该学生的该科目在《学生档案》表里设定的上课时长取出来
-            var minutesPerLsn = selectedItem.minutesPerLsn;
-    
-            // 拿到上课时长下拉列表框控件
-            var select = document.getElementById('lsnduration');
-    
-             // 设置下拉列表的选定值为 minutesPerLsn
-             select.value = minutesPerLsn;
-    
-            // 设置科目级别名称
-            subjectSubNameInput.value = selectedItem.subjectSubName;
-            subjectSubIdInput.value = selectedItem.subjectSubId;
         }
-    }
-</script>
-<style>
-    /* 调整控件最右侧按钮的宽度 */
-    .input-group-append .input-group-text {
-        min-width: 60px; /* 设置按钮的最小宽度 */
-    }
-</style>
-<!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 结束 -->
+    </script>
 </body>
+
 </html>

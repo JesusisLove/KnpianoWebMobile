@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.dao.Kn01L002ExtraHasBeenScheDao">
+
+    <!-- 后台维护，《加课已换正课》Web页面的检索部，根据年度，月份获取有加课的学生姓名 -->
+    <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        SELECT DISTINCT stu_id,stu_name FROM(
+            SELECT 
+                lsn.stu_id,
+                lsn.stu_name,
+                sche.new_scanqr_date
+            FROM 
+                t_info_lesson_extra_to_sche sche
+            INNER JOIN
+                v_info_lesson lsn ON sche.lesson_id = lsn.lesson_id
+        ) pullDownName
+        WHERE 1=1
+            <if test="year != null and year != ''">
+                AND left(new_scanqr_date,4) = #{year}
+            </if>
+        AND EXISTS (SELECT 1 FROM t_mst_student WHERE del_flg = 0)
+        ORDER BY stu_name
+    </select>
+
+    <!-- 后台维护，《加课已换正课》Web页面的检索部，根据年度，月份获取有加课的学生姓名 -->
+    <select id="getExcrHasBeenScheInfo" resultType="com.liu.springboot04web.bean.Kn01L002ExtraHasBeenScheBean">
+        SELECT * FROM(
+            SELECT 
+                lsn.stu_id,
+                lsn.stu_name,
+                sche.lesson_id,
+                sche.subject_id,
+                sub.subject_name,
+                oldEda.subject_sub_name AS old_subject_sub_name,
+                old_lsn_fee,
+                newEda.subject_sub_name AS new_subject_sub_name,
+                new_lsn_fee,
+                lsn.scanqr_date AS from_extra_scan_date,
+                sche.new_scanqr_date AS to_sche_scan_date,
+                sche.is_good_change,
+                sche.memo_reason
+            FROM 
+                t_info_lesson_extra_to_sche sche
+            INNER JOIN 
+                t_mst_subject sub ON sche.subject_id = sub.subject_id
+            INNER JOIN
+                t_info_subject_edaban oldEda ON oldEda.subject_id = sche.subject_id AND oldEda.subject_sub_id = sche.old_subject_sub_id
+            INNER JOIN
+                t_info_subject_edaban newEda ON newEda.subject_id = sche.subject_id AND newEda.subject_sub_id = sche.new_subject_sub_id
+            INNER JOIN
+                v_info_lesson lsn ON sche.lesson_id = lsn.lesson_id
+        ) pullDownName
+        WHERE 1=1
+            <if test="stuId != null and stuId != ''">
+              AND stu_id = #{stuId}
+            </if>
+            <if test="year != null and year != ''">
+                AND left(to_sche_scan_date,4) = #{year}
+            </if>
+            <if test="isGoodChange != null">
+                AND is_good_change = #{isGoodChange}
+            </if>
+        AND EXISTS (SELECT 1 FROM t_mst_student WHERE del_flg = 0)
+        ORDER BY stu_name
+    </select>
+
+</mapper>

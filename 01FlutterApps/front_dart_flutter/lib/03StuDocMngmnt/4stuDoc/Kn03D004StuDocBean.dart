@@ -1,10 +1,13 @@
 import 'package:intl/intl.dart';
 
+// import '../../CommonProcess/CommonMethod.dart';
+
 class Kn03D004StuDocBean {
   final String stuId;
   final String subjectId;
   final String subjectSubId; // 枝番番号
   final String stuName;
+  final String nikName;
   final String subjectName;
   final String subjectSubName; // 枝番名称
   final String adjustedDate;
@@ -13,6 +16,7 @@ class Kn03D004StuDocBean {
   final int subjectCount;
   final double lessonFee;
   final double lessonFeeAdjusted;
+  final int yearLsnCnt;
   final String examDate;
   final double examScore;
   final String introducer;
@@ -22,6 +26,7 @@ class Kn03D004StuDocBean {
     required this.subjectId,
     required this.subjectSubId,
     required this.stuName,
+    required this.nikName,
     required this.subjectName,
     required this.subjectSubName,
     required this.adjustedDate,
@@ -30,6 +35,7 @@ class Kn03D004StuDocBean {
     required this.subjectCount,
     required this.lessonFee,
     required this.lessonFeeAdjusted,
+    required this.yearLsnCnt,
     required this.examDate,
     required this.examScore,
     required this.introducer,
@@ -40,6 +46,7 @@ class Kn03D004StuDocBean {
     String formattedAdjustedDate = '';
     try {
       if (json['adjustedDate'] != null && json['adjustedDate'] != '') {
+        // DateTime parsedDate = CommonMethod.parseServerDate(json['adjustedDate']);
         DateTime parsedDate = DateTime.parse(json['adjustedDate']);
         /* 解决从后端java传到前端，日期总是偏差一天的处理 例如，java端给出的日期是2024-01-01，到了前端却变成了2023-12-31T15:00:00.000+00:00 
         下面代码是处理从后端java传递过来的日期，在前端也能正常显示
@@ -57,6 +64,7 @@ class Kn03D004StuDocBean {
       subjectId: json['subjectId'] ?? '',
       subjectSubId: json['subjectSubId'] ?? '',
       stuName: json['stuName'] ?? '',
+      nikName: json['nikName'] ?? '',
       subjectName: json['subjectName'] ?? '',
       subjectSubName: json['subjectSubName'] ?? '',
       adjustedDate: formattedAdjustedDate,
@@ -65,6 +73,7 @@ class Kn03D004StuDocBean {
       subjectCount: json['subjectCount'] ?? 0,
       lessonFee: json['lessonFee']?.toDouble() ?? 0.0,
       lessonFeeAdjusted: json['lessonFeeAdjusted']?.toDouble() ?? 0.0,
+      yearLsnCnt: json['yearLsnCnt'] ?? 0,
       examDate: json['examDate'] ?? '',
       examScore: json['examScore']?.toDouble() ?? 0.0,
       introducer: json['introducer'] ?? '',

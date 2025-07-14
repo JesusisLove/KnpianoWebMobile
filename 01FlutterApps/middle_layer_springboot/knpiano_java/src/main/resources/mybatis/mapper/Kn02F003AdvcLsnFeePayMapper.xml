@@ -11,10 +11,20 @@ https://mybatis.org/mybatis-3/getting-started.html
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn02F003AdvcLsnFeePayMapper">
 
+    <!-- 与支付的学生必须是已经登入档案的学生 -->
     <select id="getAdvcFeePayStuInfo" resultType="com.liu.springboot04web.bean.Kn02F003AdvcLsnFeePayBean">
-        select stu_id, stu_name from t_mst_student 
-        where del_flg = 0
-        order by stu_name;
+        SELECT 
+            doc.stu_id, 
+            doc.stu_name, 
+            COUNT(DISTINCT doc.subject_id) as subjectCount
+        FROM v_info_student_document doc
+        INNER JOIN t_mst_student stu 
+            ON doc.stu_id = stu.stu_id 
+            AND stu.del_flg = 0
+        WHERE doc.del_flg = 0
+          AND doc.pay_style = 1
+        GROUP BY doc.stu_id, doc.stu_name
+        ORDER BY doc.stu_name;
     </select>
 
 
@@ -49,6 +59,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             advc.lsn_pay_id,
             lsn.stu_id,
             lsn.stu_name,
+            lsn.nik_name,
             lsn.subject_id,
             lsn.subject_name,
             lsn.subject_sub_id,

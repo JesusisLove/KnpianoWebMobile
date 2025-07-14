@@ -1,5 +1,6 @@
 package com.liu.springboot04web.controller_mobile;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
+import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
 @RestController
@@ -31,7 +33,7 @@ public class Kn01L002LsnController4Mobile {
     private Kn01L002LsnDao kn01L002LsnDao;
 
     @Autowired
-    private Kn03D004StuDocDao kn03D004StuSubjectDao;
+    private Kn03D004StuDocDao kn03D004StuDocDao;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn01L002LsnController4Mobile(ComboListInfoService combListInfo) {
@@ -42,11 +44,11 @@ public class Kn01L002LsnController4Mobile {
     @GetMapping("/mb_kn_lsn_all/{year}")
     public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnList(@PathVariable Integer year) {
         // 获取当前正在上课的所有学生的排课信息
-        List<Kn01L002LsnBean> collection = kn01L002LsnDao.getInfoList(Integer.toString(year));
+        List<Kn01L002LsnBean> collection = kn01L002LsnDao.getStuNameList(Integer.toString(year));
         return ResponseEntity.ok(collection);
     }
 
-    // 在课学生一览用的加课学生名单
+    // 手机前端：加课消化管理的在课学生一览
     @GetMapping("/mb_kn_lsn_all_extra/{year}")
     public ResponseEntity<List<Kn01L002LsnBean>> getInfoStuLsnExtraList(@PathVariable Integer year) {
         // 获取当前正在上课的所有学生的排课信息
@@ -89,10 +91,25 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(kn01L002LsnBean);
     }
 
-    // 【学生排课新規、编辑、调课】画面にて、【保存】ボタンを押下
+    // 【学生排课新規、调课】画面にて、【保存】ボタンを押下
     @PostMapping("/mb_kn_lsn_001_save")
-    public void excuteInfoAdd(@RequestBody Kn01L002LsnBean knStudoc001Bean) {
-        kn01L002LsnDao.save(knStudoc001Bean);
+    public ResponseEntity<String>  excuteInfoAdd(@RequestBody Kn01L002LsnBean knStuLsn001Bean) {
+
+        // 如果是新规排课，要执行有效排课校验
+        if (knStuLsn001Bean.getLessonId() == null) {
+            String errMsg = validateHasError(knStuLsn001Bean);
+
+            if (!"".equals(errMsg)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errMsg);
+            }
+        } else {
+            // lessonId不为空，表示已经是合理的排课了，只是执行调课操作，所以不用再判断该课是否是合理的排课校验了。
+        }
+
+        // 执行排课
+        kn01L002LsnDao.save(knStuLsn001Bean);
+        return ResponseEntity.ok("success");
+
     }
 
     // 【课程表一覧】取消调课的请求处理
@@ -106,7 +123,18 @@ public class Kn01L002LsnController4Mobile {
     @DeleteMapping("/mb_kn_lsn_001_delete/{lessonId}")
     public ResponseEntity<String> executeInfoDelete(@PathVariable("lessonId") String lessonId) {
         try {
-            kn01L002LsnDao.delete(lessonId);
+            // 拿到该课程信息
+            Kn01L002LsnBean knLsn001Bean = kn01L002LsnDao.getInfoById(lessonId);
+            // 取出该课程，判断是原课还是调课
+            if (knLsn001Bean.getLsnAdjustedDate() != null) {
+                // 是调课，退回到原课状态
+                kn01L002LsnDao.reScheduleLsnCancel(lessonId);
+
+            } else {
+                // 是原课，执行物理删除
+                kn01L002LsnDao.delete(lessonId);
+
+            }
             return ResponseEntity.ok("success");
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)  // 409 Conflict
@@ -175,8 +203,39 @@ public class Kn01L002LsnController4Mobile {
     // @CrossOrigin(origins = "*") 
     @GetMapping("/mb_kn_latest_subjects/{stuId}")
     public ResponseEntity<List<Kn03D004StuDocBean>> getLatestSubjectListByStuId(@PathVariable("stuId") String stuId) {
-        List<Kn03D004StuDocBean> subjectList = kn03D004StuSubjectDao.getLatestSubjectListByStuId(stuId);
+        List<Kn03D004StuDocBean> subjectList = kn03D004StuDocDao.getLatestSubjectListByStuId(stuId);
         return ResponseEntity.ok(subjectList);
     }
+
+    private String validateHasError(Kn01L002LsnBean knStuLsn001Bean) {
+        String errMsg = "";
+
+        // 确认是不是有效的排课日期
+        Kn03D004StuDocBean docBeanForDate = kn03D004StuDocDao.getLatestMinAdjustDateByStuId(knStuLsn001Bean.getStuId(), knStuLsn001Bean.getSubjectId());
+        // 如果不符合排课日期大于学生档案里第一次的调整日期（第一次入档可以上课的日期），则禁止排课操作
+        if (DateUtils.compareDatesMethod2(docBeanForDate.getAdjustedDate(), knStuLsn001Bean.getSchedualDate()) == false) {
+            // 定义目标日期格式
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            errMsg = "排课操作被禁止：该生的排课请在【" + formatter.format(docBeanForDate.getAdjustedDate()) + "】以后执行排课！";
+        }
+
+        // 获取该生一整节课的分钟数
+        Integer lsnMinutes = kn01L002LsnDao.getMinutesPerLsn(knStuLsn001Bean.getStuId(), knStuLsn001Bean.getSubjectId());
+        // 月计划，课结算的制约：必须按1整节课排课
+        if ((knStuLsn001Bean.getLessonType() == 0 || knStuLsn001Bean.getLessonType() == 1) 
+                                            && !(knStuLsn001Bean.getClassDuration() == lsnMinutes)) {
+            String lsnType = knStuLsn001Bean.getLessonType() == 1 ? "月计划" : "课结算";
+            errMsg = "排课操作被禁止：【" + lsnType +"】必须按1整节课【" + lsnMinutes + "】分钟排课。\n 要想排小于1节课的零碎课，请选择「月加课」的排课方式。";
+        }
+
+        // 月加课的制约：不得超过1节整课
+        if ((knStuLsn001Bean.getLessonType() == 2) 
+                            && (knStuLsn001Bean.getClassDuration() > lsnMinutes)) {
+            String lsnType = "月加课";
+            errMsg = "排课操作被禁止：【" + lsnType +"】必须按小于等于1整节课【" + lsnMinutes + "】分钟来排课";
+        }
+        return errMsg;
+    }
+
 
 }

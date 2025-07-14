@@ -57,8 +57,8 @@ public class Kn03D004StuDocController {
         model.addAttribute("unDocStuList", unDocStuList);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
-       Map<String, String> resultsTabStus = getResultsTabStus(collection);
-       model.addAttribute("resultsTabStus", resultsTabStus);
+        Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
 
         return "kn_studoc_001/knstudoc001_list";
     }
@@ -77,8 +77,10 @@ public class Kn03D004StuDocController {
             queryParams.remove("delFlg");
         }
 
-        /* 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
-           目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件 */
+        /*
+         * 对Map里的key值做转换更改：将Bean的项目值改成表字段的项目值。例如: stuId改成stu_id
+         * 目的是，这个Map要传递到KnStudoc001Mapper.xml哪里做SQL的Where的查询条件
+         */
         Map<String, Object> conditions = CommonProcess.convertToSnakeCase(queryParams);
 
         // 将queryParams传递给Service层或Mapper接口
@@ -86,8 +88,8 @@ public class Kn03D004StuDocController {
         model.addAttribute("stuDocList", searchResults);
 
         // 利用resultsTabStus的学生名，在前端页面做Tab
-       Map<String, String> resultsTabStus = getResultsTabStus(searchResults);
-       model.addAttribute("resultsTabStus", resultsTabStus);
+        Map<String, String> resultsTabStus = getResultsTabStus(searchResults);
+        model.addAttribute("resultsTabStus", resultsTabStus);
         return "kn_studoc_001/knstudoc001_list"; // 返回只包含搜索结果表格部分的Thymeleaf模板
     }
 
@@ -101,10 +103,10 @@ public class Kn03D004StuDocController {
         model.addAttribute("stuMap", getStuCodeValueMap());
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
         model.addAttribute("subjects", getSubCodeValueMap());
-        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目枝番下拉列表框
+        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的子科目下拉列表框
         model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
         final List<String> durations = combListInfo.getMinutesPerLsn();
-        model.addAttribute("duration",durations );
+        model.addAttribute("duration", durations);
         model.addAttribute("selectedStuDoc", null);
 
         return "kn_studoc_001/knstudoc001_add_update";
@@ -112,9 +114,9 @@ public class Kn03D004StuDocController {
 
     // 【明细明细検索一覧】尚未建档学生ボタンを押下
     @GetMapping("/kn_studoc_001/{stuId}/{stuName}")
-    public String toStuDocEdit(@PathVariable("stuId") String stuId, 
-                               @PathVariable("stuName") String stuName, 
-                                Model model) {
+    public String toStuDocEdit(@PathVariable("stuId") String stuId,
+            @PathVariable("stuName") String stuName,
+            Model model) {
         // 告诉前端画面，这是新规登录模式
         model.addAttribute("isAddNewMode", true);
 
@@ -122,10 +124,10 @@ public class Kn03D004StuDocController {
         model.addAttribute("stuMap", getStuCodeValueMap());
         // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目下拉列表框
         model.addAttribute("subjects", getSubCodeValueMap());
-        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的科目枝番下拉列表框
+        // 从科目基本信息表里，把科目名取出来，初期化新规/变更画面的子科目下拉列表框
         model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
         final List<String> durations = combListInfo.getMinutesPerLsn();
-        model.addAttribute("duration",durations );
+        model.addAttribute("duration", durations);
 
         Kn03D004StuDocBean knStudoc001Bean = new Kn03D004StuDocBean();
         knStudoc001Bean.setStuId(stuId);
@@ -143,7 +145,7 @@ public class Kn03D004StuDocController {
         String stuId = knStudoc001Bean.getStuId();
         String subjectSubId = knStudoc001Bean.getSubjectSubId();
         String subjectId = knStudoc001Bean.getSubjectId();
-        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
+        Date adjustedDate = knStudoc001Bean.getAdjustedDate();
         // 确认表里有没有记录，没有就insert，有记录就update
         addNewMode = (knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null);
 
@@ -157,13 +159,12 @@ public class Kn03D004StuDocController {
 
     // 【明细明细検索一覧】編集ボタンを押下
     @GetMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
-    public String toStuDocEdit(@PathVariable("stuId") String stuId, 
-                               @PathVariable("subjectId") String subjectId, 
-                               @PathVariable("subjectSubId") String subjectSubId, 
-                               @PathVariable ("adjustedDate") 
-                               @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
-                                Date adjustedDate, 
-                                Model model) {
+    public String toStuDocEdit(@PathVariable("stuId") String stuId,
+            @PathVariable("subjectId") String subjectId,
+            @PathVariable("subjectSubId") String subjectSubId,
+            @PathVariable("adjustedDate") @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
+            Date adjustedDate,
+            Model model) {
         // 告诉前端画面，这是变更编辑模式
         model.addAttribute("isAddNewMode", false);
 
@@ -171,8 +172,8 @@ public class Kn03D004StuDocController {
         model.addAttribute("selectedStuDoc", knStudoc001Bean);
 
         final List<String> durations = combListInfo.getMinutesPerLsn();
-        model.addAttribute("duration",durations );
-        
+        model.addAttribute("duration", durations);
+
         return "kn_studoc_001/knstudoc001_add_update";
     }
 
@@ -185,7 +186,7 @@ public class Kn03D004StuDocController {
         String stuId = knStudoc001Bean.getStuId();
         String subjectSubId = knStudoc001Bean.getSubjectSubId();
         String subjectId = knStudoc001Bean.getSubjectId();
-        Date  adjustedDate = knStudoc001Bean.getAdjustedDate();
+        Date adjustedDate = knStudoc001Bean.getAdjustedDate();
         // 确认表里有没有记录，没有就insert，有记录就update
         addNewMode = (knStudoc001Dao.getInfoByKey(stuId, subjectId, subjectSubId, adjustedDate) == null);
 
@@ -199,13 +200,12 @@ public class Kn03D004StuDocController {
 
     // 【明细明细検索一覧】削除ボタンを押下
     @DeleteMapping("/kn_studoc_001/{stuId}/{subjectId}/{subjectSubId}/{adjustedDate}")
-    public String executeStuDocDelete (@PathVariable("stuId") String stuId, 
-                                            @PathVariable("subjectId") String subjectId, 
-                                            @PathVariable("subjectSubId") String subjectSubId, 
-                                            @PathVariable("adjustedDate") 
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
-                                            Date adjustedDate, 
-                                            Model model) {
+    public String executeStuDocDelete(@PathVariable("stuId") String stuId,
+            @PathVariable("subjectId") String subjectId,
+            @PathVariable("subjectSubId") String subjectSubId,
+            @PathVariable("adjustedDate") @DateTimeFormat(pattern = "yyyy-MM-dd") // 从html页面传过来的字符串日期转换成可以接受的Date类型日期
+            Date adjustedDate,
+            Model model) {
 
         knStudoc001Dao.deleteByKeys(stuId, subjectId, subjectSubId, adjustedDate);
         return "redirect:/kn_studoc_001_all";
@@ -229,7 +229,7 @@ public class Kn03D004StuDocController {
         return collection;
     }
 
-    // 科目枝番下拉列表框初期化
+    // 子科目下拉列表框初期化
     private List<Kn03D002SubEdaBanBean> getEdaBanCodeValueMap() {
         List<Kn03D002SubEdaBanBean> collection = kn05S003SubjectEdabnDao.getInfoList();
         return collection;
@@ -245,7 +245,7 @@ public class Kn03D004StuDocController {
             model.addAttribute("subjects", getSubCodeValueMap());
             model.addAttribute("subjectSubs", getEdaBanCodeValueMap());
             final List<String> durations = combListInfo.getMinutesPerLsn();
-            model.addAttribute("duration",durations );
+            model.addAttribute("duration", durations);
 
             // 告诉前端画面当前的模式是新规登录还是变更编辑模式
             model.addAttribute("isAddNewMode", addNewMode);
@@ -258,7 +258,7 @@ public class Kn03D004StuDocController {
     }
 
     private boolean inputDataHasError(Kn03D004StuDocBean knStudoc001Bean, List<String> msgList) {
-        if (knStudoc001Bean.getStuId()==null || knStudoc001Bean.getStuId().isEmpty() ) {
+        if (knStudoc001Bean.getStuId() == null || knStudoc001Bean.getStuId().isEmpty()) {
             msgList.add("请选择学生姓名");
         }
 
@@ -267,11 +267,15 @@ public class Kn03D004StuDocController {
         }
 
         if (knStudoc001Bean.getSubjectSubId() == null || knStudoc001Bean.getSubjectSubId().isEmpty()) {
-            msgList.add("请选择科目级别名称");
+            msgList.add("请选择子科目名称");
         }
 
         if (knStudoc001Bean.getAdjustedDate() == null) {
             msgList.add("请选择价格调整日期");
+        }
+
+        if (knStudoc001Bean.getPayStyle() == 1 && knStudoc001Bean.getYearLsnCnt() == null) {
+            msgList.add("请输入年度计划总课时");
         }
 
         if (knStudoc001Bean.getMinutesPerLsn() == null || knStudoc001Bean.getMinutesPerLsn() == 0) {
@@ -281,25 +285,25 @@ public class Kn03D004StuDocController {
         return (msgList.size() != 0);
     }
 
-        // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
-        private Map<String, String> getResultsTabStus(Collection<Kn03D004StuDocBean> collection) {
+    // 从结果集中去除掉重复的星期，前端页面脚本以此定义tab名
+    private Map<String, String> getResultsTabStus(Collection<Kn03D004StuDocBean> collection) {
         // 首先创建一个用于去重的Map
         Map<String, String> tempMap = new HashMap<>();
-        
+
         // 填充临时Map
         for (Kn03D004StuDocBean bean : collection) {
             tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-        
+
         // 按值（学生姓名）排序并收集到新的LinkedHashMap中
         return tempMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue,  // 处理重复键的情况
-                    LinkedHashMap::new  // 使用LinkedHashMap保持排序
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, // 处理重复键的情况
+                        LinkedHashMap::new // 使用LinkedHashMap保持排序
                 ));
     }
 }

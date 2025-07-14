@@ -21,6 +21,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,subject_sub_name
             ,doc.stu_id
             ,doc.stu_name
+            ,doc.nik_name
             ,pay_style
             ,lesson_fee
             ,lesson_fee_adjusted

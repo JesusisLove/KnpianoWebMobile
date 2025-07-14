@@ -17,26 +17,53 @@ public class Kn01L002LsnBean implements KnPianoBean {
     protected String subjectSubName;
     protected String stuId;
     protected String stuName;
+    protected String nikName;
     protected Integer classDuration;
     protected Integer lessonType;
     protected Integer schedualType;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // //  timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date schedualDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // //  timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date scanQrDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // //  timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date lsnAdjustedDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // //  timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date extraToDurDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // //  timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     protected Date originalSchedualDate; // 加课换正课后记录原来实际的计划上课日期
     protected String memo;
     protected Integer delFlg;
+    protected Integer isFromPiceseLsn; // 是不是用零碎加课拼凑的课[0:不是拼凑的课。 1:是拼凑的课]
+    protected Integer isExtraToScheLsn; // 是不是用加课换成的正课[0:不是。 1:是]
     protected Date createDate;
     protected Date updateDate;
 // 变更，删除，签到，撤销，四个按钮在画面上活性/非活性的状态设置
@@ -91,6 +118,12 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+        public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
     public Integer getClassDuration() {
         return classDuration;
@@ -221,5 +254,17 @@ public class Kn01L002LsnBean implements KnPianoBean {
     }
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+    public Integer getIsFromPiceseLsn() {
+        return isFromPiceseLsn;
+    }
+    public void setIsFromPiceseLsn(Integer isFromPiceseLsn) {
+        this.isFromPiceseLsn = isFromPiceseLsn;
+    }
+    public Integer getIsExtraToScheLsn() {
+        return isExtraToScheLsn;
+    }
+    public void setIsExtraToScheLsn(Integer isExtraToScheLsn) {
+        this.isExtraToScheLsn = isExtraToScheLsn;
     }
 }

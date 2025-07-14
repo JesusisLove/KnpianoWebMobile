@@ -11,25 +11,67 @@ https://mybatis.org/mybatis-3/getting-started.html
 
     <!-- 后台维护，《加课消化管理》Web页面的检索部，根据年度，月份获取有加课的学生姓名 -->
     <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
-        SELECT DISTINCT stu_id,stu_name FROM v_info_lesson
+        SELECT DISTINCT stu_id, stu_name FROM v_info_lesson lsn
         WHERE 1=1
-        AND lesson_type = 2
+        AND lsn.lesson_type = 2
         <if test="yearMonth != null and yearMonth != ''">
                 <choose>
                     <when test="yearMonth.length() == 4">
-                        AND left(schedual_date,4) = #{yearMonth}
+                        AND LEFT(lsn.schedual_date,4) = #{yearMonth}
                     </when>
                     <otherwise>
-                        AND left(schedual_date,7) = #{yearMonth}
+                        AND LEFT(lsn.schedual_date,7) = #{yearMonth}
                     </otherwise>
                 </choose>
             </if>
-        AND EXISTS (SELECT 1 FROM t_mst_student WHERE del_flg = 0)
+        <!-- 已经换成正课的加课剔除在外 要不要加这个条件正在犹豫中，先暂时屏蔽-->
+        <!-- AND NOT EXISTS (SELECT 1 FROM t_info_lesson_extra_to_sche sche WHERE sche.lesson_id = lsn.lesson_id ) -->
+        <!-- 在课学生 -->
+        AND EXISTS (SELECT 1 FROM t_mst_student stu WHERE stu.stu_id = lsn.stu_id AND del_flg = 0)
         ORDER BY stu_name
     </select>
 
     <!-- 手机前端/后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
     <select id="getInfoListExtraCanBeSche" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        <!-- 根据页面传来的年度，抽出选择年度当时的最新科目信息 -->
+        WITH latest_subject_info_by_yyyymmdd AS (
+            SELECT subquery.stu_id AS stu_id,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.stu_name, '(已退学)')
+                        ELSE subquery.stu_name
+                END AS stu_name,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.nik_name, '(已退学)')
+                        ELSE subquery.nik_name
+                END AS nik_name,
+                subquery.subject_id AS subject_id,
+                subquery.subject_name AS subject_name,
+                subquery.subject_sub_id AS subject_sub_id,
+                subquery.subject_sub_name AS subject_sub_name,
+                subquery.lesson_fee AS lesson_fee,
+                subquery.lesson_fee_adjusted AS lesson_fee_adjusted,
+                subquery.year_lsn_cnt AS year_lsn_cnt,
+                subquery.minutes_per_lsn AS minutes_per_lsn,
+                subquery.pay_style AS pay_style,
+                subquery.adjusted_date AS adjusted_date,
+                subquery.del_flg AS del_flg
+            FROM (
+                SELECT vDoc.*,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        ORDER BY vDoc.adjusted_date DESC 
+                    ) AS rn 
+                FROM v_info_student_document vDoc
+                WHERE vDoc.adjusted_date &lt;= 
+                <choose>
+                    <when test="adjustedBaseDate != null and adjustedBaseDate != ''">
+                        #{adjustedBaseDate}
+                    </when>
+                    <otherwise>
+                        CURDATE()
+                    </otherwise>
+                </choose>
+            ) subquery 
+            WHERE subquery.rn = 1
+        )
         SELECT  
             stu.stu_name,
             sub.subject_name,
@@ -54,13 +96,19 @@ https://mybatis.org/mybatis-3/getting-started.html
                 when tosche.new_own_flg = 1 then 1
                 else allextra.pay_flg
             end as pay_flg,
-            tosche.is_good_change
+            tosche.is_good_change,
+            tosche.memo_reason
         FROM             v_info_all_extra_lsns allextra
         INNER JOIN             t_mst_student stu ON allextra.stu_id = stu.stu_id
         INNER JOIN             t_mst_subject sub ON allextra.subject_id = sub.subject_id
         INNER JOIN             t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id
-        AND allextra.subject_sub_id = eda.subject_sub_id
-        LEFT JOIN             t_info_lesson_extra_to_sche tosche on allextra.lesson_id = tosche.lesson_id
+                                                        AND allextra.subject_sub_id = eda.subject_sub_id
+        INNER JOIN             latest_subject_info_by_yyyymmdd doc
+                                     ON allextra.stu_id = doc.stu_id
+                                    AND allextra.subject_id = doc.subject_id
+                                    AND allextra.subject_sub_id = doc.subject_sub_id
+                                    AND allextra.class_duration = doc.minutes_per_lsn
+        LEFT JOIN             t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
         <where>
             <if test="stuId != null and stuId != ''">
               AND  allextra.stu_id = #{stuId}
@@ -69,10 +117,50 @@ https://mybatis.org/mybatis-3/getting-started.html
         </where>
     </select>
 
-
+    <!-- Web页面点击检索按钮时执行改SQL -->
     <select id="searchUnpaidExtraLessons" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
-        WITH extra_lessons AS (
-            SELECT  
+        <!-- 根据页面传来的年度，抽出选择年度当时的最新科目信息 -->
+        WITH latest_subject_info_by_yyyymmdd AS (
+            SELECT subquery.stu_id AS stu_id,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.stu_name, '(已退学)')
+                        ELSE subquery.stu_name
+                END AS stu_name,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.nik_name, '(已退学)')
+                        ELSE subquery.nik_name
+                END AS nik_name,
+                subquery.subject_id AS subject_id,
+                subquery.subject_name AS subject_name,
+                subquery.subject_sub_id AS subject_sub_id,
+                subquery.subject_sub_name AS subject_sub_name,
+                subquery.lesson_fee AS lesson_fee,
+                subquery.lesson_fee_adjusted AS lesson_fee_adjusted,
+                subquery.year_lsn_cnt AS year_lsn_cnt,
+                subquery.minutes_per_lsn AS minutes_per_lsn,
+                subquery.pay_style AS pay_style,
+                subquery.adjusted_date AS adjusted_date,
+                subquery.del_flg AS del_flg
+            FROM (
+                SELECT vDoc.*,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        ORDER BY vDoc.adjusted_date DESC 
+                    ) AS rn 
+                FROM v_info_student_document vDoc
+                WHERE vDoc.adjusted_date &lt;= 
+                <choose>
+                    <when test="params.adjustedBaseDate != null and params.adjustedBaseDate != ''">
+                        #{params.adjustedBaseDate}
+                    </when>
+                    <otherwise>
+                        CURDATE()
+                    </otherwise>
+                </choose>
+            ) subquery 
+            WHERE subquery.rn = 1
+        ),
+        <!-- 与上面的年度最新科目档案记录关联，取得选择年度时候的加课记录 -->
+        extra_lessons AS (
+            SELECT 
                 stu.stu_name,
                 sub.subject_name,
                 eda.subject_sub_name,
@@ -93,15 +181,21 @@ https://mybatis.org/mybatis-3/getting-started.html
                     ELSE NULL
                 END AS original_schedual_date,
                 CASE
-                    WHEN tosche.new_own_flg = 1 THEN 1  
-                    ELSE allextra.pay_flg 
+                    WHEN tosche.new_own_flg = 1 THEN 1
+                    ELSE allextra.pay_flg
                 END AS pay_flg,
-                tosche.is_good_change 
-            FROM v_info_all_extra_lsns allextra              
-            INNER JOIN t_mst_student stu ON allextra.stu_id = stu.stu_id        
-            INNER JOIN t_mst_subject sub ON allextra.subject_id = sub.subject_id     
-            INNER JOIN t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id AND allextra.subject_sub_id = eda.subject_sub_id            
-            LEFT JOIN t_info_lesson_extra_to_sche tosche on allextra.lesson_id = tosche.lesson_id
+                tosche.is_good_change,
+                tosche.memo_reason
+            FROM v_info_all_extra_lsns allextra
+            INNER JOIN t_mst_student stu ON allextra.stu_id = stu.stu_id
+            INNER JOIN t_mst_subject sub ON allextra.subject_id = sub.subject_id
+            INNER JOIN t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id 
+                                                AND allextra.subject_sub_id = eda.subject_sub_id
+            INNER JOIN latest_subject_info_by_yyyymmdd doc ON allextra.stu_id = doc.stu_id
+                                              AND allextra.subject_id = doc.subject_id
+                                              AND allextra.subject_sub_id = doc.subject_sub_id
+                                              AND allextra.class_duration = doc.minutes_per_lsn
+            LEFT JOIN t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
             <where>
                 <if test="params.lsn_month != null and params.lsn_month != ''">
                     <choose>
@@ -125,7 +219,6 @@ https://mybatis.org/mybatis-3/getting-started.html
             </if>
         </where>
     </select>
-
 
     <select id="getInfoListExtraCanBeScheDetail" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
         SELECT  
@@ -152,13 +245,19 @@ https://mybatis.org/mybatis-3/getting-started.html
                 when tosche.new_own_flg = 1 then 1  
                 else allextra.pay_flg 
             end as pay_flg,
-            tosche.is_good_change 
-        FROM             v_info_all_extra_lsns allextra              
-        INNER JOIN             t_mst_student stu ON allextra.stu_id = stu.stu_id        
-        INNER JOIN             t_mst_subject sub ON allextra.subject_id = sub.subject_id     
-        INNER JOIN             t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id              
-        AND allextra.subject_sub_id = eda.subject_sub_id            
-        LEFT JOIN             t_info_lesson_extra_to_sche tosche on allextra.lesson_id = tosche.lesson_id
+            tosche.is_good_change,
+            tosche.memo_reason 
+        FROM            v_info_all_extra_lsns allextra              
+        INNER JOIN      t_mst_student stu ON allextra.stu_id = stu.stu_id        
+        INNER JOIN      t_mst_subject sub ON allextra.subject_id = sub.subject_id     
+        INNER JOIN      t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id              
+                                                 AND allextra.subject_sub_id = eda.subject_sub_id
+        <!-- INNER JOIN      v_latest_subject_info_from_student_document doc
+                                    ON allextra.stu_id = doc.stu_id
+                                   AND allextra.subject_id = doc.subject_id
+                                   AND allextra.subject_sub_id = doc.subject_sub_id
+                                   AND allextra.class_duration = doc.minutes_per_lsn               -->
+        LEFT JOIN       t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
         <where>
             allextra.lesson_id = #{lessonId}
         </where>
@@ -252,6 +351,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <insert id="insertExtraToScheInfo">
         insert into t_info_lesson_extra_to_sche (
         lesson_id,
+        subject_id,
         old_lsn_fee_id,
         new_lsn_fee_id,
         old_subject_sub_id,
@@ -260,9 +360,11 @@ https://mybatis.org/mybatis-3/getting-started.html
         new_lsn_fee,
         new_scanqr_date,
         is_good_change,
+        memo_reason,
         new_own_flg
         ) values (
         #{lessonId},
+        #{subjectId},
         #{oldLsnFeeId},
         #{toScheLsnFeeId},
         #{oldSubjectSubId},
@@ -271,6 +373,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         #{toScheLsnFee},
         #{toScheScanQrDate},
         #{isGoodChange},
+        #{memoReason},
         #{newOwnFlg}
         )
     </insert>
@@ -288,4 +391,6 @@ https://mybatis.org/mybatis-3/getting-started.html
     <delete id="deleteOldNewLsnFeeId" parameterType="String">
         DELETE FROM t_info_lesson_extra_to_sche WHERE lesson_id = #{lessonId}
     </delete>
+
+    
 </mapper>

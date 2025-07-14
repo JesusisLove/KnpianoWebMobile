@@ -56,11 +56,25 @@ class Constants {
 // 显示所有的加课信息（包括已支付，未支付，加课换正课）
   static const String extraToScheView = '/liu/mb_kn_extratosche_all';
 
-  // 执行加课换正课
+// 执行加课换正课
   static const String executeExtraToSche = '/liu/mb_kn_extra_tobe_sche';
 
 // 撤销加课换正课
   static const String undoExtraToSche = '/liu/mb_kn_extra_lsn_undo';
+
+// 获取零碎课的学生名单
+  static const String piceseLsnStuName = '/liu/mb_kn_pieses_into_one_stu';
+
+// 碎课拼成整课
+  static const String piceseLsnIntoOne = '/liu/mb_kn_pieses_into_one';
+
+// 碎课拼成整课
+  static const String latestLsnPrice = '/liu/mb_kn_latest_subject_price';
+
+// 碎课拼成的整课换成正课（计划课）
+  static const String piceseLsnToSche = '/liu/mb_kn_piceses_into_onelsn_sche';
+
+// 零碎加课已换成正课（计划课）一览
 
 // ******* 課費管理模块 *******//
 //.......当前的学生课程费用详细................................................................
@@ -193,6 +207,11 @@ class Constants {
 // 按各科的子科目查看正在上该科目的学生信息（比如，学钢琴一级的学生都有哪些，8级的学生有哪些）
   static const String subjectEdaStuBysub = '/liu/mb_kn_subject_sub_stu';
 
+// 学生课时进度统计（切割统计）
+  static const String intergLsnCounting = '/liu/mb_kn_lsn_counting';
+
+  static const String intergLsnCountingSearch =
+      '/liu/mb_kn_lsn_counting_search';
 //.......设置................................................................................
 // 设置管理菜单画面，点击“固定排课设置”按钮的url请求
   static const String fixedLsnInfoView = '/liu/mb_kn_fixlsn_001_all';
@@ -244,6 +263,8 @@ class Constants {
   static const String kn01L002LsnStatistic = 'Kn01L002LsnStatistic';
 // 加课消化管理页面的pageId
   static const String kn01L003ExtraToSche = 'kn01L003ExtraToSche';
+  // 碎课拼成整课页面的pageId
+  static const String kn01L003ExtraPiesesIntoOne = 'kn01L003ExtraPiesesIntoOne';
 // 学费预先支付页面的pageId
   static const String kn02F003AdvcLsnFeePayPage = 'kn02F003AdvcLsnFeePayPage';
 }

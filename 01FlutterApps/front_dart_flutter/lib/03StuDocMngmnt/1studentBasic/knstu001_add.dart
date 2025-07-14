@@ -29,6 +29,7 @@ class StudentAddState extends State<StudentAdd> {
   final titleName = "学生信息登录";
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _stuNameController = TextEditingController();
+  final TextEditingController _nikNameController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _birthdayController =
       TextEditingController(); // 控制器用于管理日期输入
@@ -39,6 +40,7 @@ class StudentAddState extends State<StudentAdd> {
   final TextEditingController _introducerController = TextEditingController();
 
   String? stuName;
+  String? nikName;
   String? gender;
   String? birthday;
   List<String?> telephones = List.filled(4, null);
@@ -47,6 +49,7 @@ class StudentAddState extends State<StudentAdd> {
   String? introducer;
 
   final FocusNode _stuNameFocusNode = FocusNode();
+  final FocusNode _nikNameFocusNode = FocusNode();
   final FocusNode _genderFocusNode = FocusNode();
   final FocusNode _birthdayFocusNode = FocusNode();
   final List<FocusNode?> _telephonesNode = List.filled(4, null);
@@ -55,6 +58,7 @@ class StudentAddState extends State<StudentAdd> {
   final FocusNode _introducerFocusNode = FocusNode();
 
   Color _stuNameColor = Colors.black;
+  Color _nikNameColor = Colors.black;
   Color _genderColor = Colors.black;
   Color _birthdayColor = Colors.black;
   final List<Color> _telephonesColor = List.generate(4, (_) => Colors.black);
@@ -69,6 +73,12 @@ class StudentAddState extends State<StudentAdd> {
     // 获得焦点时的标签字体颜色
     _stuNameFocusNode.addListener(() {
       setState(() => _stuNameColor = _stuNameFocusNode.hasFocus
+          ? Constants.stuDocThemeColor
+          : Colors.black);
+    });
+
+    _nikNameFocusNode.addListener(() {
+      setState(() => _nikNameColor = _nikNameFocusNode.hasFocus
           ? Constants.stuDocThemeColor
           : Colors.black);
     });
@@ -116,6 +126,7 @@ class StudentAddState extends State<StudentAdd> {
   void dispose() {
     // 释放控制器资源
     _stuNameController.dispose();
+    _nikNameController.dispose();
     _genderController.dispose();
     _birthdayController.dispose();
     for (final controller in _telsController) {
@@ -127,6 +138,7 @@ class StudentAddState extends State<StudentAdd> {
 
     // 释放FocusNode资源
     _stuNameFocusNode.dispose();
+    _nikNameFocusNode.dispose();
     _genderFocusNode.dispose();
     _birthdayFocusNode.dispose();
 
@@ -177,7 +189,8 @@ class StudentAddState extends State<StudentAdd> {
             widget.knFontColor.red + 20,
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 2,
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
@@ -205,6 +218,22 @@ class StudentAddState extends State<StudentAdd> {
                   }
                   return null;
                 },
+              ),
+              FormFields.createTextFormField(
+                inputFocusNode: _nikNameFocusNode,
+                inputLabelText: '姓名略称',
+                inputLabelColor: _nikNameColor,
+                inputController: _nikNameController,
+                themeColor: Constants.stuDocThemeColor,
+                enabledBorderSideWidth: Constants.enabledBorderSideWidth,
+                focusedBorderSideWidth: Constants.focusedBorderSideWidth,
+                onSave: (value) => nikName = value,
+                // validator: (value) {
+                //   if (value == null || value.isEmpty) {
+                //     return '请输入学生姓名';
+                //   }
+                //   return null;
+                // },
               ),
               DropdownButtonFormField<String>(
                 focusNode: _genderFocusNode,
@@ -345,6 +374,7 @@ class StudentAddState extends State<StudentAdd> {
         },
         body: jsonEncode(<String, dynamic>{
           'stuName': stuName,
+          'nikName': nikName,
           'gender': gender,
           'birthday': birthday,
           'tel1': telephones.isNotEmpty ? telephones[0] : null,

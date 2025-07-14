@@ -1,3 +1,4 @@
+-- DROP TABLE IF EXISTS `t_info_lesson_fee`;
 CREATE TABLE `t_info_lesson_fee` (
   `lsn_fee_id` varchar(255) NOT NULL,
   `lesson_id` varchar(255) NOT NULL,
@@ -11,4 +12,4 @@ CREATE TABLE `t_info_lesson_fee` (
   PRIMARY KEY (`lsn_fee_id`,`lesson_id`),
   KEY `fk_lesson_id` (`lesson_id`),
   CONSTRAINT `fk_lesson_id` FOREIGN KEY (`lesson_id`) REFERENCES `t_info_lesson` (`lesson_id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

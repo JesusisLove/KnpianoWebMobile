@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, must_be_immutable
 
 import 'dart:convert';
 
@@ -83,7 +83,8 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        currentNavIndex: 4,
       ),
       body: Form(
         key: _formKey,

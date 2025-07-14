@@ -34,11 +34,22 @@ public class Kn01L002LsnStatistic4Mobile {
      * 学生上课的课时数的统计为什么用课费金额的模块（Kn02F002F）的原因是，能产生课费的科目都是已经签到完了的科目，
      * 这对将来维护对业务理解提供方便
      */
+    // 显示在Chart图上的课时统计数【上课完了统计】Tab页
     @GetMapping("/mb_kn_lsn_signed_total/{stuId}/{selectedYear}")
     public ResponseEntity<List<Kn02F002FeeBean>> getInfoStuLsnList(@PathVariable("stuId") String stuId,
             @PathVariable("selectedYear") Integer year) {
         // 获取当前正在上课的所有学生的排课信息
         List<Kn02F002FeeBean> collection = kn02L002LsnScanedDao.getInfoLsnStatisticList(stuId, Integer.toString(year));
+        return ResponseEntity.ok(collection);
+    }
+
+    // XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细列表信息【上课完了统计】Tab页
+    @GetMapping("/mb_kn_lsn_scaned_lsns/{stuId}/{selectedYear}")
+    public ResponseEntity<List<Kn01L002LsnBean>> getScanSQDateLsnInfoByYear(@PathVariable("stuId") String stuId,
+            @PathVariable("selectedYear") Integer year) {
+        // 获取当前正在上课的所有学生的排课信息
+        List<Kn01L002LsnBean> collection = kn01L002LsnScanedDao.getScanSQDateLsnInfoByYear(stuId,
+                Integer.toString(year));
         return ResponseEntity.ok(collection);
     }
 
@@ -48,16 +59,6 @@ public class Kn01L002LsnStatistic4Mobile {
             @PathVariable("selectedYear") Integer year) {
         // 获取当前已经排课了但是还没有上课的记录
         List<Kn01L002LsnBean> collection = kn01L002LsnUnScanedDao.getUnScanSQDateLsnInfoByYear(stuId,
-                Integer.toString(year));
-        return ResponseEntity.ok(collection);
-    }
-
-    // XXXX的课程进度统计 查询谋学生该年度所有月份已经上完课的详细信息
-    @GetMapping("/mb_kn_lsn_scaned_lsns/{stuId}/{selectedYear}")
-    public ResponseEntity<List<Kn01L002LsnBean>> getScanSQDateLsnInfoByYear(@PathVariable("stuId") String stuId,
-            @PathVariable("selectedYear") Integer year) {
-        // 获取当前正在上课的所有学生的排课信息
-        List<Kn01L002LsnBean> collection = kn01L002LsnScanedDao.getScanSQDateLsnInfoByYear(stuId,
                 Integer.toString(year));
         return ResponseEntity.ok(collection);
     }

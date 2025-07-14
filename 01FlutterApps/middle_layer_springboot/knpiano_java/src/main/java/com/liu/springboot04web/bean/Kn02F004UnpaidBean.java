@@ -12,9 +12,15 @@ public class Kn02F004UnpaidBean implements KnPianoBean {
     protected String lsnFeeId;
     protected float lsnPay;
     protected String payMonth;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+9")// 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
-    @DateTimeFormat(pattern = "yyyy-MM-dd")// 后台维护页面的请求响应处理
+    
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date payDate;
+
     protected String bankId;
     protected Integer delFlg;
     protected Date createDate;
@@ -30,7 +36,7 @@ public class Kn02F004UnpaidBean implements KnPianoBean {
     protected String    subjectSubName;
     protected String    lsnMonth;
     protected Integer   payStyle;
-    protected Integer   lsnCount;
+    protected float     lsnCount;
     protected float     lsnFee;
     protected Integer   ownFlg;
     // 为了按月交费的计划课的精算业务，需要《学生档案》表里对象科目的最新价格
@@ -120,10 +126,10 @@ public class Kn02F004UnpaidBean implements KnPianoBean {
     public void setPayStyle(Integer payStyle) {
         this.payStyle = payStyle;
     }
-    public Integer getLsnCount() {
+    public float getLsnCount() {
         return lsnCount;
     }
-    public void setLsnCount(Integer lsnCount) {
+    public void setLsnCount(float lsnCount) {
         this.lsnCount = lsnCount;
     }
     public String getLsnMonth() {

@@ -15,10 +15,15 @@ public class Kn02F003AdvcLsnFeePayBean {
     protected String    subjectSubName;
     protected String    stuId;
     protected String    stuName;
+    protected String    nikName;
     protected Integer   classDuration;
     protected Integer   lessonType;
     protected Integer   schedualType;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+9")// 接受手机前端的请求时接纳前端String类型的日期值
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm", 
+    // // timezone = "GMT+9" // 采用东京标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // timezone = "GMT+8" // 采用新加坡标准时区，接受手机前端的请求时接纳前端String类型的日期值
+    // )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm") // timezone = "GMT+8" 的设置被统一到了application.properties里
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")// 后台维护页面的请求响应处理
     protected Date      schedualDate;
     /* GMT 
@@ -86,6 +91,12 @@ public class Kn02F003AdvcLsnFeePayBean {
     }
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+    public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
     public Integer getClassDuration() {
         return classDuration;

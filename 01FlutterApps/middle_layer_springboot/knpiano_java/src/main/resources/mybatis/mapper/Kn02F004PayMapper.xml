@@ -8,10 +8,10 @@
         left join
          t_info_lsn_fee_advc_pay lfap
         on paid.lsn_pay_id = lfap.lsn_pay_id
-
         <where>
             substring(paid.pay_month,1,4) = #{year}
         </where>
+        order by paid.stu_name
     </select>
 
     <!-- 根据相应条件抽出已支付的学费信息 -->

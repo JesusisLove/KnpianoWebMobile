@@ -5,6 +5,7 @@ import java.util.Date;
 public class Kn03D001StuBean implements KnPianoBean {
     protected String stuId;
     protected String stuName;
+    protected String nikName;
     protected Integer gender;
     protected String birthday;
     protected String tel1;
@@ -31,6 +32,12 @@ public class Kn03D001StuBean implements KnPianoBean {
     }
     public void setStuName(String stuName) {
         this.stuName = stuName;
+    }
+    public String getNikName() {
+        return nikName;
+    }
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
     }
     public Integer getGender() {
         return gender;

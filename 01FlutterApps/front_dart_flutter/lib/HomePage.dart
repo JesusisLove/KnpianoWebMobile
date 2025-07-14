@@ -7,6 +7,7 @@ import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
+import '04IntegratMngmnt/Kn04I003LsnCounting.dart';
 import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
@@ -14,16 +15,20 @@ import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
 import 'Constants.dart'; // 引入包含全局常量的文件
 
+// ignore: must_be_immutable
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  late int currentNavIndex;
+
+  HomePage({
+    super.key,
+    required this.currentNavIndex,
+  });
 
   @override
   HomePageState createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
   List<Widget> getPageWidgets(int index) {
     switch (index) {
       case 0:
@@ -88,8 +93,21 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.pie_chart,
-            text: "碎课组装正课",
-            onPressed: () {},
+            text: "碎课拼成整课",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: consts.Constants.lessonThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "碎课拼成整课>>在课学生一览",
+                            pageId: Constants.kn01L003ExtraPiesesIntoOne,
+                            // 使用正确的学生列表API
+                            strUri:
+                                '${Constants.piceseLsnStuName}/${DateTime.now().year}',
+                          )));
+            },
             bgcolor: consts.Constants.lessonThemeColor,
           ),
         ];
@@ -264,8 +282,17 @@ class HomePageState extends State<HomePage> {
               height: consts.Constants.homePageControlMargin), // 添加一些间隔
           setButton(
             iconData: Icons.calendar_month,
-            text: "年度课程汇总",
-            onPressed: () {},
+            text: "课时统计查看",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Kn04I003LsnCounting(
+                            knBgColor: consts.Constants.ingergThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "学费管理",
+                          )));
+            },
             bgcolor: consts.Constants.ingergThemeColor,
           ),
           const SizedBox(
@@ -339,7 +366,7 @@ class HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: getPageWidgets(_selectedIndex),
+          children: getPageWidgets(widget.currentNavIndex),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -352,7 +379,7 @@ class HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: widget.currentNavIndex,
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
@@ -400,7 +427,7 @@ class HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.currentNavIndex = index;
     });
   }
 }
