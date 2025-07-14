@@ -120,6 +120,116 @@
         .ml-4 {
             margin-left: 1.5rem !important;
         }
+
+        /* 预支付科目明细部装修样式 */
+        .prepay-subjects-section {
+            background: linear-gradient(135deg, #fff7e6 0%, #fff0d1 100%);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+        }
+
+        .prepay-subjects-title {
+            background: linear-gradient(90deg, #ffc107, #ffb300);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .prepay-subjects-desc {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        /* 预支付历史记录明细部装修样式 */
+        .prepay-history-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edd4 100%);
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        .prepay-history-title {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .prepay-history-desc {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #155724;
+        }
+
+        /* 表格样式优化 */
+        .styled-table {
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .styled-table thead th {
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px 8px;
+            border: none;
+        }
+
+        .styled-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .styled-table tbody tr:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .styled-table tbody td {
+            padding: 10px 8px;
+            vertical-align: middle;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* 按钮样式优化 */
+        .btn-execute {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-execute:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
     </style>
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
@@ -219,55 +329,64 @@
                         </div>
                     </div>
 
+                    <!-- 预支付科目明细部 - 装修版 -->
+                    <div class="prepay-subjects-section" th:unless="${infoList == null || #lists.isEmpty(infoList)}">
+                        <div class="prepay-subjects-title">
+                            💰 预支付科目明细
+                        </div>
+                        <div class="prepay-subjects-desc">
+                            可通过复选框选择需要预支付的科目，系统将根据推算的排课日期进行课费预支付处理
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table styled-table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>选择</th>
+                                        <th>学生编号</th>
+                                        <th>学生姓名</th>
+                                        <th>科目编号</th>
+                                        <th>科目名称</th>
+                                        <th>子科目编号</th>
+                                        <th>子科目名称</th>
+                                        <th>课程属性</th>
+                                        <th>课程单价</th>
+                                        <th>上课时长（分钟）</th>
+                                        <th>计划排课属性</th>
+                                        <th>推算的排课日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="info, stat:${infoList}">
+                                        <td><input type="checkbox" class="row-checkbox" th:data-index="${stat.index}"></td>
+                                        <td>[[${info.stuId}]]</td>
+                                        <td>[[${info.stuName}]]</td>
+                                        <td>[[${info.subjectId}]]</td>
+                                        <td>[[${info.subjectName}]]</td>
+                                        <td>[[${info.subjectSubId}]]</td>
+                                        <td>[[${info.subjectSubName}]]</td>
+                                        <td>[[${info.lessonType== 1 ? '月计划课':''}]]</td>
+                                        <td>[[${info.subjectPrice}]]</td>
+                                        <td>[[${info.minutesPerLsn}]]</td>
+                                        <td>[[${info.schedualDate != null ? '1' : '0'}]]</td>
+                                        <td>
+                                            <span th:if="${info.schedualDate != null}"
+                                                th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                                th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
+                                            <input th:if="${info.schedualDate == null}" type="text"
+                                                class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- 如果没有学生的未支付信息，显示提示信息 -->
                     <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
                         <p class="no-info-message">目前没有学生的未支付信息！</p>
                     </div>
                 </form>
-
-                <!-- 明細部 -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th>选择</th>
-                                <th>学生编号</th>
-                                <th>学生姓名</th>
-                                <th>科目编号</th>
-                                <th>科目名称</th>
-                                <th>子科目编号</th>
-                                <th>子科目名称</th>
-                                <th>课程属性</th>
-                                <th>课程单价</th>
-                                <th>上课时长（分钟）</th>
-                                <th>计划排课属性</th>
-                                <th>推算的排课日期</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="info, stat:${infoList}">
-                                <td><input type="checkbox" class="row-checkbox" th:data-index="${stat.index}"></td>
-                                <td>[[${info.stuId}]]</td>
-                                <td>[[${info.stuName}]]</td>
-                                <td>[[${info.subjectId}]]</td>
-                                <td>[[${info.subjectName}]]</td>
-                                <td>[[${info.subjectSubId}]]</td>
-                                <td>[[${info.subjectSubName}]]</td>
-                                <td>[[${info.lessonType== 1 ? '月计划课':''}]]</td>
-                                <td>[[${info.subjectPrice}]]</td>
-                                <td>[[${info.minutesPerLsn}]]</td>
-                                <td>[[${info.schedualDate != null ? '1' : '0'}]]</td>
-                                <td>
-                                    <span th:if="${info.schedualDate != null}"
-                                        th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                                        th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
-                                    <input th:if="${info.schedualDate == null}" type="text"
-                                        class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
 
                 <hr />
                 <b>第二步：选中👆预支付的科目，选择👇要支付的银行名称，执行课费预支付</b>
@@ -284,66 +403,72 @@
                             </option>
                         </select>
                     </div>
-                    <button type="button" id="prepayButton" class="btn btn-green">课费预支付</button>
+                    <button type="button" id="prepayButton" class="btn btn-green btn-execute">课费预支付</button>
                 </div>
                 <hr />
+
+                <!-- 预支付历史记录明细部 - 装修版 -->
+                <div class="prepay-history-section" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
+                    <div class="prepay-history-title">
+                        📋 学生课费预支付的历史记录
+                    </div>
+                    <div class="prepay-history-desc">
+                        已完成的课费预支付记录，包含支付详情和使用状态信息
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table styled-table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>课程编号</th>
+                                    <th>课费编号</th>
+                                    <th>支付编号</th>
+                                    <th>学生编号</th>
+                                    <th>学生名称</th>
+                                    <th>科目编号</th>
+                                    <th>科目名称</th>
+                                    <th>子科目编号</th>
+                                    <th>子科目名称</th>
+                                    <th>排课日期</th>
+                                    <th>预支付金额</th>
+                                    <th>银行编号</th>
+                                    <th>银行名称</th>
+                                    <th>预支付使用状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="info, stat:${historyList}">
+                                    <td th:text="${stat.index + 1}"></td>
+                                    <td>[[${info.lessonId}]]</td>
+                                    <td>[[${info.lsnFeeId}]]</td>
+                                    <td>[[${info.lsnPayId}]]</td>
+                                    <td>[[${info.stuId}]]</td>
+                                    <td>[[${info.stuName}]]</td>
+                                    <td>[[${info.subjectId}]]</td>
+                                    <td>[[${info.subjectName}]]</td>
+                                    <td>[[${info.subjectSubId}]]</td>
+                                    <td>[[${info.subjectSubName}]]</td>
+                                    <td>
+                                        <span th:if="${info.schedualDate != null}"
+                                            th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                            th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
+                                        <input th:if="${info.schedualDate == null}" type="text"
+                                            class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                                    </td>
+                                    <td>[[${info.lsnPay}]]</td>
+                                    <td>[[${info.bankId}]]</td>
+                                    <td>[[${info.bankName}]]</td>
+                                    <td>[[${info.advcFlg == 0 ? '使用中' : '使用完'}]]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <!-- 如果没有学生的未支付信息，显示提示信息 -->
                 <div class="form-group" th:if="${historyList == null || #lists.isEmpty(historyList)}">
                     <p class="no-info-message">目前没有学生课费预支付的历史记录！</p>
-                </div>
-
-                <!-- 课费预支付历史明細 -->
-                <div class="form-group" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
-                    <p class="no-info-message">学生课费预支付的历史记录</p>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>课程编号</th>
-                                <th>课费编号</th>
-                                <th>支付编号</th>
-                                <th>学生编号</th>
-                                <th>学生名称</th>
-                                <th>科目编号</th>
-                                <th>科目名称</th>
-                                <th>子科目编号</th>
-                                <th>子科目名称</th>
-                                <th>排课日期</th>
-                                <th>预支付金额</th>
-                                <th>银行编号</th>
-                                <th>银行名称</th>
-                                <th>预支付使用状态</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="info, stat:${historyList}">
-                                <td th:text="${stat.index + 1}"></td>
-                                <td>[[${info.lessonId}]]</td>
-                                <td>[[${info.lsnFeeId}]]</td>
-                                <td>[[${info.lsnPayId}]]</td>
-                                <td>[[${info.stuId}]]</td>
-                                <td>[[${info.stuName}]]</td>
-                                <td>[[${info.subjectId}]]</td>
-                                <td>[[${info.subjectName}]]</td>
-                                <td>[[${info.subjectSubId}]]</td>
-                                <td>[[${info.subjectSubName}]]</td>
-                                <td>
-                                    <span th:if="${info.schedualDate != null}"
-                                        th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                                        th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
-                                    <input th:if="${info.schedualDate == null}" type="text"
-                                        class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
-                                </td>
-                                <td>[[${info.lsnPay}]]</td>
-                                <td>[[${info.bankId}]]</td>
-                                <td>[[${info.bankName}]]</td>
-                                <td>[[${info.advcFlg == 0 ? '使用中' : '使用完'}]]</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </main>
         </div>

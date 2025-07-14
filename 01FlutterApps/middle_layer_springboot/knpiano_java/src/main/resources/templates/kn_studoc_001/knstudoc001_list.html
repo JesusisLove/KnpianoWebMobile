@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
-    <title>ダッシュボードテンプレート · Bootstrap</title>
+    <title>学生档案管理系统</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
@@ -15,31 +15,358 @@
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
         rel="stylesheet">
     <style>
-        /* 设置被选中Tab的背景显示橙色 */
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        body {
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
 
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
+        .container-fluid {
+            padding: 15px;
+            max-width: 100%;
         }
 
-        /* 添加以下样式 */
+        /* 页面标题样式 */
+        .page-title {
+            background: transparent;
+            color: #2c3e50;
+            padding: 15px 0;
+            margin: 10px 0;
+            border: 2px solid #9b59b6;
+            border-radius: 10px;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        /* 业务说明区域样式 */
+        .business-description {
+            background: transparent;
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border: 2px solid #e67e22;
+        }
+
+        .business-description p {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* 新增按钮区域样式 */
+        .action-section {
+            background: transparent;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border: 2px solid #9b59b6;
+        }
+
+        .action-section .btn-success {
+            background: #27ae60 !important;
+            border: none !important;
+            padding: 8px 16px !important;
+            border-radius: 15px !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            color: white !important;
+            margin-right: 10px !important;
+            margin-bottom: 8px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .action-section .btn-primary {
+            background: #3498db !important;
+            border: none !important;
+            padding: 6px 12px !important;
+            border-radius: 15px !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            color: white !important;
+            margin-right: 8px !important;
+            margin-bottom: 6px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .action-section .btn:hover {
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        /* 搜索区域样式 */
+        .search-section {
+            background: transparent;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border: 2px solid #3498db;
+        }
+
+        .search-section .student-filter label {
+            margin-right: 15px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .search-section .btn-primary {
+            background: #3498db !important;
+            border: none !important;
+            padding: 8px 20px !important;
+            border-radius: 20px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            color: white !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .search-section .btn-primary:hover {
+            transform: translateY(-2px) scale(1.03) !important;
+        }
+
+        /* Tab导航样式 */
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+            margin: 15px 0;
+        }
+
+        .nav-tabs .nav-link {
+            color: #2c3e50 !important;
+            border: 2px solid transparent !important;
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600 !important;
+            padding: 8px 16px !important;
+            margin-right: 5px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #ffa500 #ffa500 #fff !important;
+            background-color: #fff3cd !important;
+        }
+
         .nav-tabs .nav-link.active {
             color: #fff !important;
             background-color: #ffa500 !important;
             border-color: #ffa500 #ffa500 #fff !important;
         }
 
-        .nav-tabs .nav-link:hover {
-            border-color: #ffa500 #ffa500 #fff;
+        /* Tab内容区域样式 */
+        .tab-content {
+            background: transparent;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            border: 2px solid #f39c12;
+        }
+
+        /* 列控制区域样式 */
+        .column-control {
+            text-align: right;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .column-control button {
+            background: #34495e !important;
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .column-control button:hover {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .column-menu {
+            position: absolute;
+            background: white;
+            border: 2px solid #1abc9c;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(22, 160, 133, 0.3);
+            z-index: 1000;
+            display: none;
+            right: 0;
+            top: 100%;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .column-menu.show {
+            display: block;
+        }
+
+        .column-menu label {
+            display: block;
+            padding: 6px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            margin: 2px 0;
+            color: #2c3e50;
+            border: 1px solid transparent;
+            background: #ecf0f1;
+            font-size: 11px;
+        }
+
+        .column-menu label:hover {
+            background: #1abc9c;
+            color: white;
+            transform: translateX(2px);
+            border-color: #16a085;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+            accent-color: #1abc9c;
+        }
+
+        /* 表格样式 */
+        .table {
+            background: white !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .table thead th {
+            background: #2c3e50 !important;
+            color: #ecf0f1 !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            padding: 12px 8px !important;
+            border: 1px solid #34495e !important;
+            font-size: 12px !important;
+            letter-spacing: 0.3px !important;
+            vertical-align: middle !important;
+            text-transform: uppercase !important;
+        }
+
+        .table tbody td {
+            padding: 8px 6px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #ddd !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            text-align: center !important;
+            border-left: 1px solid #ddd !important;
+            border-right: 1px solid #ddd !important;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f8f9fa !important;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .table tbody tr:hover {
+            background: #fff3cd !important;
+            transform: scale(1.01) !important;
+        }
+
+        /* 表格操作按钮样式 */
+        .table .btn-primary {
+            background: #3498db !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            margin-right: 5px !important;
+        }
+
+        .table .btn-primary:hover {
+            transform: translateY(-1px) scale(1.05) !important;
+        }
+
+        .table .btn-danger {
+            background: #e74c3c !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .table .btn-danger:hover {
+            transform: translateY(-1px) scale(1.05) !important;
+        }
+
+        /* 确保操作列始终显示 */
+        .action-column {
+            display: table-cell !important;
+        }
+
+        /* 主内容区域 */
+        main {
+            background: transparent;
+            padding: 20px !important;
+            margin: 15px;
+            max-width: calc(100% - 30px);
+        }
+
+        /* 分割线样式 */
+        hr {
+            border: none;
+            height: 2px;
+            background: #95a5a6;
+            margin: 15px 0;
+            border-radius: 1px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 20px;
+            }
+            
+            .action-section {
+                padding: 15px;
+            }
+            
+            .column-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 180px !important;
+            }
+
+            .table {
+                font-size: 9px !important;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 6px 4px !important;
+                font-size: 9px !important;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 6px 12px !important;
+                font-size: 11px !important;
+            }
         }
     </style>
 
@@ -53,12 +380,22 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_studoc_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">学生档案管理</h2>
-                <p class="text-muted small mb-4" style="font-size: 0.875rem;">
-                    ★业务说明：
-                </p>
-                <hr />
-                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_studoc_001}">学生档案新規登録</a>
+                
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>学生档案管理</h2>
+                </div>
+
+                <!-- 业务说明 -->
+                <div class="business-description">
+                    <p class="text-muted small mb-4" style="font-size: 0.875rem;">
+                        ★业务说明：
+                    </p>
+                </div>
+
+                <!-- 新增按钮和学生按钮区域 -->
+                <div class="action-section">
+                    <a class="btn btn-sm btn-success" th:href="@{/kn_studoc_001}">学生档案新規登録</a>
                     <div th:each="unDocStu : ${unDocStuList}">
                         <a class="btn btn-sm btn-primary" th:href="@{/kn_studoc_001/{stuId}/{stuName}
                                                             (stuId=${unDocStu.stuId}, 
@@ -66,66 +403,37 @@
                                                             )
                                         }" methods="GET">[[${unDocStu.stuName}]]</a>
                     </div>
-                </h2>
+                </div>
+
                 <hr />
-                <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_studoc_001/search}" th:object="${searchForm}" method="get">
-                    <!-- <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="stuId" name="stuId" th:value="${stuDocMap != null ? stuDocMap['stuId'] : ''}" placeholder="学生编号">
+
+                <!-- 检索区域 -->
+                <div class="search-section">
+                    <form action="#" th:action="@{/kn_studoc_001/search}" th:object="${searchForm}" method="get">
+                        <div class="d-flex align-items-center">
+                            <div class="student-filter mr-3">
+                                <label class="mr-2">
+                                    <input type="radio" name="delFlg" value="0"
+                                        th:checked="${stuDocMap != null && stuDocMap['delFlg'] == '0'}"> 在课学生
+                                </label>
+                                <label class="mr-2">
+                                    <input type="radio" name="delFlg" value="1"
+                                        th:checked="${stuDocMap != null && stuDocMap['delFlg'] == '1'}"> 退学学生
+                                </label>
+                                <label class="mr-3">
+                                    <input type="radio" name="delFlg" value="2"
+                                        th:checked="${stuDocMap == null || stuDocMap['delFlg'] == null || stuDocMap['delFlg'] == '2'}">
+                                    所有学生
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">検索</button>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="stuName" name="stuName" th:value="${stuDocMap != null ? stuDocMap['stuName'] : ''}" placeholder="学生姓名">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${stuDocMap != null ? stuDocMap['subjectId'] : ''}" placeholder="科目编号">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${stuDocMap != null ? stuDocMap['subjectName'] : ''}" placeholder="科目名称">
-                        </div>
-                        <div class="form-group col-md-1.2">
-                            <input type="date" class="form-control" id="adjustedDate" name="adjustedDate" th:value="${stuDocMap != null ? stuDocMap['adjustedDate'] : ''}" placeholder="调整日期">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="payStyle" name="payStyle" th:value="${stuDocMap != null ? stuDocMap['payStyle'] : ''}" placeholder="科目费用支付方式">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="minutesPerLsn" name="minutesPerLsn" th:value="${stuDocMap != null ? stuDocMap['minutesPerLsn'] : ''}" placeholder="上课时长">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="lessonFee" name="lessonFee" th:value="${stuDocMap != null ? stuDocMap['lessonFee'] : ''}" placeholder="標準価格">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="lessonFeeAdjusted" name="lessonFeeAdjusted" th:value="${stuDocMap != null ? stuDocMap['lessonFeeAdjusted'] : ''}" placeholder="調整価格">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="date" class="form-control" id="createDate" name="createDate" th:value="${stuDocMap != null ? stuDocMap['createDate'] : ''}" placeholder="作成日">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="date" class="form-control" id="updateDate" name="updateDate" th:value="${stuDocMap != null ? stuDocMap['updateDate'] : ''}" placeholder="更新日">
-                        </div>
-                    </div> -->
-                    <div class="d-flex align-items-center">
-                        <div class="student-filter mr-3">
-                            <label class="mr-2">
-                                <input type="radio" name="delFlg" value="0"
-                                    th:checked="${stuDocMap != null && stuDocMap['delFlg'] == '0'}"> 在课学生
-                            </label>
-                            <label class="mr-2">
-                                <input type="radio" name="delFlg" value="1"
-                                    th:checked="${stuDocMap != null && stuDocMap['delFlg'] == '1'}"> 退学学生
-                            </label>
-                            <label class="mr-3">
-                                <input type="radio" name="delFlg" value="2"
-                                    th:checked="${stuDocMap == null || stuDocMap['delFlg'] == null || stuDocMap['delFlg'] == '2'}">
-                                所有学生
-                            </label>
-                        </div>
-                        <button type="submit" class="btn btn-primary">検索</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
                 <hr />
-                <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
+
+                <!-- Tab 导航 -->
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
                         <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
@@ -134,7 +442,8 @@
                             th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
                     </li>
                 </ul>
-                <!-- Tab 卡片项里显示 学生的排课一览 -->
+
+                <!-- Tab 内容区域 -->
                 <div class="tab-content" id="myTabContent">
                     <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
                         th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
@@ -144,12 +453,14 @@
                     </div>
                 </div>
             </main>
+            
             <!-- 削除処理 -->
             <form id="deleteSubjectForm" action="" method="post">
                 <input type="hidden" name="_method" value="Delete" />
             </form>
         </div>
     </div>
+    
     <!--Bootstrap core JavaScript-->
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>

@@ -6,24 +6,357 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
-    <title>ダッシュボード・テンプレート · Bootstrap</title>
+    <title>银行基本信息管理系统</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
     <!-- Bootstrap core CSS -->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}" rel="stylesheet">
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        body {
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
+
+        .container-fluid {
+            padding: 15px;
+            max-width: 100%;
+        }
+
+        /* 页面标题样式 */
+        .page-title {
+            background: transparent;
+            color: #2c3e50;
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin: 10px 0;
+            border: 2px solid #9b59b6;
+            text-align: center;
+            position: relative;
+        }
+
+        .page-title::before {
+            content: '🏦';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 20px;
+            opacity: 0.8;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        /* 业务说明区域样式 */
+        .business-description {
+            background: transparent;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e67e22;
+        }
+
+        .business-description p {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* 新增按钮区域样式 */
+        .action-section {
+            background: transparent;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #9b59b6;
+            text-align: center;
+        }
+
+        .action-section .btn-success {
+            background: #27ae60 !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 20px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            color: white !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .action-section .btn-success:hover {
+            transform: translateY(-2px) scale(1.03) !important;
+        }
+
+        /* 搜索区域样式 */
+        .search-section {
+            background: transparent;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 10px 0;
+            border: 2px solid #3498db;
+        }
+
+        .search-section .form-control {
+            border-radius: 8px;
+            border: 2px solid #5dade2;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .search-section .form-control:focus {
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+            background: white;
+            transform: scale(1.01);
+        }
+
+        /* 搜索按钮样式 */
+        .btn-search {
+            background: #e74c3c !important;
+            border: none !important;
+            color: white !important;
+            padding: 10px 25px !important;
+            border-radius: 20px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            margin-top: 10px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px) scale(1.03) !important;
+        }
+
+        /* 列控制区域样式 */
+        .column-control-section {
+            background: transparent;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #1abc9c;
+        }
+
+        .column-control {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .column-control button {
+            background: #34495e !important;
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .column-control button:hover {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .column-menu {
+            position: absolute;
+            background: white;
+            border: 2px solid #1abc9c;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(22, 160, 133, 0.3);
+            z-index: 1000;
+            display: none;
+            left: 0;
+            top: 100%;
+            width: 100%;
+            max-width: 240px;
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .column-menu.show {
+            display: block;
+        }
+
+        .column-menu label {
+            display: block;
+            padding: 6px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            margin: 2px 0;
+            color: #2c3e50;
+            border: 1px solid transparent;
+            background: #ecf0f1;
+            font-size: 11px;
+        }
+
+        .column-menu label:hover {
+            background: #1abc9c;
+            color: white;
+            transform: translateX(2px);
+            border-color: #16a085;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+            accent-color: #1abc9c;
+        }
+
+        /* 表格区域样式 */
+        .table-section {
+            background: transparent;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 10px 0;
+            border: 2px solid #f39c12;
+            position: relative;
+        }
+
+        .table-section::before {
+            content: '💰';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 20px;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .styled-table {
+            background: white !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .styled-table thead th {
+            background: #2c3e50 !important;
+            color: #ecf0f1 !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            padding: 12px 8px !important;
+            border: 1px solid #34495e !important;
+            font-size: 12px !important;
+            letter-spacing: 0.3px !important;
+            vertical-align: middle !important;
+            text-transform: uppercase !important;
+        }
+
+        .styled-table tbody td {
+            padding: 8px 6px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #ddd !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            text-align: center !important;
+            border-left: 1px solid #ddd !important;
+            border-right: 1px solid #ddd !important;
+        }
+
+        .styled-table tbody tr {
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+
+        .styled-table tbody tr:nth-child(even) {
+            background: #f8f9fa !important;
+        }
+
+        .styled-table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .styled-table tbody tr:hover {
+            background: #fff3cd !important;
+            transform: scale(1.01) !important;
+        }
+
+        /* 操作按钮样式 */
+        .styled-table .btn-primary {
+            background: #3498db !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 6px 12px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            margin-right: 5px !important;
+        }
+
+        .styled-table .btn-primary:hover {
+            transform: translateY(-1px) scale(1.05) !important;
+        }
+
+        .styled-table .btn-danger {
+            background: #e74c3c !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 6px 12px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .styled-table .btn-danger:hover {
+            transform: translateY(-1px) scale(1.05) !important;
+        }
+
+        /* 主内容区域 */
+        main {
+            background: transparent;
+            padding: 20px !important;
+            margin: 15px;
+            max-width: calc(100% - 30px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 20px;
+            }
+            
+            .search-section {
+                padding: 20px;
+            }
+            
+            .column-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 200px !important;
+            }
+
+            .styled-table {
+                font-size: 9px !important;
+            }
+
+            .styled-table thead th,
+            .styled-table tbody td {
+                padding: 8px 6px !important;
+                font-size: 9px !important;
             }
         }
     </style>
@@ -36,56 +369,102 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_bnk_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">银行基本信息</h2>
-                <p class="text-muted small mb-4" style="font-size: 0.875rem;">
-                    ★业务说明：
-                </p>
-                <hr/>
-                    <h2><a class="btn btn-sm btn-success" th:href="@{/kn_bnk_001}">銀行新規登録</a></h2>
-                <hr/>
-                <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_bnk_001/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankId" name="bankId" th:value="${bankMap != null ? bankMap['bankId'] : ''}" placeholder="銀行ID">
+                
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>🏦 银行基本信息管理</h2>
+                </div>
+
+                <!-- 业务说明 -->
+                <div class="business-description">
+                    <p>★业务说明：银行基本信息的查询、新增、修改和删除管理功能</p>
+                </div>
+
+                <!-- 新增按钮区域 -->
+                <div class="action-section">
+                    <a class="btn btn-success" th:href="@{/kn_bnk_001}">
+                        ➕ 銀行新規登録
+                    </a>
+                </div>
+
+                <!-- 检索区域 -->
+                <div class="search-section">
+                    <form action="#" th:action="@{/kn_bnk_001/search}" th:object="${searchForm}" method="get">
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="bankId" name="bankId" 
+                                       th:value="${bankMap != null ? bankMap['bankId'] : ''}" placeholder="🆔 銀行ID">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="bankName" name="bankName" 
+                                       th:value="${bankMap != null ? bankMap['bankName'] : ''}" placeholder="🏦 銀行名">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="date" class="form-control" id="createDate" name="createDate" placeholder="📅 作成日">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="date" class="form-control" id="updateDate" name="updateDate" placeholder="🔄 更新日">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <button type="submit" class="btn btn-search">🔍 検索</button>
+                            </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="bankName" name="bankName" th:value="${bankMap != null ? bankMap['bankName'] : ''}" placeholder="銀行名">
-                        </div>
-                        <div class="form-group col-md-3">
-                            <input type="date" class="form-control" id="createDate" name="createDate">
-                        </div>
-                        <div class="form-group col-md-3">
-                            <input type="date" class="form-control" id="updateDate" name="updateDate">
+                    </form>
+                </div>
+
+                <!-- 列控制区域 -->
+                <div class="column-control-section">
+                    <div class="column-control">
+                        <button onclick="toggleColumnMenu(event)">
+                            🎛️ 显示/隐藏列
+                        </button>
+                        <div id="columnMenu" class="column-menu">
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankId')" /> 銀行ID
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankName')" /> 銀行名
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-createDate')" /> 作成日
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-updateDate')" /> 更新日
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-actions')" /> 操作
+                            </label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">検索</button>
-                </form> 
+                </div>
+
                 <!-- 明細部 -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                        <tr>
-                            <th>銀行ID</th>
-                            <th>銀行名</th>
-                            <th>作成日</th>
-                            <th>更新日</th>
-                            <th>操作</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="bank : ${bankList}" th:if="${bankList != null && !bankList.isEmpty()}">
-                            <td th:text="${bank.bankId}"></td>
-                            <td th:text="${bank.bankName}"></td>
-                            <td th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
-                            <td th:text="${#dates.format(bank.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
-                            <td>
-                                <a class="btn btn-sm btn-primary" th:href="@{/kn_bnk_001/} + ${bank.bankId}" method="GET">編集</a>
-                                <button class="btn btn-sm btn-danger deleteBtn" th:attr="bank_del_uri=@{/kn_bnk_001/}+${bank.bankId}">削除</button>
-                            </td>
-                        </tr> 
-                        </tbody>
-                    </table>
+                <div class="table-section">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm styled-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-bankId">銀行ID</th>
+                                    <th class="col-bankName">銀行名</th>
+                                    <th class="col-createDate">作成日</th>
+                                    <th class="col-updateDate">更新日</th>
+                                    <th class="col-actions">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="bank : ${bankList}" th:if="${bankList != null && !bankList.isEmpty()}">
+                                    <td class="col-bankId" th:text="${bank.bankId}"></td>
+                                    <td class="col-bankName" th:text="${bank.bankName}"></td>
+                                    <td class="col-createDate" th:text="${#dates.format(bank.createDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                                    <td class="col-updateDate" th:text="${#dates.format(bank.updateDate, 'yyyy-MM-dd hh:mm:ss')}"></td>
+                                    <td class="col-actions">
+                                        <a class="btn btn-sm btn-primary" th:href="@{/kn_bnk_001/} + ${bank.bankId}" method="GET">編集</a>
+                                        <button class="btn btn-sm btn-danger deleteBtn" th:attr="bank_del_uri=@{/kn_bnk_001/}+${bank.bankId}">削除</button>
+                                    </td>
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </main>
             <!-- 削除処理 -->
@@ -95,10 +474,76 @@
             </form>
         </div>
     </div>
+
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
-    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+
+    <!-- 列控制相关的 JavaScript -->
+    <script>
+        // 存储列显示状态
+        var columnStates = JSON.parse(localStorage.getItem('bankColumnStates') || '{}');
+
+        // 控制列显示菜单的显示/隐藏
+        function toggleColumnMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('columnMenu');
+            menu.classList.toggle('show');
+        }
+
+        // 控制列的显示/隐藏
+        function toggleColumn(columnClass) {
+            // 更新状态
+            columnStates[columnClass] = !columnStates[columnClass];
+            const isVisible = columnStates[columnClass];
+
+            // 更新所有具有该类名的元素
+            const cells = document.getElementsByClassName(columnClass);
+            Array.from(cells).forEach(cell => {
+                cell.style.display = isVisible ? '' : 'none';
+            });
+
+            // 保存状态
+            localStorage.setItem('bankColumnStates', JSON.stringify(columnStates));
+
+            // 同步复选框状态
+            const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isVisible;
+            });
+        }
+
+        // 应用保存的列状态
+        function applyColumnStates() {
+            Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
+                const cells = document.getElementsByClassName(columnClass);
+                Array.from(cells).forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+
+                // 更新复选框状态
+                const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isVisible;
+                });
+            });
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('columnMenu');
+            if (!event.target.closest('.column-control')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // 页面加载时初始化列状态
+        document.addEventListener('DOMContentLoaded', function () {
+            applyColumnStates();
+        });
+    </script>
+
+    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実现する-->
     <script>
         $(".deleteBtn").click(function() {
             if (confirm('本当に削除しますか？')) {

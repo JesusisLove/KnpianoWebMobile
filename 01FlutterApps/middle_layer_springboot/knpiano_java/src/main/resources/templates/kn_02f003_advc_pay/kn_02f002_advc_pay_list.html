@@ -30,9 +30,128 @@
             }
         }
 
+        /* 页面标题样式 */
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        /* 搜索区域样式 */
+        .search-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .search-title {
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-title::before {
+            content: '🔍';
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .search-section .form-control {
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .search-section .form-control:focus {
+            border-color: white;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+            background: white;
+        }
+
+        .search-section label {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .btn-search {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            color: white;
+        }
+
+        /* 历史记录区域样式 */
+        .history-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+        }
+
+        .history-title {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
+        }
+
+        .history-title::before {
+            content: '📊';
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
         /* 折叠面板相关样式 */
         .card-header {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 8px 8px 0 0;
+            border: none;
         }
         
         .btn-link {
@@ -40,6 +159,8 @@
             text-decoration: none;
             width: 100%;
             text-align: left;
+            font-weight: 600;
+            padding: 8px 0;
         }
         
         .btn-link:hover {
@@ -48,20 +169,46 @@
         }
         
         .card {
-            border: 1px solid rgba(0,0,0,.125);
-            border-radius: .25rem;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(252, 182, 159, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .card-body {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 0 0 12px 12px;
         }
         
         .indented {
             margin-left: 20px;
             margin-bottom: 10px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-left: 4px solid #ffecd2;
+            border-radius: 0 8px 8px 0;
         }
 
         /* 列控制功能样式 */
         .column-control {
             position: relative;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: inline-block;
+        }
+
+        .column-control button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .column-control button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .column-menu {
@@ -70,12 +217,13 @@
             top: 100%;
             left: 0;
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             z-index: 1000;
-            min-width: 180px;
-            padding: 10px;
+            min-width: 200px;
+            padding: 15px;
+            margin-top: 5px;
         }
 
         .column-menu.show {
@@ -84,28 +232,179 @@
 
         .column-menu label {
             display: block;
-            margin: 5px 0;
+            margin: 8px 0;
             cursor: pointer;
             font-weight: normal;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .column-menu label:hover {
+            background-color: #f8f9fa;
         }
 
         .column-menu input[type="checkbox"] {
-            margin-right: 8px;
+            margin-right: 10px;
+            transform: scale(1.1);
         }
 
         .no-info-message {
             font-size: 18px;
+            color: #6c757d;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        /* 表格样式优化 */
+        .styled-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .styled-table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 15px 10px;
+            border: none;
+            font-size: 14px;
+        }
+
+        .styled-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .styled-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .styled-table tbody tr:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .styled-table tbody td {
+            padding: 12px 10px;
+            vertical-align: middle;
+            border-top: 1px solid #e9ecef;
+            font-size: 13px;
         }
 
         /* 异常数据行样式 - 红色粗体 */
         .exception-row {
-            color: #dc3545 !important;
-            font-weight: bold !important;
+            background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%) !important;
+            color: #c62828 !important;
+            font-weight: 600 !important;
         }
 
         .exception-row td {
-            color: #dc3545 !important;
-            font-weight: bold !important;
+            color: #c62828 !important;
+            font-weight: 600 !important;
+            border-left: 4px solid #f44336;
+        }
+
+        .exception-row:hover {
+            background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%) !important;
+            transform: scale(1.02);
+        }
+
+        /* 按钮样式优化 */
+        .btn-warning {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(45deg, #f57c00, #ff9800);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+            color: white;
+        }
+
+        /* 状态标签样式 */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-using {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+        }
+
+        .status-completed {
+            background: linear-gradient(45deg, #9e9e9e, #bdbdbd);
+            color: white;
+        }
+
+        .status-normal {
+            background: linear-gradient(45deg, #2196f3, #42a5f5);
+            color: white;
+        }
+
+        .status-abnormal {
+            background: linear-gradient(45deg, #f44336, #ef5350);
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 24px;
+            }
+            
+            .search-section,
+            .history-section {
+                padding: 15px;
+            }
+            
+            .styled-table {
+                font-size: 12px;
+            }
+            
+            .styled-table thead th,
+            .styled-table tbody td {
+                padding: 8px 5px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-section,
+        .history-section {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .styled-table {
+            animation: slideInUp 0.8s ease-out;
         }
     </style>
     <!-- Custom styles for this template -->
@@ -118,7 +417,10 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_lsn_pay_list_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">预支付历史记录一览</h2>
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>📋 预支付历史记录一览</h2>
+                </div>
                 
                 <!-- 成功消息提示 -->
                 <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
@@ -138,67 +440,70 @@
                     </button>
                 </div>
                 
-                <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_advc_lsn_pay_list/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row align-items-end">
-                        <div class="form-group col-md-1">
-                            <label>年度</label>
-                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
-                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
-                                <option th:each="year : ${knyearlist}" 
-                                        th:value="${year}" 
-                                        th:text="${year}" 
-                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
-                            </select>
+                <!-- 搜索区域 -->
+                <div class="search-section">
+                    <div class="search-title">搜索条件设置</div>
+                    <form action="#" th:action="@{/kn_advc_lsn_pay_list/search}" th:object="${searchForm}" method="get">
+                        <div class="form-row align-items-end">
+                            <div class="form-group col-md-3">
+                                <label>年度</label>
+                                <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                    <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                    <option th:each="year : ${knyearlist}" 
+                                            th:value="${year}" 
+                                            th:text="${year}" 
+                                            th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>学生姓名</label> 
+                                <select class="form-control" id="studentSelect" name="stuId">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <button type="submit" class="btn btn-search">🔍 搜索</button>
+                           </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <label>学生姓名</label> 
-                            <select class="form-control" id="studentSelect" name="stuId">
-                                <option value="">请选择</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-1">
-                            <button type="submit" class="btn btn-primary">検 索</button>
-                       </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
 
                 <!-- 课费预支付历史明細 -->
-                <div class="form-group" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
-                    <p class="no-info-message">学生课费预支付的历史记录</p>
+                <div class="history-section" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
+                    <div class="history-title">学生课费预支付的历史记录</div>
                     
-                <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
-                <div class="business-description mb-4">
-                    <!-- 检索部业务说明折叠组件 -->
-                    <div class="card">
-                        <div class="card-header" id="searchDescriptionHeader">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" 
-                                        data-target="#searchDescriptionCollapse" aria-expanded="true" 
-                                        aria-controls="searchDescriptionCollapse">
-                                    ★明细部的业务说明
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="searchDescriptionCollapse" class="collapse" 
-                             aria-labelledby="searchDescriptionHeader">
-                            <div class="card-body">
-                                <dl>
-                                    <dd class="indented">①课费预支付实际是对未签到的排课做了《课程表》登录、《课费表》登录、《结算表》登录的课费提前支付操作，但《课程表》里的该课程还是未签到状态</dd>
-                                    <dd class="indented">②拿该课程做了预支付，在未签到的情况下，该月的预支付使用状态就始终显示【使用中】</dd>
-                                    <dd class="indented">③异常的课费预支付记录：用来做预支付的课程始终没有签到，但是该月其他课程至少有1节签到了，学费支付状态本该是【使用完】，却一直处于【使用中】，这就是预支付数据状态异常</dd>
-                                    <dd class="indented">④出现上述情况，就需要「预支付再调整」，即把有《课费预支付》表里使用该课做的预支付的课程编号，用签到完了的该月任意一个课程编号替换一下，同时将advc_flg从0更新为1，就OK了。</dd>
-                                    <dd class="indented">⑤异常现象导致业务出现的错误后果：课时统计结果错误！把一个未签到的课程算作是签到完了的课统计进去了。所以必须做预支付再调整。</dd>
-                                    <dd class="indented">⑥执行「预支付再调整」后，再对课程表里的该课执行签到撤销会有影响吗？ 回答：没有影响，只是做预支付的课程ID发生了改变而已。</dd>
-                                </dl>
+                    <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
+                    <div class="business-description mb-4">
+                        <div class="card">
+                            <div class="card-header" id="searchDescriptionHeader">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                            data-target="#searchDescriptionCollapse" aria-expanded="false" 
+                                            aria-controls="searchDescriptionCollapse">
+                                        ⭐ 明细部的业务说明
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="searchDescriptionCollapse" class="collapse" 
+                                 aria-labelledby="searchDescriptionHeader">
+                                <div class="card-body">
+                                    <dl>
+                                        <dd class="indented">①课费预支付实际是对未签到的排课做了《课程表》登录、《课费表》登录、《结算表》登录的课费提前支付操作，但《课程表》里的该课程还是未签到状态</dd>
+                                        <dd class="indented">②拿该课程做了预支付，在未签到的情况下，该月的预支付使用状态就始终显示【使用中】</dd>
+                                        <dd class="indented">③异常的课费预支付记录：用来做预支付的课程始终没有签到，但是该月其他课程至少有1节签到了，学费支付状态本该是【使用完】，却一直处于【使用中】，这就是预支付数据状态异常</dd>
+                                        <dd class="indented">④出现上述情况，就需要「预支付再调整」，即把有《课费预支付》表里使用该课做的预支付的课程编号，用签到完了的该月任意一个课程编号替换一下，同时将advc_flg从0更新为1，就OK了。</dd>
+                                        <dd class="indented">⑤异常现象导致业务出现的错误后果：课时统计结果错误！把一个未签到的课程算作是签到完了的课统计进去了。所以必须做预支付再调整。</dd>
+                                        <dd class="indented">⑥执行「预支付再调整」后，再对课程表里的该课执行签到撤销会有影响吗？ 回答：没有影响，只是做预支付的课程ID发生了改变而已。</dd>
+                                    </dl>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    
                     <!-- 列控制按钮和菜单 -->
                     <div class="column-control">
-                        <button onclick="toggleColumnMenu(event)" class="btn btn-sm btn-secondary">
-                            显示/隐藏列
+                        <button onclick="toggleColumnMenu(event)">
+                            🔧 显示/隐藏列
                         </button>
                         <div id="columnMenu" class="column-menu">
                             <label>
@@ -254,71 +559,82 @@
                             </label>
                         </div>
                     </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table styled-table table-sm">
+                            <thead>
+                                <tr>
+                                    <th class="col-no">No.</th>
+                                    <th class="col-lessonId">课程编号</th>
+                                    <th class="col-lsnFeeId">课费编号</th>
+                                    <th class="col-lsnPayId">支付编号</th>
+                                    <th class="col-stuId">学生编号</th>
+                                    <th class="col-stuName">学生名称</th>
+                                    <th class="col-subjectId">科目编号</th>
+                                    <th class="col-subjectName">科目名称</th>
+                                    <th class="col-subjectSubId">子科目编号</th>
+                                    <th class="col-subjectSubName">子科目名称</th>
+                                    <th class="col-schedualDate">排课日期</th>
+                                    <th class="col-lsnPay">预支付金额</th>
+                                    <th class="col-bankId">银行编号</th>
+                                    <th class="col-bankName">银行名称</th>
+                                    <th class="col-advcFlg">预支付使用状态</th>
+                                    <th class="col-dataStatus">数据正常异常状态</th>
+                                    <th class="col-action">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="info, stat:${historyList}" th:class="${info.dataStatus == 1 ? 'exception-row' : ''}">
+                                    <td class="col-no" th:text="${stat.index + 1}"></td>
+                                    <td class="col-lessonId">[[${info.lessonId}]]</td>
+                                    <td class="col-lsnFeeId">[[${info.lsnFeeId}]]</td>
+                                    <td class="col-lsnPayId">[[${info.lsnPayId}]]</td>
+                                    <td class="col-stuId">[[${info.stuId}]]</td>
+                                    <td class="col-stuName">[[${info.stuName}]]</td>
+                                    <td class="col-subjectId">[[${info.subjectId}]]</td>
+                                    <td class="col-subjectName">[[${info.subjectName}]]</td>
+                                    <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
+                                    <td class="col-subjectSubName">[[${info.subjectSubName}]]</td>
+                                    <td class="col-schedualDate">
+                                        <span th:if="${info.schedualDate != null}"
+                                            th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                            th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
+                                        <input th:if="${info.schedualDate == null}" type="text"
+                                            class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                                    </td>
+                                    <td class="col-lsnPay">[[${info.lsnPay}]]</td>
+                                    <td class="col-bankId">[[${info.bankId}]]</td>
+                                    <td class="col-bankName">[[${info.bankName}]]</td>
+                                    <td class="col-advcFlg">
+                                        <span th:class="${info.advcFlg == 0 ? 'status-badge status-using' : 'status-badge status-completed'}"
+                                              th:text="${info.advcFlg == 0 ? '使用中' : '使用完'}"></span>
+                                    </td>
+                                    <td class="col-dataStatus">
+                                        <span th:class="${info.dataStatus == 0 ? 'status-badge status-normal' : 'status-badge status-abnormal'}"
+                                              th:text="${info.dataStatus == 0 ? '数据状态正常' : '数据状态异常'}"></span>
+                                    </td>
+                                    <td class="col-action">
+                                        <button th:if="${info.dataStatus == 1}" 
+                                                class="btn btn-warning" 
+                                                onclick="adjustAdvancedPayment(this)"
+                                                th:data-lesson-id="${info.lessonId}"
+                                                th:data-lsn-fee-id="${info.lsnFeeId}"
+                                                th:data-lsn-pay-id="${info.lsnPayId}"
+                                                th:data-subject-id="${info.subjectId}"
+                                                th:data-stu-id="${info.stuId}"
+                                                th:data-stu-name="${info.stuName}">
+                                            🔧 预支付再调整
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th class="col-no">No.</th>
-                                <th class="col-lessonId">课程编号</th>
-                                <th class="col-lsnFeeId">课费编号</th>
-                                <th class="col-lsnPayId">支付编号</th>
-                                <th class="col-stuId">学生编号</th>
-                                <th class="col-stuName">学生名称</th>
-                                <th class="col-subjectId">科目编号</th>
-                                <th class="col-subjectName">科目名称</th>
-                                <th class="col-subjectSubId">子科目编号</th>
-                                <th class="col-subjectSubName">子科目名称</th>
-                                <th class="col-schedualDate">排课日期</th>
-                                <th class="col-lsnPay">预支付金额</th>
-                                <th class="col-bankId">银行编号</th>
-                                <th class="col-bankName">银行名称</th>
-                                <th class="col-advcFlg">预支付使用状态</th>
-                                <th class="col-dataStatus">数据正常异常状态</th>
-                                <th class="col-action">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="info, stat:${historyList}" th:class="${info.dataStatus == 1 ? 'exception-row' : ''}">
-                                <td class="col-no" th:text="${stat.index + 1}"></td>
-                                <td class="col-lessonId">[[${info.lessonId}]]</td>
-                                <td class="col-lsnFeeId">[[${info.lsnFeeId}]]</td>
-                                <td class="col-lsnPayId">[[${info.lsnPayId}]]</td>
-                                <td class="col-stuId">[[${info.stuId}]]</td>
-                                <td class="col-stuName">[[${info.stuName}]]</td>
-                                <td class="col-subjectId">[[${info.subjectId}]]</td>
-                                <td class="col-subjectName">[[${info.subjectName}]]</td>
-                                <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
-                                <td class="col-subjectSubName">[[${info.subjectSubName}]]</td>
-                                <td class="col-schedualDate">
-                                    <span th:if="${info.schedualDate != null}"
-                                        th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                                        th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
-                                    <input th:if="${info.schedualDate == null}" type="text"
-                                        class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
-                                </td>
-                                <td class="col-lsnPay">[[${info.lsnPay}]]</td>
-                                <td class="col-bankId">[[${info.bankId}]]</td>
-                                <td class="col-bankName">[[${info.bankName}]]</td>
-                                <td class="col-advcFlg">[[${info.advcFlg == 0 ? '使用中' : '使用完'}]]</td>
-                                <td class="col-dataStatus">[[${info.dataStatus == 0 ? '数据状态正常' : '数据状态异常'}]]</td>
-                                <td class="col-action">
-                                    <button th:if="${info.dataStatus == 1}" 
-                                            class="btn btn-sm btn-warning" 
-                                            onclick="adjustAdvancedPayment(this)"
-                                            th:data-lesson-id="${info.lessonId}"
-                                            th:data-lsn-fee-id="${info.lsnFeeId}"
-                                            th:data-lsn-pay-id="${info.lsnPayId}"
-                                            th:data-subject-id="${info.subjectId}"
-                                            th:data-stu-id="${info.stuId}"
-                                            th:data-stu-name="${info.stuName}">
-                                        预支付再调整
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- 如果没有历史记录，显示提示信息 -->
+                <div th:if="${historyList == null || #lists.isEmpty(historyList)}">
+                    <p class="no-info-message">🔍 目前没有学生课费预支付的历史记录！</p>
                 </div>
             </main>
         </div>
@@ -402,7 +718,7 @@
             `;
             
             // 在页面标题后插入消息
-            var title = document.querySelector('h2');
+            var title = document.querySelector('.page-title');
             title.insertAdjacentHTML('afterend', alertHtml);
             
             // 设置自动消失
