@@ -69,6 +69,8 @@ public class Kn05S002WeekCalculatorDao implements InterfaceKnPianoDao {
                                         @RequestParam String weekEnd) {
             // 开始一周的排课
             weekCalculatorMapper.doLsnWeeklySchedual(weekStart, weekEnd, KNConstant.CONSTANT_KN_LSN_SEQ);
+            
+            // TODO 已经手动排了的课程，跳过去，避免重复排课
 
             // 更新年度batch周次表的排课状态（fixed_status:0表示该周的batch排课未执行，1表示该周的batch排课完了）
             weekCalculatorMapper.updateWeeklyBatchStatus(weekStart, weekEnd, 1);
@@ -77,7 +79,7 @@ public class Kn05S002WeekCalculatorDao implements InterfaceKnPianoDao {
     // 撤销一周的固定排课计划
     public boolean cancelLsnWeeklySchedual(@PathVariable String weekStart,
                                             @PathVariable String weekEnd) {
-        boolean blnstatus;                                       
+        boolean blnstatus;                          
         if (isCancelbale(weekStart, weekEnd)) {
             // 一旦该星期的学生有但凡有一节课已经签到，那么整个星期的排课撤销操作执行不可🙅‍♂️
             weekCalculatorMapper.updateWeeklyBatchStatus(weekStart,weekEnd, 0);

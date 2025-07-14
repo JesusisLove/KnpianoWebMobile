@@ -19,7 +19,6 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
     <!-- Bootstrap core CSS -->
-    <!--<link href="../assets/dist/css/bootstrap.css" rel="stylesheet">-->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
         rel="stylesheet">
     <style>
@@ -38,16 +37,452 @@
             }
         }
 
-        /* 添加以下样式 */
-        .nav-tabs .nav-link.active {
-            background-color: #28a745;
-            /* 绿色背景 */
+        /* 页面标题样式 */
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            /* 白色文字 */
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        /* 业务说明区域样式 */
+        .business-description {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .business-description .card {
+            border: none;
+            background: transparent;
+        }
+
+        .business-description .card-header {
+            background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+            border-radius: 12px 12px 0 0;
+            border: none;
+        }
+
+        .business-description .btn-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .business-description .btn-link:hover {
+            color: #f0f0f0;
+            text-decoration: none;
+        }
+
+        .business-description .card-body {
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* 搜索区域样式 */
+        .search-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .search-title {
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-title::before {
+            content: '🔍';
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .search-section .form-control {
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .search-section .form-control:focus {
+            border-color: white;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+            background: white;
+        }
+
+        .search-section label {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        /* 优化搜索按钮样式 - 更加醒目 */
+        .btn-primary {
+            background: linear-gradient(45deg, #ff4757, #ff3838) !important;
+            border: none !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            border-radius: 25px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6) !important;
+            color: white !important;
+            background: linear-gradient(45deg, #ff3838, #ff2d2d) !important;
+        }
+
+        /* 单选按钮样式 */
+        .custom-control-label {
+            color: white;
+            font-weight: 500;
+        }
+
+        /* 学生Tab标签样式 - 重新设计背景 */
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 0;
+        }
+
+        .nav-tabs .nav-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border: none !important;
+            border-radius: 12px 12px 0 0 !important;
+            margin-right: 8px !important;
+            padding: 14px 22px !important;
+            font-weight: 600 !important;
+            color: white !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .nav-tabs .nav-link::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: left 0.5s !important;
+        }
+
+        .nav-tabs .nav-link:hover::before {
+            left: 100% !important;
         }
 
         .nav-tabs .nav-link:hover {
-            border-color: #28a745 #28a745 #fff;
+            background: linear-gradient(135deg, #5a6cf0 0%, #6b4fb8 100%) !important;
+            color: white !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+            border-color: transparent !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4) !important;
+            transform: translateY(-3px) !important;
+            border-bottom: 3px solid #20c997 !important;
+            border-color: transparent !important;
+        }
+
+        /* 内容区域样式 - 修正溢出问题 */
+        .tab-content {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 0 12px 12px 12px;
+            padding: 0;
+            box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+            overflow-x: auto !important;
+            max-width: 100% !important;
+        }
+
+        /* 在主页面中定义表格样式，确保优先级最高 */
+        .tab-content .table {
+            background: white !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+            box-shadow: none !important;
+            margin: 20px !important;
+            border: none !important;
+            width: calc(100% - 40px) !important;
+            max-width: calc(100% - 40px) !important;
+            table-layout: auto !important;
+        }
+
+        /* 主页面中定义表头样式 - 确保粗体显示 */
+        .tab-content .table thead th {
+            background: linear-gradient(135deg, #495057 0%, #6c757d 100%) !important;
+            color: white !important;
+            font-weight: 900 !important;
+            text-align: center !important;
+            padding: 15px 8px !important;
+            border: none !important;
+            font-size: 12px !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+            letter-spacing: 0.5px !important;
+            border-bottom: none !important;
+            border-top: none !important;
+            line-height: 1.2 !important;
+        }
+
+        /* 主页面中定义数据行样式 - 添加居中对齐和交替显示 */
+        .tab-content .table tbody tr {
+            transition: all 0.2s ease !important;
+            border: none !important;
+            background: white !important;
+        }
+
+        .tab-content .table tbody tr:nth-child(even) {
+            background: #f8f9fa !important;
+        }
+
+        .tab-content .table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .tab-content .table tbody tr:hover {
+            background: #e3f2fd !important;
+            transform: scale(1.005) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        }
+
+        .tab-content .table tbody td {
+            padding: 10px 6px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #dee2e6 !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            border-top: none !important;
+            text-align: center !important;
+            max-width: 100px !important;
+            word-wrap: break-word !important;
+            overflow: hidden !important;
+        }
+
+        /* 确保操作列始终显示 */
+        .tab-content .action-column {
+            display: table-cell !important;
+            min-width: 200px !important;
+        }
+
+        /* 特殊行样式保持原有颜色 */
+        .tab-content .pieces-lesson-row {
+            color: #b8b8b5 !important;
+            font-weight: bold !important;
+        }
+
+        .tab-content .extra-to-sche-lesson-row {
+            color: #8B4513 !important;
+            font-weight: bold !important;
+        }
+
+        /* 按钮样式优化 */
+        .tab-content .btn-sm {
+            padding: 4px 8px !important;
+            font-size: 10px !important;
+            margin: 1px !important;
+            border-radius: 4px !important;
+        }
+
+        .tab-content .btn-success {
+            background: linear-gradient(45deg, #28a745, #34ce57) !important;
+            border: none !important;
+        }
+
+        .tab-content .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333) !important;
+            border: none !important;
+        }
+
+        /* 撤销控制样式 */
+        .tab-content .undo-control-toggle {
+            display: inline-flex !important;
+            align-items: center !important;
+            font-size: 10px !important;
+            margin-left: 5px !important;
+        }
+
+        .tab-content .toggle-switch {
+            position: relative !important;
+            display: inline-block !important;
+            width: 35px !important;
+            height: 18px !important;
+            margin: 0 3px !important;
+        }
+
+        .tab-content .toggle-slider {
+            position: absolute !important;
+            cursor: pointer !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background-color: #ccc !important;
+            transition: .4s !important;
+            border-radius: 18px !important;
+        }
+
+        .tab-content .toggle-slider:before {
+            position: absolute !important;
+            content: "" !important;
+            height: 14px !important;
+            width: 14px !important;
+            left: 2px !important;
+            bottom: 2px !important;
+            background-color: white !important;
+            transition: .4s !important;
+            border-radius: 50% !important;
+        }
+
+        .tab-content input:checked + .toggle-slider {
+            background-color: #2196F3 !important;
+        }
+
+        .tab-content input:checked + .toggle-slider:before {
+            transform: translateX(17px) !important;
+        }
+
+        .tab-content .toggle-label {
+            font-size: 9px !important;
+            color: #666 !important;
+        }
+
+        /* 无数据提示样式 */
+        .no-info-message {
+            font-size: 18px;
+            color: #6c757d;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .no-info-message::before {
+            content: '📚';
+            display: block;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 24px;
+            }
+            
+            .search-section {
+                padding: 15px;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 8px 12px !important;
+                margin-right: 2px !important;
+            }
+
+            .btn-primary {
+                padding: 10px 16px !important;
+                font-size: 12px !important;
+            }
+
+            .tab-content {
+                overflow-x: scroll !important;
+            }
+
+            .tab-content .table {
+                min-width: 1400px !important;
+                margin: 10px !important;
+                width: calc(100% - 20px) !important;
+            }
+
+            .tab-content .table tbody td {
+                padding: 6px 4px !important;
+                font-size: 10px !important;
+                max-width: 80px !important;
+            }
+
+            .tab-content .table thead th {
+                padding: 8px 4px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .business-description,
+        .search-section,
+        .tab-content {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .nav-tabs {
+            animation: slideInUp 0.8s ease-out;
         }
     </style>
     <!-- Custom styles for this template -->
@@ -57,10 +492,13 @@
 <body>
     <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
-        <div class="row">"
+        <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">课程信息管理</h2>
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>📚 课程信息管理</h2>
+                </div>
 
                 <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
                 <div class="business-description mb-4">
@@ -93,95 +531,82 @@
                 <h2><a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001}">学生授業新規登録</a></h2>
                 <hr />
 
-                <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_lsn_001/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row align-items-end">
-                        <div class="form-group col-md-1">
-                            <label>年度</label>
-                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
-                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
-                                <option th:each="year : ${knyearlist}" th:value="${year}" th:text="${year}"
-                                    th:selected="${year == (lsnMap!= null ? lsnMap['selectedyear'] : '')}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-1">
-                            <label>月份</label>
-                            <select class="form-control" id="monthSelect" name="selectedmonth">
-                                <!-- 默认选项由JavaScript动态生成 -->
-                                <option th:each="month : ${knmonthlist}" th:value="${month}" th:text="${month}"
-                                    th:selected="${month == (lsnMap!= null ? lsnMap['selectedmonth'] : currentmonth)}">
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label>学生姓名</label>
-                            <select class="form-control" id="studentSelect" name="stuId">
-                                <option value="">请选择</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <div class="d-flex">
-                                <div class="custom-control custom-radio mr-3">
-                                    <input type="radio" id="radio-active" name="lsnSignFlg" value="1"
-                                        class="custom-control-input"
-                                        th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '1'}">
-                                    <label class="custom-control-label" for="radio-active">已签到</label>
-                                </div>
-                                <div class="custom-control custom-radio mr-3">
-                                    <input type="radio" id="radio-inactive" name="lsnSignFlg" value="0"
-                                        class="custom-control-input"
-                                        th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '0'}">
-                                    <label class="custom-control-label" for="radio-inactive">未签到</label>
-                                </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="radio-all" name="lsnSignFlg" value=""
-                                        class="custom-control-input"
-                                        th:checked="${lsnMap == null || lsnMap['lsnSignFlg'] == null || lsnMap['lsnSignFlg'] == ''}">
-                                    <label class="custom-control-label" for="radio-all">所有课</label>
+                <!-- 搜索区域 -->
+                <div class="search-section">
+                    <div class="search-title">搜索条件设置</div>
+                    <form action="#" th:action="@{/kn_lsn_001/search}" th:object="${searchForm}" method="get">
+                        <div class="form-row align-items-end">
+                            <div class="form-group col-md-1">
+                                <label>年度</label>
+                                <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                    <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                    <option th:each="year : ${knyearlist}" th:value="${year}" th:text="${year}"
+                                        th:selected="${year == (lsnMap!= null ? lsnMap['selectedyear'] : '')}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-1">
+                                <label>月份</label>
+                                <select class="form-control" id="monthSelect" name="selectedmonth">
+                                    <!-- 默认选项由JavaScript动态生成 -->
+                                    <option th:each="month : ${knmonthlist}" th:value="${month}" th:text="${month}"
+                                        th:selected="${month == (lsnMap!= null ? lsnMap['selectedmonth'] : currentmonth)}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>学生姓名</label>
+                                <select class="form-control" id="studentSelect" name="stuId">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>签到状态</label>
+                                <div class="d-flex">
+                                    <div class="custom-control custom-radio mr-3">
+                                        <input type="radio" id="radio-active" name="lsnSignFlg" value="1"
+                                            class="custom-control-input"
+                                            th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '1'}">
+                                        <label class="custom-control-label" for="radio-active">已签到</label>
+                                    </div>
+                                    <div class="custom-control custom-radio mr-3">
+                                        <input type="radio" id="radio-inactive" name="lsnSignFlg" value="0"
+                                            class="custom-control-input"
+                                            th:checked="${lsnMap != null && lsnMap['lsnSignFlg'] == '0'}">
+                                        <label class="custom-control-label" for="radio-inactive">未签到</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="radio-all" name="lsnSignFlg" value=""
+                                            class="custom-control-input"
+                                            th:checked="${lsnMap == null || lsnMap['lsnSignFlg'] == null || lsnMap['lsnSignFlg'] == ''}">
+                                        <label class="custom-control-label" for="radio-all">所有课</label>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="form-group col-md-1">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">🔍 検索</button>
+                            </div>
                         </div>
-                        <div class="form-group col-md-1">
-                            <button type="submit" class="btn btn-primary w-100">検 索</button>
-                        </div>
-                    </div>
-                    <!-- <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="lessonId" name="lessonId" th:value="${lsnMap != null ? lsnMap['lessonId'] : ''}" placeholder="课程编号">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="subjectId" name="subjectId" th:value="${lsnMap != null ? lsnMap['subjectId'] : ''}" placeholder="科目编号">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="subjectName" name="subjectName" th:value="${lsnMap != null ? lsnMap['subjectName'] : ''}" placeholder="科目名称">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="text" class="form-control" id="lessonType" name="lessonType" th:value="${lsnMap != null ? lsnMap['lessonType'] : ''}" placeholder="课程属性">
-                    </div>
-                </div> -->
-                    <!-- 如果没有学生的未支付信息，显示提示信息 -->
-                    <style>
-                        .no-info-message {
-                            font-size: 18px;
-                        }
-                    </style>
 
-                    <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
-                        <p class="no-info-message">目前没有学生的课程信息！</p>
-                    </div>
-                </form>
+                        <!-- 如果没有学生的课程信息，显示提示信息 -->
+                        <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                            <div class="no-info-message">目前没有学生的课程信息！</div>
+                        </div>
+                    </form>
+                </div>
+
                 <hr />
                 <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <ul class="nav nav-tabs" id="myTab" role="tablist" th:unless="${infoList == null || #lists.isEmpty(infoList)}">
                     <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
                         <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
                             th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}" role="tab"
                             th:aria-controls="${entry.key}"
-                            th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
+                            th:aria-selected="${iterStat.index == 0} ? true : false">👤 [[${entry.value}]]</a>
                     </li>
                 </ul>
                 <!-- Tab 卡片项里显示 学生的排课一览 -->
-                <div class="tab-content" id="myTabContent">
+                <div class="tab-content" id="myTabContent" th:unless="${infoList == null || #lists.isEmpty(infoList)}">
                     <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
                         th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
                         th:aria-labelledby="${entry.key + '-tab'}">
@@ -195,13 +620,10 @@
             </form>
         </div>
     </div>
-    <!--Bootstrap core JavaScrip
-=============================-->
+    <!--Bootstrap core JavaScript-->
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
-
-    <!-- Icons -->
 
     <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
     <script>

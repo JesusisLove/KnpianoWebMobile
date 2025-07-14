@@ -100,7 +100,6 @@ public class Kn01L002ExtraHasBeenScheController {
     @GetMapping("/kn_extra_hasbeen_sche_all/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 把画面传来的年和月拼接成yyyy-mm的        
-        Map<String, Object> params = new HashMap<>();
         String lsnYear = (String) queryParams.get("selectedyear");
         // 安全地转换Integer参数
         Integer isGoodChange = null;

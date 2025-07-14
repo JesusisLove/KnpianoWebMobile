@@ -37,42 +37,391 @@
                 font-size: 3.5rem;
             }
         }
-        /* 添加以下样式 */
-        .nav-tabs .nav-link.active {
-            color: #fff !important;
-            background-color: #ff009d !important;
-            border-color: #ff009d #ff009d #fff !important;
-        }
-        
-        .nav-tabs .nav-link:hover {
-            border-color: #ff009d #ff009d #fff;
+
+        /* 页面标题样式 - 使用温暖的紫色调 */
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            border: 2px solid #764ba2;
+            border-left: 5px solid #5a67d8;
         }
 
-        /* 折叠面板相关样式 */
-        .card-header {
-            background-color: #f8f9fa;
+        .page-title h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 28px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
         }
-        
-        .btn-link {
-            color: #333;
-            text-decoration: none;
+
+        /* 业务说明区域样式 - 使用清新的青色调 */
+        .business-description {
+            background: linear-gradient(135deg, #e0f7ff 0%, #b3e5fc 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.2);
+            border: 2px solid #26c6da;
+        }
+
+        .business-description .card {
+            border: 2px solid #4fc3f7 !important;
+            background: white !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 10px rgba(79, 195, 247, 0.15) !important;
+        }
+
+        .business-description .card-header {
+            background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%) !important;
+            border: none !important;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px !important;
+        }
+
+        .business-description .btn-link {
+            color: white !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .business-description .btn-link::before {
+            content: '⭐';
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .business-description .btn-link:hover {
+            color: #f8f9fa !important;
+            text-decoration: none !important;
+        }
+
+        .business-description .card-body {
+            padding: 20px !important;
+            background: white !important;
+            border-radius: 0 0 10px 10px !important;
+        }
+
+        .business-description .indented {
+            margin-left: 20px !important;
+            margin-bottom: 15px !important;
+            color: #37474f !important;
+            font-weight: 500 !important;
+            line-height: 1.6 !important;
+            padding: 8px 12px !important;
+            background: rgba(38, 198, 218, 0.1) !important;
+            border-left: 4px solid #26c6da !important;
+            border-radius: 4px !important;
+        }
+
+        /* 搜索区域样式 - 使用温暖的橙粉色调 */
+        .search-section {
+            background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+        }
+
+        .search-section .form-control {
+            border-radius: 8px;
+            border: 2px solid #ffb74d;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-section .form-control:focus {
+            border-color: #ff9800;
+            box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
+            background: white;
+        }
+
+        .search-section label {
+            color: #bf360c;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* 优化搜索按钮样式 - 活力橙色 */
+        .btn-search {
+            background: linear-gradient(45deg, #ff9800, #f57c00) !important;
+            border: none !important;
+            color: white !important;
+            padding: 14px 28px !important;
+            border-radius: 30px !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            transform: translateY(0) !important;
+        }
+
+        .btn-search::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
-            text-align: left;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
         }
-        
-        .btn-link:hover {
-            color: #007bff;
-            text-decoration: none;
+
+        .btn-search:hover::before {
+            left: 100%;
         }
-        
-        .card {
-            border: 1px solid rgba(0,0,0,.125);
-            border-radius: .25rem;
+
+        .btn-search:hover {
+            transform: translateY(-4px) scale(1.05) !important;
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5) !important;
+            color: white !important;
+            background: linear-gradient(45deg, #f57c00, #e65100) !important;
         }
-        
-        .indented {
-            margin-left: 20px;
-            margin-bottom: 10px;
+
+        .btn-search:active {
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+
+        /* 学生Tab标签样式 - 使用活泼的彩虹渐变 */
+        .nav-tabs {
+            border-bottom: 2px solid #e1bee7;
+            margin-bottom: 0;
+            border: 2px solid #ba68c8;
+            border-bottom: 2px solid #e1bee7;
+            border-radius: 12px 12px 0 0;
+            padding: 10px 10px 0 10px;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        .nav-tabs .nav-link {
+            background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+            border: 2px solid #7b1fa2;
+            border-radius: 12px 12px 0 0;
+            margin-right: 8px;
+            padding: 14px 22px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tabs .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-tabs .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: linear-gradient(135deg, #8e24aa 0%, #5e35b1 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+            border-color: #6a1b9a;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #ff5722 0%, #e91e63 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 20px rgba(255, 87, 34, 0.4) !important;
+            transform: translateY(-3px) !important;
+            border-bottom: 3px solid #d84315 !important;
+            border-color: #bf360c !important;
+        }
+
+        /* 内容区域样式 - 使用清新的薄荷绿 */
+        .tab-content {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-radius: 0 12px 12px 12px;
+            padding: 0;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+            overflow-x: auto !important;
+            max-width: 100% !important;
+            border: 2px solid #4caf50;
+        }
+
+        /* 在主页面中定义表格样式，确保优先级最高 */
+        .tab-content .styled-table {
+            background: white !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
+            box-shadow: none !important;
+            margin: 20px !important;
+            border: 2px solid #81c784 !important;
+            width: calc(100% - 40px) !important;
+            max-width: calc(100% - 40px) !important;
+            table-layout: auto !important;
+        }
+
+        /* 主页面中定义表头样式 - 使用深蓝绿渐变 */
+        .tab-content .styled-table thead th {
+            background: linear-gradient(135deg, #37474f 0%, #546e7a 100%) !important;
+            color: white !important;
+            font-weight: 900 !important;
+            text-align: center !important;
+            padding: 15px 10px !important;
+            border: 1px solid #607d8b !important;
+            font-size: 14px !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+            letter-spacing: 0.5px !important;
+            border-bottom: none !important;
+            border-top: none !important;
+        }
+
+        /* 主页面中定义数据行交替样式 - 添加居中对齐 */
+        .tab-content .styled-table tbody tr {
+            transition: all 0.2s ease !important;
+            border: 1px solid #a5d6a7 !important;
+            background: white !important;
+        }
+
+        .tab-content .styled-table tbody tr:nth-child(even) {
+            background: #f1f8e9 !important;
+        }
+
+        .tab-content .styled-table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .tab-content .styled-table tbody tr:hover {
+            background: #e8f5e8 !important;
+            transform: scale(1.01) !important;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2) !important;
+        }
+
+        .tab-content .styled-table tbody td {
+            padding: 12px 8px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #c8e6c9 !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            border-top: none !important;
+            text-align: center !important;
+            max-width: 120px !important;
+            word-wrap: break-word !important;
+            overflow: hidden !important;
+            border-left: 1px solid #c8e6c9 !important;
+            border-right: 1px solid #c8e6c9 !important;
+        }
+
+        /* 确保操作列始终显示 */
+        .tab-content .action-column {
+            display: table-cell !important;
+        }
+
+        /* 无信息提示样式 - 使用温暖的黄色调 */
+        .no-info-message {
+            font-size: 18px;
+            color: #f57f17;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #fff9c4 0%, #fff176 100%);
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #ffeb3b;
+            box-shadow: 0 4px 15px rgba(255, 235, 59, 0.3);
+        }
+
+        .no-info-message::before {
+            content: '🌟';
+            display: block;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 24px;
+            }
+            
+            .search-section {
+                padding: 15px;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 8px 12px;
+                margin-right: 2px;
+            }
+
+            .btn-search {
+                padding: 12px 20px !important;
+                font-size: 14px !important;
+            }
+
+            .tab-content {
+                overflow-x: scroll !important;
+            }
+
+            .tab-content .styled-table {
+                min-width: 1200px !important;
+                margin: 10px !important;
+                width: calc(100% - 20px) !important;
+            }
+
+            .tab-content .styled-table tbody td {
+                padding: 8px 4px !important;
+                font-size: 11px !important;
+                max-width: 80px !important;
+            }
+
+            .tab-content .styled-table thead th {
+                padding: 10px 4px !important;
+                font-size: 12px !important;
+            }
+        }
+
+        /* 添加响应式设计和动画效果 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .business-description,
+        .search-section,
+        .tab-content {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .nav-tabs {
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        /* 分割线样式 - 添加轮廓效果 */
+        hr {
+            border: none;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #dee2e6, transparent);
+            margin: 30px 0;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
     <!-- Custom styles for this template -->
@@ -85,10 +434,13 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_extra_hasbeen_sche_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">加课已换正课</h2>
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>📚 加课已换正课</h2>
+                </div>
 
                 <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
-                <div class="business-description mb-4">
+                <div class="business-description">
                     <!-- 检索部业务说明折叠组件 -->
                     <div class="card">
                         <div class="card-header" id="searchDescriptionHeader">
@@ -96,7 +448,7 @@
                                 <button class="btn btn-link" type="button" data-toggle="collapse" 
                                         data-target="#searchDescriptionCollapse" aria-expanded="true" 
                                         aria-controls="searchDescriptionCollapse">
-                                    ★检索部业务说明
+                                    检索部业务说明
                                 </button>
                             </h5>
                         </div>
@@ -114,65 +466,66 @@
                 </div>
                 
                 <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_extra_hasbeen_sche_all/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row align-items-end">
-                        <div class="form-group col-md-1">
-                            <label>年度</label>
-                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
-                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
-                                <option th:each="year : ${knyearlist}" 
-                                        th:value="${year}" 
-                                        th:text="${year}" 
-                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
-                            </select>
+                <div class="search-section">
+                    <form action="#" th:action="@{/kn_extra_hasbeen_sche_all/search}" th:object="${searchForm}" method="get">
+                        <div class="form-row align-items-end">
+                            <div class="form-group col-md-2">
+                                <label>年度</label>
+                                <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                    <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                    <option th:each="year : ${knyearlist}" 
+                                            th:value="${year}" 
+                                            th:text="${year}" 
+                                            th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>学生姓名</label> 
+                                <select class="form-control" id="studentSelect" name="stuId">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>换正课类型</label>
+                                <select class="form-control" id="goodChangeSelect" name="isGoodChange">
+                                    <option value="">请选择</option>
+                                    <option value="1" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '1'}">有意义的换正课</option>
+                                    <option value="0" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '0'}">无意义的换正课</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-search form-control">🔍 搜索</button>
+                           </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <label>学生姓名</label> 
-                            <select class="form-control" id="studentSelect" name="stuId">
-                                <option value="">请选择</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label>换正课类型</label>
-                            <select class="form-control" id="goodChangeSelect" name="isGoodChange">
-                                <option value="">请选择</option>
-                                <option value="1" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '1'}">有意义的换正课</option>
-                                <option value="0" th:selected="${extra2ScheMap != null and extra2ScheMap['isGoodChange'] == '0'}">无意义的换正课</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-1">
-                            <button type="submit" class="btn btn-primary">検 索</button>
-                       </div>
-                    </div>
-                    <hr />
-                    <!-- 如果没有学生的已支付信息，显示提示信息 -->
-                    <style>
-                        .no-info-message {
-                            font-size: 18px;
-                        }
-                    </style>
-                    
-                    <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
-                        <p class="no-info-message">目前没有学生的消化转正课课程信息！</p>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
+                <hr />
+                
+                <!-- 如果没有学生的已支付信息，显示提示信息 -->
+                <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
+                    <div class="no-info-message">目前没有学生的消化转正课课程信息！</div>
+                </div>
 
                 <!-- 明細部 Tab 以学生为单位的 Tab导航 -->
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
-                        <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
-                            th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}" role="tab"
-                            th:aria-controls="${entry.key}"
-                            th:aria-selected="${iterStat.index == 0} ? true : false">[[${entry.value}]]</a>
-                    </li>
-                </ul>
-                <!-- Tab 卡片项里显示 学生的排课一览 -->
-                <div class="tab-content" id="myTabContent">
-                    <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
-                        th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
-                        th:aria-labelledby="${entry.key + '-tab'}">
-                        <div
-                            th:replace="kn_extra_been_sche_001/tab_extra_been_sche_by_stu :: lessonTable(${entry.key}, ${entry.value})">
+                <div th:unless="${infoList == null || #lists.isEmpty(infoList)}">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                            <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                                th:id="${entry.key + '-tab'}" data-toggle="tab" th:href="'#' + ${entry.key}" role="tab"
+                                th:aria-controls="${entry.key}"
+                                th:aria-selected="${iterStat.index == 0} ? true : false">👤 [[${entry.value}]]</a>
+                        </li>
+                    </ul>
+                    <!-- Tab 卡片项里显示 学生的排课一览 -->
+                    <div class="tab-content" id="myTabContent">
+                        <div th:each="entry, iterStat : ${resultsTabStus}" th:id="${entry.key}" class="tab-pane fade"
+                            th:classappend="${iterStat.index == 0} ? 'show active' : ''" role="tabpanel"
+                            th:aria-labelledby="${entry.key + '-tab'}">
+                            <div
+                                th:replace="kn_extra_been_sche_001/tab_extra_been_sche_by_stu :: lessonTable(${entry.key}, ${entry.value})">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -234,22 +587,22 @@
             });
         };
     </script>
-</body>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const yearSelect = document.getElementById('lsnfeeyear');
-        const studentSelect = document.getElementById('studentSelect');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('lsnfeeyear');
+            const studentSelect = document.getElementById('studentSelect');
 
-        yearSelect.addEventListener('change', function() {
-            const selectedYear = this.value;
-            // 创建一个临时表单来提交请求
-            const form = document.createElement('form');
-            form.method = 'GET';
-            form.action = `/liu/kn_extra_hasbeen_sche_all/${selectedYear}`;
-            document.body.appendChild(form);
-            form.submit();
+            yearSelect.addEventListener('change', function() {
+                const selectedYear = this.value;
+                // 创建一个临时表单来提交请求
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = `/liu/kn_extra_hasbeen_sche_all/${selectedYear}`;
+                document.body.appendChild(form);
+                form.submit();
+            });
         });
-    });
-</script>
+    </script>
+</body>
 </html>
