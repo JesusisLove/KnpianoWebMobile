@@ -11,10 +11,10 @@ import com.liu.springboot04web.bean.Kn03D004StuDocBean;
 import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
-// import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -110,10 +110,6 @@ public class Kn01L002LsnController{
 
         // 检索条件
          params.put("stu_id", queryParams.get("stuId"));
-        //  params.put("lesson_id", queryParams.get("lessonId"));
-        //  params.put("subject_id", queryParams.get("subjectId"));
-        //  params.put("subject_name", queryParams.get("subjectName"));
-        //  params.put("lesson_type", queryParams.get("lessonType"));
  
          // 回传参数设置（画面检索部的查询参数）
          Map<String, Object> backForwordMap = new HashMap<>();
@@ -348,6 +344,34 @@ public class Kn01L002LsnController{
 
         if (knLsn001Bean.getClassDuration() == null || knLsn001Bean.getClassDuration() == 0) {
             msgList.add("请选择上课时长");
+        }
+
+        // 确认是不是有效的排课日期
+        Kn03D004StuDocBean docBeanForDate = kn03D002StuDocDao.getLatestMinAdjustDateByStuId(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        // 如果不符合排课日期大于学生档案里第一次的调整日期（第一次入档可以上课的日期），则禁止排课操作
+        if (DateUtils.compareDatesMethod2(docBeanForDate.getAdjustedDate(), knLsn001Bean.getSchedualDate()) == false) {
+            // 定义目标日期格式
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            msgList.add("排课操作被禁止：该生的排课请在【" + formatter.format(docBeanForDate.getAdjustedDate()) + "】以后执行排课！");
+
+        }
+
+        // 获取该生一整节课的分钟数
+        Integer lsnMinutes = knLsn001Dao.getMinutesPerLsn(knLsn001Bean.getStuId(), knLsn001Bean.getSubjectId());
+        // 月计划，课结算的制约：必须按1整节课排课
+        if ((knLsn001Bean.getLessonType() == 0 || knLsn001Bean.getLessonType() == 1) 
+                                            && !(knLsn001Bean.getClassDuration() == lsnMinutes)) {
+            String lsnType = knLsn001Bean.getLessonType() == 1 ? "月计划" : "课结算";
+
+            msgList.add("排课操作被禁止：【" + lsnType +"】必须按1整节课【" + lsnMinutes + "】分钟排课。\n 要想排小于1节课的零碎课，请选择「月加课」的排课方式。");
+        }
+
+        // 月加课的制约：不得超过1节整课
+        if ((knLsn001Bean.getLessonType() == 2) 
+                            && (knLsn001Bean.getClassDuration() > lsnMinutes)) {
+            String lsnType = "月加课";
+            msgList.add("排课操作被禁止：【" + lsnType +"】必须按小于等于1整节课【" + lsnMinutes + "】分钟来排课");
+
         }
 
         return (msgList.size() != 0);

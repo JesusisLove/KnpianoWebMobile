@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 折叠面板相关样式 */
+        .card-header {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-link {
+            color: #333;
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .btn-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .card {
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: .25rem;
+        }
+        
+        .indented {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* 列控制功能样式 */
+        .column-control {
+            position: relative;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .column-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 180px;
+            padding: 10px;
+        }
+
+        .column-menu.show {
+            display: block;
+        }
+
+        .column-menu label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .no-info-message {
+            font-size: 18px;
+        }
+
+        /* 异常数据行样式 - 红色粗体 */
+        .exception-row {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+
+        .exception-row td {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_advc_lsn_pay_list_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h2 class="mt-4 mb-2">预支付历史记录一览</h2>
+                
+                <!-- 成功消息提示 -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <!-- 错误消息提示 -->
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <!-- 検索部 -->
+                <form action="#" th:action="@{/kn_advc_lsn_pay_list/search}" th:object="${searchForm}" method="get">
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-md-1">
+                            <label>年度</label>
+                            <select class="form-control" id="lsnfeeyear" name="selectedyear">
+                                <!-- 使用Thymeleaf语法动态填充年度下拉列表框的选项 -->
+                                <option th:each="year : ${knyearlist}" 
+                                        th:value="${year}" 
+                                        th:text="${year}" 
+                                        th:selected="${year == (extra2ScheMap!= null ? extra2ScheMap['selectedyear'] : '')}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>学生姓名</label> 
+                            <select class="form-control" id="studentSelect" name="stuId">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-1">
+                            <button type="submit" class="btn btn-primary">検 索</button>
+                       </div>
+                    </div>
+                </form>
+
+                <!-- 课费预支付历史明細 -->
+                <div class="form-group" th:unless="${historyList == null || #lists.isEmpty(historyList)}">
+                    <p class="no-info-message">学生课费预支付的历史记录</p>
+                    
+                <!-- 业务说明部分 - 使用Bootstrap折叠组件 -->
+                <div class="business-description mb-4">
+                    <!-- 检索部业务说明折叠组件 -->
+                    <div class="card">
+                        <div class="card-header" id="searchDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#searchDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="searchDescriptionCollapse">
+                                    ★明细部的业务说明
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="searchDescriptionCollapse" class="collapse" 
+                             aria-labelledby="searchDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">①课费预支付实际是对未签到的排课做了《课程表》登录、《课费表》登录、《结算表》登录的课费提前支付操作，但《课程表》里的该课程还是未签到状态</dd>
+                                    <dd class="indented">②拿该课程做了预支付，在未签到的情况下，该月的预支付使用状态就始终显示【使用中】</dd>
+                                    <dd class="indented">③异常的课费预支付记录：用来做预支付的课程始终没有签到，但是该月其他课程至少有1节签到了，学费支付状态本该是【使用完】，却一直处于【使用中】，这就是预支付数据状态异常</dd>
+                                    <dd class="indented">④出现上述情况，就需要「预支付再调整」，即把有《课费预支付》表里使用该课做的预支付的课程编号，用签到完了的该月任意一个课程编号替换一下，同时将advc_flg从0更新为1，就OK了。</dd>
+                                    <dd class="indented">⑤异常现象导致业务出现的错误后果：课时统计结果错误！把一个未签到的课程算作是签到完了的课统计进去了。所以必须做预支付再调整。</dd>
+                                    <dd class="indented">⑥执行「预支付再调整」后，再对课程表里的该课执行签到撤销会有影响吗？ 回答：没有影响，只是做预支付的课程ID发生了改变而已。</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <!-- 列控制按钮和菜单 -->
+                    <div class="column-control">
+                        <button onclick="toggleColumnMenu(event)" class="btn btn-sm btn-secondary">
+                            显示/隐藏列
+                        </button>
+                        <div id="columnMenu" class="column-menu">
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-no')" /> No.
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 课程编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnFeeId')" /> 课费编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnPayId')" /> 支付编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-stuName')" /> 学生名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 子科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubName')" /> 子科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 排课日期
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-lsnPay')" /> 预支付金额
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankId')" /> 银行编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-bankName')" /> 银行名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-advcFlg')" /> 预支付使用状态
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-dataStatus')" /> 数据正常异常状态
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-action')" /> 操作
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th class="col-no">No.</th>
+                                <th class="col-lessonId">课程编号</th>
+                                <th class="col-lsnFeeId">课费编号</th>
+                                <th class="col-lsnPayId">支付编号</th>
+                                <th class="col-stuId">学生编号</th>
+                                <th class="col-stuName">学生名称</th>
+                                <th class="col-subjectId">科目编号</th>
+                                <th class="col-subjectName">科目名称</th>
+                                <th class="col-subjectSubId">子科目编号</th>
+                                <th class="col-subjectSubName">子科目名称</th>
+                                <th class="col-schedualDate">排课日期</th>
+                                <th class="col-lsnPay">预支付金额</th>
+                                <th class="col-bankId">银行编号</th>
+                                <th class="col-bankName">银行名称</th>
+                                <th class="col-advcFlg">预支付使用状态</th>
+                                <th class="col-dataStatus">数据正常异常状态</th>
+                                <th class="col-action">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="info, stat:${historyList}" th:class="${info.dataStatus == 1 ? 'exception-row' : ''}">
+                                <td class="col-no" th:text="${stat.index + 1}"></td>
+                                <td class="col-lessonId">[[${info.lessonId}]]</td>
+                                <td class="col-lsnFeeId">[[${info.lsnFeeId}]]</td>
+                                <td class="col-lsnPayId">[[${info.lsnPayId}]]</td>
+                                <td class="col-stuId">[[${info.stuId}]]</td>
+                                <td class="col-stuName">[[${info.stuName}]]</td>
+                                <td class="col-subjectId">[[${info.subjectId}]]</td>
+                                <td class="col-subjectName">[[${info.subjectName}]]</td>
+                                <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
+                                <td class="col-subjectSubName">[[${info.subjectSubName}]]</td>
+                                <td class="col-schedualDate">
+                                    <span th:if="${info.schedualDate != null}"
+                                        th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                        th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
+                                    <input th:if="${info.schedualDate == null}" type="text"
+                                        class="form-control schedule-input hidden" placeholder="yyyy-MM-dd HH:mm">
+                                </td>
+                                <td class="col-lsnPay">[[${info.lsnPay}]]</td>
+                                <td class="col-bankId">[[${info.bankId}]]</td>
+                                <td class="col-bankName">[[${info.bankName}]]</td>
+                                <td class="col-advcFlg">[[${info.advcFlg == 0 ? '使用中' : '使用完'}]]</td>
+                                <td class="col-dataStatus">[[${info.dataStatus == 0 ? '数据状态正常' : '数据状态异常'}]]</td>
+                                <td class="col-action">
+                                    <button th:if="${info.dataStatus == 1}" 
+                                            class="btn btn-sm btn-warning" 
+                                            onclick="adjustAdvancedPayment(this)"
+                                            th:data-lesson-id="${info.lessonId}"
+                                            th:data-lsn-fee-id="${info.lsnFeeId}"
+                                            th:data-lsn-pay-id="${info.lsnPayId}"
+                                            th:data-subject-id="${info.subjectId}"
+                                            th:data-stu-id="${info.stuId}"
+                                            th:data-stu-name="${info.stuName}">
+                                        预支付再调整
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!--Bootstrap core JavaScript-->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+    <script th:inline="javascript">
+        // 从后端传递的学生数据
+        var jsonStuSubList = /*[[${advcPaystuNmList}]]*/ [];
+        
+        // 页面加载完成后，初始化学生下拉列表
+        window.onload = function() {
+            var studentSelect = document.getElementById('studentSelect');
+            var selectedStuId = /*[[${extra2ScheMap != null ? extra2ScheMap['stuId'] : ''}]]*/ '';
+            var uniqueStudentIds = new Set();
+            
+            // 从stuSubList添加学生姓名到下拉列表，确保不重复
+            jsonStuSubList.forEach(function(item) {
+                if (!uniqueStudentIds.has(item.stuId)) {
+                    uniqueStudentIds.add(item.stuId);
+                    var option = new Option(item.stuName, item.stuId);
+                    if (item.stuId === selectedStuId) {
+                        option.selected = true;
+                    }
+                    studentSelect.add(option);
+                }
+            });
+
+            // 初始化列控制功能
+            applyColumnStates();
+            
+            // 检查URL参数并显示相应消息
+            var urlParams = new URLSearchParams(window.location.search);
+            var success = urlParams.get('success');
+            var error = urlParams.get('error');
+            var msg = urlParams.get('msg');
+            
+            if (success === 'adjusted') {
+                showMessage('预支付再调整成功完成', 'success');
+            } else if (error === 'exception') {
+                var errorText = '预支付再调整失败';
+                if (msg) {
+                    errorText += '：' + decodeURIComponent(msg);
+                }
+                showMessage(errorText, 'error');
+            }
+            
+            // 处理从后端传递的消息（如果使用RedirectAttributes）
+            var successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    $('#successAlert').alert('close');
+                }, 10000); // 10秒后自动消失
+            }
+            
+            var errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(function() {
+                    $('#errorAlert').alert('close');
+                }, 15000); // 15秒后自动消失
+            }
+        };
+
+        // 显示消息的函数
+        function showMessage(message, type) {
+            var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            var icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            var alertId = type === 'success' ? 'dynamicSuccessAlert' : 'dynamicErrorAlert';
+            
+            var alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert" id="${alertId}">
+                    <i class="${icon}"></i>
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+            
+            // 在页面标题后插入消息
+            var title = document.querySelector('h2');
+            title.insertAdjacentHTML('afterend', alertHtml);
+            
+            // 设置自动消失
+            var timeout = type === 'success' ? 10000 : 15000;
+            setTimeout(function() {
+                var alert = document.getElementById(alertId);
+                if (alert) {
+                    $(alert).alert('close');
+                }
+            }, timeout);
+        }
+
+        // 存储列显示状态
+        var columnStates = JSON.parse(localStorage.getItem('paymentColumnStates') || '{}');
+
+        // 控制列显示菜单的显示/隐藏
+        function toggleColumnMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('columnMenu');
+            menu.classList.toggle('show');
+        }
+
+        // 控制列的显示/隐藏
+        function toggleColumn(columnClass) {
+            columnStates[columnClass] = !columnStates[columnClass];
+            const isVisible = columnStates[columnClass];
+
+            // 更新所有具有该类名的元素
+            const cells = document.getElementsByClassName(columnClass);
+            Array.from(cells).forEach(cell => {
+                cell.style.display = isVisible ? '' : 'none';
+            });
+
+            // 保存状态
+            localStorage.setItem('paymentColumnStates', JSON.stringify(columnStates));
+
+            // 同步复选框状态
+            const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isVisible;
+            });
+        }
+
+        // 应用保存的列状态
+        function applyColumnStates() {
+            Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
+                const cells = document.getElementsByClassName(columnClass);
+                Array.from(cells).forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+
+                // 更新复选框状态
+                const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isVisible;
+                });
+            });
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('columnMenu');
+            if (!event.target.closest('.column-control')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // 预支付再调整功能 - 修改后的版本
+        function adjustAdvancedPayment(button) {
+            const lessonId = button.getAttribute('data-lesson-id');
+            const lsnFeeId = button.getAttribute('data-lsn-fee-id');
+            const lsnPayId = button.getAttribute('data-lsn-pay-id');
+            const subjectId = button.getAttribute('data-subject-id');
+            const stuId = button.getAttribute('data-stu-id');
+            const stuName = button.getAttribute('data-stu-name');
+            
+            if (confirm(`确定要对学生 ${stuName} 的预支付记录进行再调整吗？\n\n课程编号：${lessonId}\n科目编号：${subjectId}\n学生编号：${stuId}`)) {
+                
+                // 使用Thymeleaf生成正确的URL并构建查询参数
+                const adjustUrl = /*[[@{/kn_advc_lsn_pay_adjust}]]*/ '/kn_advc_lsn_pay_adjust';
+                const params = new URLSearchParams({
+                    lessonId: lessonId,
+                    lsnFeeId: lsnFeeId,
+                    lsnPayId: lsnPayId,
+                    subjectId: subjectId,
+                    stuId: stuId
+                });
+                
+                // 直接跳转（GET请求）
+                window.location.href = `${adjustUrl}?${params.toString()}`;
+            }
+        }
+    </script>
+</body>
+</html>

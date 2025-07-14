@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn01L003PiesesHasBeenScheMapper">
+
+    <select id="getPicesesHasBeenScheLsnList" resultType="com.liu.springboot04web.bean.Kn01L003ExtraPicesesBean">
+        WITH picese AS
+            (SELECT lesson_id FROM t_info_lesson_pieces_extra_to_sche GROUP BY lesson_id )
+        SELECT 
+            lsn.lesson_id,
+            lsn.stu_id,
+            lsn.subject_id, 
+            lsn.subject_sub_id,
+            lsn.stu_name,
+            lsn.subject_name,
+            lsn.subject_sub_name,
+            lsn.class_duration,
+            lsn.scanQR_date
+        FROM v_info_lesson lsn
+        INNER JOIN 
+        picese
+        ON lsn.lesson_id = picese.lesson_id
+        <where>
+            <if test="stuId != null and stuId.toString().trim() != ''">
+                AND lsn.stu_id = #{stuId}
+            </if>
+            AND LEFT(lsn.schedual_date,4) = #{year}
+        </where>
+    </select>
+
+    <!-- 已经换成整课的碎课加课 -->
+    <select id="getExtraPicesesIntoOneLsnList" resultType="com.liu.springboot04web.bean.Kn01L003ExtraPicesesBean">
+        SELECT 
+            pic.lesson_id,
+            lsn.lesson_id as old_lesson_id,
+            lsn.stu_id,
+            lsn.subject_id,
+            lsn.subject_sub_id,
+            lsn.stu_name,
+            lsn.subject_name,
+            lsn.subject_sub_name,
+            lsn.class_duration,
+            lsn.scanQR_date
+        FROM v_info_lesson lsn
+        INNER JOIN
+        t_info_lesson_pieces_extra_to_sche pic
+        ON lsn.lesson_id = pic.old_lesson_id
+        <where>
+            <if test="stuId != null and stuId.toString().trim() != ''">
+                AND lsn.stu_id = #{stuId}
+            </if>
+            AND LEFT(lsn.schedual_date,4) = #{year}
+        </where>
+        ORDER BY pic.lesson_id
+    </select>
+
+    <select id="getOldLessonIds" resultType="String">
+        SELECT old_lesson_id FROM t_info_lesson_pieces_extra_to_sche
+        WHERE lesson_id = #{lessonId}
+    </select>
+
+    <!-- 删除拼凑整节课已转换成正课的课程记录 -->
+    <delete id="deletePiesHsbnScheFee">
+        DELETE FROM t_info_lesson_fee
+        WHERE lesson_id = #{lessonId}
+    </delete>
+
+    <delete id="deletePiesHsbnSche">
+        DELETE FROM t_info_lesson
+        WHERE lesson_id = #{lessonId}
+    </delete>
+
+    <!-- 删除整课换正课中间表课程ID -->
+    <delete id="deletePiceseExtraIntoOne">
+        DELETE FROM t_info_lesson_pieces_extra_to_sche 
+        WHERE lesson_id = #{lessonId}
+    </delete>
+
+    <!-- 回复课程表的零碎加课记录 -->
+    <update id="undoLogicalDelLesson" parameterType="String">
+        UPDATE t_info_lesson
+        SET del_flg = 0
+        WHERE lesson_id = #{lessonId}
+    </update>
+
+    <!-- 回复零碎课的课费记录 -->
+    <update id="undoLogicalDelLsnFee" parameterType="String">
+        UPDATE t_info_lesson_fee
+        SET del_flg = 0
+        WHERE lesson_id = #{lessonId}
+    </update>
+
+</mapper>

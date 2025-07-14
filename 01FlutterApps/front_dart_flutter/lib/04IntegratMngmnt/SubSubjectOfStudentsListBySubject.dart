@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
+import '../CommonProcess/customUI/KnLoadingIndicator.dart'; // 添加自定义加载指示器
 import '../Constants.dart';
 import '../03StuDocMngmnt/4stuDoc/Kn03D004StuDocBean.dart';
 
@@ -21,6 +22,7 @@ class SubSubjectOfStudentsListBySubject extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _SubSubjectOfStudentsListBySubjectState createState() =>
       _SubSubjectOfStudentsListBySubjectState();
 }
@@ -190,6 +192,14 @@ class _SubSubjectOfStudentsListBySubjectState
                       Navigator.pop(context);
                     },
                   ),
+                  const Text(
+                    '选择科目',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   CupertinoButton(
                     padding: const EdgeInsets.all(0),
                     child: const Text(
@@ -231,56 +241,133 @@ class _SubSubjectOfStudentsListBySubjectState
     );
   }
 
-  // 构建Tab栏
+// 构建Tab栏 - 可滑动的两行显示版本
   Widget _buildTabs() {
     if (subjectSubNames.isEmpty) return Container();
+
+    // 获取每个子科目的学生数量
+    Map<String, int> subjectStudentCounts = {};
+    for (var subName in subjectSubNames) {
+      final studentsInSubject = studentList
+          .where((student) => student.subjectSubName == subName)
+          .toList();
+      subjectStudentCounts[subName] = studentsInSubject.length;
+    }
 
     return DefaultTabController(
       length: subjectSubNames.length,
       child: Container(
-        height: 50,
-        margin: const EdgeInsets.only(left: 1), // 整个TabBar与屏幕左边距离1像素
+        height: 60, // 适当调整高度
         child: TabBar(
           controller: _tabController,
-          isScrollable: true,
-          labelPadding: const EdgeInsets.only(right: 1), // Tab之间的间隔设为1像素
+          isScrollable: true, // 确保可以滚动
+          labelPadding: const EdgeInsets.symmetric(horizontal: 4), // 减小水平间距
           indicatorPadding: EdgeInsets.zero,
-          padding: EdgeInsets.zero, // 移除TabBar自身的内边距
-          indicatorColor: Colors.transparent, // 移除indicator
-          tabAlignment: TabAlignment.start, // 强制Tab从左开始对齐
-          tabs: subjectSubNames
-              .map((subName) => Tab(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color:
-                            subjectSubNames.indexOf(subName) == selectedTabIndex
-                                ? Colors.green
-                                : Colors.blue,
+          padding: EdgeInsets.zero,
+          indicatorColor: Colors.transparent, // 移除下划线指示器
+          tabAlignment: TabAlignment.start, // Tab从左侧开始对齐
+          onTap: (index) {
+            setState(() {
+              selectedTabIndex = index;
+            });
+          },
+          tabs: List.generate(subjectSubNames.length, (index) {
+            final subName = subjectSubNames[index];
+            // 提取年级信息
+            String shortName = _getShortGradeName(subName);
+            // 获取该子科目的学生数量
+            int studentCount = subjectStudentCounts[subName] ?? 0;
+
+            return Container(
+              width: 80, // 固定宽度
+              height: 40, // 控制高度，避免溢出
+              decoration: BoxDecoration(
+                color: index == selectedTabIndex ? Colors.green : Colors.blue,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // 使Column尺寸最小化
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 第一行：年级简称
+                    Text(
+                      shortName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: Center(
-                        child: Text(
-                          subName,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ))
-              .toList(),
+                    const SizedBox(height: 2), // 微小的间距
+                    // 第二行：学生人数
+                    Text(
+                      '$studentCount人',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 
-  // 构建学生列表
-// 构建学生列表
-  Widget _buildStudentList() {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+// 改进的辅助方法：从"Grade0-Grade1"格式中提取"Grade0-1"
+  String _getShortGradeName(String fullName) {
+    // 处理特殊情况：如果是"DipAB-LR"这样的格式，直接返回
+    if (!fullName.contains('Grade')) {
+      return fullName;
     }
 
+    // 处理"Grade0-Grade1"格式
+    if (fullName.contains('-')) {
+      List<String> parts = fullName.split('-');
+      if (parts.length == 2) {
+        String firstPart = parts[0].trim(); // 如"Grade0"
+        String secondPart = parts[1].trim(); // 如"Grade1"
+
+        // 从第一部分提取数字
+        String firstNumber = "";
+        if (firstPart.startsWith('Grade')) {
+          firstNumber = firstPart.substring('Grade'.length);
+        }
+
+        // 从第二部分提取数字
+        String secondNumber = "";
+        if (secondPart.startsWith('Grade')) {
+          secondNumber = secondPart.substring('Grade'.length);
+        } else {
+          secondNumber = secondPart;
+        }
+
+        // 返回简化的格式
+        return 'Grade$firstNumber-$secondNumber';
+      }
+    }
+
+    // 如果无法解析或格式不匹配，则返回原始名称
+    return fullName;
+  }
+
+// 构建学生列表 - 对齐优化版本
+  Widget _buildStudentList() {
+    // 加载状态下不显示任何内容，由外层的Stack处理加载指示器
+    if (isLoading) {
+      return Container(); // 返回空容器，不显示任何提示信息
+    }
+
+    // 只有在非加载状态下，才检查是否有数据
     if (subjectSubNames.isEmpty || selectedTabIndex >= subjectSubNames.length) {
       return const Center(
         child: Text(
@@ -298,81 +385,138 @@ class _SubSubjectOfStudentsListBySubjectState
         .where((student) => student.subjectSubName == currentSubName)
         .toList();
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columnSpacing: 15.0,
-        columns: const [
-          DataColumn(
-            label: Text(
-              '学生姓名',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+    if (filteredStudents.isEmpty) {
+      return const Center(
+        child: Text(
+          '该子科目下暂无学生',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
           ),
-          DataColumn(
-            label: Text(
-              '上课种别',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              '学费/月',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              '基准日',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              '介绍人',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-        rows: filteredStudents
-            .map((student) => DataRow(
-                  cells: [
-                    DataCell(Text(student.stuName)),
-                    DataCell(Container(
+        ),
+      );
+    }
+
+    return ListView.separated(
+      itemCount: filteredStudents.length,
+      separatorBuilder: (context, index) =>
+          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+      itemBuilder: (context, index) {
+        final student = filteredStudents[index];
+
+        // 学费计算
+        final monthlyFee = (student.lessonFeeAdjusted > 0
+                ? student.lessonFeeAdjusted * 4
+                : student.lessonFee * 4)
+            .toStringAsFixed(1);
+
+        return Container(
+          color: index % 2 == 0 ? const Color(0xFFF5F5F5) : Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          child: Row(
+            children: [
+              // 左侧：学生姓名
+              Expanded(
+                flex: 4,
+                child: Text(
+                  student.nikName.isNotEmpty
+                      ? student.nikName
+                      : student.stuName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+
+              // 右侧：收费类型和金额布局
+              Expanded(
+                flex: 5,
+                child: Row(
+                  children: [
+                    // 收费类型（计/时）- 固定宽度的容器
+                    Container(
+                      width: 40, // 固定宽度
                       alignment: Alignment.center,
-                      child: Text(student.payStyle == 1 ? '计' : '时'),
-                    )),
-                    DataCell(Text((student.lessonFeeAdjusted > 0
-                            ? student.lessonFeeAdjusted * 4
-                            : student.lessonFee * 4)
-                        .toStringAsFixed(1))),
-                    DataCell(Text(student.adjustedDate)),
-                    DataCell(Text(student.introducer)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: student.payStyle == 1
+                              ? const Color(0xFFE3F2FD) // "计"使用蓝色背景
+                              : const Color(0xFFE8F5E9), // "时"使用绿色背景
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          student.payStyle == 1 ? '计' : '时',
+                          style: TextStyle(
+                            color: student.payStyle == 1
+                                ? Colors.blue.shade800
+                                : Colors.green.shade800,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 学费金额 - 固定宽度对齐
+                    Container(
+                      width: 100, // 固定宽度，确保所有金额对齐
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '$monthlyFee/月',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ],
-                ))
-            .toList(),
-      ),
+                ),
+              ),
+
+              // 基准日
+              Expanded(
+                flex: 5,
+                child: Text(
+                  '基准日: ${student.adjustedDate}',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 13,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  // 构建科目选择器按钮
+  // 构建科目选择器按钮 - 修改后的版本
   Widget _buildSubjectPickerButton() {
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    return Container(
-      height: 44,
-      width: screenWidth / 2, // 设置宽度为屏幕的一半
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        borderRadius: BorderRadius.circular(16),
-        color: const Color.fromARGB(255, 232, 228, 228), // 设置背景色为黄色
-        onPressed: _showSubjectPicker,
-        child: Text(
-          selectedSubjectName ?? '选择科目',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.purple,
+    // 使用Padding包装，在左右两侧各添加4像素的间距
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0), // 左右各4像素的间距
+      child: SizedBox(
+        width: double.infinity, // 让按钮宽度撑满父容器
+        height: 50, // 设置按钮高度
+        child: ElevatedButton(
+          onPressed: _showSubjectPicker,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 232, 232, 232), // 浅灰色背景
+            foregroundColor: Colors.purple, // 紫色文字
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10), // 圆角
+            ),
+          ),
+          child: Text(
+            selectedSubjectName ?? '选择科目',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.purple,
+            ),
           ),
         ),
       ),
@@ -402,19 +546,38 @@ class _SubSubjectOfStudentsListBySubjectState
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
       ),
-      body: Column(
+      // 使用Stack布局显示加载遮罩
+      body: Stack(
         children: [
-          Expanded(
-            child: _buildStudentList(),
-          ),
+          // 主内容
           Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildTabs(),
-              _buildSubjectPickerButton(),
-              const SizedBox(height: 34), // 为底部安全区域留出空间
+              Expanded(
+                child: _buildStudentList(),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTabs(),
+                  _buildSubjectPickerButton(),
+                  const SizedBox(height: 34), // 为底部安全区域留出空间
+                ],
+              ),
             ],
           ),
+          // 加载指示器 - 仅在加载状态下显示
+          if (isLoading)
+            // 使用轻微的半透明背景，不会完全遮挡内容
+            Opacity(
+              opacity: 0.7,
+              child: Container(
+                color: Colors.grey[50], // 非常浅的背景
+                child: Center(
+                  child:
+                      KnLoadingIndicator(color: widget.knBgColor), // 使用自定义加载指示器
+                ),
+              ),
+            ),
         ],
       ),
     );

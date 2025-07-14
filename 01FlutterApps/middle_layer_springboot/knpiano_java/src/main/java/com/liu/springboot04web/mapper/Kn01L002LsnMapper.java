@@ -8,7 +8,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 public interface Kn01L002LsnMapper  {
-
+    // 手机前端：课程信息的在课学生一览
+    public List<Kn01L002LsnBean> getStuNameList (@Param("year") String year);
+    
     public List<Kn01L002LsnBean> getInfoList(@Param("year") String year);
     public List<Kn01L002LsnBean> getLsnExtraInfoList(@Param("year") String year);
 
@@ -17,6 +19,33 @@ public interface Kn01L002LsnMapper  {
 
     // 获取所有学生最新正在上课的科目信息
     public List<Kn01L002LsnBean>  getLatestSubjectList();
+
+    /**
+     * 获取学生到目前为止的课程数量（年初至今）
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Long stuLsnCountByNow(@Param("stuId") String stuId, 
+                          @Param("subjectId") String subjectId);
+
+    /**
+     * 获取学生最新在课科目的年度总课时
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Long getYearLsnCnt(@Param("stuId") String stuId, 
+                       @Param("subjectId") String subjectId);
+
+    /**
+     * 获取该生该科目的1节课的课时
+     * @param stuId 学生ID
+     * @param subjectId 科目ID
+     * @return 课程数量
+     */
+    Integer getMinutesPerLsn(@Param("stuId") String stuId, 
+                          @Param("subjectId") String subjectId);
 
     public Kn01L002LsnBean getInfoById(String id);
 

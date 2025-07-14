@@ -1,6 +1,8 @@
 // ignore: file_names
 import 'package:intl/intl.dart';
 
+import '../../CommonProcess/CommonMethod.dart';
+
 class Kn01L003LsnExtraBean {
   final String lessonId;
   final String subjectId;
@@ -52,29 +54,53 @@ class Kn01L003LsnExtraBean {
     String formattedOriginalSchedualDate = '';
 
     try {
-      if (json['schedualDate'] != null && json['schedualDate'].toString().isNotEmpty) {
-        DateTime parsedDate = DateTime.parse(json['schedualDate']);
-        formattedSchedualDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+      if (json['schedualDate'] != null &&
+          json['schedualDate'].toString().isNotEmpty) {
+        // DateTime parsedDate = DateTime.parse(json['schedualDate']);
+        // formattedSchedualDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['schedualDate']);
+        formattedSchedualDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
       }
 
-      if (json['scanQrDate'] != null && json['scanQrDate'].toString().isNotEmpty) {
-        DateTime parsedDate = DateTime.parse(json['scanQrDate']);
-        formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+      if (json['scanQrDate'] != null &&
+          json['scanQrDate'].toString().isNotEmpty) {
+        // DateTime parsedDate = DateTime.parse(json['scanQrDate']);
+        // formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        DateTime parsedDate = CommonMethod.parseServerDate(json['scanQrDate']);
+        formattedScanQrDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
 
-      if (json['lsnAdjustedDate'] != null && json['lsnAdjustedDate'].toString().isNotEmpty) {
-        DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
-        formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+      if (json['lsnAdjustedDate'] != null &&
+          json['lsnAdjustedDate'].toString().isNotEmpty) {
+        // DateTime parsedDate = DateTime.parse(json['lsnAdjustedDate']);
+        // formattedLsnAdjustedDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['lsnAdjustedDate']);
+        formattedLsnAdjustedDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
       }
 
-      if (json['extraToDurDate'] != null && json['extraToDurDate'].toString().isNotEmpty) {
-        DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
-        formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+      if (json['extraToDurDate'] != null &&
+          json['extraToDurDate'].toString().isNotEmpty) {
+        // DateTime parsedDate = DateTime.parse(json['extraToDurDate']);
+        // formattedExtraToDurDate =
+        //     DateFormat('yyyy-MM-dd').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['extraToDurDate']);
+        formattedExtraToDurDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       }
 
-      if (json['originalSchedualDate'] != null && json['originalSchedualDate'].toString().isNotEmpty) {
-        DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
-        formattedOriginalSchedualDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+      if (json['originalSchedualDate'] != null &&
+          json['originalSchedualDate'].toString().isNotEmpty) {
+        // DateTime parsedDate = DateTime.parse(json['originalSchedualDate']);
+        // formattedOriginalSchedualDate =
+        //     DateFormat('yyyy-MM-dd HH:mm').format(parsedDate.toLocal());
+        DateTime parsedDate =
+            CommonMethod.parseServerDate(json['originalSchedualDate']);
+        formattedOriginalSchedualDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
       }
     } catch (e) {
       print('Error parsing date: $e');

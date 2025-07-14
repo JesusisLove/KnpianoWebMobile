@@ -1,1 +1,67 @@
-<!doctype html><html lang="en" xmlns:th="http://www.thymeleaf.org"><head>    <meta charset="utf-8">    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    <meta name="description" content="">    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">    <meta name="generator" content="Jekyll v4.0.1">    <title>Dashboard Template _ Bootstrap</title>    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"          rel="stylesheet">    <style>        .bd-placeholder-img {            font-size: 1.125rem;            text-anchor: middle;            -webkit-user-select: none;            -moz-user-select: none;            -ms-user-select: none;            user-select: none;        }        @media (min-width: 768px) {            .bd-placeholder-img-lg {                font-size: 3.5rem;            }        }    </style>    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet"></head><body><div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 --><div class="container-fluid">    <div class="row">        <div th:replace="~{commons/bar::sidebar(activeUri='sys_code_001_link_active')}"></div>        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">            <form th:action="@{/sys_code_001}" method="post">                <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}"/>                <div class="form-group"><br> <label>システムID</label> <input name="sysId" type="text" class="form-control"                                                                          placeholder="システム自動採番、入力不可" readonly                                                                          th:value="${selectedinfo!=null}?${selectedinfo.sysId}">                </div>                <div class="form-group"><br> <label>テーブル番号</label>                    <input name="tableMngNo" type="text" class="form-control" placeholder="例:CT-KEIYAKU-001"                           th:value="${selectedinfo!=null}?${selectedinfo.tableMngNo}">                </div>                <div class="form-group"><br> <label>テーブル名称</label> <input name="tableName" type="text"                                                                          class="form-control" placeholder="例:物件情報"                                                                          th:value="${selectedinfo!=null}?${selectedinfo.tableName}">                </div>                <button type="submit" class="btn btn-primary" th:text="保存"></button>            </form>        </main>    </div></div></body></html>
+<!doctype html>编号
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>Dashboard Template _ Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+
+<body>
+
+    <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='sys_code_001_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <form th:action="@{/sys_code_001}" method="post">
+                    <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" />
+
+                    <div class="form-group"><br> <label>システムID</label> <input name="sysId" type="text"
+                            class="form-control" placeholder="システム自動採番、入力不可" readonly
+                            th:value="${selectedinfo!=null}?${selectedinfo.sysId}">
+                    </div>
+                    <div class="form-group"><br> <label>テーブル番号</label>
+                        <input name="tableMngNo" type="text" class="form-control" placeholder="例:CT-KEIYAKU-001"
+                            th:value="${selectedinfo!=null}?${selectedinfo.tableMngNo}">
+
+                    </div>
+                    <div class="form-group"><br> <label>テーブル名称</label> <input name="tableName" type="text"
+                            class="form-control" placeholder="例:物件情報"
+                            th:value="${selectedinfo!=null}?${selectedinfo.tableName}">
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
+                </form>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

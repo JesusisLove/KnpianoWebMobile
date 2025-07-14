@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 // import 'package:logger/logger.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
 import 'knstu001_add.dart';
 import 'knstu001_edit.dart';
@@ -30,11 +31,33 @@ class StuEditListState extends State<StuEditList> {
   late Future<List<KnStu001Bean>> futureStudents;
   final String titleName = "学生基本信息一覧";
   late String subtitle;
+  bool _isLoading = false; // 添加加载状态变量
 
   @override
   void initState() {
     super.initState();
-    futureStudents = fetchStudents();
+    _fetchStudentData();
+  }
+
+  // 新的数据加载方法
+  void _fetchStudentData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    futureStudents = fetchStudents().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
   }
 
   // 画面初期化：取得所有学生信息
@@ -84,46 +107,64 @@ class StuEditListState extends State<StuEditList> {
           IconButton(
             icon: const Icon(Icons.add),
             // 新規”➕”按钮的事件处理函数
-            onPressed: () {
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StudentAdd(
-                      knBgColor: Constants.stuDocThemeColor,
-                      knFontColor: Colors.white,
-                      pagePath: subtitle,
-                    ),
-                  )).then((value) {
-                // 检查返回值，如果为true，则重新加载数据
-                if (value == true) {
-                  setState(() {
-                    futureStudents = fetchStudents();
-                  });
-                }
-              });
-            },
+            onPressed: _isLoading
+                ? null // 如果正在加载，禁用按钮
+                : () {
+                    Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentAdd(
+                            knBgColor: Constants.stuDocThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: subtitle,
+                          ),
+                        )).then((value) {
+                      // 检查返回值，如果为true，则重新加载数据
+                      if (value == true) {
+                        setState(() {
+                          // futureStudents = fetchStudents();
+                          _fetchStudentData();
+                        });
+                      }
+                    });
+                  },
           ),
         ],
       ),
-      body: FutureBuilder<List<KnStu001Bean>>(
-        future: futureStudents,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            //加载显示器，就是在转的小圈圈，通知用户数据正在加载中。
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return _buildStudentItem(snapshot.data![index]);
-              },
-            );
-          } else {
-            return const Center(child: Text("No data available"));
-          }
-        },
+      body: Stack(
+        children: [
+          // 原有的FutureBuilder
+          FutureBuilder<List<KnStu001Bean>>(
+            future: futureStudents,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !_isLoading) {
+                // 当连接状态是等待中，但_isLoading为false时不显示任何内容
+                // 因为我们将使用全屏的加载指示器
+                return Container();
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              } else if (snapshot.hasData) {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return _buildStudentItem(snapshot.data![index]);
+                  },
+                );
+              } else {
+                // return const Center(child: Text("No data available"));
+                return const Center(child: Text(""));
+              }
+            },
+          ),
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+            ),
+        ],
       ),
     );
   }
@@ -136,38 +177,78 @@ class StuEditListState extends State<StuEditList> {
           // 如果没有图像URL，可以使用一个本地的占位符图像
           backgroundImage: AssetImage('images/student-placeholder.png'),
         ),
-        title: Text(student.stuName),
-        subtitle: Row(
-          children: <Widget>[
-            // 为学生编号设置像素的左间距
-            // const SizedBox(width: 28 ),
-            // Expanded(
-            //   child: Text(
-            //     student.stuId,
-            //     style: const TextStyle(fontSize: 14),
-            //   ),
-            // ),
+        // 第一种风格
+        title: Text(
+          student.stuName,
+          style: const TextStyle(
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.blue, // 下划线颜色
+            decorationStyle: TextDecorationStyle.solid, // 下划线样式（实线）
+            /*还有其他形式的属性
+              TextDecorationStyle.double（双线）
+              TextDecorationStyle.dotted（点线）
+              TextDecorationStyle.dashed（虚线）
+              TextDecorationStyle.wavy（波浪线）
+            */
+            decorationThickness: 0.5, // 下划线粗细
+            fontSize: 20,
+            height: 2.5,
+          ),
+        ),
 
-            // const Spacer(), // 先不要删除，留着学习：这会填充所有可用空间
+        // 第二种风格
+        // title: Container(
+        //   padding: const EdgeInsets.only(bottom: 1), // 文字和下划线之间的间距
+        //   decoration: const BoxDecoration(
+        //     border: Border(
+        //       bottom: BorderSide(
+        //         color: Colors.black,
+        //         width: 0.09, // 线的粗细为1像素
+        //       ),
+        //     ),
+        //   ),
+        //   child: Text(
+        //     student.stuName,
+        //     style: const TextStyle(
+        //       fontSize: 20,
+        //     ),
+        //   ),
+        // ),
+        subtitle: Row(
+          // 能在不同设备的屏幕大小保持相同的布局比例
+          children: <Widget>[
+            // 昵称部分 - 使用Expanded占据剩余空间
+            Expanded(
+              flex: 5, // 给昵称更多的空间比例
+              child: Text(
+                student.nikName,
+                style: const TextStyle(fontSize: 14),
+                overflow: TextOverflow.ellipsis, // 处理长昵称
+              ),
+            ),
+
+            // 性别部分 - 固定宽度，但足够显示"男"或"女"
             Container(
-              // 设置像素的右间距
-              padding: const EdgeInsets.only(left: 40),
+              width: 35, // 略微调小宽度，确保紧凑布局
+              alignment: Alignment.center, // 内容居中对齐
               child: Text(
                 student.gender == 1 ? '男' : '女',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
 
-            Container(
-              // 设置像素的右间距
-              padding: const EdgeInsets.only(left: 20),
+            // 生日部分 - 使用Expanded但给予较小的比例
+            Expanded(
+              flex: 6, // 生日部分也需要较多空间，尤其是带"Birth:"前缀
               child: Text(
-                student.birthday,
+                'Birth:${student.birthday ?? ""}',
                 style: const TextStyle(fontSize: 14),
+                overflow: TextOverflow.ellipsis, // 以防日期太长
               ),
             ),
           ],
         ),
+
         trailing: Row(
             mainAxisSize: MainAxisSize.min, // Row的宽度只足够包含子控件
             children: <Widget>[

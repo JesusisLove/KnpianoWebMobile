@@ -1,8 +1,13 @@
-use KNStudent;
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS v_info_all_extra_lsns;
 -- 前提条件，加课都已经签到完了，找出那些已经结算和还未结算的加课信息
+-- 零碎加课拼凑成整课，并且已经把整课换成正课的零碎课除外（即，零碎课的del_flg=1的除外了 2025-06-07追加）
 -- 已经结算的加课费
-DROP VIEW IF EXISTS v_info_all_extra_lsns;
-CREATE VIEW v_info_all_extra_lsns AS 
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = root@localhost 
+    SQL SECURITY DEFINER
+VIEW v_info_all_extra_lsns AS 
 SELECT 
     lsn.lesson_id,
     lsn.stu_id,
@@ -20,7 +25,7 @@ FROM
 	t_info_lesson lsn
 	inner join 
 	t_info_lesson_fee fee
-	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0
+	on lsn.lesson_id = fee.lesson_id and fee.del_flg = 0 and lsn.del_flg = 0
 	inner join
 	t_info_lesson_pay pay
 	on fee.lsn_fee_id = pay.lsn_fee_id
@@ -44,6 +49,7 @@ SELECT
 FROM t_info_lesson main
 WHERE main.scanqr_date IS NOT NULL 
   AND main.lesson_type = 2
+  AND main.del_flg = 0
   AND NOT EXISTS (
     SELECT 1 
     FROM t_info_lesson lsn

@@ -59,15 +59,29 @@
 
     <!-- 从学生档案表视图中取得在课学生正在上的科目，在新规画面实现学生与科目的下拉列表框的联动：科目信息取决于选择的学生 -->
     <select id="getLatestSubjectList" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
-        SELECT * FROM v_latest_subject_info_from_student_document order by stu_name
+        SELECT * FROM v_latest_subject_info_from_student_document doc
+        WHERE EXISTS (SELECT 1 FROM t_mst_student stu 
+                      WHERE doc.stu_id = stu.stu_id 
+                      <!-- 剔除掉退学的学生 -->
+                      AND stu.del_flg = 0)
+        ORDER BY stu_name
     </select>
-
 
     <!-- 手机前端添加课程的排课画面：从学生档案表视图中取得该学生正在上的所有科目信息 -->
     <select id="getLatestSubjectListByStuId" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
         SELECT * FROM v_latest_subject_info_from_student_document
         WHERE stu_id = #{stuId} 
         ORDER BY subject_id
+    </select>
+
+    <!-- 手机前端添加课程的排课画面：排课点击保存按钮时，验证该日期的排课是否时有效的排课
+            何为有效排课：学生档案第一次调整日期以后的日期都是有效排课，第一次调整日期以前的排课是无效排课
+            就好像，你还没出生就上学了，这是不合理的
+     -->
+    <select id="getLatestMinAdjustDateByStuId" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        SELECT subject_id,min(adjusted_date) as adjusted_date FROM v_info_student_document
+        WHERE stu_id = #{stuId} 
+          AND subject_id = #{subjectId} 
     </select>
     
     <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
@@ -80,6 +94,7 @@
             minutes_per_lsn,
             lesson_fee,
             lesson_fee_adjusted,
+            year_lsn_cnt,
             exam_date,
             exam_score
             )
@@ -92,6 +107,7 @@
             #{minutesPerLsn},
             #{lessonFee},
             #{lessonFeeAdjusted},
+            #{yearLsnCnt},
             #{examDate},
             #{examDcore}
         )
@@ -100,14 +116,11 @@
     <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
     <!-- 绑定变量并格式化日期 -->
     <bind name="formattedAdjustedDate" value="new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(adjustedDate)" />
-
             update t_info_student_document set
                 minutes_per_lsn = #{minutesPerLsn},
                 lesson_fee = #{lessonFee},
                 lesson_fee_adjusted = #{lessonFeeAdjusted},
-                pay_style = #{payStyle},
-                exam_date = #{examDate},
-                exam_score = #{examDcore}
+                year_lsn_cnt = #{yearLsnCnt}
             WHERE stu_id = #{stuId}
               AND subject_id = #{subjectId}
               AND subject_sub_id = #{subjectSubId} 

@@ -146,11 +146,25 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   }
 
   void _showErrorDialog(String message) {
+    // 判断错误类型，设置合适的标题
+    String title;
+    if (message.contains('请选择') ||
+        message.contains('必须') ||
+        message.contains('输入')) {
+      title = '必须入力：';
+    } else if (message.contains('排课操作被禁止') || message.contains('以后执行排课')) {
+      title = '排课限制：';
+    } else if (message.contains('网络') || message.contains('连接')) {
+      title = '网络错误：';
+    } else {
+      title = '操作失败：';
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('必须入力：'),
+          title: Text(title),
           content: Text(message),
           actions: <Widget>[
             TextButton(
@@ -164,6 +178,28 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       },
     );
   }
+
+  void _showBusinessErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('排课限制：'), // 专门用于业务逻辑错误
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// 只需要修改 _saveCourse 方法中的这部分代码：
 
   Future<void> _saveCourse() async {
     if (!_validateForm()) return;
@@ -203,6 +239,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
           );
         },
       );
+
       final String apiLsnSaveUrl =
           '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
       final response = await http.post(
@@ -215,10 +252,18 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       if (mounted) {
         Navigator.of(context).pop();
       }
+
       if (response.statusCode == 200) {
         Navigator.of(context).pop(true); // Close dialog and indicate success
       } else {
-        throw Exception('Failed to save course');
+        // 修改这里：获取后台返回的具体错误信息
+        final errorMessage = utf8.decode(response.bodyBytes);
+        // 根据错误类型选择合适的对话框
+        if (errorMessage.contains('排课操作被禁止')) {
+          _showBusinessErrorDialog(errorMessage); // 使用业务错误对话框
+        } else {
+          _showErrorDialog(errorMessage); // 使用通用错误对话框
+        }
       }
     } catch (e) {
       // 如果发生错误，确保关闭进度对话框

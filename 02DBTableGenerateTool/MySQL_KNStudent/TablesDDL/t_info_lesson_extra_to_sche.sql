@@ -1,4 +1,4 @@
-
+-- DROP TABLE IF EXISTS `t_info_lesson_extra_to_sche`;
 /* 添加索引的原由：
 对加课换正课的新的课费id做已经支付的更新处理，
 由于这个表没有主键，所以程序在执行的时候启动safe update模式（安全更新模式）
@@ -6,6 +6,7 @@
 */
 CREATE TABLE `t_info_lesson_extra_to_sche` (
   `lesson_id` varchar(45) NOT NULL,
+  `subject_id` varchar(45) NOT NULL,
   `old_lsn_fee_id` varchar(255) NOT NULL,
   `new_lsn_fee_id` varchar(255) NOT NULL,
   `old_subject_sub_id` varchar(255) NOT NULL,
@@ -14,16 +15,7 @@ CREATE TABLE `t_info_lesson_extra_to_sche` (
   `new_lsn_fee` decimal(4,0) DEFAULT NULL,
   `new_scanqr_date` datetime DEFAULT NULL,
   `is_good_change` int DEFAULT NULL,
+  `memo_reason` varchar(255) NOT NULL,
   `new_own_flg` int DEFAULT '0',
   INDEX idx_fee_id_date (new_lsn_fee_id, new_scanqr_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-use prod_KNStudent;
--- 备份t_info_lesson_extra_to_sche表
-CREATE TABLE t_info_lesson_extra_to_sche_BK 
-AS SELECT * FROM t_info_lesson_extra_to_sche 
-WHERE 1=0;
-
--- 把t_info_lesson_extra_to_sche里的数据备份到t_info_lesson_extra_to_sche_BK表里
-insert into t_info_lesson_extra_to_sche_BK
-select * from t_info_lesson_extra_to_sche;

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Fragments</title>
     <style>
@@ -15,7 +16,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: none;
             right: 0;
@@ -42,8 +43,80 @@
         .action-column {
             display: table-cell !important;
         }
+
+        /* 撤销控制开关样式 */
+        .undo-control-toggle {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            margin: 0 5px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* 新增：拼凑课样式 */
+        .pieces-lesson-row {
+            color: #666666 !important;
+            font-weight: bold !important;
+        }
+
+        /* 新增：换正课样式 */
+        .extra-to-sche-lesson-row {
+            color: #8B4513 !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
+
 <body>
     <div th:fragment="lessonTable(stuid, stuName)">
         <!-- 列控制按钮和菜单 -->
@@ -53,43 +126,43 @@
             </button>
             <div id="columnMenu" class="column-menu">
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 授業番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonId')" /> 课程编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 科目枝番
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 子科目编号
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生番号
+                    <input type="checkbox" checked onchange="toggleColumn('col-stuId')" /> 学生编号
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 科目级别
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 子科目名称
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-classDuration')" /> 上课时长
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 授業種別
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 课程属性
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 計画手段
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 排课手段
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 計画授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-schedualDate')" /> 排课日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-adjustedDate')" /> 調整授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-adjustedDate')" /> 调课日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-convertDate')" /> 授業変換日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-convertDate')" /> 课程属性变换日期
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-actualDate')" /> 実績授業日付
+                    <input type="checkbox" checked onchange="toggleColumn('col-actualDate')" /> 实际上课日期
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-createMemo')" /> 备注
@@ -107,30 +180,44 @@
             <table class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th class="col-lessonId">授業<br>番号</th>
-                        <th class="col-subjectId">科目<br>番号</th>
-                        <th class="col-subjectSubId">科目<br>枝番</th>
-                        <th class="col-stuId">学生<br>番号</th>
+                        <th class="col-lessonId">课程<br>编号</th>
+                        <th class="col-subjectId">科目<br>编号</th>
+                        <th class="col-subjectSubId">子科目<br>编号</th>
+                        <th class="col-stuId">学生<br>编号</th>
                         <th class="col-subjectName">科目<br>名称</th>
                         <th class="col-subjectLevel">科目<br>级别</th>
                         <th class="col-classDuration">上课时长<br>（分钟）</th>
-                        <th class="col-lessonType">授業<br>種別</th>
-                        <th class="col-schedualType">計画<br>手段</th>
-                        <th class="col-schedualDate">計画授業<br>日付</th>
-                        <th class="col-adjustedDate">調整授業<br>日付</th>
-                        <th class="col-convertDate">授業変換<br>日付</th>
-                        <th class="col-actualDate">実績授業<br>日付</th>
+                        <th class="col-lessonType">课程<br>属性</th>
+                        <th class="col-schedualType">排课<br>手段</th>
+                        <th class="col-schedualDate">计划排课<br>日期</th>
+                        <th class="col-adjustedDate">课程调整<br>日期</th>
+                        <th class="col-convertDate">课程属性变换<br>日期</th>
+                        <th class="col-actualDate">实际上课<br>日期</th>
                         <th class="col-actualMemo">备注</th>
                         <th class="col-createDate">作成日</th>
                         <th class="col-updateDate">更新日</th>
-                        <th class="action-column">操作</th>
+                        <th class="action-column">
+                            操作
+                            <div class="undo-control-toggle">
+                                <span class="toggle-label">撤销控制:</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" th:id="'undoControlToggle_' + ${stuid}" checked onchange="toggleUndoControl()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" th:id="'undoToggleStatus_' + ${stuid}">ON</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="info : ${infoList}" th:if="${info.stuName == stuName}" 
-                        th:style="${info.lessonType == 0 ? 'color: #4CAF50;' : 
-                                 info.lessonType == 1 ? 'color: #2196F3;' : 
-                                 info.lessonType == 2 ? 'color: #FF69B4;' : ''}">
+                        th:style="${info.isFromPiceseLsn == 1 ? 'color: #b8b8b5 !important; font-weight: bold !important;' : 
+                                   info.isExtraToScheLsn == 1 ? 'color: #8B4513 !important; font-weight: bold !important;' :
+                                   info.lessonType == 0 ? 'color: #4CAF50;' : 
+                                   info.lessonType == 1 ? 'color: #2196F3;' : 
+                                   info.lessonType == 2 ? 'color: #FF69B4;' : ''}"
+                        th:classappend="${info.isFromPiceseLsn == 1 ? 'pieces-lesson-row' : 
+                                         info.isExtraToScheLsn == 1 ? 'extra-to-sche-lesson-row' : ''}">
                         <td class="col-lessonId">[[${info.lessonId}]]</td>
                         <td class="col-subjectId">[[${info.subjectId}]]</td>
                         <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
@@ -138,26 +225,43 @@
                         <td class="col-subjectName">[[${info.subjectName}]]</td>
                         <td class="col-subjectLevel">[[${info.subjectSubName}]]</td>
                         <td class="col-classDuration">[[${info.classDuration}]]</td>
-                        <td class="col-lessonType" th:text="${info.lessonType == 0 ? '课结算' : info.lessonType == 1 ? '月计划' : '月加课'}"></td>
-                        <td class="col-schedualType" th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}"></td>
-                        <td class="col-schedualDate">[[${info.schedualDate != null ? #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ? #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
-                        <td class="col-convertDate">[[${info.extraToDurDate != null ? #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
-                        <td class="col-actualDate">[[${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-lessonType" 
+                            th:text="${info.isFromPiceseLsn == 1 ? '拼凑课' : 
+                                     info.isExtraToScheLsn == 1 ? '换正课' :
+                                     info.lessonType == 0 ? '课结算' : 
+                                     info.lessonType == 1 ? '月计划' : '月加课'}"></td>
+                        <td class="col-schedualType"
+                            th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
+                        </td>
+                        <td class="col-schedualDate">[[${info.schedualDate != null ?
+                            #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-adjustedDate">[[${info.lsnAdjustedDate != null ?
+                            #dates.format(info.lsnAdjustedDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
+                        <td class="col-convertDate">[[${info.extraToDurDate != null ?
+                            #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
+                        <td class="col-actualDate">[[${info.scanQrDate != null ?
+                            #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-actualMemo">[[${info.memo}]]</td>
-                        <td class="col-createDate">[[${info.createDate != null ? #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
-                        <td class="col-updateDate">[[${info.updateDate != null ? #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                        <td class="col-createDate">[[${info.createDate != null ?
+                            #dates.format(info.createDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
+                        <td class="col-updateDate">[[${info.updateDate != null ?
+                            #dates.format(info.updateDate,'yyyy/MM/dd HH:mm:ss') : ''}]]</td>
                         <td class="action-column">
-                            <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
-                                th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
-                            <button type="button" class="btn btn-sm btn-danger deleteBtn"
-                                th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}"
-                                th:classappend="${info.isUsableDelete ? ''  : 'disabled'}"
-                                th:disabled="${!info.isUsableDelete}">削除</button>
-                            <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
-                                th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
-                            <a class="btn btn-sm btn-danger" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
-                                th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" th:method="GET">撤销</a>
+                            <!-- 拼凑课或换正课时隐藏所有按钮 -->
+                            <div th:if="${info.isFromPiceseLsn != 1 && info.isExtraToScheLsn != 1}">
+                                <a class="btn btn-sm btn-primary" th:href="@{/kn_lsn_001/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableEdit ? ''  : 'disabled'}" methods="GET">変更</a>
+                                <button type="button" class="btn btn-sm btn-danger deleteBtn"
+                                    th:attr="liu_del_uri=@{/kn_lsn_001/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableDelete ? ''  : 'disabled'}"
+                                    th:disabled="${!info.isUsableDelete}">削除</button>
+                                <a class="btn btn-sm btn-success" th:href="@{/kn_lsn_001_lsn_sign/}+${info.lessonId}"
+                                    th:classappend="${info.isUsableSign ? ''  : 'disabled'}" methods="GET">签到</a>
+                                <a class="btn btn-sm btn-danger undo-btn" th:href="@{/kn_lsn_001_lsn_undo/{id}(id=${info.lessonId})}"
+                                    th:classappend="${info.isUsableCancel ? ''  : 'disabled'}" 
+                                    th:method="GET"
+                                    th:attr="data-original-disabled=${!info.isUsableCancel}">撤销</a>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -173,6 +277,9 @@
         <script th:inline="javascript">
             // 存储列显示状态
             var columnStates = JSON.parse(localStorage.getItem('columnStates') || '{}');
+            
+            // 存储撤销控制状态 - 全局状态，所有Tab共享
+            var undoControlEnabled = JSON.parse(localStorage.getItem('undoControlEnabled') || 'true');
 
             // 控制列显示菜单的显示/隐藏
             function toggleColumnMenu(event) {
@@ -186,7 +293,7 @@
                 // 更新状态
                 columnStates[columnClass] = !columnStates[columnClass];
                 const isVisible = columnStates[columnClass];
-                
+
                 // 更新所有具有该类名的元素
                 const cells = document.getElementsByClassName(columnClass);
                 Array.from(cells).forEach(cell => {
@@ -203,6 +310,55 @@
                 });
             }
 
+            // 撤销控制开关处理函数 - 全局函数，任何Tab都可以调用
+            function toggleUndoControl() {
+                // 切换全局状态
+                undoControlEnabled = !undoControlEnabled;
+                
+                // 保存状态到本地存储
+                localStorage.setItem('undoControlEnabled', JSON.stringify(undoControlEnabled));
+                
+                // 同步所有Tab中的开关状态和按钮状态
+                syncAllTabsUndoControl();
+            }
+
+            // 同步所有Tab中的撤销控制状态
+            function syncAllTabsUndoControl() {
+                // 更新所有Tab中的开关状态显示
+                const allToggles = document.querySelectorAll('[id^="undoControlToggle_"]');
+                const allStatuses = document.querySelectorAll('[id^="undoToggleStatus_"]');
+                
+                allToggles.forEach(toggle => {
+                    toggle.checked = undoControlEnabled;
+                });
+                
+                allStatuses.forEach(status => {
+                    status.textContent = undoControlEnabled ? 'ON' : 'OFF';
+                });
+                
+                // 更新所有Tab中的撤销按钮状态
+                updateAllUndoButtons();
+            }
+
+            // 更新所有撤销按钮状态
+            function updateAllUndoButtons() {
+                const allUndoButtons = document.querySelectorAll('.undo-btn');
+                allUndoButtons.forEach(button => {
+                    if (undoControlEnabled) {
+                        // ON状态：恢复原有的控制逻辑
+                        const originalDisabled = button.getAttribute('data-original-disabled') === 'true';
+                        if (originalDisabled) {
+                            button.classList.add('disabled');
+                        } else {
+                            button.classList.remove('disabled');
+                        }
+                    } else {
+                        // OFF状态：所有按钮都可用
+                        button.classList.remove('disabled');
+                    }
+                });
+            }
+
             // 应用保存的列状态
             function applyColumnStates() {
                 Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
@@ -210,7 +366,7 @@
                     Array.from(cells).forEach(cell => {
                         cell.style.display = isVisible ? '' : 'none';
                     });
-                    
+
                     // 更新复选框状态
                     const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
                     checkboxes.forEach(checkbox => {
@@ -219,24 +375,123 @@
                 });
             }
 
+            // 初始化新Tab的撤销控制状态
+            function initializeTabUndoControl(tabElement) {
+                const toggle = tabElement.querySelector('[id^="undoControlToggle_"]');
+                const status = tabElement.querySelector('[id^="undoToggleStatus_"]');
+                
+                if (toggle && status) {
+                    toggle.checked = undoControlEnabled;
+                    status.textContent = undoControlEnabled ? 'ON' : 'OFF';
+                }
+                
+                // 初始化该Tab中的撤销按钮状态
+                const undoButtons = tabElement.querySelectorAll('.undo-btn');
+                undoButtons.forEach(button => {
+                    if (undoControlEnabled) {
+                        const originalDisabled = button.getAttribute('data-original-disabled') === 'true';
+                        if (originalDisabled) {
+                            button.classList.add('disabled');
+                        } else {
+                            button.classList.remove('disabled');
+                        }
+                    } else {
+                        button.classList.remove('disabled');
+                    }
+                });
+            }
+
+            // 应用撤销控制状态到所有现有Tab
+            function applyUndoControlState() {
+                // 从localStorage获取保存的状态
+                undoControlEnabled = JSON.parse(localStorage.getItem('undoControlEnabled') || 'true');
+                
+                // 同步所有Tab
+                syncAllTabsUndoControl();
+            }
+
             // 点击其他地方关闭菜单
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const menu = document.getElementById('columnMenu');
-                if (!event.target.closest('.column-control')) {
+                if (menu && !event.target.closest('.column-control')) {
                     menu.classList.remove('show');
                 }
             });
 
-            // 页面加载时初始化列状态
-            document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载时初始化
+            document.addEventListener('DOMContentLoaded', function () {
                 applyColumnStates();
+                applyUndoControlState();
             });
 
-            // 监听Tab切换事件
-            document.addEventListener('shown.bs.tab', function() {
+            // 监听Tab切换事件（Bootstrap）
+            document.addEventListener('shown.bs.tab', function (event) {
                 applyColumnStates();
+                applyUndoControlState();
             });
+
+            // 监听Tab内容变化（适用于动态加载）
+            if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver(function(mutations) {
+                    let hasNewTabs = false;
+                    
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            // 检查是否有新的Tab内容被添加
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) {
+                                    // 检查是否包含Tab面板
+                                    if (node.classList && node.classList.contains('tab-pane')) {
+                                        hasNewTabs = true;
+                                        initializeTabUndoControl(node);
+                                    }
+                                    // 检查子元素中是否有Tab面板
+                                    const tabPanes = node.querySelectorAll && node.querySelectorAll('.tab-pane');
+                                    if (tabPanes && tabPanes.length > 0) {
+                                        hasNewTabs = true;
+                                        tabPanes.forEach(tabPane => {
+                                            initializeTabUndoControl(tabPane);
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    
+                    if (hasNewTabs) {
+                        // 延迟应用状态，确保DOM完全加载
+                        setTimeout(function() {
+                            applyColumnStates();
+                            applyUndoControlState();
+                        }, 100);
+                    }
+                });
+
+                // 开始观察整个文档的变化
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            // 定期检查并同步状态（备用方案）
+            setInterval(function() {
+                // 检查是否有新的撤销控制开关没有正确初始化
+                const allToggles = document.querySelectorAll('[id^="undoControlToggle_"]');
+                let needSync = false;
+                
+                allToggles.forEach(toggle => {
+                    if (toggle.checked !== undoControlEnabled) {
+                        needSync = true;
+                    }
+                });
+                
+                if (needSync) {
+                    syncAllTabsUndoControl();
+                }
+            }, 2000); // 每2秒检查一次
         </script>
     </div>
 </body>
+
 </html>

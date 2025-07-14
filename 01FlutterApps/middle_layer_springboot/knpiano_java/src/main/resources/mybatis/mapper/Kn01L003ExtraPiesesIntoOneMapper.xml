@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liu.springboot04web.mapper.Kn01L003ExtraPiesesIntoOneMapper">
-
-    <select id="getExtraPiesesLsnList" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
-        select doc.stu_name,lsn.*, doc.subject_name, doc.subject_sub_name
+    <!-- Web页面
+         页面加载初期化，检索部条件查询
+     -->
+    <select id="getExtraPiesesLsnList" resultType="com.liu.springboot04web.bean.Kn01L003ExtraPicesesBean">
+        select doc.stu_name
+              ,lsn.class_duration
+              ,lsn.scanqr_date
+              ,lsn.extra_to_dur_date
+              ,lsn.stu_id
+              ,lsn.lesson_id
+              ,lsn.subject_id
+              ,lsn.subject_sub_id
+              ,doc.subject_name
+              ,doc.subject_sub_name
         from 
             v_info_all_extra_lsns lsn
         inner join
@@ -22,31 +33,89 @@
             and left(lsn.schedual_date,4) = #{year}
         </where>
         and lsn.pay_flg = 0
-        <!-- and lsn.class_duration < doc.minutes_per_lsn -->
+        <!-- 加课时长少于1节课的课程 -->
         and lsn.class_duration &lt; doc.minutes_per_lsn
+        order by doc.stu_name
     </select>
 
-    <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+    <!-- Web页面
+        根据Web页面上年度下拉列表框的变化，实现学生姓名下拉列表框的联动初期化，
+         同时也从学生档案表里取得该生该科目的子科目，一节课上多少分钟 -->
+    <select id="getSearchInfo4Stu" resultType="com.liu.springboot04web.bean.Kn01L003ExtraPicesesBean">
         WITH extraPiecesLsn AS
         (
-            SELECT * FROM v_info_all_extra_lsns 
+            SELECT DISTINCT stu_id, subject_id, subject_sub_id, class_duration FROM v_info_all_extra_lsns 
             WHERE LEFT(schedual_date, 4) = #{pieceExtraYear}
         )
-        SELECT doc.stu_id, doc.stu_name 
+        SELECT doc.stu_id, doc.stu_name, doc.nik_name, doc.subject_id, doc.subject_sub_id, doc.minutes_per_lsn
         FROM v_latest_subject_info_from_student_document doc
         JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
             AND doc.subject_id = extraPiecesLsn.subject_id
             AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
-        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn;
+        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
+        ORDER BY doc.stu_name
     </select>
 
-    <!-- <insert id="insertInfo" parameterType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+    <!-- 前端设备，
+         零碎加课学生名单显示在手机前端的在课一览页面 -->
+    <select id="getStuName4Mobile" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        WITH extraPiecesLsn AS
+        (
+            SELECT DISTINCT stu_id, subject_id, subject_sub_id, class_duration FROM v_info_all_extra_lsns 
+            WHERE LEFT(schedual_date, 4) = #{pieceExtraYear}
+        )
+        SELECT doc.stu_id, doc.stu_name, doc.nik_name
+        FROM v_latest_subject_info_from_student_document doc
+        JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
+            AND doc.subject_id = extraPiecesLsn.subject_id
+            AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
+        WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
+        <!-- 去掉重复的学生名单 -->
+        GROUP BY stu_name, nik_name;
+    </select>
 
+    <!-- 前端设备，
+         获取学生自己各科正在学习的科目，价格信息 -->
+    <select id="getLatestLsnPriceInfo4Mobile" resultType="com.liu.springboot04web.bean.Kn03D004StuDocBean">
+        WITH extraPiecesLsn AS
+        (
+            SELECT DISTINCT stu_id, subject_id, subject_sub_id, class_duration FROM v_info_all_extra_lsns 
+            WHERE LEFT(schedual_date, 4) = #{pieceExtraYear}
+        )
+        SELECT doc.stu_id, doc.stu_name, doc.nik_name, doc.subject_id, doc.subject_sub_id, doc.minutes_per_lsn
+        FROM v_latest_subject_info_from_student_document doc
+        JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
+            AND doc.subject_id = extraPiecesLsn.subject_id
+            AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
+        WHERE doc.stu_id = #{stuId}
+          AND extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
+        <!-- 去掉重复的信息 -->
+        GROUP BY doc.stu_id, doc.stu_name, doc.nik_name , doc.subject_id, doc.subject_sub_id, doc.minutes_per_lsn
+    </select>
+
+    <insert id="savePiceseExtraIntoOne">
+        INSERT INTO t_info_lesson_pieces_extra_to_sche (
+            lesson_id,
+            old_lesson_id
+        ) VALUES (
+            #{lessonId},
+            #{oldLessonId}
+        )
     </insert>
 
-    <update id="updateInfo" parameterType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
-
+    <update id="logicalDelLesson" parameterType="String">
+        UPDATE t_info_lesson
+        SET del_flg = 1
+        WHERE lesson_id = #{lessonId}
     </update>
+
+    <update id="logicalDelLsfFee" parameterType="String">
+        UPDATE t_info_lesson_fee
+        SET del_flg = 1
+        WHERE lesson_id = #{lessonId}
+    </update>
+    <!-- 
+
 
     <delete id="deleteInfo" parameterType="String">
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Repository
 public class Kn03D002SubEdaBanDao implements InterfaceKnPianoDao {
 
@@ -17,13 +18,13 @@ public class Kn03D002SubEdaBanDao implements InterfaceKnPianoDao {
     private Kn03D002SubEdaBanMapper kn05S003SubjectEdabnMapper;
 
     public List<Kn03D002SubEdaBanBean> getInfoList() {
-        List<Kn03D002SubEdaBanBean> list =kn05S003SubjectEdabnMapper.getInfoList();
+        List<Kn03D002SubEdaBanBean> list = kn05S003SubjectEdabnMapper.getInfoList();
         return list;
     }
 
     // 手机端查询用
     public List<Kn03D002SubEdaBanBean> getSubEdaList(String subId) {
-        List<Kn03D002SubEdaBanBean> list =kn05S003SubjectEdabnMapper.getSubEdaList(subId);
+        List<Kn03D002SubEdaBanBean> list = kn05S003SubjectEdabnMapper.getSubEdaList(subId);
         return list;
     }
 
@@ -42,16 +43,17 @@ public class Kn03D002SubEdaBanDao implements InterfaceKnPianoDao {
     }
 
     public void save(Kn03D002SubEdaBanBean kn05S003SubjectEdabnBean) {
-        if (kn05S003SubjectEdabnBean.getSubjectSubId() == null 
-            || kn05S003SubjectEdabnBean.getSubjectSubId().isEmpty()) { 
+        if (kn05S003SubjectEdabnBean.getSubjectSubId() == null
+                || kn05S003SubjectEdabnBean.getSubjectSubId().isEmpty()) {
 
-                Map<String, Object> map = new HashMap<String, Object> ();
-                map.put("parm_in", KNConstant.CONSTANT_KN_SUB_EDA_SEQ);
-                // 授業自動採番
-                kn05S003SubjectEdabnMapper.getNextSequence(map);
-                kn05S003SubjectEdabnBean.setSubjectSubId(KNConstant.CONSTANT_KN_SUB_EDA_SEQ + (Integer)map.get("parm_out"));
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("parm_in", KNConstant.CONSTANT_KN_SUB_EDA_SEQ);
+            // 授業自動採番
+            kn05S003SubjectEdabnMapper.getNextSequence(map);
+            kn05S003SubjectEdabnBean
+                    .setSubjectSubId(KNConstant.CONSTANT_KN_SUB_EDA_SEQ + (Integer) map.get("parm_out"));
 
-            // 授業番号の自動採番
+            // 课程编号の自動採番
             kn05S003SubjectEdabnMapper.getNextSequence(map);
             insert(kn05S003SubjectEdabnBean);
         } else {
@@ -59,22 +61,19 @@ public class Kn03D002SubEdaBanDao implements InterfaceKnPianoDao {
         }
     }
 
-
     // 新規
     private void insert(Kn03D002SubEdaBanBean kn05S003SubjectEdabnBean) {
         kn05S003SubjectEdabnMapper.insertInfo(kn05S003SubjectEdabnBean);
 
     }
 
-
     // 変更
     private void update(Kn03D002SubEdaBanBean kn05S003SubjectEdabnBean) {
         kn05S003SubjectEdabnMapper.updateInfo(kn05S003SubjectEdabnBean);
     }
 
-
     // 削除
-    public void delete(String subId, String edabanId) { 
-        kn05S003SubjectEdabnMapper.deleteInfo(subId, edabanId); 
+    public void delete(String subId, String edabanId) {
+        kn05S003SubjectEdabnMapper.deleteInfo(subId, edabanId);
     }
 }

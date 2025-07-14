@@ -9,6 +9,7 @@ import '../../02LsnFeeMngmnt/Kn02F002FeeBean.dart';
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
 import 'CalendarPage.dart';
 import 'Kn01L002LsnBean.dart';
@@ -41,7 +42,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   late TabController _tabController;
   Map<String, List<LessonCount>> subjectsScanedLsnData = {};
   final String titleName = '课程进度统计';
-
+  bool _isLoading = false; // 添加加载状态变量
+  int _selectedMonthIndex =
+      DateTime.now().month - 1; // 状态变量来跟踪当前选中的月份，好根据该月份的课程数量计算高度。
   // 选择年份相关变量
   late List<int> _years;
   late int _selectedYear;
@@ -68,53 +71,67 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   }
 
   Future<void> _fetchData() async {
-    // 已上完课的结果集取得
-    final String apiLsnSignedStatisticUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+    setState(() {
+      _isLoading = true; // 开始加载时设置为true
+    });
+
     try {
-      final response = await http.get(Uri.parse(apiLsnSignedStatisticUrl));
-      if (response.statusCode == 200) {
-        // 使用 utf8.decode 来正确处理字符编码
-        final String decodedBody = utf8.decode(response.bodyBytes);
+      // 已上完课的结果集取得
+      // 上课完了统计Tab页的Chart图的数据源
+      final String apiLsnSignedStatisticUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnSignedStatistic}/${widget.stuId}/$_selectedYear';
+      // 还未上课统计Tab页的未上课的数据源
+      final String apiLsnUnScanedStatisticUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
+
+      // 并行发送两个请求，提高效率
+      final responseSignedFuture =
+          http.get(Uri.parse(apiLsnSignedStatisticUrl));
+      final responseUnSignedFuture =
+          http.get(Uri.parse(apiLsnUnScanedStatisticUrl));
+
+      // 等待两个请求都完成
+      final responses =
+          await Future.wait([responseSignedFuture, responseUnSignedFuture]);
+      final responseSigned = responses[0];
+      final responseUnSigned = responses[1];
+
+      // 处理已上完课的数据
+      if (responseSigned.statusCode == 200) {
+        final String decodedBody = utf8.decode(responseSigned.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
         staticScanedLsnList =
             jsonData.map((item) => Kn02F002FeeBean.fromJson(item)).toList();
         _processScanedLsnData();
       } else {
-        // 处理错误情况
-        print('Failed to load data: ${response.statusCode}');
+        print('Failed to load signed data: ${responseSigned.statusCode}');
       }
-    } catch (e) {
-      // 处理异常
-      print('Error fetching data: $e');
-    }
 
-    // 新增：未上课的结果集取得
-    final String apiLsnUnScanedStatisticUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiLsnUnSignedStatistic}/${widget.stuId}/$_selectedYear';
-    try {
-      final response = await http.get(Uri.parse(apiLsnUnScanedStatisticUrl));
-      if (response.statusCode == 200) {
-        // 使用 utf8.decode 来正确处理字符编码
-        final String decodedBody = utf8.decode(response.bodyBytes);
+      // 处理未上课的数据
+      if (responseUnSigned.statusCode == 200) {
+        final String decodedBody = utf8.decode(responseUnSigned.bodyBytes);
         final List<dynamic> jsonData = json.decode(decodedBody);
         staticUnScanedLsnList =
             jsonData.map((item) => Kn01L002LsnBean.fromJson(item)).toList();
         _processUnScanedLsnData();
       } else {
-        // 处理错误情况
-        print('Failed to load data: ${response.statusCode}');
+        print('Failed to load unsigned data: ${responseUnSigned.statusCode}');
       }
-    } catch (e) {
-      // 处理异常
-      print('Error fetching data: $e');
-    }
 
-    // 新增：获取课程详细信息
-    await _fetchScanedLsnDetails();
+      // 获取课程详细信息
+      await _fetchScanedLsnDetails();
+    } catch (e) {
+      // 处理所有可能的异常
+      print('Error in _fetchData: $e');
+    } finally {
+      // 无论成功还是失败，都将加载状态设置为false
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  // 新增：获取课程详细信息的方法
+  // 新增：获取课程详细信息的方法（Tab明细部的数据源）
   Future<void> _fetchScanedLsnDetails() async {
     final String apiLsnScanedLsnStatisticUrl =
         '${KnConfig.apiBaseUrl}${Constants.apiLsnScanedLsnStatistic}/${widget.stuId}/$_selectedYear';
@@ -285,70 +302,90 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KnAppBar(
-        title: '${widget.stuName}的$titleName',
-        subtitle: "${widget.pagePath} >> $titleName",
-        context: context,
-        appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red - 20,
-            widget.knFontColor.green - 20,
-            widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
-        subtitleTextColor: Colors.white,
-        addInvisibleRightButton: true,
-        titleFontSize: 20.0,
-        subtitleFontSize: 12.0,
-      ),
-      body: Column(
-        children: [
-          Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TabBar(
-                      controller: _tabController,
-                      tabs: const [
-                        Tab(text: "上课完了统计"),
-                        Tab(text: "还未上课统计"),
-                      ],
-                      indicatorColor: Colors.green,
-                      labelColor: Colors.green,
-                      unselectedLabelColor: Colors.black54,
-                    ),
-                  ),
-                  OutlinedButton(
-                    onPressed: _showYearPicker,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.green,
-                      side: const BorderSide(color: Colors.green),
-                    ),
-                    child: Text('$_selectedYear年'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
+        appBar: KnAppBar(
+          title: '${widget.stuName}的$titleName',
+          subtitle: widget.pagePath,
+          context: context,
+          appBarBackgroundColor: widget.knBgColor,
+          titleColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red - 20,
+              widget.knFontColor.green - 20,
+              widget.knFontColor.blue - 20),
+          subtitleBackgroundColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red + 20,
+              widget.knFontColor.green + 20,
+              widget.knFontColor.blue + 20),
+          subtitleTextColor: Colors.white,
+          addInvisibleRightButton: false,
+          currentNavIndex: 0,
+          titleFontSize: 20.0,
+          subtitleFontSize: 12.0,
+        ),
+        body: Stack(
+          children: [
+            Column(
               children: [
-                _buildCompletedLessonsView(),
-                _buildPendingLessonsView(),
+                Card(
+                  margin: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TabBar(
+                            controller: _tabController,
+                            tabs: const [
+                              Tab(text: "上课完了统计"),
+                              Tab(text: "还未上课统计"),
+                            ],
+                            indicatorColor: Colors.green,
+                            labelColor: Colors.green,
+                            unselectedLabelColor: Colors.black54,
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed:
+                              _isLoading ? null : _showYearPicker, // 在加载中禁用按钮,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.green,
+                            side: const BorderSide(color: Colors.green),
+                          ),
+                          child: Text('$_selectedYear年'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    physics: _isLoading
+                        ? const NeverScrollableScrollPhysics()
+                        : null, // 在加载中禁用滑动
+                    children: [
+                      _buildCompletedLessonsView(),
+                      _buildPendingLessonsView(),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+            // 加载指示器
+            if (_isLoading)
+              Center(
+                // 不要删除，留着学习用
+                // child: CircularProgressIndicator(
+                //   valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                // ),
+
+                // 使用自定的加载器进度条
+                child:
+                    KnLoadingIndicator(color: widget.knBgColor), // 使用自定的加载器进度条
+              ),
+          ],
+        ));
   }
 
   Widget _buildCompletedLessonsView() {
@@ -363,7 +400,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
         // 根据最大课时决定图表高度
         double chartHeight =
-            maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 200.0 : 250.0) : 150;
+            maxLessonCount > 5.0 ? (maxLessonCount > 10 ? 250.0 : 200.0) : 150;
 
         // 计算计划课时合计和额外加课合计
         double totalPlanned =
@@ -377,25 +414,40 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                title: Text(
-                  subject,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Row(
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 0), // 减少垂直内边距
+                title: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween, // 使子元素分散对齐（一个在左，一个在右）
                   children: [
+                    // 左侧显示科目名称
                     Text(
-                      '计划课时合计: ${totalPlanned.toStringAsFixed(1)}',
-                      style: const TextStyle(color: Colors.blue),
+                      subject,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 16), // 在两个文本之间添加间距
-                    if (totalExtra > 0)
-                      Text(
-                        '额外加课合计: ${totalExtra.toStringAsFixed(1)}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
+
+                    // 右侧显示合计信息
+                    Row(
+                      mainAxisSize: MainAxisSize.min, // 使Row只占用必要的空间
+                      children: [
+                        Text(
+                          '计划课合计: ${totalPlanned.toStringAsFixed(1)}',
+                          style:
+                              const TextStyle(color: Colors.blue, fontSize: 14),
+                        ),
+                        const SizedBox(width: 8), // 减小间距以节省空间
+                        if (totalExtra > 0)
+                          Text(
+                            '加时课合计: ${totalExtra.toStringAsFixed(1)}',
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 14),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
+                // 移除subtitle，因为我们已经把合计信息放到title中了
               ),
               SizedBox(
                 height: chartHeight, // Chart图的高度
@@ -411,11 +463,30 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
+                            interval: 1,
                             getTitlesWidget: (double value, TitleMeta meta) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text('${value.toInt() + 1}月'),
-                              );
+                              const months = [
+                                '1月',
+                                '2月',
+                                '3月',
+                                '4月',
+                                '5月',
+                                '6月',
+                                '7月',
+                                '8月',
+                                '9月',
+                                '10月',
+                                '11月',
+                                '12月'
+                              ];
+                              int index = value.toInt();
+                              if (index >= 0 && index < months.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(months[index]),
+                                );
+                              }
+                              return const SizedBox.shrink();
                             },
                             reservedSize: 40,
                           ),
@@ -434,7 +505,32 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                           sideTitles: SideTitles(showTitles: false),
                         ),
                       ),
-                      gridData: const FlGridData(show: true),
+                      // gridData: const FlGridData(show: true),
+                      // 修改网格线样式从虚线为点线
+                      gridData: FlGridData(
+                        show: true,
+                        // 注释掉原来的默认虚线设置
+                        // drawVerticalLine: true,
+                        // drawHorizontalLine: true,
+
+                        // 添加新的点线样式设置
+                        horizontalInterval: 1,
+                        verticalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.black.withOpacity(0.3),
+                            strokeWidth: 0.3,
+                            // dashArray: [2, 4], // 这里设置点线样式：2像素绘制，4像素空白
+                          );
+                        },
+                        getDrawingVerticalLine: (value) {
+                          return FlLine(
+                            color: Colors.black.withOpacity(0.3),
+                            strokeWidth: 0.3,
+                            // dashArray: [2, 4], // 这里设置点线样式：2像素绘制，4像素空白
+                          );
+                        },
+                      ),
                       borderData: FlBorderData(show: true),
                     ),
                   ),
@@ -451,30 +547,93 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
 
   Widget _buildMonthlyTabs(String subject) {
     List<int> months = List.generate(12, (index) => index + 1);
-    return DefaultTabController(
-      length: months.length,
-      // 修改：初始化Tab时设置当前月份为默认选中
-      initialIndex: DateTime.now().month - 1,
-      child: Column(
-        children: [
-          TabBar(
-            isScrollable: true,
-            tabs: months.map((month) => Tab(text: '$month月')).toList(),
-            labelColor: Colors.green, // 选中Tab的文字颜色
-            unselectedLabelColor: Colors.black54, // 未选中Tab的文字颜色
-            indicatorColor: Colors.green, // 指示器颜色
+
+    return StatefulBuilder(
+      builder: (context, setTabState) {
+        return DefaultTabController(
+          length: months.length,
+          initialIndex: DateTime.now().month - 1,
+          child: Builder(
+            builder: (context) {
+              final TabController tabController =
+                  DefaultTabController.of(context);
+
+              // 监听Tab切换
+              tabController.addListener(() {
+                if (!tabController.indexIsChanging) {
+                  setTabState(() {
+                    _selectedMonthIndex = tabController.index;
+                  });
+                }
+              });
+
+              return Column(
+                children: [
+                  TabBar(
+                    isScrollable: true,
+                    tabs: months.map((month) => Tab(text: '$month月')).toList(),
+                    labelColor: Colors.green,
+                    unselectedLabelColor: Colors.black54,
+                    indicatorColor: Colors.green,
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100), // 添加动画效果
+                    height: _calculateTabViewHeight(
+                        subject, _selectedMonthIndex + 1),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.yellow[100], // 淡黄色背景
+                      ),
+                      child: TabBarView(
+                        children: months
+                            .map((month) => _buildMonthTab(subject, month))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-          SizedBox(
-            height: 200, // 调整高度以适应内容
-            child: TabBarView(
-              children: months
-                  .map((month) => _buildMonthTab(subject, month))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  double _calculateTabViewHeight(String subject, int month) {
+    // 获取该月份的课程数量
+    List<Kn01L002LsnBean> monthLessons =
+        staticScanedLsnDetailsList.where((lesson) {
+      if (lesson.subjectName != subject) return false;
+      int schedualMonth = int.parse(lesson.schedualDate.substring(5, 7));
+      int adjustedMonth = lesson.lsnAdjustedDate.isNotEmpty
+          ? int.parse(lesson.lsnAdjustedDate.substring(5, 7))
+          : schedualMonth;
+      return schedualMonth == month || adjustedMonth == month;
+    }).toList();
+
+    int lessonCount = monthLessons.length;
+
+    if (lessonCount == 0) {
+      return 0.0;
+    }
+
+    // 精确计算每个Card组件的高度
+    // Card margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8) = 上下8px
+    // Card padding: EdgeInsets.all(8) = 16px
+    // CircleAvatar: 默认radius 20 = 40px高度
+    // 文字行高: 大约20px
+    // Row的crossAxisAlignment.start + SizedBox(width: 16)
+
+    double singleCardHeight = 8 + // Card的上下margin
+        16 + // Card的上下padding
+        40 + // 主要内容高度（CircleAvatar或文字的最大高度）
+        0; // 其他间距
+
+    double totalContentHeight = lessonCount * singleCardHeight;
+
+    // 可以添加一点缓冲，避免内容被截断
+    return totalContentHeight + 4; // 只加4px的小缓冲
   }
 
   // 新增：构建单个月份Tab的内容
@@ -491,6 +650,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     return ListView.builder(
       itemCount: monthLessons.length,
       itemBuilder: (context, index) {
+        // 显示每个月上完课的详细信息
         return _buildLessonItem(monthLessons[index], month);
       },
     );
@@ -503,15 +663,22 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     // 2024-11-04 添加：检查是否是月加课类型
     bool isExtraLesson = lesson.lessonType == 2;
 
+    // 检查是否是拼凑课程
+    bool isPiecesLesson = lesson.isFromPiceseLsn == 1;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      // 设置Card背景颜色
+      color: isPiecesLesson ? Colors.grey[200]! : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start, // 添加顶部对齐
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: Colors.green,
+              // 设置CircleAvatar背景颜色
+              backgroundColor:
+                  isPiecesLesson ? Colors.grey[600]! : Colors.green,
               foregroundColor: Colors.white,
               child: Text(lesson.classDuration.toString()),
             ),
@@ -524,7 +691,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                   Text(
                     '种别: $lessonType',
                     style: TextStyle(
-                        color: isExtraLesson ? Colors.pink : textColor,
+                        // 设置种别文字颜色
+                        color: isPiecesLesson
+                            ? Colors.grey[700]!
+                            : (isExtraLesson ? Colors.pink : textColor),
                         fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -566,7 +736,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     Text(
                       '上课: ${CommonMethod.getWeekday(lesson.schedualDate)}  ${lesson.schedualDate}',
                       style: TextStyle(
-                          color: isExtraLesson ? Colors.pink : textColor),
+                          // 如果是零碎加课拼凑成的整课后再换正课，课程卡片背景就显示浅灰色，同时字体程深灰色
+                          color: isPiecesLesson
+                              ? Colors.grey[700]!
+                              : (isExtraLesson ? Colors.pink : textColor)),
                     ),
                   ],
                 ],
@@ -590,6 +763,9 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
         if (isExtraToSche) {
           return '转'; // 加课转正课
         } else {
+          if (lesson.isFromPiceseLsn == 1) {
+            return '拼'; // 零碎加课拼凑成的整课，再去转换正课
+          }
           return '计'; // 月计划课
         }
       case 2:
@@ -687,12 +863,14 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   }
 
   double _getMaxLessonCount(List<LessonCount> lessonCounts) {
-    double maxCount = 0;
+    double maxValue = 0;
     for (var count in lessonCounts) {
-      double total = count.monthRegular + count.monthPlan + count.monthExtra;
-      if (total > maxCount) maxCount = total;
+      // 检查每个对象的三个属性
+      if (count.monthRegular > maxValue) maxValue = count.monthRegular;
+      if (count.monthPlan > maxValue) maxValue = count.monthPlan;
+      if (count.monthExtra > maxValue) maxValue = count.monthExtra;
     }
-    return maxCount;
+    return maxValue;
   }
 
   List<LineChartBarData> _generateLineBarsData(List<LessonCount> lessonCounts) {
@@ -765,10 +943,16 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
   // 计算Y轴最大值的方法
   double _calculateMaxY(List<LessonCount> lessonCounts) {
     double maxY = 0;
+
+    // 找出所有值中的最大值（不累加，而是分别比较）
     for (var count in lessonCounts) {
-      double total = count.monthRegular + count.monthPlan + count.monthExtra;
-      if (total > maxY) maxY = total;
+      // 检查各个值，找出最大值
+      if (count.monthRegular > maxY) maxY = count.monthRegular;
+      if (count.monthPlan > maxY) maxY = count.monthPlan;
+      if (count.monthExtra > maxY) maxY = count.monthExtra;
     }
+
+    // 向上取整，确保有足够空间显示最大值
     return maxY.ceilToDouble();
   }
 

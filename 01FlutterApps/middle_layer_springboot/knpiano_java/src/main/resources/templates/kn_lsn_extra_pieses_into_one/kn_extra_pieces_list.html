@@ -74,6 +74,47 @@
             margin-left: 20px;
             margin-bottom: 10px;
         }
+
+        /* ===== 新增：拼课功能相关样式 ===== */
+        .assembled-row {
+            background-color: #f0f0f0 !important;
+            color: #888 !important;
+        }
+
+        .lesson-checkbox {
+            margin-right: 8px;
+        }
+
+        .assembled-section {
+            margin-top: 30px;
+            border-top: 2px solid #007bff;
+            padding-top: 15px;
+        }
+
+        .assembled-header {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .progress-info {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .fragments-section {
+            margin-bottom: 20px;
+        }
+
+        .fragments-header {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -104,7 +145,7 @@
                              aria-labelledby="searchDescriptionHeader">
                             <div class="card-body">
                                 <dl>
-                                    <dd class="indented">①课题：课程升级导致的课时不一致（如钢琴已经课45分钟一节，钢琴2级60分钟一节），一级的零碎课去拼接2级课零碎课和不合理？</dd>
+                                    <dd class="indented">①</dd>
                                     <dd class="indented">②</dd>
                                     <dd class="indented">③</dd>
                                     <dd class="indented">③</dd>
@@ -146,7 +187,7 @@
                                 <button class="btn btn-link" type="button" data-toggle="collapse" 
                                         data-target="#detailDescriptionCollapse" aria-expanded="true" 
                                         aria-controls="detailDescriptionCollapse">
-                                    明细部业务说明
+                                    明细部业务说明【只显示不足1节课的零碎加课的课程，1整节的加课信息请参照：「加课消化管理」的课程管理页面。】
                                 </button>
                             </h5>
                         </div>
@@ -154,11 +195,11 @@
                              aria-labelledby="detailDescriptionHeader">
                             <div class="card-body">
                                 <dl>
-                                    <dd class="indented">①【加课换正课】按钮:执行加课换正课，同时会判断该加课换正课是【有意义的换课】还是【无意义的换课】。执行后，按钮会变成【撤销】按钮</dd>
-                                    <dd class="indented">②【有意义的换课】按钮:执行的加课换正课+对象月计划课小于等于4。</dd>
-                                    <dd class="indented">③【无意义的换课】按钮:月计划已经满了4节课了还执行加课换正课，这个正课换得就没有意义。</dd>
-                                    <dd class="indented">④【撤销】按钮:把换成的正课还原为原来的加课状态。按钮会变成【加课换正课】按钮</dd>
-                                    <dd class="indented">⑤【已经结算完了】按钮:，操作不可。该正课已经在换正课的那个月份做了课费结算。在 课已支付管理页面点击【撤销】，【已经结算完了】按钮会变成【撤销】按钮</dd>
+                                    <dd class="indented">①选择零碎课：在每个学生的零碎课明细中，勾选checkbox来选择要拼凑的课程</dd>
+                                    <dd class="indented">②拼课规则：只有相同科目编号的课程可以拼凑，时长累计必须恰好等于该科目的标准课时</dd>
+                                    <dd class="indented">④整课生成：点击拼凑成正课按钮，将选中的checkbox课程拼成1节课显示在"拼凑完成的整节课明细"中</dd>
+                                    <dd class="indented">③自动禁用：拼凑完的零碎课的checkbox将被禁用，不再参与拼凑整课的计算。</dd>
+                                    <dd class="indented">⑤拆分功能：可以通过"拆分"按钮取消已拼凑的整节课</dd>
                                 </dl>
                             </div>
                         </div>
@@ -172,7 +213,7 @@
                     </style>
                     
                     <div class="form-group" th:if="${infoList == null || #lists.isEmpty(infoList)}">
-                        <p class="no-info-message">目前没有学生的消化课程信息！</p>
+                        <p class="no-info-message">目前没有学生零碎的课程信息！</p>
                     </div>
                 </form>
 

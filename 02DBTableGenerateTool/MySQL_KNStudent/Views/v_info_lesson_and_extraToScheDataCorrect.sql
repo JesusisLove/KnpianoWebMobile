@@ -23,56 +23,63 @@ VIEW v_info_lesson_and_extraToScheDataCorrect AS
         lsn.subject_sub_id AS subject_sub_id,
         eda.subject_sub_name AS subject_sub_name,
         lsn.stu_id AS stu_id,
-					case when mst.del_flg = 1 then  CONCAT(mst.stu_name, '(已退学)')
-						 else mst.stu_name
-					end AS
-        stu_name,
+        CASE 
+            WHEN mst.del_flg = 1 THEN CONCAT(mst.stu_name, '(已退学)')
+            ELSE mst.stu_name
+        END AS stu_name,
         lsn.class_duration AS class_duration,
         lsn.schedual_type AS schedual_type,
-        schedual_date,
-        lsn_adjusted_date,
+        lsn.schedual_date,
+        lsn.lsn_adjusted_date,
         lsn.scanqr_date,
-        original_schedual_date,
-        lesson_type,
+        lsn.original_schedual_date,
+        lsn.lesson_type,
         mst.del_flg AS del_flg,
         lsn.create_date AS create_date,
         lsn.update_date AS update_date
     FROM
         (
-			SELECT 
-				lsn.lesson_id AS lesson_id,
-				lsn.subject_id AS subject_id,
-				lsn.subject_sub_id AS subject_sub_id,
-				lsn.stu_id AS stu_id,
-				lsn.class_duration AS class_duration,
-				lsn.schedual_type AS schedual_type,
-				lsn.schedual_date,
-				lsn_adjusted_date,
-				lsn.scanqr_date,
-                null as original_schedual_date,
-                lesson_type,
-				lsn.create_date AS create_date,
-				lsn.update_date AS update_date
-			FROM
-				t_info_lesson lsn where extra_to_dur_date is null -- 非加课换正课记录
-			UNION ALL
-			SELECT 
-				lsn.lesson_id AS lesson_id,
-				lsn.subject_id AS subject_id,
-				extr.new_subject_sub_id AS subject_sub_id,
+            SELECT 
+                lsn.lesson_id AS lesson_id,
+                lsn.subject_id AS subject_id,
+                lsn.subject_sub_id AS subject_sub_id,
+                lsn.stu_id AS stu_id,
+                lsn.class_duration AS class_duration,
+                lsn.schedual_type AS schedual_type,
+                lsn.schedual_date,
+                lsn.lsn_adjusted_date,
+                lsn.scanqr_date,
+                NULL as original_schedual_date,
+                lsn.lesson_type,
+                lsn.create_date AS create_date,
+                lsn.update_date AS update_date
+            FROM
+                t_info_lesson lsn 
+            WHERE 
+                extra_to_dur_date IS NULL -- 非加课换正课记录
+            UNION ALL
+            SELECT 
+                lsn.lesson_id AS lesson_id,
+                lsn.subject_id AS subject_id,
+                extr.new_subject_sub_id AS subject_sub_id,
                 lsn.stu_id as stu_id,
-				lsn.class_duration AS class_duration,
-				lsn.schedual_type AS schedual_type,
+                lsn.class_duration AS class_duration,
+                lsn.schedual_type AS schedual_type,
                 extra_to_dur_date as schedual_date,
-				null  AS lsn_adjusted_date,-- 成了正课记录的情况下，就让调课日期为null，这样手机页面的加课换正课记录就不会再显示调课日期了👍
-				lsn.scanqr_date,
-				lsn.schedual_date as original_schedual_date,
-				1 AS lesson_type,-- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
-				lsn.create_date AS create_date,
-				lsn.update_date AS update_date 
-			from t_info_lesson lsn
-			inner join t_info_lesson_extra_to_sche extr on extr.lesson_id = lsn.lesson_id and lsn.extra_to_dur_date is not null
-        )lsn
+                NULL AS lsn_adjusted_date, -- 成了正课记录的情况下，就让调课日期为null，这样手机页面的加课换正课记录就不会再显示调课日期了👍
+                lsn.scanqr_date,
+                lsn.schedual_date as original_schedual_date,
+                1 AS lesson_type, -- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
+                lsn.create_date AS create_date,
+                lsn.update_date AS update_date 
+            FROM 
+                t_info_lesson lsn
+            INNER JOIN 
+                t_info_lesson_extra_to_sche extr 
+            ON 
+                extr.lesson_id = lsn.lesson_id 
+                AND lsn.extra_to_dur_date IS NOT NULL
+        ) lsn
         INNER JOIN t_mst_student mst ON lsn.stu_id = mst.stu_id
         INNER JOIN v_info_subject_edaban eda ON lsn.subject_id = eda.subject_id
-											AND lsn.subject_sub_id = eda.subject_sub_id
+                                            AND lsn.subject_sub_id = eda.subject_sub_id;

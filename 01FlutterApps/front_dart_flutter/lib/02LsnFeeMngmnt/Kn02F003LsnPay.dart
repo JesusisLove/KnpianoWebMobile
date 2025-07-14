@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
+import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
@@ -245,7 +246,19 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   }
 
   // 修改: 添加显示银行选择器的方法
+// 修改: 添加显示银行选择器的方法
   void _showBankPicker() {
+    // 找到当前选中银行的索引，如果没有选中则默认为0
+    int initialIndex = 0;
+    if (selectedBankId != null) {
+      initialIndex =
+          bankList.indexWhere((bank) => bank['bankId'] == selectedBankId);
+      if (initialIndex == -1) initialIndex = 0;
+    }
+
+    // 临时存储选择的索引
+    int tempSelectedIndex = initialIndex;
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => Container(
@@ -273,6 +286,10 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                     child:
                         Text('确定', style: TextStyle(color: widget.knFontColor)),
                     onPressed: () {
+                      // 点击确定时更新selectedBankId
+                      setState(() {
+                        selectedBankId = bankList[tempSelectedIndex]['bankId'];
+                      });
                       Navigator.of(context).pop();
                     },
                   ),
@@ -282,10 +299,12 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
             Expanded(
               child: CupertinoPicker(
                 itemExtent: 32.0,
+                // 设置初始选中的项目
+                scrollController:
+                    FixedExtentScrollController(initialItem: initialIndex),
                 onSelectedItemChanged: (int index) {
-                  setState(() {
-                    selectedBankId = bankList[index]['bankId'];
-                  });
+                  // 更新临时选择的索引
+                  tempSelectedIndex = index;
                 },
                 children:
                     bankList.map((bank) => Text(bank['bankName'])).toList(),
@@ -316,7 +335,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
             widget.knFontColor.red + 20,
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
-        addInvisibleRightButton: true,
+        addInvisibleRightButton: false,
+        currentNavIndex: 1,
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
@@ -338,7 +358,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
-                    final paymentDate = DateTime.parse(fee.payDate!);
+                    final paymentDate =
+                        CommonMethod.parseServerDate(fee.payDate!);
                     isPaymentToday =
                         DateFormat('yyyy-MM-dd').format(paymentDate) ==
                             DateFormat('yyyy-MM-dd').format(DateTime.now());

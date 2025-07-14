@@ -9,6 +9,7 @@ import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
 import 'Kn05S003SubjectEdabnBean.dart';
 import 'kn05S003SubEda_add_edit.dart';
+import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 
 // ignore: must_be_immutable
 class Kn05S003SubEdaView extends StatefulWidget {
@@ -33,16 +34,38 @@ class Kn05S003SubEdaView extends StatefulWidget {
 
 class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
   final String titleName = "科目级别一览";
-  late  String subtitle;
+  late String subtitle;
   List<dynamic> subjectEdaBanBean = [];
   late Future<List<Kn05S003SubjectEdabnBean>> futureSubjectsEda;
+  bool _isLoading = false; // 添加加载状态变量
 
   @override
   void initState() {
     super.initState();
 
     // 从DB取得该科目的科目级别信息，做画面初期化
-    futureSubjectsEda = fetchSubjectsEda();
+    _fetchSubjectEdaData();
+  }
+
+  void _fetchSubjectEdaData() {
+    setState(() {
+      _isLoading = true; // 开始加载前设置为true
+    });
+
+    // 确保在这里为futureSubjects赋值
+    futureSubjectsEda = fetchSubjectsEda().then((result) {
+      // 数据加载完成后
+      setState(() {
+        _isLoading = false; // 加载完成后设置为false
+      });
+      return result;
+    }).catchError((error) {
+      // 发生错误时
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+      throw error; // 继续传递错误
+    });
   }
 
   // 画面初期化：取得所有科目信息
@@ -85,73 +108,91 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        addInvisibleRightButton: false,
+        currentNavIndex: 2,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
             // 新規”➕”按钮的事件处理函数
-            onPressed: () {
-              // Navigate to add subjectEda page or handle add operation
-              Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SubjectEdaAddEdit(
-                            subjectId: widget.subjectId,
-                            showMode: '新規',
-                            knBgColor: widget.knBgColor,
-                            knFontColor: widget.knFontColor,
-                            pagePath: subtitle,
-                          ))).then((value) => {
-                    setState(() {
-                      futureSubjectsEda = fetchSubjectsEda();
-                    })
-                  });
-            },
+            onPressed: _isLoading
+                ? null // 如果正在加载，禁用按钮
+                : () {
+                    // Navigate to add subjectEda page or handle add operation
+                    Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SubjectEdaAddEdit(
+                                  subjectId: widget.subjectId,
+                                  showMode: '新規',
+                                  knBgColor: widget.knBgColor,
+                                  knFontColor: widget.knFontColor,
+                                  pagePath: subtitle,
+                                ))).then((value) => {
+                          setState(() {
+                            _fetchSubjectEdaData(); // 使用统一的加载方法
+                          })
+                        });
+                  },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 上一级画面传过来的科目名称
-            TextField(
-              controller: TextEditingController(text: widget.subjectName),
-              readOnly: true,
-              decoration: const InputDecoration(
-                labelText: '科目名称',
-                // 页面上划一条线
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            const Divider(color: Color.fromARGB(255, 12, 140, 116)),
-            const SizedBox(height: 16.0),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 上一级画面传过来的科目名称
+                TextField(
+                  controller: TextEditingController(text: widget.subjectName),
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: '科目名称',
+                    // 页面上划一条线
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 10.0),
+                const Divider(color: Color.fromARGB(255, 12, 140, 116)),
+                const SizedBox(height: 16.0),
 
-            // FutureBuilder 显示科目级别信息的数据列表
-            Expanded(
-              child: FutureBuilder<List<Kn05S003SubjectEdabnBean>>(
-                future: futureSubjectsEda,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        return _buildSubjectEdaItem(snapshot.data![index]);
-                      },
-                    );
-                  } else {
-                    return const Center(child: Text('No data available'));
-                  }
-                },
-              ),
+                // FutureBuilder 显示科目级别信息的数据列表
+                Expanded(
+                  child: FutureBuilder<List<Kn05S003SubjectEdabnBean>>(
+                    future: futureSubjectsEda,
+                    builder: (context, snapshot) {
+                      if (_isLoading ||
+                          snapshot.connectionState == ConnectionState.waiting) {
+                        // 当正在加载或连接状态是等待中时，返回空容器，因为我们有单独的加载指示器
+                        return Container();
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData) {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            return _buildSubjectEdaItem(snapshot.data![index]);
+                          },
+                        );
+                      } else {
+                        // 在非加载状态下，如果没有数据且没有错误，显示空容器
+                        return Container();
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // 加载指示器层
+          if (_isLoading)
+            Center(
+              child:
+                  KnLoadingIndicator(color: widget.knBgColor), // 使用自定义的加载器进度条
+            ),
+        ],
       ),
     );
   }
@@ -174,59 +215,62 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.blue),
               // 编辑按钮的事件处理函数
-              onPressed: () {
-                Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubjectEdaAddEdit(
-                      subjectEda: subjectEda,
-                      showMode: '編集',
-                      knBgColor: widget.knBgColor,
-                      knFontColor: widget.knFontColor,
-                      pagePath: subtitle,
-                    ),
-                  ),
-                ).then((value) {
-                  // 检查返回值，如果为true，则重新加载数据
-                  if (value == true) {
-                    setState(() {
-                      futureSubjectsEda = fetchSubjectsEda();
-                    });
-                  }
-                });
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () {
+                      Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SubjectEdaAddEdit(
+                            subjectEda: subjectEda,
+                            showMode: '編集',
+                            knBgColor: widget.knBgColor,
+                            knFontColor: widget.knFontColor,
+                            pagePath: subtitle,
+                          ),
+                        ),
+                      ).then((value) {
+                        // 检查返回值，如果为true，则重新加载数据
+                        if (value == true) {
+                          _fetchSubjectEdaData(); // 使用统一的加载方法
+                        }
+                      });
+                    },
             ),
 
             // 删除按钮
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('删除确认'),
-                      content: Text('确定要删除【${subjectEda.subjectName}】这门科目吗？'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('取消'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('确定'),
-                          onPressed: () {
-                            _deleteSubjectEdaBan(
-                                subjectEda.subjectId, subjectEda.subjectSubId);
-                            Navigator.of(context).pop(); // 关闭对话框
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: _isLoading
+                  ? null // 如果正在加载，禁用按钮
+                  : () async {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('删除确认'),
+                            content:
+                                Text('确定要删除【${subjectEda.subjectName}】这门科目吗？'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('取消'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('确定'),
+                                onPressed: () {
+                                  _deleteSubjectEdaBan(subjectEda.subjectId,
+                                      subjectEda.subjectSubId);
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
             ),
           ],
         ),
@@ -236,6 +280,10 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
 
   // 科目级别一览里的删除按钮按下事件
   void _deleteSubjectEdaBan(String subjectId, String subjectSubId) async {
+    setState(() {
+      _isLoading = true; // 开始删除操作前设置为true
+    });
+
     final String deleteUrl =
         '${KnConfig.apiBaseUrl}${Constants.subjectEdaDelete}/$subjectId/$subjectSubId';
 
@@ -246,8 +294,12 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
           'Content-Type': 'application/json', // 添加内容类型头
         },
       ).then((response) {
+        setState(() {
+          _isLoading = false; // 操作完成后设置为false
+        });
+
         if (response.statusCode == 200) {
-          reloadData();
+          _fetchSubjectEdaData(); // 使用统一的加载方法
         } else {
           showDialog(
             context: context,
@@ -265,8 +317,32 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
             },
           );
         }
+      }).catchError((error) {
+        setState(() {
+          _isLoading = false; // 出错时也要设置为false
+        });
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('操作异常'),
+              content: Text('发生错误: $error'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('确定'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
       });
     } catch (e) {
+      setState(() {
+        _isLoading = false; // 出错时也要设置为false
+      });
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -283,14 +359,5 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
         },
       );
     }
-  }
-
-  void reloadData() {
-    // 重新加载数据
-    futureSubjectsEda = fetchSubjectsEda();
-    // 更新状态以重建UI
-    futureSubjectsEda.whenComplete(() {
-      setState(() {});
-    });
   }
 }

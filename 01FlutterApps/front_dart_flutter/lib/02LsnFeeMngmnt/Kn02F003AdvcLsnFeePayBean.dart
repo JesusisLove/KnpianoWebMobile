@@ -10,10 +10,11 @@ class Kn02F003AdvcLsnFeePayBean {
   final String subjectSubName;
   final String stuId;
   final String stuName;
+  String? nikName; //因为从后台返回的nikName有可能是NULL
   final int classDuration;
   final int lessonType;
   final int schedualType;
-  late  String schedualDate;
+  late String schedualDate;
   final int payStyle;
   final double subjectPrice;
   final int minutesPerLsn;
@@ -23,36 +24,37 @@ class Kn02F003AdvcLsnFeePayBean {
   final int advcFlg;
   late bool isChecked;
 
-  Kn02F003AdvcLsnFeePayBean({
-    required this.lessonId,
-    required this.lsnFeeId,
-    required this.lsnPayId,
-    required this.subjectId,
-    required this.subjectSubId,
-    required this.subjectName,
-    required this.subjectSubName,
-    required this.stuId,
-    required this.stuName,
-    required this.classDuration,
-    required this.lessonType,
-    required this.schedualType,
-    required this.schedualDate,
-    required this.payStyle,
-    required this.subjectPrice,
-    required this.minutesPerLsn,
-    required this.lsnPay,
-    required this.bankId,
-    required this.bankName,
-    required this.advcFlg,
-    required this.isChecked
-  });
+  Kn02F003AdvcLsnFeePayBean(
+      {required this.lessonId,
+      required this.lsnFeeId,
+      required this.lsnPayId,
+      required this.subjectId,
+      required this.subjectSubId,
+      required this.subjectName,
+      required this.subjectSubName,
+      required this.stuId,
+      required this.stuName,
+      this.nikName,
+      required this.classDuration,
+      required this.lessonType,
+      required this.schedualType,
+      required this.schedualDate,
+      required this.payStyle,
+      required this.subjectPrice,
+      required this.minutesPerLsn,
+      required this.lsnPay,
+      required this.bankId,
+      required this.bankName,
+      required this.advcFlg,
+      required this.isChecked});
 
   factory Kn02F003AdvcLsnFeePayBean.fromJson(Map<String, dynamic> json) {
     String formattedSchedualDate = '';
     try {
       if (json['schedualDate'] != null && json['schedualDate'] != '') {
         DateTime parsedDate = DateTime.parse(json['schedualDate']);
-        formattedSchedualDate = DateFormat('yyyy-MM-dd hh:mm').format(parsedDate.toLocal());
+        formattedSchedualDate =
+            DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
       }
     } catch (e) {
       // ignore: avoid_print
@@ -69,6 +71,7 @@ class Kn02F003AdvcLsnFeePayBean {
       subjectSubName: json['subjectSubName'] ?? '',
       stuId: json['stuId'] ?? '',
       stuName: json['stuName'] ?? '',
+      nikName: json['nikName'] as String?,
       classDuration: json['classDuration'] ?? 0,
       lessonType: json['lessonType'] ?? 0,
       schedualType: (formattedSchedualDate.isEmpty ? 0 : 1),
@@ -85,25 +88,25 @@ class Kn02F003AdvcLsnFeePayBean {
   }
 
   Map<String, dynamic> toJson() => {
-    'lessonId': lessonId,
-    'lsnFeeId': lsnFeeId,
-    'lsnPayId': lsnPayId,
-    'subjectId': subjectId,
-    'subjectSubId': subjectSubId,
-    'subjectName': subjectName,
-    'subjectSubName': subjectSubName,
-    'stuId': stuId,
-    'stuName': stuName,
-    'classDuration': classDuration,
-    'lessonType': lessonType,
-    'schedualType': schedualType,
-    'schedualDate': schedualDate,
-    'payStyle': payStyle,
-    'subjectPrice': subjectPrice,
-    'minutesPerLsn': minutesPerLsn,
-    'lsnPay': lsnPay,
-    'bankId': bankId,
-    'bankName': bankName,
-    'advcFlg': advcFlg,
-  };
+        'lessonId': lessonId,
+        'lsnFeeId': lsnFeeId,
+        'lsnPayId': lsnPayId,
+        'subjectId': subjectId,
+        'subjectSubId': subjectSubId,
+        'subjectName': subjectName,
+        'subjectSubName': subjectSubName,
+        'stuId': stuId,
+        'stuName': stuName,
+        'classDuration': classDuration,
+        'lessonType': lessonType,
+        'schedualType': schedualType,
+        'schedualDate': schedualDate,
+        'payStyle': payStyle,
+        'subjectPrice': subjectPrice,
+        'minutesPerLsn': minutesPerLsn,
+        'lsnPay': lsnPay,
+        'bankId': bankId,
+        'bankName': bankName,
+        'advcFlg': advcFlg,
+      };
 }

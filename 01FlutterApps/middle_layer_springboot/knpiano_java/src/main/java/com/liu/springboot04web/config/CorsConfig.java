@@ -24,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration  // 标记这是一个配置类
 public class CorsConfig {
-    @Value("${cors.allowed-origin}")  // 注入配置文件中的值
+    @Value("${cors.allowed-origin}")  // 注入application.yml配置文件中的值
     private String allowedOrigin; // 这个值是在yaml文件里配置的值（http://10.8.0.6:8080），指定具体的访问源
     
     @Bean  // 创建一个Spring Bean
