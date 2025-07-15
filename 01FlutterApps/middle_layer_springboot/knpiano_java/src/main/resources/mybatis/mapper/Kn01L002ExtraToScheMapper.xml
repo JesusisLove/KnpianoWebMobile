@@ -31,6 +31,55 @@ https://mybatis.org/mybatis-3/getting-started.html
         ORDER BY stu_name
     </select>
 
+    <!--手机前端，在课学生一览用的加课学生名单 -->
+    <select id= "getLsnExtraInfoList" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
+        WITH latest_subject_info_by_yyyymmdd AS (
+            SELECT subquery.stu_id AS stu_id,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.stu_name, '(已退学)')
+                        ELSE subquery.stu_name
+                END AS stu_name,
+                CASE WHEN subquery.del_flg = 1 THEN CONCAT(subquery.nik_name, '(已退学)')
+                        ELSE subquery.nik_name
+                END AS nik_name,
+                subquery.subject_id AS subject_id,
+                subquery.subject_name AS subject_name,
+                subquery.subject_sub_id AS subject_sub_id,
+                subquery.subject_sub_name AS subject_sub_name,
+                subquery.minutes_per_lsn AS minutes_per_lsn
+            FROM (
+                SELECT vDoc.*,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        ORDER BY vDoc.adjusted_date DESC 
+                    ) AS rn 
+                FROM v_info_student_document vDoc
+                WHERE vDoc.adjusted_date &lt;= CURDATE()
+            ) subquery 
+            WHERE subquery.rn = 1
+        )
+        SELECT DISTINCT
+            stu.stu_id,
+            stu.stu_name,
+            stu.nik_name
+        FROM       v_info_all_extra_lsns allextra
+        INNER JOIN t_mst_student stu ON allextra.stu_id = stu.stu_id
+        INNER JOIN t_mst_subject sub ON allextra.subject_id = sub.subject_id
+        INNER JOIN t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id
+            AND allextra.subject_sub_id = eda.subject_sub_id
+        INNER JOIN latest_subject_info_by_yyyymmdd doc
+                ON allextra.stu_id = doc.stu_id
+            AND allextra.subject_id = doc.subject_id
+            AND allextra.subject_sub_id = doc.subject_sub_id
+            AND allextra.class_duration = doc.minutes_per_lsn
+        LEFT JOIN t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
+        <where>
+            <if test="year != null and year != ''">
+                AND substring(schedual_date, 1, 4) = #{year}
+            </if>
+        </where>
+        ORDER BY stu_name
+    </select>
+
     <!-- 手机前端/后台维护，获取那些已经结算完了和还未结算的加课信息的课程 -->
     <select id="getInfoListExtraCanBeSche" resultType="com.liu.springboot04web.bean.Kn01L002ExtraToScheBean">
         <!-- 根据页面传来的年度，抽出选择年度当时的最新科目信息 -->
@@ -98,17 +147,17 @@ https://mybatis.org/mybatis-3/getting-started.html
             end as pay_flg,
             tosche.is_good_change,
             tosche.memo_reason
-        FROM             v_info_all_extra_lsns allextra
-        INNER JOIN             t_mst_student stu ON allextra.stu_id = stu.stu_id
-        INNER JOIN             t_mst_subject sub ON allextra.subject_id = sub.subject_id
-        INNER JOIN             t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id
+        FROM       v_info_all_extra_lsns allextra
+        INNER JOIN t_mst_student stu ON allextra.stu_id = stu.stu_id
+        INNER JOIN t_mst_subject sub ON allextra.subject_id = sub.subject_id
+        INNER JOIN t_info_subject_edaban eda ON allextra.subject_id = eda.subject_id
                                                         AND allextra.subject_sub_id = eda.subject_sub_id
-        INNER JOIN             latest_subject_info_by_yyyymmdd doc
-                                     ON allextra.stu_id = doc.stu_id
-                                    AND allextra.subject_id = doc.subject_id
-                                    AND allextra.subject_sub_id = doc.subject_sub_id
-                                    AND allextra.class_duration = doc.minutes_per_lsn
-        LEFT JOIN             t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
+        INNER JOIN latest_subject_info_by_yyyymmdd doc
+                ON allextra.stu_id = doc.stu_id
+                AND allextra.subject_id = doc.subject_id
+                AND allextra.subject_sub_id = doc.subject_sub_id
+                AND allextra.class_duration = doc.minutes_per_lsn
+        LEFT JOIN t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
         <where>
             <if test="stuId != null and stuId != ''">
               AND  allextra.stu_id = #{stuId}

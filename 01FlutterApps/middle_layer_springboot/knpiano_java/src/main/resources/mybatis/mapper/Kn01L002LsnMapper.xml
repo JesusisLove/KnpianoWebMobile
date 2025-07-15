@@ -57,19 +57,6 @@ https://mybatis.org/mybatis-3/getting-started.html
         order by stu_name, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
     </select>
 
-    <!--手机前端，在课学生一览用的加课学生名单 -->
-    <select id= "getLsnExtraInfoList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        select distinct stu_id,stu_name,nik_name from v_info_lesson 
-        <where>
-            scanQR_date is not null
-            AND lesson_type = 2
-            <if test="year != null and year != ''">
-                AND substring(schedual_date, 1, 4) = #{year}
-            </if>
-        </where>
-        order by stu_name
-    </select>
-
     <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->
     <select id= "getInfoListByDay" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         select 

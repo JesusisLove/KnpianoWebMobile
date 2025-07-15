@@ -96,7 +96,7 @@ public class Kn01L002ExtraHasBeenScheController {
         return "kn_extra_been_sche_001/kn_extra_hasbeen_sche_list";
     }
 
-        // 【一覧画面検索部】検索ボタンを押下
+    // 【一覧画面検索部】検索ボタンを押下
     @GetMapping("/kn_extra_hasbeen_sche_all/search")
     public String search(@RequestParam Map<String, Object> queryParams, Model model) {
         // 把画面传来的年和月拼接成yyyy-mm的        
