@@ -17,6 +17,7 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
     protected String subjectSubName;
     protected String stuId;
     protected String stuName;
+    protected String nikName;
     protected Integer classDuration;
     protected Integer lessonType;
     protected Integer schedualType;
@@ -109,6 +110,14 @@ public class Kn01L002ExtraToScheBean implements KnPianoBean {
         this.stuName = stuName;
     }
 
+    public String getNikName() {
+        return nikName;
+    }
+
+    public void setNikName(String nikName) {
+        this.nikName = nikName;
+    }
+    
     public Integer getClassDuration() {
         return classDuration;
     }

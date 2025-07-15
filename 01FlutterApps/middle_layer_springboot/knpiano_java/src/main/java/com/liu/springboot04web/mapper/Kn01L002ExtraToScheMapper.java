@@ -13,6 +13,10 @@ import javax.websocket.server.PathParam;
 import org.apache.ibatis.annotations.Param;
 
 public interface Kn01L002ExtraToScheMapper {
+
+        // 手机前端，取得在课学生一览用的加课学生名单
+        public List<Kn01L002ExtraToScheBean> getLsnExtraInfoList(@Param("year") String year);
+
         // 根据Web页面上的检索部传过来的年月，取得有加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
         public List<Kn01L002ExtraToScheBean> getSearchInfo4Stu(@PathParam("lsnMonth") String yearMonth);
 
