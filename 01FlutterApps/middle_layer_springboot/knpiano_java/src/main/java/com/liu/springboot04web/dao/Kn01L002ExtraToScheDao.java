@@ -36,6 +36,13 @@ public class Kn01L002ExtraToScheDao {
 
     private TInfoLessonExtraToScheBean tblBean = new TInfoLessonExtraToScheBean();
 
+
+    // 手机前端，取得在课学生一览用的加课学生名单
+    public List<Kn01L002ExtraToScheBean> getLsnExtraInfoList(String year) {
+        List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getLsnExtraInfoList(year);
+        return list;
+    }
+
     // 根据Web页面上的检索部传过来的年月，取得有加课的学生编号，学生姓名。初期化页面的学生姓名下拉列表框
     public List<Kn01L002ExtraToScheBean> getSearchInfo4Stu(String yearMonth) {
         List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getSearchInfo4Stu(yearMonth);
