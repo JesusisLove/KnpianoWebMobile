@@ -207,13 +207,8 @@ class _Kn01L003ExtraPiesesIntoOneState
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.latestLsnPrice}/$currentYear/${widget.stuId}';
 
-      print('正在调用API: $apiUrl');
-
       // 使用GET请求
       final response = await http.get(Uri.parse(apiUrl));
-
-      print('API响应状态码: ${response.statusCode}');
-      print('API响应内容: ${response.body}');
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
@@ -222,8 +217,6 @@ class _Kn01L003ExtraPiesesIntoOneState
         latestPrices = pricesJson
             .map((json) => Kn03D004StuDocBean.fromJson(json))
             .toList();
-
-        print('成功获取到 ${latestPrices.length} 条价格信息');
       } else {
         throw Exception('API调用失败，状态码: ${response.statusCode}');
       }
