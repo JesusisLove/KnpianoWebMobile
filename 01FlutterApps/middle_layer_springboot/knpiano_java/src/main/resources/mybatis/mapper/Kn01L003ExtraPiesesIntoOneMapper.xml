@@ -71,7 +71,7 @@
             AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
         WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
         <!-- 去掉重复的学生名单 -->
-        GROUP BY stu_name, nik_name;
+        ORDER BY stu_name, nik_name;
     </select>
 
     <!-- 前端设备，
