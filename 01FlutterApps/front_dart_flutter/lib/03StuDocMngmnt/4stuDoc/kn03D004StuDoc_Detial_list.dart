@@ -155,6 +155,21 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
     return ''; // 课时付费或没有数据时返回空字符串
   }
 
+  // 新增：根据payStyle获取价格标签文本
+  String _getPriceLabelText(int payStyle) {
+    return payStyle == 1 ? '课费（元/月）' : '单价（元/时）';
+  }
+
+  // 新增：根据payStyle计算显示价格
+  double _getDisplayPrice(Kn03D004StuDocBean student) {
+    double basePrice = student.lessonFeeAdjusted > 0
+        ? student.lessonFeeAdjusted
+        : student.lessonFee;
+
+    // 如果是按月付费，价格乘以4
+    return student.payStyle == 1 ? basePrice * 4 : basePrice;
+  }
+
   // 风格二：編集、削除
   Widget _buildStudentList(ValueNotifier<List<Kn03D004StuDocBean>> notifier) {
     return ValueListenableBuilder<List<Kn03D004StuDocBean>>(
@@ -171,6 +186,8 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
           itemBuilder: (context, index) {
             final student = students[index];
             final yearLsnCntText = _formatYearLsnCnt(student);
+            final priceLabelText = _getPriceLabelText(student.payStyle);
+            final displayPrice = _getDisplayPrice(student);
 
             return ListTile(
               leading: const CircleAvatar(
@@ -185,9 +202,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                     children: [
                       Expanded(
                         child: Text(
-                          student.lessonFeeAdjusted > 0
-                              ? '课程单价: ＄${student.lessonFeeAdjusted.toStringAsFixed(2)}'
-                              : '课程单价: ＄${student.lessonFee.toStringAsFixed(2)}',
+                          '$priceLabelText: ＄${displayPrice.toStringAsFixed(2)}',
                           style: const TextStyle(fontSize: 13),
                         ),
                       ),
