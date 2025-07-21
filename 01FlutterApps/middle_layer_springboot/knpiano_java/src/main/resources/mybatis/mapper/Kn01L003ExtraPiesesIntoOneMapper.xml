@@ -64,14 +64,14 @@
             SELECT DISTINCT stu_id, subject_id, subject_sub_id, class_duration FROM v_info_all_extra_lsns 
             WHERE LEFT(schedual_date, 4) = #{pieceExtraYear}
         )
-        SELECT doc.stu_id, doc.stu_name, doc.nik_name
+        SELECT DISTINCT doc.stu_id, doc.stu_name, doc.nik_name
         FROM v_latest_subject_info_from_student_document doc
         JOIN extraPiecesLsn ON doc.stu_id = extraPiecesLsn.stu_id
             AND doc.subject_id = extraPiecesLsn.subject_id
             AND doc.subject_sub_id = extraPiecesLsn.subject_sub_id
         WHERE extraPiecesLsn.class_duration  &lt;  doc.minutes_per_lsn
         <!-- 去掉重复的学生名单 -->
-        ORDER BY stu_name, nik_name;
+        ORDER BY stu_name;
     </select>
 
     <!-- 前端设备，
