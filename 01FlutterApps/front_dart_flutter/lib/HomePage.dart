@@ -122,7 +122,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
               colors: [Color(0xFF667eea), Color(0xFF764ba2)],
             ).createShader(bounds),
             child: const Text(
-              'KuanNi Piano Studio',
+              'KN Piano Studio',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
           const Text(
-            '观妮的钢琴课程管理系统',
+            '钢琴课程管理系统',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey,
@@ -150,16 +150,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         return {
           'title': '上课管理',
           'subtitle': '课程安排与进度跟踪',
-          'gradient': [const Color(0xFF56ab2f), const Color(0xFFa8e6cf)],
+          'gradient': [
+            const Color(0xFF2B7805),
+            const Color(0xFFa8e6cf)
+          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
         };
       case 1:
         return {
           'title': '学费管理',
           'subtitle': '学费收支与财务统计',
           'gradient': [
-            const Color(0xFFf093fb),
-            const Color(0xFFf5576c)
-          ], // 恢复原来的粉紫色
+            const Color(0xFFf5576c),
+            const Color(0xFFf093fb)
+          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
         };
       case 2:
         return {
@@ -168,19 +171,25 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           'gradient': [
             const Color(0xFF8B4513),
             const Color(0xFFCD853F)
-          ], // 保留棕色系
+          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
         };
       case 3:
         return {
           'title': '综合管理',
           'subtitle': '统计分析与综合查询',
-          'gradient': [const Color(0xFF4facfe), const Color(0xFF00f2fe)],
+          'gradient': [
+            const Color.fromARGB(255, 122, 4, 133),
+            const Color.fromARGB(255, 212, 176, 219)
+          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
         };
       case 4:
         return {
           'title': '设置管理',
           'subtitle': '系统配置与个性化设置',
-          'gradient': [const Color(0xFF667eea), const Color(0xFF764ba2)],
+          'gradient': [
+            const Color(0xFF764ba2),
+            const Color(0xFF667eea)
+          ] // 从前到后颜色渐变（深色的是该模块的主题颜色）,
         };
       default:
         return {
@@ -252,6 +261,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                         const SizedBox(height: 12),
+                        // 每个按钮的名称显示【例如：加课消化管理】
                         Text(
                           text,
                           textAlign: TextAlign.center,
@@ -264,11 +274,12 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
+                        // 每个按钮里的功能描述【例如：管理补课安排】
                         Text(
                           description,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.white70,
                           ),
                           maxLines: 2,
@@ -286,7 +297,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // 创建方块网格布局
+  // 创建方块网格布局（在前端设备上居上居下居左居右的尺寸设置）
   Widget _buildGridButtons(
       List<Map<String, dynamic>> buttonData, List<Color> gradient) {
     return Padding(
@@ -392,7 +403,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ];
         return [
           _buildGridButtons(
-              lessonButtons, [const Color(0xFF56ab2f), const Color(0xFFa8e6cf)])
+              lessonButtons, [const Color(0xFF2B7805), const Color(0xFFa8e6cf)])
         ];
 
       case 1:
@@ -458,8 +469,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           },
         ];
         return [
-          _buildGridButtons(feeButtons,
-              [const Color(0xFFf093fb), const Color(0xFFf5576c)]) // 恢复原来的粉紫色
+          _buildGridButtons(
+              feeButtons, [const Color(0xFFf5576c), const Color(0xFFf093fb)])
         ];
 
       case 2:
@@ -483,7 +494,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           {
             'icon': Icons.book,
             'text': "科目基本信息",
-            'description': "各课程的科目管理",
+            'description': "钢琴乐理等科目管理",
             'onPressed': () {
               Navigator.push(
                   context,
@@ -498,7 +509,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           {
             'icon': Icons.account_balance,
             'text': "银行基本信息",
-            'description': "支付银行管理",
+            'description': "支付银行登记管理",
             'onPressed': () {
               Navigator.push(
                   context,
@@ -513,7 +524,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           {
             'icon': Icons.folder_open,
             'text': "学生档案管理",
-            'description': "学生课程档案记录",
+            'description': "学生各科目档案记录",
             'onPressed': () {
               Navigator.push(
                   context,
@@ -582,14 +593,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           },
           {
             'icon': Icons.receipt_long,
-            'text': "年度账单明细（尚未实现）",
+            'text': "年度账单明细",
             'description': "年度财务报表",
             'onPressed': () {},
           },
         ];
         return [
-          _buildGridButtons(integrationButtons,
-              [const Color(0xFF4facfe), const Color(0xFF00f2fe)])
+          _buildGridButtons(integrationButtons, [
+            const Color.fromARGB(255, 122, 4, 133),
+            const Color.fromARGB(255, 212, 176, 219)
+          ])
         ];
 
       case 4:
@@ -598,7 +611,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           {
             'icon': Icons.calendar_month,
             'text': "周次排课设置",
-            'description': "钢琴安排批处理",
+            'description': "钢琴自动排课处理",
             'onPressed': () {
               Navigator.push(
                   context,
@@ -612,7 +625,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           },
           {
             'icon': Icons.language,
-            'text': "多国语言切换（尚未实现）",
+            'text': "多国语言切换",
             'description': "系统语言设置",
             'onPressed': () {},
           },
@@ -633,7 +646,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           },
           {
             'icon': Icons.backup,
-            'text': "选项设置（尚未实现）",
+            'text': "选项设置",
             'description': "系统选项设置",
             'onPressed': () {
               // 占位按钮
@@ -642,7 +655,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ];
         return [
           _buildGridButtons(settingsButtons,
-              [const Color(0xFF667eea), const Color(0xFF764ba2)])
+              [const Color(0xFF764ba2), const Color(0xFF667eea)])
         ];
 
       default:

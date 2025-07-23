@@ -249,14 +249,18 @@ class Constants {
 
 // 画面控件背景颜色主题
   static const Color lessonThemeColor = Color.fromARGB(255, 57, 150, 50);
-  static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
-  // （橙色）
-  // static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
+
   // static const Color lsnfeeThemeColor = Color.fromARGB(255, 184, 134, 11); // (暗金色)
-  // (棕色)
+  static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
+
+  // static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
   static const Color stuDocThemeColor = Color.fromARGB(255, 139, 69, 19);
-  static const Color ingergThemeColor = Color.fromARGB(255, 41, 170, 235);
-  static const Color settngThemeColor = Color.fromARGB(255, 20, 110, 170);
+
+  // static const Color ingergThemeColor = Color.fromARGB(255, 41, 170, 235);
+  static const Color ingergThemeColor = Color.fromARGB(255, 122, 4, 133);
+
+  // static const Color settngThemeColor = Color.fromARGB(255, 20, 110, 170);
+  static const Color settngThemeColor = Color(0xFF764ba2);
 
   static const double enabledBorderSideWidth = 0.5;
   static const double focusedBorderSideWidth = 1.5;

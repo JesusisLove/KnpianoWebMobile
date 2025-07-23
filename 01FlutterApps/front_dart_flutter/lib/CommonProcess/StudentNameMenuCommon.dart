@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -238,40 +240,6 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
                   Expanded(child: _buildStudentGrid()),
                 ],
               ),
-      ),
-    );
-  }
-
-  PreferredSize _buildSearchResultBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(40),
-      child: Container(
-        color: widget.knBgColor.withOpacity(0.1),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Icon(Icons.search, size: 16, color: widget.knBgColor),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '搜索结果: ${filteredStudents.length} 名学生',
-                style: TextStyle(
-                  color: widget.knBgColor,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _searchQuery = '';
-                  _searchController.clear();
-                });
-              },
-              child: Icon(Icons.close, size: 16, color: widget.knBgColor),
-            ),
-          ],
-        ),
       ),
     );
   }
