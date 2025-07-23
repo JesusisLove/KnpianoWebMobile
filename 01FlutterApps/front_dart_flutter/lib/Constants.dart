@@ -251,7 +251,8 @@ class Constants {
   static const Color lessonThemeColor = Color.fromARGB(255, 57, 150, 50);
 
   // static const Color lsnfeeThemeColor = Color.fromARGB(255, 184, 134, 11); // (暗金色)
-  static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
+  // static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
+  static const Color lsnfeeThemeColor = Color(0xFFf5576c);
 
   // static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
   static const Color stuDocThemeColor = Color.fromARGB(255, 139, 69, 19);
