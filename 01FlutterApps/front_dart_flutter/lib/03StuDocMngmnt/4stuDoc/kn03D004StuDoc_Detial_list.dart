@@ -105,7 +105,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
 
         actions: [
           IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
               // 新規"➕"按钮的事件处理函数
               onPressed: _isLoading
                   ? null // 如果正在加载，禁用按钮
@@ -192,7 +195,13 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
               leading: const CircleAvatar(
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
-              title: Text('${student.subjectName} ${student.subjectSubName}'),
+              title: Text(
+                '${student.subjectName} ${student.subjectSubName}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -219,7 +228,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           yearLsnCntText,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.blue[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -228,10 +237,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           student.payStyle == 1 ? '按月付费' : '课时付费',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             color: student.payStyle == 1
-                                ? Colors.green[600]
-                                : Colors.orange[600],
+                                ? Colors.blue[600]
+                                : Colors.green[600],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -247,10 +256,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           student.payStyle == 1 ? '按月付费' : '课时付费',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             color: student.payStyle == 1
-                                ? Colors.green[600]
-                                : Colors.orange[600],
+                                ? Colors.blue[600]
+                                : Colors.green[600],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
