@@ -71,6 +71,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
         throw Exception('Failed to load archived students');
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching student data: $e');
     } finally {
       setState(() {
@@ -147,9 +148,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
   // 新增：格式化年度计划总课时显示文本
   String _formatYearLsnCnt(Kn03D004StuDocBean student) {
     // 如果是按月付费且有年度计划总课时数据
-    if (student.payStyle == 1 &&
-        student.yearLsnCnt != null &&
-        student.yearLsnCnt! > 0) {
+    if (student.payStyle == 1 && student.yearLsnCnt > 0) {
       return '年计划: ${student.yearLsnCnt}课时';
     }
     return ''; // 课时付费或没有数据时返回空字符串

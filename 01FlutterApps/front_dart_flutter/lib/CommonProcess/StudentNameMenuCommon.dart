@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -222,15 +221,6 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     KnLoadingIndicator(color: widget.knBgColor),
-                    const SizedBox(height: 16),
-                    Text(
-                      '正在加载学生信息...',
-                      style: TextStyle(
-                        color: widget.knBgColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                   ],
                 ),
               )

@@ -1179,8 +1179,8 @@ class _TimeTileState extends State<TimeTile>
       eventAdjustedDateStr = event.lsnAdjustedDate.substring(0, 10);
     }
 
-    bool hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
-    bool hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
+    bool hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    bool hasBeenSigned = event.scanQrDate.isNotEmpty;
 
     return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) ||
         ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) ||
@@ -1238,7 +1238,6 @@ class _TimeTileState extends State<TimeTile>
 
   Widget _buildTimeText() {
     final isFullHour = widget.time.endsWith(':00');
-    const backgroundColor = Colors.white;
 
     if (isFullHour) {
       return Text(
@@ -1542,8 +1541,8 @@ class _TimeTileState extends State<TimeTile>
         ? event.lsnAdjustedDate.substring(0, 10)
         : '';
 
-    final hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
-    final hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
+    final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    final hasBeenSigned = event.scanQrDate.isNotEmpty;
 
     final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
         hasBeenRescheduled &&

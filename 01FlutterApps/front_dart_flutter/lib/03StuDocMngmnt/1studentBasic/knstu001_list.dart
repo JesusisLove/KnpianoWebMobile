@@ -241,7 +241,7 @@ class StuEditListState extends State<StuEditList> {
             Expanded(
               flex: 6, // 生日部分也需要较多空间，尤其是带"Birth:"前缀
               child: Text(
-                'Birth:${student.birthday ?? ""}',
+                'Birth:${student.birthday}',
                 style: const TextStyle(fontSize: 14),
                 overflow: TextOverflow.ellipsis, // 以防日期太长
               ),
