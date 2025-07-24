@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class KnLoadingIndicator extends StatelessWidget {
   const KnLoadingIndicator({
-    Key? key,
+    super.key,
     required this.color,
     this.text = '正在加载数据...',
     this.size = 36.0,
     this.strokeWidth = 4.0,
-  }) : super(key: key);
+  });
 
   final Color color;
   final String text;
@@ -60,7 +60,11 @@ class KnLoadingIndicator extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             text,
-            style: TextStyle(color: color, fontSize: 14),
+            style: TextStyle(
+              color: color,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
