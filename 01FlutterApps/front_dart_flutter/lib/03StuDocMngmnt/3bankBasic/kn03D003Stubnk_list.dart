@@ -33,7 +33,7 @@ class BankStuPageView extends StatefulWidget {
 
 class _BankStuPageViewState extends State<BankStuPageView> {
   final String titleName = "用该银行的学生一览";
-  late  String subtitle;
+  late String subtitle;
   List<dynamic> bankStuBanBean = [];
   late Future<List<Kn03D003StubnkBean>> futureBanStu;
 
@@ -87,7 +87,10 @@ class _BankStuPageViewState extends State<BankStuPageView> {
         subtitleFontSize: 12.0,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             // 新規”➕”按钮的事件处理函数
             onPressed: () {
               // Navigate to add bankStu page or handle add operation
