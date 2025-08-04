@@ -20,7 +20,7 @@ import com.liu.springboot04web.mapper.Kn05S002WeekCalculatorMapper;
 @Repository
 public class Kn05S002WeekCalculatorDao implements InterfaceKnPianoDao {
 
-@Autowired
+    @Autowired
     private Kn05S002WeekCalculatorMapper weekCalculatorMapper;
 
     @Transactional
