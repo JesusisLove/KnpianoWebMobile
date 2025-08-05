@@ -1,6 +1,8 @@
 package com.liu.springboot04web.mapper;
 
 import com.liu.springboot04web.bean.Kn03D001StuBean;
+import com.liu.springboot04web.bean.Kn04I001StuWithdrawBean;
+
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public interface Kn04I001StuWithdrawMapper {
     List<Kn03D001StuBean> getInfoList();
 
     // 手机前端用：取得在课记录或休学的学生记录
-    List<Kn03D001StuBean> getInfoListWitParm(@Param("stuId") String stuId, @Param("delFlg") Integer delFlg);
+    List<Kn04I001StuWithdrawBean> getInfoListWitParm(@Param("stuId") String stuId, @Param("delFlg") Integer delFlg);
 
     // 后端维护的Web页面里的休学/退学处理-
     void stuWithdrawProcessSingle(@Param("stuId") String stuId);

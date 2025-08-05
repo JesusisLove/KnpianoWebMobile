@@ -7,6 +7,7 @@ import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
 import 'package:http/http.dart' as http;
+import 'StudentLeaveBean.dart';
 import 'StudentLeaveSettingPage.dart';
 import 'dart:convert';
 import 'dart:async'; // 新增导入
@@ -32,9 +33,10 @@ class StudentLeaveListPage extends StatefulWidget {
 
 class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
   final String titleName = '学生休学退学名单';
-  final ValueNotifier<List<KnStu001Bean>> stuOffLsnNotifier = ValueNotifier([]);
+  final ValueNotifier<List<StudentLeaveBean>> stuOffLsnNotifier =
+      ValueNotifier([]);
   int stuInfoCount = 0;
-  List<KnStu001Bean> students = [];
+  List<StudentLeaveBean> students = [];
   bool _isLoading = false; // 修改加载状态标志
   bool _showDeleteButtons = false; // 控制删除按钮显示的状态
   bool _isDataLoaded = false; // 数据是否已加载完成
@@ -66,10 +68,11 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
 
       if (responseFeeDetails.statusCode == 200) {
         final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
-        List<dynamic> stuDocJson = json.decode(decodedBody);
+        List<dynamic> studentLeaveJson = json.decode(decodedBody);
         setState(() {
-          stuOffLsnNotifier.value =
-              stuDocJson.map((json) => KnStu001Bean.fromJson(json)).toList();
+          stuOffLsnNotifier.value = studentLeaveJson
+              .map((json) => StudentLeaveBean.fromJson(json))
+              .toList();
           stuInfoCount = stuOffLsnNotifier.value.length;
           students = stuOffLsnNotifier.value;
           _isDataLoaded = true; // 数据加载完成
@@ -150,6 +153,179 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
     }
   }
 
+  // 格式化日期字符串，只保留yyyy-mm-dd部分
+  String formatDate(String dateString) {
+    if (dateString.isEmpty) return '暂无日期'; // 如果为空，显示提示文字
+    // 如果日期字符串包含时间部分，只取日期部分
+    if (dateString.contains(' ')) {
+      return dateString.split(' ')[0];
+    }
+    // 如果日期字符串长度超过10个字符，只取前10个字符（yyyy-mm-dd）
+    if (dateString.length > 10) {
+      return dateString.substring(0, 10);
+    }
+    return dateString;
+  }
+
+  // 构建网格项目（学生卡片或添加按钮）
+  Widget _buildGridItem(int index) {
+    if (index < students.length) {
+      // 学生卡片
+      return _buildStudentCard(students[index]);
+    } else if (index == students.length) {
+      // 添加按钮
+      return _buildAddButton();
+    } else {
+      // 空占位
+      return const SizedBox.shrink();
+    }
+  }
+
+  // 构建添加按钮
+  Widget _buildAddButton() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double size = constraints.maxWidth;
+        return GestureDetector(
+          onTap: _isLoading
+              ? null
+              : () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => StudentLeaveSettingPage(
+                              knBgColor: Constants.ingergThemeColor,
+                              knFontColor: Colors.white,
+                              pagePath: '${widget.pagePath} >> $titleName',
+                            )),
+                  ).then((value) {
+                    if (value == true) {
+                      fetchStuOffLsnInfo();
+                    }
+                  });
+                },
+          child: Container(
+            width: size,
+            height: size, // 和学生卡片一样的正方形
+            decoration: BoxDecoration(
+              color: Colors.grey[300], // 添加按钮用浅灰色背景
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: widget.knBgColor,
+                width: 2,
+                style: BorderStyle.solid,
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.add,
+                color: _isLoading ? Colors.grey : widget.knBgColor,
+                size: 40,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStudentCard(StudentLeaveBean student) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 使用LayoutBuilder确保正方形
+        double size = constraints.maxWidth;
+        return Container(
+          width: size,
+          height: size, // 强制高度等于宽度，确保正方形
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white, // 背景改为白色
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: widget.knBgColor, // 边框保持紫色
+              width: 0.4,
+            ),
+          ),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 学生姓名 - 第一行，加大加粗，强制居中
+                  Center(
+                    child: Text(
+                      student.nikName.isNotEmpty
+                          ? student.nikName
+                          : student.stuName,
+                      style: TextStyle(
+                        color: widget.knBgColor, // 文字改为紫色
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // 入学日期 - 第二行，强制居中
+                  Center(
+                    child: Text(
+                      formatDate(student.enterDate),
+                      style: TextStyle(
+                        color: widget.knBgColor, // 文字改为紫色
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  // 退学日期 - 第三行，强制居中
+                  Center(
+                    child: Text(
+                      formatDate(student.quitDate),
+                      style: TextStyle(
+                        color: widget.knBgColor, // 文字改为紫色
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              // 删除按钮
+              if (_showDeleteButtons && !_isLoading)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      handleStudentReturn(student.stuId);
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
+                      ),
+                      child: const Icon(Icons.close,
+                          color: Colors.white, size: 18),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,95 +366,33 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
           _isDataLoaded
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: GridView.builder(
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.all(10),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      childAspectRatio: 1.5,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: students.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == students.length) {
-                        return GestureDetector(
-                          onTap: _isLoading
-                              ? null
-                              : () {
-                                  // 处理添加新学生的逻辑
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            StudentLeaveSettingPage(
-                                              knBgColor:
-                                                  Constants.ingergThemeColor,
-                                              knFontColor: Colors.white,
-                                              pagePath:
-                                                  '${widget.pagePath} >> $titleName',
-                                            )),
-                                  ).then((value) {
-                                    // 如果需要，在返回时刷新学生列表
-                                    if (value == true) {
-                                      fetchStuOffLsnInfo();
-                                    }
-                                  });
-                                },
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Icon(Icons.add_circle,
-                                color: _isLoading
-                                    ? Colors.grey // 加载中时使用灰色
-                                    : widget.knBgColor,
-                                size: 50),
-                          ),
-                        );
-                      }
-                      KnStu001Bean student = students[index];
-                      return Stack(
-                        children: [
-                          Container(
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: widget.knBgColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              student.nikName.isNotEmpty
-                                  ? student.nikName
-                                  : student.stuName,
-                              style: const TextStyle(color: Colors.white),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          // 根据_showDeleteButtons状态显示或隐藏删除按钮
-                          if (_showDeleteButtons && !_isLoading) // 加载中时不显示
-                            Positioned(
-                              left: 0,
-                              top: 0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  // 调用handleStudentReturn方法
-                                  handleStudentReturn(student.stuId);
-                                },
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      bottomRight: Radius.circular(8),
+                    child: Column(
+                      children: [
+                        // 计算包含添加按钮的总数量
+                        for (int rowIndex = 0;
+                            rowIndex < ((students.length + 1) / 4).ceil();
+                            rowIndex++)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                // 每行显示4个（学生+添加按钮）
+                                for (int colIndex = 0; colIndex < 4; colIndex++)
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      child: _buildGridItem(
+                                          rowIndex * 4 + colIndex),
                                     ),
                                   ),
-                                  child: const Icon(Icons.close,
-                                      color: Colors.white, size: 18),
-                                ),
-                              ),
+                              ],
                             ),
-                        ],
-                      );
-                    },
+                          ),
+                      ],
+                    ),
                   ),
                 )
               : Container(), // 如果数据未加载完成，显示空容器

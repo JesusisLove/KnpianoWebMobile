@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.liu.springboot04web.bean.Kn03D001StuBean;
+import com.liu.springboot04web.bean.Kn04I001StuWithdrawBean;
 import com.liu.springboot04web.mapper.Kn04I001StuWithdrawMapper;
 
 import java.util.List;
@@ -20,8 +21,8 @@ public class Kn04I001StuWithdrawDao {
     }
 
     // 手机前端：画面初期化显示所有学生信息
-    public List<Kn03D001StuBean> getInfoList(String stuId, Integer delFlg) {
-        List<Kn03D001StuBean> list = knStu001Mapper.getInfoListWitParm(stuId, delFlg);
+    public List<Kn04I001StuWithdrawBean> getInfoList(String stuId, Integer delFlg) {
+        List<Kn04I001StuWithdrawBean> list = knStu001Mapper.getInfoListWitParm(stuId, delFlg);
         return list;
     }
 
