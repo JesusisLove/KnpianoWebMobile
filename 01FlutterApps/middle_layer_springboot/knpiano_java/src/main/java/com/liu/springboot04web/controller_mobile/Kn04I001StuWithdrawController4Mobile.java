@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.liu.springboot04web.bean.Kn03D001StuBean;
+import com.liu.springboot04web.bean.Kn04I001StuWithdrawBean;
 import com.liu.springboot04web.dao.Kn04I001StuWithdrawDao;
 import com.liu.springboot04web.dao.Kn05S001LsnFixDao;
 
@@ -28,17 +29,17 @@ public class Kn04I001StuWithdrawController4Mobile {
 
     // 手机前端退学休学的学生信息取得
     @GetMapping("/mb_kn_stu_leave_all")
-    public ResponseEntity<Collection<Kn03D001StuBean>> getStuLeaveList() {
+    public ResponseEntity<Collection<Kn04I001StuWithdrawBean>> getStuLeaveList() {
         // 获取休学学生信息
-        Collection<Kn03D001StuBean> collection = knStu001Dao.getInfoList(null, 1);
+        Collection<Kn04I001StuWithdrawBean> collection = knStu001Dao.getInfoList(null, 1);
         return ResponseEntity.ok(collection);
     }
 
     // 手机前端退学休学的学生信息取得
     @GetMapping("/mb_kn_stu_onLsn_all")
-    public ResponseEntity<Collection<Kn03D001StuBean>> getStuOnLesonList() {
+    public ResponseEntity<Collection<Kn04I001StuWithdrawBean>> getStuOnLesonList() {
         // 获取休学学生信息
-        Collection<Kn03D001StuBean> collection = knStu001Dao.getInfoList(null, 0);
+        Collection<Kn04I001StuWithdrawBean> collection = knStu001Dao.getInfoList(null, 0);
         return ResponseEntity.ok(collection);
     }
 
