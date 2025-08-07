@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.liu.springboot04web.bean.Kn02F004PayBean;
 import com.liu.springboot04web.dao.Kn02F004PayDao;
-// import com.liu.springboot04web.othercommon.CommonProcess;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
@@ -137,6 +136,7 @@ public class Kn02F004PayController{
         // 按值（学生姓名）排序并收集到新的LinkedHashMap中
         return tempMap.entrySet()
                 .stream()
+                .filter(entry -> entry.getValue() != null) // 代码健壮化：在排序前过滤掉 null 值
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,

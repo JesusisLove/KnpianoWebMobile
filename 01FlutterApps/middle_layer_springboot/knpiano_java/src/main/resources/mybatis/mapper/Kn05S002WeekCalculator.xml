@@ -31,6 +31,7 @@
     </delete>
 
     <!-- 执行一周计划排课的Batch处理 -->
+    <!-- knbatch 系统里的KNDB4010业务里也有使用到该方法 -->
     <select id="doLsnWeeklySchedual" statementType="CALLABLE">
         {call sp_execute_weekly_batch_lsn_schedule (
             #{weekStart, mode=IN, jdbcType=VARCHAR},
@@ -39,6 +40,7 @@
         )}
     </select>
 
+    <!-- knbatch 系统里的KNDB4010业务里也有使用到该方法 -->
     <update id="updateWeeklyBatchStatus" >
         UPDATE t_fixedlesson_status
            SET fixed_status= #{lsnStatus}
