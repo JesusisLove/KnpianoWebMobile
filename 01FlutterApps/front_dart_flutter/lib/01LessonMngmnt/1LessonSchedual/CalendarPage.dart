@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, unnecessary_null_comparison
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -13,7 +13,6 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import 'AddCourseDialog.dart';
-import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
 import 'RescheduleLessonDialog.dart';
 import 'package:flutter/rendering.dart';
