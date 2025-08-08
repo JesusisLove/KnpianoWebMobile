@@ -13,15 +13,14 @@ spring:
 
     #シンガポール
     #开发用的数据库
-    #url: jdbc:mysql://192.168.50.101:49168/KNStudent
+    url: jdbc:mysql://192.168.50.101:49168/KNStudent
     #MacStudio本地用的数据库
     #url: jdbc:mysql://127.0.0.1:3306/dev_KNStudent
 
     #观妮用的数据库
-    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Singapore&useSSL=false&allowPublicKeyRetrieval=true
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-
 
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
@@ -43,12 +42,59 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
     usGlobalDataSourceStat: true
     connectionProperties: druid.stat.mergeSql-true;druid.stat.slowSqlMillis-500
-#  jpa:
-#    hibernate:
-#      #更新或者创建数据表结构（第一次启动，如果没有数据表就会创建，以后，如果实体类标注的数据表的结构有修改，就会自动更新数据库相应的表结构）
-#      ddl-auto: update
-#    #执行SQL语句的时候，可以在控制台显示SQL文
-#    show-sql: true
+    
+    # ==================== 2025-08-08 新增配置 解决NAS启动时容器启动顺序问题 ====================
+    # 配置目的：解决NAS系统启动时，Java应用启动速度快于MySQL服务启动的问题
+    # 问题场景：NAS在早上8:00自动启动时，MySQL容器需要较长时间完成初始化和启动
+    #          而Java应用容器启动较快，导致应用启动时连接不到数据库而失败
+    # 解决方案：通过增加数据库连接超时时间和重试机制，让Java应用等待MySQL完成启动
+    # =====================================================================================
+    
+    # Druid 连接池配置 - 用于启动时等待数据库
+    druid:
+      # 连接超时时间（毫秒）- 从默认30秒增加到60秒，给MySQL更多启动时间
+      connection-timeout: 60000
+      # 连接验证超时时间（毫秒）- 验证数据库连接是否有效的超时时间
+      validation-query-timeout: 10
+      # 初始化失败时的超时时间（毫秒）- 设置为5分钟，确保MySQL有足够时间完全启动
+      # 这是最关键的配置，避免因MySQL启动慢而导致整个应用启动失败
+      initialization-fail-timeout: 300000
+      # 禁用快速失败机制 - 允许应用在数据库暂时不可用时继续尝试连接
+      fail-fast: false
+      # 连接测试配置 - 确保获取的连接是有效的
+      test-on-borrow: true        # 从连接池获取连接时测试连接有效性
+      test-on-return: false       # 归还连接时不测试（提高性能）
+      test-while-idle: true       # 空闲时测试连接有效性
+      # 空闲连接检测间隔（毫秒）- 每60秒检查一次空闲连接
+      time-between-eviction-runs-millis: 60000
+      # 连接在池中保持空闲而不被回收的最小时间（毫秒）- 5分钟
+      min-evictable-idle-time-millis: 300000
+
+  # ==================== 2025-08-08 新增配置 SQL初始化配置 ====================
+  # 配置目的：避免应用启动时因为数据库表已存在或其他SQL执行问题导致启动失败
+  # 适用场景：当数据库已经初始化过，重复执行建表语句可能会报错
+  # ========================================================================
+  sql:
+    init:
+      # 遇到错误时继续执行 - 避免因为表已存在等问题导致启动失败
+      continue-on-error: true
+      # 初始化模式设置为never - 不自动执行SQL初始化脚本
+      mode: never
+
+# ==================== 自定义数据库连接等待配置 ====================
+# 配置目的：为DatabaseConnectionWaiter组件提供可配置的重试参数
+# 使用场景：Java代码中的数据库连接重试逻辑可以读取这些配置值
+# 优势：不需要硬编码重试参数，可以根据不同环境调整等待时间
+# ================================================================
+database:
+  connection:
+    # 最大重试次数 - 总共尝试30次连接数据库
+    max-retries: 30
+    # 重试间隔（毫秒）- 每次重试间隔10秒，避免频繁连接浪费资源
+    retry-interval: 10000
+    # 总等待超时时间（毫秒）- 最多等待5分钟，通常MySQL在这个时间内可以完成启动
+    total-timeout: 300000
+
 mybatis:
   # Location of MyBatis xml config file.
   config-location: classpath:mybatis/mybatis-config.xml
