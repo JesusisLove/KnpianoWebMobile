@@ -87,6 +87,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 课费预支付再调整用 -->
+    <!-- knbatch 系统里的KNDB2030业务里也有使用到该方法 -->
     <select id="getValidAdvancePaymentLessonId" resultType="java.lang.String">
         SELECT lesson_id 
         FROM v_info_lesson 
@@ -109,6 +110,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 课费预支付再调整用 -->
+    <!-- knbatch 系统里的KNDB2030业务里也有使用到该方法 -->
     <update id="updateAdvancePayment">
         UPDATE t_info_lsn_fee_advc_pay
         SET
@@ -120,6 +122,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     </update>
 
     <!-- 课费预支付再调整用 -->
+    <!-- knbatch 系统里的KNDB2030业务里也有使用到该方法 -->
     <delete id="deleteInvalidAdvancePaymentLessonId">
         DELETE FROM t_info_lesson_fee 
          WHERE lesson_id = #{lessonId}
