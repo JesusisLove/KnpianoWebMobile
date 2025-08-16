@@ -205,6 +205,12 @@
                                 <i class="fas fa-chart-bar"></i> 按科目查看学生
                             </a>
                         </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_stu_lsn_sign}"
+                                th:class="${activeUri == 'kn_stu_lsn_sign_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-chart-bar"></i> 批量执行上课签到
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
