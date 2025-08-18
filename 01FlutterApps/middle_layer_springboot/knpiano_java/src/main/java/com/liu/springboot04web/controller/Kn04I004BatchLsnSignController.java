@@ -54,20 +54,11 @@ public class Kn04I004BatchLsnSignController {
         Map<String, List<Kn04I004BatchLsnSignBean>> lessonsByDate = getLessonsByDate(collection, resultsTabStus);
         model.addAttribute("lessonsByDate", lessonsByDate);
 
-        // 添加调试信息
-        System.out.println("=== 调试信息 ===");
-        System.out.println("总课程数: " + collection.size());
-        System.out.println("Tab数量: " + resultsTabStus.size());
-        for (Map.Entry<String, List<Kn04I004BatchLsnSignBean>> entry : lessonsByDate.entrySet()) {
-            System.out.println("日期 " + entry.getKey() + " 的课程数: " + entry.getValue().size());
-        }
-        System.out.println("================");
-
         return "kn_04i004_batchLsnSignIn/kn_batch_lsn_list";
     }
 
     // 执行批量签到处理
-    @PostMapping("/batch_lesson_signin")
+    @PostMapping("/kn_batch_lesson_signin")
     public String batchLessonSignin(@RequestParam("signinData") String signinData, 
                                 Model model) {
         try {
@@ -126,12 +117,6 @@ public class Kn04I004BatchLsnSignController {
                 .collect(Collectors.toList());
             
             lessonsByDate.put(dateKey, dailyLessons);
-            
-            // 调试输出每个日期的课程
-            System.out.println("日期 " + dateKey + " 匹配的课程:");
-            for (Kn04I004BatchLsnSignBean lesson : dailyLessons) {
-                System.out.println("  - " + lesson.getLessonId() + ": " + lesson.getStuName() + " (" + lesson.getSchedualDate() + ")");
-            }
         }
         
         return lessonsByDate;
