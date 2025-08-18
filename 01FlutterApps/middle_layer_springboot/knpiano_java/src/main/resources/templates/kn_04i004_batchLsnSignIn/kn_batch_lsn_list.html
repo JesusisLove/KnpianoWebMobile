@@ -396,7 +396,7 @@
 
         // 返回上一页功能
         function goBack() {
-            if (confirm('确定要返回上一页吗？未保存的数据将丢失。')) {
+            if (confirm('确定要返回上一页吗？设定的签到数据将会丢失。')) {
                 window.history.back();
             }
         }
@@ -476,7 +476,7 @@
             // 创建隐藏表单
             var form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/liu/batch_lesson_signin';  // 你需要在后端创建这个接口
+            form.action = '/liu/kn_batch_lesson_signin';  // 你需要在后端创建这个接口
             form.style.display = 'none';
             
             // 添加数据字段 - 将JSON数据转为字符串
@@ -492,7 +492,7 @@
             // 显示提交中状态
             var submitBtn = $('.btn-batch-signin');
             var originalText = submitBtn.html();
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 提交中...');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 签到中...');
             
             try {
                 form.submit();
