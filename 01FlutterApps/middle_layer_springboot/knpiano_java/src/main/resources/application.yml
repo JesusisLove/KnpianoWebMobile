@@ -13,12 +13,12 @@ spring:
 
     #シンガポール
     #开发用的数据库
-    url: jdbc:mysql://192.168.50.101:49168/KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/KNStudent
     #MacStudio本地用的数据库
     #url: jdbc:mysql://127.0.0.1:3306/dev_KNStudent
 
     #观妮用的数据库
-    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Singapore&useSSL=false&allowPublicKeyRetrieval=true
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
 
