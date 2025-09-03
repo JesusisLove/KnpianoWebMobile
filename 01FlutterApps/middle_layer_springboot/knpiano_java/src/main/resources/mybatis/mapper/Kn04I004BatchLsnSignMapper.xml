@@ -14,8 +14,40 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <select id="getLsnScheOfWeek" resultType="com.liu.springboot04web.bean.Kn04I004BatchLsnSignBean">
+        WITH weekLesson AS(
+            SELECT 
+                lesson_id
+                ,stu_id
+                ,stu_name
+                ,subject_id
+                ,subject_name
+                ,subject_sub_id
+                ,subject_sub_name
+                ,lesson_type
+                ,CASE 
+                    WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
+                    ELSE schedual_date 
+                END AS schedual_date
+                ,CASE(DAYOFWEEK(
+                        CASE 
+                            WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
+                            ELSE schedual_date 
+                        END)
+                    )
+                    WHEN 1 THEN 'Sun'
+                    WHEN 2 THEN 'Mon'
+                    WHEN 3 THEN 'Tue'
+                    WHEN 4 THEN 'Wed'
+                    WHEN 5 THEN 'Thu'
+                    WHEN 6 THEN 'Fri'
+                    WHEN 7 THEN 'Sat'
+                END AS sche_week
+                ,scanQR_date
+                ,memo
+            FROM v_info_lesson 
+        )
         SELECT 
-            lesson_id
+			lesson_id
             ,stu_id
             ,stu_name
             ,subject_id
@@ -23,26 +55,9 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,subject_sub_id
             ,subject_sub_name
             ,lesson_type
-            ,CASE 
-                WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
-                ELSE schedual_date 
-            END AS schedual_date
-            ,CASE(DAYOFWEEK(
-                    CASE 
-                        WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
-                        ELSE schedual_date 
-                    END)
-                )
-                WHEN 1 THEN 'Sun'
-                WHEN 2 THEN 'Mon'
-                WHEN 3 THEN 'Tue'
-                WHEN 4 THEN 'Wed'
-                WHEN 5 THEN 'Thu'
-                WHEN 6 THEN 'Fri'
-                WHEN 7 THEN 'Sat'
-            END AS sche_week
+			,schedual_date
             ,memo
-        FROM v_info_lesson 
+        FROM weekLesson
         WHERE LEFT(schedual_date,10) BETWEEN #{startWeek} AND #{endWeek}
         AND scanQR_date is null
         ORDER BY schedual_date
