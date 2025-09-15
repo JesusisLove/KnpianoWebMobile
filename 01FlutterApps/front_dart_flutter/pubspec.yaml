@@ -65,7 +65,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+  # 本地开发环境用
   #  - kn-local-config/apiconfig.json
+  # NAS测试环境用
+  #  - kn-nas-test-config/apiconfig.json
+  # NAS本番环境用
     - kn-nas-config/apiconfig.json
     - images/student-placeholder.png
   #   - images/a_dot_burr.jpeg

@@ -47,3 +47,6 @@ manifest.json
 target-graph.txt
 *.pbxproj
 *.swift
+
+### 忽略环境变量设置 ###
+set_*_env.sh

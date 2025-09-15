@@ -4,12 +4,12 @@ spring:
     #访问本地MySQL数据库使用的用户名和密码
     #username: root
     #password: 
-    #url: jdbc:mysql://127.0.0.1:3306/KNStudent
-    #url: jdbc:mysql://127.0.0.1:3306/prod_KNStudent
+    #url: jdbc:mysql://127.0.0.1:3306/YourDataBase
 
     #访问NAS服务器上的MySQL数据库使用的用户名和密码
-    username: root
-    password: 7654321
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
 
     #シンガポール
     #开发用的数据库
@@ -18,7 +18,7 @@ spring:
     #url: jdbc:mysql://127.0.0.1:3306/dev_KNStudent
 
     #观妮用的数据库
-    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Singapore&useSSL=false&allowPublicKeyRetrieval=true
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
 
@@ -104,11 +104,3 @@ mybatis:
 #  configuration:
 #    use-actual-param-name: true
 
-# 2025-02-23 在生产环境中，应该明确指定允许访问的源(origins)
-# 这里定义了允许跨域访问的源地址。你可以根据不同环境设置不同的值，比如：
-# 开发环境：http://localhost:8080
-# 测试环境：https://test.yourwebsite.com
-# 生产环境：https://www.yourwebsite.com
-cors:
-  allowed-origin: http://192.168.50.101:8080
-  # allowed-origin: http://10.8.0.6:8080
