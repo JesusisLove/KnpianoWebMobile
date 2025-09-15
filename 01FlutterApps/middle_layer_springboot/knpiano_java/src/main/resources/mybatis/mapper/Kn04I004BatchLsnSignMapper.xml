@@ -56,6 +56,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,subject_sub_name
             ,lesson_type
 			,schedual_date
+            ,sche_week
             ,memo
         FROM weekLesson
         WHERE LEFT(schedual_date,10) BETWEEN #{startWeek} AND #{endWeek}
