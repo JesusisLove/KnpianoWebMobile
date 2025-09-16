@@ -345,7 +345,7 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
                 // Tab栏 - 改进的设计
                 Container(
                   decoration: BoxDecoration(
-                    color: widget.knBgColor,
+                    color: Colors.white, // 改为白色背景
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
@@ -353,6 +353,12 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
                         blurRadius: 4,
                       ),
                     ],
+                    border: const Border(
+                      bottom: BorderSide(
+                          // color: widget.knBgColor, width: 0.4), // 底边线使用背景色
+                          color: Colors.grey,
+                          width: 0.2), // 底边线使用背景色
+                    ),
                   ),
                   child: TabBar(
                     controller: _tabController,
@@ -376,15 +382,11 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
                         ),
                       ),
                     ],
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white60,
-                    indicatorColor: Colors.white,
-                    indicatorWeight: 4,
+                    labelColor: widget.knBgColor, // 选中的标签文字颜色使用背景色
+                    unselectedLabelColor: Colors.grey[400], // 未选中的标签文字颜色
+                    indicatorColor: widget.knBgColor, // 指示器颜色使用背景色
+                    indicatorWeight: 3,
                     indicatorSize: TabBarIndicatorSize.tab,
-                    indicator: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                     labelStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
