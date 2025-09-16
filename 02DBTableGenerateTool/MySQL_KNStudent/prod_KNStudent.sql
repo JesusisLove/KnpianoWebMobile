@@ -1057,7 +1057,8 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         JOIN v_info_lesson_and_extraToScheDataCorrect lsn  -- 包含了加课换正课后的记录
         ON (((fee.lesson_id = lsn.lesson_id)
             AND (fee.del_flg = 0))))
-        LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
+        -- LEFT JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
+        INNER JOIN v_info_student_document doc ON (((lsn.stu_id = doc.stu_id)
             AND (lsn.subject_id = doc.subject_id)
             AND (lsn.subject_sub_id = doc.subject_sub_id)
             AND (doc.adjusted_date = (SELECT 

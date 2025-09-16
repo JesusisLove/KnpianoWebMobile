@@ -320,27 +320,27 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-        title:
-            '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
-        subtitle: "${widget.pagePath} >> $titleName",
-        context: context,
-        appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red - 20,
-            widget.knFontColor.green - 20,
-            widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
-        addInvisibleRightButton: false,
-        currentNavIndex: 1,
-        subtitleTextColor: Colors.white,
-        titleFontSize: 20.0,
-        subtitleFontSize: 12.0,
-      ),
+          title:
+              '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
+          subtitle: "${widget.pagePath} >> $titleName",
+          context: context,
+          appBarBackgroundColor: widget.knBgColor,
+          titleColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red - 20,
+              widget.knFontColor.green - 20,
+              widget.knFontColor.blue - 20),
+          subtitleBackgroundColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red + 20,
+              widget.knFontColor.green + 20,
+              widget.knFontColor.blue + 20),
+          addInvisibleRightButton: false,
+          currentNavIndex: 1,
+          subtitleTextColor: Colors.white,
+          titleFontSize: 20.0,
+          subtitleFontSize: 12.0,
+          refreshPreviousPage: true), //刷新上一页面
       // 修改: 更新body部分的布局和样式
       body: Column(
         children: [

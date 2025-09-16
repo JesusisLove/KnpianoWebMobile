@@ -123,8 +123,8 @@ public class Kn02F002FeeDao {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 画面初期化显示所科目信息
-    public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String year) {
-        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
+    public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String yearMonth) {
+        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Mapper.getStuFeeListByYearmonth(stuId, yearMonth);
         return list;
     }
 
