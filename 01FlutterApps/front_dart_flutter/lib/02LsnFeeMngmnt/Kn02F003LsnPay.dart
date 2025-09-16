@@ -358,8 +358,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
-                    final paymentDate =
-                        CommonMethod.parseServerDate(fee.payDate!);
+                    final paymentDate = DateTime.parse(fee.payDate!);
                     isPaymentToday =
                         DateFormat('yyyy-MM-dd').format(paymentDate) ==
                             DateFormat('yyyy-MM-dd').format(DateTime.now());
