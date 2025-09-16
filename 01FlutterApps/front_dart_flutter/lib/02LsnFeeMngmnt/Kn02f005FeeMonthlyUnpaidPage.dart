@@ -132,13 +132,15 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
 
   // 跳转到学费支付页面
   Future<void> _navigateToPaymentPage(Kn02f005FeeMonthlyReportBean fee) async {
-    // 显示加载指示器
+    // 显示加载指示器 - 参照body中的写法
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
-          child: KnLoadingIndicator(color: widget.knBgColor),
+          child: KnLoadingIndicator(
+            color: widget.knBgColor,
+          ),
         );
       },
     );
@@ -190,7 +192,6 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
             ),
           );
 
-          // 本画面-->迁移到Kn02F003LsnPay画面，执行课费结算后-->返回本画面后刷新本画面
           // 如果支付页面返回true，表示数据有变化，需要刷新
           if (result == true) {
             fetchFeeDetails(); // 重新获取学费数据
@@ -335,105 +336,101 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
       ),
-      body: Stack(
-        children: [
-          // 主内容
+      body: _isLoading
+          ? // 加载期间显示白色背景和进度条
+          Container(
+              color: Colors.white, // 白色背景
+              child: Center(
+                child: KnLoadingIndicator(
+                  color: widget.knBgColor,
+                ),
+              ),
+            )
+          : // 数据加载完成后显示内容
           Column(
-            children: [
-              // 只有当有未支付记录时才显示Tab栏
-              if (hasUnpaidRecords && !_isLoading) ...[
-                // Tab栏 - 改进的设计
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // 改为白色背景
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
+              children: [
+                // 只有当有未支付记录时才显示Tab栏
+                if (hasUnpaidRecords) ...[
+                  // Tab栏 - 改进的设计
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // 改为白色背景
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                      border: Border(
+                        bottom: BorderSide(
+                            color: widget.knBgColor, width: 1), // 底边线使用背景色
                       ),
-                    ],
-                    border: const Border(
-                      bottom: BorderSide(
-                          // color: widget.knBgColor, width: 0.4), // 底边线使用背景色
-                          color: Colors.grey,
-                          width: 0.2), // 底边线使用背景色
                     ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    tabs: [
-                      Tab(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: const Text(
-                            '学费支付完了',
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                    child: TabBar(
+                      controller: _tabController,
+                      tabs: [
+                        Tab(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: const Text(
+                              '学费支付完了',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
                           ),
                         ),
-                      ),
-                      Tab(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: const Text(
-                            '学费支付未完',
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                        Tab(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: const Text(
+                              '学费支付未完',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
                           ),
                         ),
+                      ],
+                      labelColor: widget.knBgColor, // 选中的标签文字颜色使用背景色
+                      unselectedLabelColor: Colors.grey[600], // 未选中的标签文字颜色
+                      indicatorColor: widget.knBgColor, // 指示器颜色使用背景色
+                      indicatorWeight: 3,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      labelStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                    labelColor: widget.knBgColor, // 选中的标签文字颜色使用背景色
-                    unselectedLabelColor: Colors.grey[400], // 未选中的标签文字颜色
-                    indicatorColor: widget.knBgColor, // 指示器颜色使用背景色
-                    indicatorWeight: 3,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    labelStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
+                      unselectedLabelStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ),
+                ],
+                // 内容区域
+                Expanded(
+                  child: hasUnpaidRecords
+                      ? TabBarView(
+                          controller: _tabController,
+                          children: [
+                            // 学费支付完了的Tab
+                            _buildFeeTabContent(paidFeeList, '没有已支付完成的记录',
+                                isUnpaidTab: false),
+                            // 学费支付未完的Tab
+                            _buildFeeTabContent(unpaidFeeList, '没有未支付的记录',
+                                isUnpaidTab: true),
+                          ],
+                        )
+                      : _buildSingleFeeContent(), // 没有未支付记录时显示所有数据
+                ),
+                // 底部显示合计和月份选择按钮
+                Column(
+                  children: [
+                    _buildTotalUnpaid(),
+                    _buildMonthSelectionButton(),
+                    const SizedBox(height: 34), // 为底部安全区域留出空间
+                  ],
                 ),
               ],
-              // 内容区域
-              Expanded(
-                child: hasUnpaidRecords && !_isLoading
-                    ? TabBarView(
-                        controller: _tabController,
-                        children: [
-                          // 学费支付完了的Tab
-                          _buildFeeTabContent(paidFeeList, '没有已支付完成的记录',
-                              isUnpaidTab: false),
-                          // 学费支付未完的Tab
-                          _buildFeeTabContent(unpaidFeeList, '没有未支付的记录',
-                              isUnpaidTab: true),
-                        ],
-                      )
-                    : _buildSingleFeeContent(), // 没有未支付记录时显示所有数据
-              ),
-              // 底部显示合计和月份选择按钮
-              Column(
-                children: [
-                  _buildTotalUnpaid(),
-                  _buildMonthSelectionButton(),
-                  const SizedBox(height: 34), // 为底部安全区域留出空间
-                ],
-              ),
-            ],
-          ),
-          // 加载指示器
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.1), // 半透明背景
-              child: Center(
-                child: KnLoadingIndicator(color: widget.knBgColor),
-              ),
             ),
-        ],
-      ),
     );
   }
 
