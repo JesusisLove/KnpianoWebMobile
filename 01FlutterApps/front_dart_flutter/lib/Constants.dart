@@ -86,6 +86,8 @@ class Constants {
 
 // 学费月度报告
   static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
+  static const String apiStuFeeDetailByYearMonth =
+      '/liu/mb_kn_lsn_fee_by_yearmonth';
 
 // 点击学费入账按钮，往后端发送学费入账保存请求
   static const String apiStuPaySave = '/liu/mb_kn_lsn_pay_save';

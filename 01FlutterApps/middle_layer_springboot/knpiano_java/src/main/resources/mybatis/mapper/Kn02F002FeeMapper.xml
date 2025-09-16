@@ -124,8 +124,9 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
     </select> 
 
     <!-- 手机前端用：从学生课程管理表视图中取得在课学生正在上的课程费用 -->
-    <select id="getStuFeeListByYear" resultType="com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean">
+    <select id="getStuFeeListByYearmonth" resultType="com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean">
         select   stu_id
+                ,stu_name
                 ,lsn_pay_id
                 ,lsn_fee_id
                 ,subject_id
@@ -143,10 +144,18 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,1 as advc_flg
                 ,'' as bank_name
             from v_info_lesson_sum_fee_unpaid_yet
-            where stu_id = #{stuId}
-            and lsn_month like CONCAT('%', #{year}, '%')
+            <where>
+                stu_id = #{stuId}
+                <if test="yearMonth != null and yearMonth.length() == 4">
+                    AND left(lsn_month, 4) = #{yearMonth}
+                </if>
+                <if test="yearMonth != null and yearMonth.length() == 7">
+                    AND left(lsn_month, 7) = #{yearMonth}
+                </if>
+            </where>
         union all
         select   paid.stu_id
+                ,paid.stu_name
                 ,paid.lsn_pay_id
                 ,paid.lsn_fee_id
                 ,paid.subject_id
@@ -168,8 +177,15 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
             on paid.lsn_pay_id = lfap.lsn_pay_id
             left join t_mst_bank bnk
             on paid.bank_id = bnk.bank_id
-            where stu_id = #{stuId}
-            and lsn_month like CONCAT('%', #{year}, '%')
+            <where>
+                stu_id = #{stuId}
+                <if test="yearMonth != null and yearMonth.length() == 4">
+                    AND left(lsn_month, 4) = #{yearMonth}
+                </if>
+                <if test="yearMonth != null and yearMonth.length() == 7">
+                    AND left(lsn_month, 7) = #{yearMonth}
+                </if>
+            </where>
         order by lsn_month, subject_id;
     </select>
 

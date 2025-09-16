@@ -8,6 +8,8 @@ import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
 import 'Kn02f005FeeMonthlyReportBean.dart';
+import 'Kn02F003LsnPay.dart';
+import 'Kn02F002FeeBean.dart';
 
 class UnpaidFeesPage extends StatefulWidget {
   final String initialYearMonth;
@@ -30,9 +32,13 @@ class UnpaidFeesPage extends StatefulWidget {
   _UnpaidFeesPageState createState() => _UnpaidFeesPageState();
 }
 
-class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
+class _UnpaidFeesPageState extends State<UnpaidFeesPage>
+    with SingleTickerProviderStateMixin {
   late String selectedYearMonth;
   List<Kn02f005FeeMonthlyReportBean> feeList = [];
+  // 分组后的数据
+  List<Kn02f005FeeMonthlyReportBean> unpaidFeeList = [];
+  List<Kn02f005FeeMonthlyReportBean> paidFeeList = [];
   double totalUnpaid = 0;
   final String titleName = '未缴纳学费明细';
   late String pagePath;
@@ -42,6 +48,8 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
   String currentDisplayMonth = '';
   // 临时选择的月份索引
   int tempSelectedMonthIndex = 0;
+  // Tab控制器
+  late TabController _tabController;
 
   @override
   void initState() {
@@ -54,7 +62,17 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
                 ? widget.availableMonths[0]
                 : '';
     pagePath = '${widget.pagePath} >> $titleName';
+
+    // 初始化TabController，默认显示第1个tab（学费支付未完）
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
+
     fetchFeeDetails();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchFeeDetails() async {
@@ -75,6 +93,8 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
             feeList = jsonList
                 .map((json) => Kn02f005FeeMonthlyReportBean.fromJson(json))
                 .toList();
+            // 分组数据
+            _groupFeeData();
             calculateTotalUnpaid();
             // 数据加载完成，结束加载状态
             _isLoading = false;
@@ -100,8 +120,99 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
     }
   }
 
+  // 分组费用数据
+  void _groupFeeData() {
+    unpaidFeeList = feeList.where((fee) => fee.unpaidLsnFee > 0).toList();
+    paidFeeList = feeList.where((fee) => fee.unpaidLsnFee <= 0).toList();
+  }
+
   void calculateTotalUnpaid() {
     totalUnpaid = feeList.fold(0, (sum, fee) => sum + fee.unpaidLsnFee);
+  }
+
+  // 跳转到学费支付页面
+  Future<void> _navigateToPaymentPage(Kn02f005FeeMonthlyReportBean fee) async {
+    // 显示加载指示器
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: KnLoadingIndicator(color: widget.knBgColor),
+        );
+      },
+    );
+
+    try {
+      // 构造targetYearMonth（yyyy-MM格式）
+      final currentYear = DateTime.now().year;
+      // 确保月份为两位数格式（添加前导零）
+      final formattedMonth = currentDisplayMonth.padLeft(2, '0');
+      final targetYearMonth = '$currentYear-$formattedMonth';
+
+      // 构造API URL
+      final String apiMonthlyLsnPaidAndUnpaidDetailUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiStuFeeDetailByYearMonth}/${fee.stuId}/$targetYearMonth';
+
+      // 发送API请求
+      final response =
+          await http.get(Uri.parse(apiMonthlyLsnPaidAndUnpaidDetailUrl));
+
+      // 关闭加载指示器
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        List<dynamic> jsonList = json.decode(decodedBody);
+
+        // 转换为List<Kn02F002FeeBean>
+        List<Kn02F002FeeBean> monthData =
+            jsonList.map((json) => Kn02F002FeeBean.fromJson(json)).toList();
+
+        // 构造pagePath
+        final stuName = fee.nikName.isNotEmpty ? fee.nikName : fee.stuName;
+        final pagePath = '未缴纳学费明细>>$stuName $currentDisplayMonth月份学费账单';
+
+        // 跳转到支付页面
+        if (mounted) {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Kn02F003LsnPay(
+                monthData: monthData,
+                allPaid: false,
+                knBgColor: widget.knBgColor,
+                knFontColor: widget.knFontColor,
+                pagePath: pagePath,
+              ),
+            ),
+          );
+
+          // 本画面-->迁移到Kn02F003LsnPay画面，执行课费结算后-->返回本画面后刷新本画面
+          // 如果支付页面返回true，表示数据有变化，需要刷新
+          if (result == true) {
+            fetchFeeDetails(); // 重新获取学费数据
+          }
+        }
+      } else {
+        // API请求失败
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('获取学费详情失败: HTTP ${response.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      // 关闭加载指示器
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('获取学费详情失败: $e')),
+        );
+      }
+    }
   }
 
   // 显示月份选择器
@@ -199,6 +310,9 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 检查是否有未支付记录来决定是否显示Tab
+    bool hasUnpaidRecords = unpaidFeeList.isNotEmpty;
+
     return Scaffold(
       appBar: KnAppBar(
         title: titleName,
@@ -226,22 +340,77 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
           // 主内容
           Column(
             children: [
-              Expanded(
-                child: feeList.isEmpty && !_isLoading
-                    ? const Center(
-                        child: Text(
-                          '没有未缴费记录',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+              // 只有当有未支付记录时才显示Tab栏
+              if (hasUnpaidRecords && !_isLoading) ...[
+                // Tab栏 - 改进的设计
+                Container(
+                  decoration: BoxDecoration(
+                    color: widget.knBgColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    tabs: [
+                      Tab(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: const Text(
+                            '学费支付完了',
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
-                      )
-                    : ListView(
-                        children: [
-                          _buildFeeTable(),
-                        ],
                       ),
+                      Tab(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: const Text(
+                            '学费支付未完',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ],
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white60,
+                    indicatorColor: Colors.white,
+                    indicatorWeight: 4,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    labelStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ],
+              // 内容区域
+              Expanded(
+                child: hasUnpaidRecords && !_isLoading
+                    ? TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // 学费支付完了的Tab
+                          _buildFeeTabContent(paidFeeList, '没有已支付完成的记录',
+                              isUnpaidTab: false),
+                          // 学费支付未完的Tab
+                          _buildFeeTabContent(unpaidFeeList, '没有未支付的记录',
+                              isUnpaidTab: true),
+                        ],
+                      )
+                    : _buildSingleFeeContent(), // 没有未支付记录时显示所有数据
               ),
               // 底部显示合计和月份选择按钮
               Column(
@@ -266,33 +435,215 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage> {
     );
   }
 
-  Widget _buildFeeTable() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('学生姓名')),
-          DataColumn(label: Text('应支付额')),
-          DataColumn(label: Text('实支付额')),
-          DataColumn(label: Text('未支付额')),
+  // 构建Tab内容
+  Widget _buildFeeTabContent(
+      List<Kn02f005FeeMonthlyReportBean> dataList, String emptyMessage,
+      {bool isUnpaidTab = false}) {
+    if (dataList.isEmpty && !_isLoading) {
+      return Center(
+        child: Text(
+          emptyMessage,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // 固定的表格标题头
+        _buildTableHeader(),
+        // 可滚动的数据内容
+        Expanded(
+          child: ListView.builder(
+            itemCount: dataList.length,
+            itemBuilder: (context, index) {
+              return _buildTableRow(dataList[index], isUnpaidTab);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 构建固定的表格标题头
+  Widget _buildTableHeader() {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: const Text(
+                '学生姓名',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: const Text(
+                '应支付额',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: const Text(
+                '实支付额',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: const Text(
+                '未支付额',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
         ],
-        rows: feeList.map((fee) => _buildDataRow(fee)).toList(),
       ),
     );
   }
 
-  DataRow _buildDataRow(Kn02f005FeeMonthlyReportBean fee) {
-    return DataRow(cells: [
-      DataCell(
-          Text(fee.nikName.isNotEmpty == true ? fee.nikName : fee.stuName)),
-      DataCell(Text(fee.shouldPayLsnFee.toStringAsFixed(1))),
-      DataCell(Text(fee.hasPaidLsnFee.toStringAsFixed(1))),
-      DataCell(Text(
-        fee.unpaidLsnFee.toStringAsFixed(1),
-        style:
-            TextStyle(color: fee.unpaidLsnFee > 0 ? Colors.red : Colors.green),
-      )),
-    ]);
+  // 构建单行数据
+  Widget _buildTableRow(Kn02f005FeeMonthlyReportBean fee, bool isClickable) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: Colors.grey.shade300, width: 1),
+          right: BorderSide(color: Colors.grey.shade300, width: 1),
+          bottom: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: isClickable
+                ? InkWell(
+                    onTap: () => _navigateToPaymentPage(fee),
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      child: Text(
+                        fee.nikName.isNotEmpty == true
+                            ? fee.nikName
+                            : fee.stuName,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    alignment: Alignment.center,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    child: Text(
+                      fee.nikName.isNotEmpty == true
+                          ? fee.nikName
+                          : fee.stuName,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Text(
+                fee.shouldPayLsnFee.toStringAsFixed(1),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Text(
+                fee.hasPaidLsnFee.toStringAsFixed(1),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
+          Container(width: 1, height: 56, color: Colors.grey.shade300),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Text(
+                fee.unpaidLsnFee.toStringAsFixed(1),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: fee.unpaidLsnFee > 0 ? Colors.red : Colors.green,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 没有未支付记录时显示的单一内容（原来的显示方式）
+  Widget _buildSingleFeeContent() {
+    if (feeList.isEmpty && !_isLoading) {
+      return const Center(
+        child: Text(
+          '没有学费记录',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // 固定的表格标题头
+        _buildTableHeader(),
+        // 可滚动的数据内容
+        Expanded(
+          child: ListView.builder(
+            itemCount: feeList.length,
+            itemBuilder: (context, index) {
+              return _buildTableRow(feeList[index], false); // 单一内容时不可点击
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildTotalUnpaid() {

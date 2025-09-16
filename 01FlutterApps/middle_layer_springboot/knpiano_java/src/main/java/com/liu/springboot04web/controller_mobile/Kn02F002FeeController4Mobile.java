@@ -50,6 +50,15 @@ public class Kn02F002FeeController4Mobile {
         return ResponseEntity.ok(list);
     }
 
+    // 手机前端：学费管理-->学费月度报告-->未缴纳学费明细-->点击“学生姓名”
+    // 当观妮在学费月度报告模块的未支付明细里执行课费支付操作时，需要提供学生学号和学生要支付学费的月份，把该学生的未支付课费信息调出来执行学费支付操作。
+    @GetMapping("/mb_kn_lsn_fee_by_yearmonth/{stuId}/{targetYearMonth}")
+    public ResponseEntity<List<Kn02F004FeePaid4MobileBean>> getStuFeeDetailMonthlist(@PathVariable("stuId") String stuId,
+                                                                     @PathVariable("targetYearMonth") String yearMonth) {
+        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Dao.getStuFeeDetaillist(stuId, yearMonth);
+        return ResponseEntity.ok(list);
+    }
+
     // 在学生的课费账单画面点击【学费入账】按钮处理
     @PostMapping("/mb_kn_lsn_pay_save")
     public ResponseEntity<String> excuteLsnPay(@RequestBody List<Kn02F004UnpaidBean> kn02F004UnpaidList) {
