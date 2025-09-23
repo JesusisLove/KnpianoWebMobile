@@ -64,6 +64,9 @@ https://mybatis.org/mybatis-3/getting-started.html
         ORDER BY schedual_date
     </select>
 
+    <select id="getLsnScheOfWeekByWeekNumber" resultType="com.liu.springboot04web.bean.Kn04I004BatchLsnSignBean">
+        select * from t_fixedlesson_status where week_number = #{weekNum}
+    </select>
 
 
 </mapper>

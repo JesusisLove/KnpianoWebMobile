@@ -126,6 +126,27 @@
             min-width: 120px;
         }
 
+        /* 前一周/下一周按钮样式 - 天蓝色 */
+        .btn-week-nav {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-week-nav:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            color: white;
+        }
+
+        .btn-week-nav:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            opacity: 0.6;
+        }
+
         .btn-batch-signin {
             background-color: #28a745;
             border-color: #28a745;
@@ -178,6 +199,28 @@
             color: #dee2e6;
             margin-bottom: 20px;
         }
+
+        /* 周次信息显示 */
+        .week-info {
+            background-color: #e7f3ff;
+            border: 1px solid #17a2b8;
+            border-radius: 5px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .week-info h4 {
+            color: #17a2b8;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .week-info p {
+            color: #495057;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -194,13 +237,25 @@
                     <p class="text-muted">按日期查看学生课程安排信息</p>
                 </div>
 
+                <!-- 当前周次信息显示 -->
+                <div class="week-info">
+                    <h4>第 <span id="currentWeekDisplay">[[${weekNumber}]]</span> 周</h4>
+                    <p>当前查看的周次信息</p>
+                </div>
+
                 <!-- 操作按钮区域 -->
                 <div class="action-buttons">
-                    <button type="button" class="btn btn-back" onclick="goBack()">
-                        <i class="fas fa-arrow-left"></i> 返回上一页
+                    <button type="button" class="btn btn-week-nav" id="prevWeekBtn" onclick="goToPrevWeek()">
+                        <i class="fas fa-chevron-left"></i> 前一周
+                    </button>
+                    <button type="button" class="btn btn-week-nav" id="nextWeekBtn" onclick="goToNextWeek()">
+                        <i class="fas fa-chevron-right"></i> 下一周
                     </button>
                     <button type="button" class="btn btn-batch-signin" onclick="executeBatchSignin()">
                         <i class="fas fa-check-circle"></i> 执行批量签到
+                    </button>
+                    <button type="button" class="btn btn-back" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i> 返回
                     </button>
                 </div>
 
@@ -352,9 +407,18 @@
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
     
-    <!-- 全选功能和批量签到JavaScript -->
-    <script>
+    <!-- 全选功能、批量签到和周次导航JavaScript -->
+    <script th:inline="javascript">
+        // 从后台获取当前周数，正确的Thymeleaf写法
+        var currentWeekNumber = /*[[${weekNumber}]]*/ 1;
+        
         $(document).ready(function() {
+            // 确保是数字类型
+            currentWeekNumber = parseInt(currentWeekNumber) || 1;
+            
+            // 初始化按钮状态
+            updateButtonStates();
+            
             // 全选/全不选功能
             $('.select-all-checkbox').change(function() {
                 var currentTab = $(this).data('tab');
@@ -394,11 +458,57 @@
             });
         });
 
-        // 返回上一页功能
-        function goBack() {
-            if (confirm('确定要返回上一页吗？设定的签到数据将会丢失。')) {
-                window.history.back();
+        // 更新按钮状态
+        function updateButtonStates() {
+            var prevBtn = $('#prevWeekBtn');
+            var nextBtn = $('#nextWeekBtn');
+            
+            // 前一周按钮：只有当周数等于1时才不可用
+            if (currentWeekNumber <= 1) {
+                prevBtn.prop('disabled', true);
+            } else {
+                prevBtn.prop('disabled', false);
             }
+            
+            // 下一周按钮：只有当周数大于52时才不可用
+            if (currentWeekNumber > 52) {
+                nextBtn.prop('disabled', true);
+            } else {
+                nextBtn.prop('disabled', false);
+            }
+            
+            // 更新显示的周数
+            $('#currentWeekDisplay').text(currentWeekNumber);
+            
+            // 调试输出
+            console.log('当前周数:', currentWeekNumber, '前一周按钮可用:', !prevBtn.prop('disabled'));
+        }
+
+        // 前一周按钮功能
+        function goToPrevWeek() {
+            if (currentWeekNumber > 1) {
+                var targetWeek = currentWeekNumber - 1;
+                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                console.log('前一周跳转URL:', url);
+                window.location.href = url;
+            }
+        }
+
+        // 下一周按钮功能
+        function goToNextWeek() {
+            if (currentWeekNumber <= 52) {
+                var targetWeek = currentWeekNumber + 1;
+                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                console.log('下一周跳转URL:', url);
+                window.location.href = url;
+            }
+        }
+
+        // 返回功能
+        function goBack() {
+                // window.history.back();
+                // 返回到批量执行上课签到页面
+                window.location.href = '/liu/kn_stu_lsn_sign';
         }
 
         // 批量签到功能
