@@ -12,6 +12,7 @@ public interface Kn04I004BatchLsnSignDao {
 
     public List<Kn04I004BatchLsnSignBean> getLsnScheOfWeek(@Param("startWeek") String startWeek,
                                                            @Param("endWeek")   String endWeek);
-
+    // Web页面【前一周】【下一周】按钮按下
+    public Kn04I004BatchLsnSignBean getLsnScheOfWeekByWeekNumber(@Param("weekNum") String weekNum);
     
 }

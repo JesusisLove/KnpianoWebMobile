@@ -40,11 +40,44 @@ public class Kn04I004BatchLsnSignController {
     }
 
     // 获取一周的签到课程表信息
-    @GetMapping("/kn_stu_one_week_sign/{startWeek}/{endWeek}")
+    @GetMapping("/kn_stu_one_week_sign/{startWeek}/{endWeek}/{weekNumber}")
     public String listWeeklyLsnInfo(@PathVariable("startWeek") String startWeek,
-                                    @PathVariable("endWeek") String endWeek, Model model) {
+                                    @PathVariable("endWeek") String endWeek, 
+                                    @PathVariable("weekNumber") String weekNumber,
+                                    Model model) {
         List<Kn04I004BatchLsnSignBean> collection = batchLsnSignDao.getLsnScheOfWeek(startWeek, endWeek);
         model.addAttribute("infoList", collection);
+
+        // 把weekNumber传递给改前端页面，好利用【前一周】【下一周】的按钮点击操作执行weekNumber指针的向前移动，向后移动
+        model.addAttribute("weekNumber", weekNumber);
+
+        // 利用resultsTabStus的周一到周日，在前端页面做Tab
+        Map<String, String> resultsTabStus = getResultsTabStus(collection);
+        model.addAttribute("resultsTabStus", resultsTabStus);
+
+        // *** 新增：按日期分组数据 - 这是解决问题的关键 ***
+        Map<String, List<Kn04I004BatchLsnSignBean>> lessonsByDate = getLessonsByDate(collection, resultsTabStus);
+        model.addAttribute("lessonsByDate", lessonsByDate);
+
+        return "kn_04i004_batchLsnSignIn/kn_batch_lsn_list";
+    }
+
+
+    //【前一周】【下一周】按钮按下，获取一周的签到课程表信息
+    @GetMapping("/kn_stu_one_week_info/{weekNum}")
+    public String listWeeklyLsnInfo(@PathVariable("weekNum") String weekNum, Model model) {
+        Kn04I004BatchLsnSignBean weekInfo = batchLsnSignDao.getLsnScheOfWeekByWeekNumber(weekNum);
+
+        // 获取周信息，添加null检查
+        if (weekInfo == null) {
+            // 前端页面会因为找不到数据而自动把周数设置为第1周
+            return "kn_04i004_batchLsnSignIn/kn_batch_lsn_list";
+        }
+        List<Kn04I004BatchLsnSignBean> collection 
+                 = batchLsnSignDao.getLsnScheOfWeek(weekInfo.getStartWeekDate(), weekInfo.getEndWeekDate());
+
+        model.addAttribute("infoList", collection);
+        model.addAttribute("weekNumber", Integer.parseInt(weekNum));
 
         // 利用resultsTabStus的周一到周日，在前端页面做Tab
         Map<String, String> resultsTabStus = getResultsTabStus(collection);
