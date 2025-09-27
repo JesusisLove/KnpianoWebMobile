@@ -48,6 +48,10 @@ public class Kn04I004BatchLsnSignController {
         List<Kn04I004BatchLsnSignBean> collection = batchLsnSignDao.getLsnScheOfWeek(startWeek, endWeek);
         model.addAttribute("infoList", collection);
 
+        // startWeek 是 "yyyy-MM-dd" 格式的字符串，如 "2025-07-28"
+        String currentMonth = startWeek.substring(5, 7); // 提取 MM 部分
+        model.addAttribute("currentmonth", currentMonth);
+
         // 把weekNumber传递给改前端页面，好利用【前一周】【下一周】的按钮点击操作执行weekNumber指针的向前移动，向后移动
         model.addAttribute("weekNumber", weekNumber);
 
@@ -78,6 +82,10 @@ public class Kn04I004BatchLsnSignController {
 
         model.addAttribute("infoList", collection);
         model.addAttribute("weekNumber", Integer.parseInt(weekNum));
+
+        // startWeek 是 "yyyy-MM-dd" 格式的字符串，如 "2025-07-28" ,提取 MM 部分
+        String currentMonth = weekInfo.getStartWeekDate().substring(5, 7);
+        model.addAttribute("currentmonth", currentMonth);
 
         // 利用resultsTabStus的周一到周日，在前端页面做Tab
         Map<String, String> resultsTabStus = getResultsTabStus(collection);

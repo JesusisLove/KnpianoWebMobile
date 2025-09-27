@@ -239,7 +239,7 @@
 
                 <!-- 当前周次信息显示 -->
                 <div class="week-info">
-                    <h4>第 <span id="currentWeekDisplay">[[${weekNumber}]]</span> 周</h4>
+                    <h4><span id="currentMonthDisplay">[[${currentmonth}]]</span>月份 第 <span id="currentWeekDisplay">[[${weekNumber}]]</span> 周</h4>
                     <p>当前查看的周次信息</p>
                 </div>
 
@@ -409,14 +409,17 @@
     
     <!-- 全选功能、批量签到和周次导航JavaScript -->
     <script th:inline="javascript">
-        // 从后台获取当前周数，正确的Thymeleaf写法
+        // 从后台获取当前周数和月份
         var currentWeekNumber = /*[[${weekNumber}]]*/ 1;
+
+        // '' 是当后台变量为null或不存在时使用的默认值（空字符串）
+        var currentMonth = /*[[${currentmonth}]]*/ '';
         
         $(document).ready(function() {
             // 确保是数字类型
             currentWeekNumber = parseInt(currentWeekNumber) || 1;
             
-            // 初始化按钮状态
+            // 初始化按钮状态和显示
             updateButtonStates();
             
             // 全选/全不选功能
@@ -458,7 +461,7 @@
             });
         });
 
-        // 更新按钮状态
+        // 更新按钮状态和显示
         function updateButtonStates() {
             var prevBtn = $('#prevWeekBtn');
             var nextBtn = $('#nextWeekBtn');
@@ -480,8 +483,11 @@
             // 更新显示的周数
             $('#currentWeekDisplay').text(currentWeekNumber);
             
+            // 更新显示的月份
+            $('#currentMonthDisplay').text(currentMonth);
+            
             // 调试输出
-            console.log('当前周数:', currentWeekNumber, '前一周按钮可用:', !prevBtn.prop('disabled'));
+            console.log('当前周数:', currentWeekNumber, '当前月份:', currentMonth);
         }
 
         // 前一周按钮功能
