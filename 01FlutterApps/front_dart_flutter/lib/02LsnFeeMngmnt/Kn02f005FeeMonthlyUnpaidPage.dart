@@ -184,7 +184,7 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
             MaterialPageRoute(
               builder: (context) => Kn02F003LsnPay(
                 monthData: monthData,
-                allPaid: false,
+                isAllPaid: false,
                 knBgColor: widget.knBgColor,
                 knFontColor: widget.knFontColor,
                 pagePath: pagePath,

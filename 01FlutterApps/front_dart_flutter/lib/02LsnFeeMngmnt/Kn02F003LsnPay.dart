@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
-import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
@@ -15,7 +14,7 @@ import 'Kn02F004UnpaidBean.dart';
 // ignore: must_be_immutable
 class Kn02F003LsnPay extends StatefulWidget {
   final List<Kn02F002FeeBean> monthData;
-  bool allPaid;
+  bool isAllPaid;
   // AppBar背景颜色
   final Color knBgColor;
   // 字体颜色
@@ -26,7 +25,7 @@ class Kn02F003LsnPay extends StatefulWidget {
   Kn02F003LsnPay(
       {super.key,
       required this.monthData,
-      required this.allPaid,
+      required this.isAllPaid,
       required this.knBgColor,
       required this.knFontColor,
       required this.pagePath});
@@ -51,14 +50,23 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     selectedSubjects = List.generate(widget.monthData.length,
         (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
+    calculateHasPaidFee();
     fetchBankList();
   }
 
+  // 画面初期化，统计课费总额
   void calculateTotalFee() {
     totalFee = widget.monthData.fold(
         0,
         (sum, fee) =>
             sum + (fee.lessonType == 1 ? (fee.subjectPrice! * 4) : fee.lsnFee));
+  }
+
+  // 画面初期化，计算目前已支付课费总额
+  void calculateHasPaidFee() {
+    paymentAmount = widget.monthData
+        .where((item) => item.ownFlg == 1)
+        .fold(0.0, (sum, item) => sum + item.lsnPay);
   }
 
   void updatePaymentAmount() {
@@ -213,7 +221,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
               onPressed: () {
                 Navigator.of(context).pop();
                 restorePayment(lsnPayId, lsnFeeId);
-                widget.allPaid = false;
+                widget.isAllPaid = false;
               },
             ),
           ],
@@ -245,7 +253,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
-  // 修改: 添加显示银行选择器的方法
 // 修改: 添加显示银行选择器的方法
   void _showBankPicker() {
     // 找到当前选中银行的索引，如果没有选中则默认为0
@@ -491,7 +498,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 const SizedBox(height: 16),
                 // 修改: 调整学费入账按钮的样式
                 ElevatedButton(
-                  onPressed: !widget.allPaid ? validateAndSave : null,
+                  onPressed: !widget.isAllPaid ? validateAndSave : null,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: widget.knFontColor,
                     backgroundColor: widget.knBgColor,
