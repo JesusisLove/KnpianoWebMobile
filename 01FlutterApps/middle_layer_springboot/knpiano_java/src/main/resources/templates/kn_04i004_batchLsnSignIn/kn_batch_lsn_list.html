@@ -277,7 +277,7 @@
                                 <button class="btn btn-link" type="button" data-toggle="collapse" 
                                         data-target="#detailDescriptionCollapse" aria-expanded="true" 
                                         aria-controls="detailDescriptionCollapse">
-                                    明细部业务说明：
+                                    明细部业务说明：★抽出来的数据都是未签到的数据　👇详细说明
                                 </button>
                             </h5>
                         </div>
@@ -285,10 +285,15 @@
                                 aria-labelledby="detailDescriptionHeader">
                             <div class="card-body">
                                 <dl>
-                                    <dd class="indented">①课程信息明细：抽出来的数据都是未签到的数据</dd>
-                                    <dd class="indented">②CheckBox选中：是签到的课程对象</dd>
-                                    <dd class="indented">③CheckBox为选中且备注为空：是签到对象外，即便点击批量签到处理按钮，程序也是空处理。</dd>
-                                    <dd class="indented">④CheckBox未选中但备注不空：是签到对象外，点击批量处理不签到，只是更新该课程的备注。</dd>
+                                    <dd class="indented">🔳如果是在Web页面上操作，会遵循下面的逻辑处理</dd>
+                                    <dd class="indented">①CheckBox选中：备注里没有标注备注信息，是签到的课程对象</dd>
+                                    <dd class="indented">②CheckBox未选中且备注为空：是签到对象外，即便点击【执行批量签到】按钮，程序也是空处理。</dd>
+                                    <dd class="indented">③CheckBox未选中但备注不空：是签到对象外，点击【执行批量签到】按钮，程序也不会执行签到，只是更新该课程的备注。</dd>
+                                    <dd class="indented">🔳如果是手机等设备端已经进行了课程备注入力，或者进行了学生调课操作，Web页面初期化时，checkbox会自动处于下面状态</dd>
+                                    <dd class="indented">①CheckBox选中状态：当前行明细备注里没有标注备注信息</dd>
+                                    <dd class="indented">②CheckBox选中状态：当前行明细备注里有标注备注信息，且包含了“[此为调课，需再确认]”</dd>
+                                    <dd class="indented">③CheckBox未选中：标注了学生不来上课的备注信息，且没有“[此为调课，需再确认]”。</dd>
+                                    <dd class="indented">→确认上面的CheckBox的课程签到状态无误之后，即可点击【执行批量签到】按钮，进行批量签到的处理了。</dd>
                                 </dl>
                             </div>
                         </div>
@@ -347,12 +352,18 @@
                                             <!-- 直接使用预先分组的数据 -->
                                             <tr th:each="lesson : ${lessonsByDate.get(currentDateKey)}">
                                                 <td>
-                                                    <input type="checkbox" 
+                                                    <!-- <input type="checkbox" 
                                                            class="lesson-checkbox" 
                                                            th:id="'lesson-' + ${currentDateKey} + '-' + ${lesson.lessonId}"
                                                            th:data-tab="${currentDateKey}"
                                                            th:data-lesson-id="${lesson.lessonId}"
-                                                           checked="checked">
+                                                           checked="checked"> -->
+                                                    <input type="checkbox" 
+                                                        class="lesson-checkbox" 
+                                                        th:id="'lesson-' + ${currentDateKey} + '-' + ${lesson.lessonId}"
+                                                        th:data-tab="${currentDateKey}"
+                                                        th:data-lesson-id="${lesson.lessonId}"
+                                                        th:checked="${lesson.memo == null || lesson.memo == '' || (lesson.memo != null && lesson.memo.contains('[此为调课，需再确认]'))}">
                                                 </td>
                                                 <td class="lesson-id">[[${lesson.lessonId}]]</td>
                                                 <td>[[${lesson.stuId}]]</td>
@@ -377,11 +388,16 @@
                                     <!-- 全选控制 -->
                                     <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
                                         <label class="form-check-label">
-                                            <input type="checkbox" 
+                                            <!-- <input type="checkbox" 
                                                    class="form-check-input select-all-checkbox" 
                                                    th:id="'selectAll-' + ${currentDateKey}"
                                                    th:data-tab="${currentDateKey}"
-                                                   checked="checked">
+                                                   checked="checked"> -->
+                                            <input type="checkbox" 
+                                                   class="form-check-input select-all-checkbox" 
+                                                   th:id="'selectAll-' + ${currentDateKey}"
+                                                   th:data-tab="${currentDateKey}">
+
                                             <strong>全选</strong>
                                         </label>
                                     </div>
@@ -421,6 +437,19 @@
             
             // 初始化按钮状态和显示
             updateButtonStates();
+
+            // 根据从后台数据库传递到前台页面的数据记录中的备注内容（memo是null，非null）的记录，设置明细表底下的全选checkbox是选中状态还是未选中状态，在页面初期化的时候。
+            $('[id^="tab-"][role="tabpanel"]').each(function() {
+                var tabId = $(this).attr('id');
+                var dateKey = tabId.replace('tab-', '');
+                
+                // 检查当前Tab的全选状态
+                var totalCheckboxes = $('input.lesson-checkbox[data-tab="' + dateKey + '"]').length;
+                var checkedCheckboxes = $('input.lesson-checkbox[data-tab="' + dateKey + '"]:checked').length;
+                
+                var selectAllCheckbox = $('#selectAll-' + dateKey);
+                selectAllCheckbox.prop('checked', checkedCheckboxes === totalCheckboxes);
+            });
             
             // 全选/全不选功能
             $('.select-all-checkbox').change(function() {
