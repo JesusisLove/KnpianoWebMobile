@@ -43,7 +43,10 @@ https://mybatis.org/mybatis-3/getting-started.html
                     WHEN 7 THEN 'Sat'
                 END AS sche_week
                 ,scanQR_date
-                ,memo
+                ,CASE 
+                     WHEN lsn_adjusted_date IS NOT NULL THEN CONCAT(IFNULL(memo, ''), '[此为调课，需再确认]')
+                     ELSE memo 
+				END AS memo
             FROM v_info_lesson 
         )
         SELECT 

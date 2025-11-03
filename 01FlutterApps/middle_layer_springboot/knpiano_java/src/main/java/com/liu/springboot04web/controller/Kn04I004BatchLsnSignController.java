@@ -52,7 +52,7 @@ public class Kn04I004BatchLsnSignController {
         String currentMonth = startWeek.substring(5, 7); // 提取 MM 部分
         model.addAttribute("currentmonth", currentMonth);
 
-        // 把weekNumber传递给改前端页面，好利用【前一周】【下一周】的按钮点击操作执行weekNumber指针的向前移动，向后移动
+        // 把weekNumber传递给该前端页面，好利用【前一周】【下一周】的按钮点击操作执行weekNumber指针的向前移动，向后移动
         model.addAttribute("weekNumber", weekNumber);
 
         // 利用resultsTabStus的周一到周日，在前端页面做Tab
