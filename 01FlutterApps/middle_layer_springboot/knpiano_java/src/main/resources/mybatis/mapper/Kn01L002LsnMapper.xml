@@ -26,7 +26,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <!-- 后台维护，获取所有学生的排课课程 -->
     <select id= "getInfoList" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
         SELECT 
-            main.*, 
+            main.*, SUBSTRING(schedual_date, 1, 7) AS lsn_month,
             CASE 
                 WHEN sub.lesson_id IS NOT NULL THEN 1 
                 ELSE 0 
@@ -54,7 +54,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             </if>
             and del_flg = 0
         </where>
-        order by stu_name, schedual_date desc, lesson_id desc, subject_sub_id desc, lesson_type
+        order by stu_name, lsn_month desc, subject_id, lesson_type, schedual_date desc, lesson_id desc
     </select>
 
     <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->
@@ -161,7 +161,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             </if>
             <!-- AND main.del_flg = 0  这个del_flg是学生表里的伦理删除字段，这样设计不合理，视图里已经将该字段删除掉-->
         </where> 
-        order by main.stu_id, main.schedual_date desc, main.lesson_id desc, main.subject_sub_id desc, main.lesson_type
+        order by main.stu_id, main.subject_id, main.lesson_type, main.schedual_date desc, main.lesson_id desc
     </select> 
 
     <!-- 获取到目前为止学生上完了的计划课课时 -->

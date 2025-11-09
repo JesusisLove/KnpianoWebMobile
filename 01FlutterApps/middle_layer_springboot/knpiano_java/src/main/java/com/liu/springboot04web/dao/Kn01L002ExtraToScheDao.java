@@ -8,6 +8,7 @@ import com.liu.springboot04web.constant.KNConstant;
 import com.liu.springboot04web.mapper.Kn01L002ExtraToScheMapper;
 import com.liu.springboot04web.mapper.Kn01L002LsnMapper;
 import com.liu.springboot04web.mapper.Kn02F002FeeMapper;
+import com.liu.springboot04web.othercommon.DateUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -91,9 +92,9 @@ public class Kn01L002ExtraToScheDao {
 
         // ③取得新lsn_fee_id（换成正课后的课费ID），取得条件：换正课的月份
         // getExtraToDurDate：是从前端页面传过来的换正课日期yyyy-MM-dd
-        String targetLsnMonth = new java.text.SimpleDateFormat("yyyy-MM-dd")
-                .format(kn01L002ExtraToScheBean.getExtraToDurDate())
-                .substring(0, 7);
+        String targetLsnDate = new java.text.SimpleDateFormat("yyyy-MM-dd")
+                .format(kn01L002ExtraToScheBean.getExtraToDurDate());
+        String targetLsnMonth = targetLsnDate.substring(0, 7);
         String studentId = kn01L002ExtraToScheBean.getStuId();
         String subjectId = kn01L002ExtraToScheBean.getSubjectId();
         List<Kn02F002FeeBean> toScheLsnFeeIdLst = kn01l002ExtraToScheMapper.getNewLessonIdInfo(studentId, subjectId,
@@ -134,7 +135,11 @@ public class Kn01L002ExtraToScheDao {
             // 更新字段：lsn_fee, del_flg
             // 更新值：lsn_fee = 0.0, del_flg = 1
             // 更新条件：lesson_id
-            if (toScheLsnFeeIdLst.size() >= 4) {
+            // ------- 修改开始： 2025/11/08 幻数4天只是权宜之计，只用4天不对，月份一般都有第四周，但是也有第五周的可能 ------
+            int weekDaysInMonth = DateUtils.countWeekdaysInMonth(targetLsnDate);
+            // if (toScheLsnFeeIdLst.size() >= 4) {
+            if (toScheLsnFeeIdLst.size() >= weekDaysInMonth) {
+            // ------- 修改结束 ：2025/11/08 ---------------------------------------------------------------------
                 // 课费表字段值设置
                 lsnFee = 0;
 
