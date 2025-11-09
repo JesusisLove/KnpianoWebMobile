@@ -33,7 +33,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                  所以，正常情况下学生学号不会为null，所以不要该条件-->
             <!-- AND main.stu_id IS NOT NULL -->
         </where>
-        ORDER BY main.stu_name,main.lsn_month
+        ORDER BY main.stu_name,main.lsn_month desc, main.subject_id, main.lesson_type, main.lesson_id desc
     </select>
 
     <!-- 手机前端：学费支付管理的在课学生一览 -->
@@ -120,7 +120,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 AND main.own_flg = #{params.own_flg}
             </if>
         </where>
-        ORDER BY main.stu_name, main.lsn_month desc, main.lsn_fee_id desc, main.subject_id, main.subject_sub_id desc, main.lesson_type
+        ORDER BY main.stu_name, main.lsn_month desc, main.lesson_type, main.subject_id, main.lesson_id desc
     </select> 
 
     <!-- 手机前端用：从学生课程管理表视图中取得在课学生正在上的课程费用 -->
