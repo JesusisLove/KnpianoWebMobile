@@ -47,3 +47,5 @@ windows/
 *.xcconfig
 *.plist
 *.xcworkspacedata
+CLAUDE.md
+.claude/

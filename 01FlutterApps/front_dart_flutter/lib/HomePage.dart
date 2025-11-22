@@ -11,6 +11,7 @@ import '04IntegratMngmnt/Kn04I003LsnCounting.dart';
 import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
+import 'ApiConfig/KnApiConfig.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
 import 'Constants.dart'; // 引入包含全局常量的文件
@@ -108,9 +109,9 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          const Text(
-            '钢琴课程管理系统',
-            style: TextStyle(
+          Text(
+            '钢琴课程管理系统${KnConfig.environmentName}',
+            style: const TextStyle(
               fontSize: 14,
               color: Colors.grey,
               fontWeight: FontWeight.w500,
