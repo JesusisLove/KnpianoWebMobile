@@ -381,7 +381,7 @@
                                required>
                     </td>
                     <td class="action-column">
-                        <button class="btn btn-sm btn-danger" onclick="undoAssembly(this, '${stuId}')">撤销</button>
+                        <button class="btn btn-sm btn-danger" onclick="undoAssembly(this, '${stuId}')">还原</button>
                         <button class="btn btn-sm btn-primary" onclick="saveAndExecute(this, '${stuId}')">保存并且执行加课换正课</button>
                     </td>
                 `;
@@ -429,7 +429,7 @@
                 }
                 
                 // 确认操作
-                if (!confirm('确定要保存并执行加课换正课吗？此操作不可撤销！')) {
+                if (!confirm('确定要保存并执行加课换正课吗？此操作不可还原！')) {
                     return;
                 }
                 
@@ -495,10 +495,10 @@
                 form.submit();
             }
 
-            // ===== 新增：撤销拼凑功能 =====
+            // ===== 新增：还原拼凑功能 =====
             function undoAssembly(button, stuId) {
-                // 确认撤销操作
-                if (!confirm('确定要撤销这个拼凑记录吗？')) {
+                // 确认还原操作
+                if (!confirm('确定要还原这个拼凑记录吗？')) {
                     return;
                 }
                 
@@ -579,7 +579,7 @@
                 );
                 
                 if (standardDuration === null) {
-                    alert('未找到对应的标准课时长信息，请联系管理员。');
+                    alert('未找到对应的标准课时长信息，请是不是还没有从下拉列表框里把学生单独选出来啊！。');
                     return;
                 }
                 
