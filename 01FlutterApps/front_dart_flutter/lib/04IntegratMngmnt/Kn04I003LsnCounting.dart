@@ -8,6 +8,7 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
 
 // Bean class for lesson counting data
 class Kn04I003LsnCountingBean {
@@ -362,15 +363,33 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             // 第一行：学生姓名、科目、总计、完成度
             Row(
               children: [
-                // 学生姓名
+                // 学生姓名（可点击跳转到课程进度统计页面）
                 Expanded(
                   flex: 2,
-                  child: Text(
-                    item.stuName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  child: InkWell(
+                    onTap: () {
+                      // 跳转到课程进度统计页面
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Kn01L002LsnStatistic(
+                            stuId: item.stuId,
+                            stuName: item.stuName,
+                            knBgColor: Constants.lessonThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "综合管理 >> 学生课程统计",
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      item.stuName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue, // 改为蓝色，表示可点击
+                        decoration: TextDecoration.underline, // 添加下划线，表示可点击
+                      ),
                     ),
                   ),
                 ),
