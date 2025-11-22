@@ -25,25 +25,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
-    #数据源其他配置
-    initialSize: 5
-    minIdle: 5
-    maxActive: 20
-    maxWait: 60000
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 30000
-    validationQuery: SELECT 1 FROM DUAL
-    testWhileInle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-    #配置监控统计拦截的filters，去掉后监控姐妹sql无法统计，'wall'用于防火墙
-    filters: stat,wall.log4j
-    maxPoolPreparedStatementPerConnectionSize: 20
-    usGlobalDataSourceStat: true
-    connectionProperties: druid.stat.mergeSql-true;druid.stat.slowSqlMillis-500
-    
-    # ==================== 2025-08-08 新增配置 解决NAS启动时容器启动顺序问题 ====================
+    # ==================== 2025-08-08 Druid数据源配置 解决NAS启动时容器启动顺序问题 ====================
     # 配置目的：解决NAS系统启动时，Java应用启动速度快于MySQL服务启动的问题
     # 问题场景：NAS在早上8:00自动启动时，MySQL容器需要较长时间完成初始化和启动
     #          而Java应用容器启动较快，导致应用启动时连接不到数据库而失败
@@ -52,23 +34,36 @@ spring:
     
     # Druid 连接池配置 - 用于启动时等待数据库
     druid:
-      # 连接超时时间（毫秒）- 从默认30秒增加到60秒，给MySQL更多启动时间
-      connection-timeout: 60000
-      # 连接验证超时时间（毫秒）- 验证数据库连接是否有效的超时时间
-      validation-query-timeout: 10
-      # 初始化失败时的超时时间（毫秒）- 设置为5分钟，确保MySQL有足够时间完全启动
-      # 这是最关键的配置，避免因MySQL启动慢而导致整个应用启动失败
-      initialization-fail-timeout: 300000
-      # 禁用快速失败机制 - 允许应用在数据库暂时不可用时继续尝试连接
-      fail-fast: false
+      # 基础连接池配置
+      initial-size: 5                              # 初始化连接数
+      min-idle: 5                                  # 最小空闲连接数
+      max-active: 20                               # 最大活跃连接数
+      max-wait: 60000                              # 获取连接最大等待时间（毫秒）
+
+      # 连接超时配置
+      connection-timeout: 60000                    # 连接超时时间（毫秒）- 从默认30秒增加到60秒
+      validation-query-timeout: 10                 # 连接验证超时时间（秒）
+      initialization-fail-timeout: 300000          # 初始化失败超时（毫秒）- 5分钟，确保MySQL有足够启动时间⭐关键配置
+      fail-fast: false                             # 禁用快速失败 - 允许应用在数据库暂时不可用时继续尝试连接
+
       # 连接测试配置 - 确保获取的连接是有效的
-      test-on-borrow: true        # 从连接池获取连接时测试连接有效性
-      test-on-return: false       # 归还连接时不测试（提高性能）
-      test-while-idle: true       # 空闲时测试连接有效性
-      # 空闲连接检测间隔（毫秒）- 每60秒检查一次空闲连接
-      time-between-eviction-runs-millis: 60000
-      # 连接在池中保持空闲而不被回收的最小时间（毫秒）- 5分钟
-      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL         # 连接验证SQL
+      test-on-borrow: true                         # 从连接池获取连接时测试连接有效性
+      test-on-return: false                        # 归还连接时不测试（提高性能）
+      test-while-idle: true                        # 空闲时测试连接有效性
+
+      # 空闲连接管理
+      time-between-eviction-runs-millis: 60000     # 空闲连接检测间隔（毫秒）- 每60秒检查一次
+      min-evictable-idle-time-millis: 300000       # 连接空闲最小保持时间（毫秒）- 5分钟
+
+      # 预编译语句配置
+      pool-prepared-statements: true               # 开启PSCache
+      max-pool-prepared-statement-per-connection-size: 20  # 每个连接PSCache大小
+
+      # 监控统计配置
+      filters: stat,wall,log4j                     # 监控统计拦截filters（stat:监控统计 wall:防火墙 log4j:日志）
+      use-global-data-source-stat: true            # 使用全局数据源统计
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500  # 合并SQL统计，慢SQL阈值500ms
 
   # ==================== 2025-08-08 新增配置 SQL初始化配置 ====================
   # 配置目的：避免应用启动时因为数据库表已存在或其他SQL执行问题导致启动失败
