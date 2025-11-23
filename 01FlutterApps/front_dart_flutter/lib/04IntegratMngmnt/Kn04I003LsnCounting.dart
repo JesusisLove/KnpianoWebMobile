@@ -382,13 +382,25 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                         ),
                       );
                     },
-                    child: Text(
-                      item.stuName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue, // 改为蓝色，表示可点击
-                        decoration: TextDecoration.underline, // 添加下划线，表示可点击
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          // 如果计划总课时达到43节,显示🏆图标
+                          if (item.totalLsnCnt1 >= 43)
+                            const TextSpan(
+                              text: '🏆 ',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          TextSpan(
+                            text: item.stuName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue, // 改为蓝色，表示可点击
+                              decoration: TextDecoration.underline, // 添加下划线，表示可点击
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
