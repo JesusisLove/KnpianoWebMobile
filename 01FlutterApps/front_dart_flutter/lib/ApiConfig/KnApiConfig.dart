@@ -21,7 +21,8 @@ class KnConfig {
       apiBaseUrl = jsonResponse['apiBaseUrl'];
 
       // 根据配置文件路径判断当前环境
-      if (configFilePath.contains('kn-local-config')) {
+      if (configFilePath.contains('kn-local-config') ||
+          configFilePath.contains('kn-vpn-config')) {
         environmentName = '（本地开发环境）';
       } else if (configFilePath.contains('kn-nas-test-config')) {
         environmentName = '（NAS测试环境）';

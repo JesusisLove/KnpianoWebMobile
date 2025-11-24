@@ -12,7 +12,7 @@ https://mybatis.org/mybatis-3/getting-started.html
     <select id="getStuLsnCount" resultType="com.liu.springboot04web.bean.Kn04I003LsnCountingBean">
         SELECT 
             lsn.stu_id, lsn.stu_name,
-            lsn.subject_id, lsn.subject_name,doc.year_lsn_cnt,
+            lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt, doc.pay_style,
             SUM(CASE WHEN lesson_type = 0 THEN lsn_count ELSE 0 END) AS total_lsn_cnt0,
             SUM(CASE WHEN lesson_type = 1 THEN lsn_count ELSE 0 END) AS total_lsn_cnt1,
             SUM(CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END) AS total_lsn_cnt2
@@ -26,7 +26,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 SELECT 1 FROM t_mst_student mst WHERE mst.stu_id  = lsn.stu_id AND mst.del_flg = 0
                 )
         AND lsn.lsn_month BETWEEN #{year_month_from} AND #{year_month_to}
-        GROUP BY lsn.stu_id, lsn.stu_name, lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt
+        GROUP BY lsn.stu_id, lsn.stu_name, lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt, doc.pay_style
         ORDER BY lsn.stu_name, lsn.subject_id;
     </select>
 </mapper>
