@@ -174,7 +174,7 @@ https://mybatis.org/mybatis-3/getting-started.html
            AND lsn_month BETWEEN DATE_FORMAT(CURDATE(), '%Y-01') AND DATE_FORMAT(CURDATE(), '%Y-%m')
     </select>
 
-    <!-- 获取该生该科目的年度计划总课时 -->
+    <!-- 获取该生该科目在该年度的计划总课时 -->
     <select id="getYearLsnCnt" resultType="java.lang.Long">
         SELECT year_lsn_cnt
           FROM v_latest_subject_info_from_student_document

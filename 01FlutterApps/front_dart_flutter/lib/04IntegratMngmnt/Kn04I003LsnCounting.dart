@@ -16,7 +16,8 @@ class Kn04I003LsnCountingBean {
   final String stuName;
   final String subjectId;
   final String subjectName;
-  final double yearLsnCnt;
+  final int payStyle;
+  final double standartYearLsnCnt;
   final double totalLsnCnt0; // 按课时收费
   final double totalLsnCnt1; // 计划课
   final double totalLsnCnt2; // 加时课
@@ -26,7 +27,8 @@ class Kn04I003LsnCountingBean {
     required this.stuName,
     required this.subjectId,
     required this.subjectName,
-    required this.yearLsnCnt,
+    required this.payStyle,
+    required this.standartYearLsnCnt,
     required this.totalLsnCnt0,
     required this.totalLsnCnt1,
     required this.totalLsnCnt2,
@@ -38,7 +40,8 @@ class Kn04I003LsnCountingBean {
       stuName: json['stuName'] as String? ?? '',
       subjectId: json['subjectId'] as String? ?? '',
       subjectName: json['subjectName'] as String? ?? '',
-      yearLsnCnt: json['yearLsnCnt']?.toDouble() ?? 0.0,
+      payStyle: json['payStyle'] as int? ?? 0,
+      standartYearLsnCnt: json['yearLsnCnt']?.toDouble() ?? 0.0,
       totalLsnCnt0: json['totalLsnCnt0']?.toDouble() ?? 0.0,
       totalLsnCnt1: json['totalLsnCnt1']?.toDouble() ?? 0.0,
       totalLsnCnt2: json['totalLsnCnt2']?.toDouble() ?? 0.0,
@@ -386,9 +389,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                       text: TextSpan(
                         children: [
                           // 如果计划总课时达到43节,显示🏆图标
-                          if (item.totalLsnCnt1 >= 43)
+                          if (item.totalLsnCnt1 >= item.standartYearLsnCnt &&
+                              item.payStyle == 1)
                             const TextSpan(
-                              text: '🏆 ',
+                              text: '✅🏆',
                               style: TextStyle(fontSize: 16),
                             ),
                           TextSpan(
@@ -397,7 +401,8 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.blue, // 改为蓝色，表示可点击
-                              decoration: TextDecoration.underline, // 添加下划线，表示可点击
+                              decoration:
+                                  TextDecoration.underline, // 添加下划线，表示可点击
                             ),
                           ),
                         ],
@@ -435,7 +440,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 const SizedBox(width: 8),
                 // 计划总课时
                 Text(
-                  '计划: ${item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt.toStringAsFixed(1)}节',
+                  '计划: ${item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt.toStringAsFixed(1)}节',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -445,12 +450,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 const SizedBox(width: 8),
                 // 完成度
                 Text(
-                  '完成度: ${((item.totalLsnCnt1 / (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)) * 100).toStringAsFixed(1)}%',
+                  '完成度: ${((item.totalLsnCnt1 / (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt)) * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: item.totalLsnCnt1 >=
-                            (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)
+                            (item.standartYearLsnCnt == 0
+                                ? 43
+                                : item.standartYearLsnCnt)
                         ? Colors.green
                         : widget.knBgColor,
                   ),
@@ -460,17 +467,23 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             const SizedBox(height: 12),
             // 课程进度条
             if (item.totalLsnCnt0 > 0)
-              _buildLessonBar('时费课', item.totalLsnCnt0,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.green),
+              _buildLessonBar(
+                  '时费课',
+                  item.totalLsnCnt0,
+                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                  Colors.green),
             if (item.totalLsnCnt1 > 0)
               _buildLessonBar(
                   '计划课',
                   item.totalLsnCnt1,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt),
+                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
                   widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
-              _buildLessonBar('加时课', item.totalLsnCnt2,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.pink),
+              _buildLessonBar(
+                  '加时课',
+                  item.totalLsnCnt2,
+                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                  Colors.pink),
           ],
         ),
       ),
