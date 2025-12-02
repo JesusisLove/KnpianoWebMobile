@@ -6,7 +6,8 @@ public class Kn04I003LsnCountingBean implements KnPianoBean {
     private int    payStyle;
     private Float totalLsnCnt0;    // 按课时收费统计的上课总数
     private Float totalLsnCnt1;    // 按计划课统计的上课总数
-    private Float totalLsnCnt2;    // 按加课时统计的上课总数
+    private Float totalLsnCnt2;    // 按加课时统计的上课总数(整节加课统计)
+    private Float totalLsnCnt3;    // 按加课时统计的上课总数(零碎加课统计)
     private String stuName;        // 学生姓名
     private String subjectName;    // 科目名称
     private Float yearLsnCnt;      // 年度计划总课时
@@ -77,6 +78,14 @@ public class Kn04I003LsnCountingBean implements KnPianoBean {
 
         public Float getYearLsnCnt() {
         return yearLsnCnt;
+    }
+    
+    public Float getTotalLsnCnt3() {
+        return totalLsnCnt3;
+    }
+
+    public void setTotalLsnCnt3(Float totalLsnCnt3) {
+        this.totalLsnCnt3 = totalLsnCnt3;
     }
 
     public void setYearLsnCnt(Float yearLsnCnt) {

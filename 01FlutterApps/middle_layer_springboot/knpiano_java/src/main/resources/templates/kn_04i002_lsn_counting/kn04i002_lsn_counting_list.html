@@ -89,7 +89,8 @@
                         <th>已完成计划课</th>
                         <th>规定年满课时</th>
                         <th>计划课完成度</th>
-                        <th>加时课</th>
+                        <th>整节加时课</th>
+                        <th>零碎加时课</th>
                    </tr>
                     </thead>
                     <tbody>
@@ -125,6 +126,11 @@
                             <span th:if="${info.totalLsnCnt2 != null and info.totalLsnCnt2 != 0.0}"
                                   style="color: #ff69b4; font-weight: bold;"
                                   th:text="${info.totalLsnCnt2}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${info.totalLsnCnt3 != null and info.totalLsnCnt3 != 0.0}"
+                                  style="color: #ff69b4; font-weight: bold;"
+                                  th:text="${info.totalLsnCnt3}"></span>
                         </td>
                     </tr>
                     </tbody>

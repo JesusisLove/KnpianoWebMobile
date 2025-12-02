@@ -9,6 +9,8 @@ import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraPiesesIntoOne.dart';
 
 // Bean class for lesson counting data
 class Kn04I003LsnCountingBean {
@@ -20,7 +22,8 @@ class Kn04I003LsnCountingBean {
   final double standartYearLsnCnt;
   final double totalLsnCnt0; // 按课时收费
   final double totalLsnCnt1; // 计划课
-  final double totalLsnCnt2; // 加时课
+  final double totalLsnCnt2; // 加时课（整节加课课统计）
+  final double totalLsnCnt3; // 加时课（零碎加课课统计
 
   Kn04I003LsnCountingBean({
     required this.stuId,
@@ -32,6 +35,7 @@ class Kn04I003LsnCountingBean {
     required this.totalLsnCnt0,
     required this.totalLsnCnt1,
     required this.totalLsnCnt2,
+    required this.totalLsnCnt3,
   });
 
   factory Kn04I003LsnCountingBean.fromJson(Map<String, dynamic> json) {
@@ -45,6 +49,7 @@ class Kn04I003LsnCountingBean {
       totalLsnCnt0: json['totalLsnCnt0']?.toDouble() ?? 0.0,
       totalLsnCnt1: json['totalLsnCnt1']?.toDouble() ?? 0.0,
       totalLsnCnt2: json['totalLsnCnt2']?.toDouble() ?? 0.0,
+      totalLsnCnt3: json['totalLsnCnt3']?.toDouble() ?? 0.0,
     );
   }
 
@@ -102,7 +107,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     try {
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.intergLsnCounting}';
-      print('Loading initial data from: $apiUrl');
+      // print('Loading initial data from: $apiUrl');
 
       final response = await http.get(Uri.parse(apiUrl));
 
@@ -117,7 +122,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
           isLoading = false;
         });
 
-        print('Initial data loaded: ${lessonCountingData.length} records');
+        // print('Initial data loaded: ${lessonCountingData.length} records');
       } else {
         throw Exception('Failed to load initial data: ${response.statusCode}');
       }
@@ -157,7 +162,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
           isLoading = false;
         });
 
-        print('Search completed: ${lessonCountingData.length} records');
+        // print('Search completed: ${lessonCountingData.length} records');
       } else {
         throw Exception('Failed to search data: ${response.statusCode}');
       }
@@ -480,10 +485,48 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                   widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
               _buildLessonBar(
-                  '加时课',
-                  item.totalLsnCnt2,
-                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
-                  Colors.pink),
+                '加时课',
+                item.totalLsnCnt2,
+                (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                Colors.pink,
+                onTap: () {
+                  // 跳转到加课消化管理页面
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExtraToSchePage(
+                        stuId: item.stuId,
+                        stuName: item.stuName,
+                        knBgColor: widget.knBgColor,
+                        knFontColor: widget.knFontColor,
+                        pagePath: pagePath,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            if (item.totalLsnCnt3 > 0)
+              _buildLessonBar(
+                '零碎课',
+                item.totalLsnCnt3,
+                (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                Colors.pink,
+                onTap: () {
+                  // 跳转到零碎加课拼整课页面
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Kn01L003ExtraPiesesIntoOne(
+                        stuId: item.stuId,
+                        stuName: item.stuName,
+                        knBgColor: widget.knBgColor,
+                        knFontColor: widget.knFontColor,
+                        pagePath: pagePath,
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -491,7 +534,8 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   }
 
   Widget _buildLessonBar(
-      String label, double count, double maxLessons, Color color) {
+      String label, double count, double maxLessons, Color color,
+      {VoidCallback? onTap}) {
     double barWidth = (count / maxLessons).clamp(0.0, 1.0);
 
     return Padding(
@@ -502,15 +546,29 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  // color: Colors.grey,
-                  color: Colors.black,
-                ),
-              ),
+              // 如果有 onTap 回调，则将标签做成可点击的链接样式
+              onTap != null
+                  ? GestureDetector(
+                      onTap: onTap,
+                      child: Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        // color: Colors.grey,
+                        color: Colors.black,
+                      ),
+                    ),
               Text(
                 '${count.toStringAsFixed(1)}节',
                 style: TextStyle(
