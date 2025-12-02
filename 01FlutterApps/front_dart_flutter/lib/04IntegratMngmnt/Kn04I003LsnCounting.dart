@@ -88,6 +88,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   final String titleName = '学生课程统计';
   late String pagePath;
 
+  // 搜索功能相关
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
   // final double maxLessons = 43.0; // 满课时数
 
   @override
@@ -96,6 +100,24 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     pagePath = '${widget.pagePath} >> $titleName';
     // 页面初始加载 - 调用第一个API
     loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // 过滤学生数据
+  List<Kn04I003LsnCountingBean> get filteredLessonData {
+    if (_searchQuery.isEmpty) {
+      return lessonCountingData;
+    }
+    return lessonCountingData.where((student) {
+      return student.stuName
+          .toLowerCase()
+          .contains(_searchQuery.toLowerCase());
+    }).toList();
   }
 
   // 页面初始加载数据 - 使用 /mb_kn_lsn_counting
@@ -174,6 +196,45 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     }
   }
 
+  // 显示搜索对话框
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('搜索学生'),
+        content: TextField(
+          controller: _searchController,
+          decoration: const InputDecoration(
+            hintText: '请输入学生姓名',
+            prefixIcon: Icon(Icons.search),
+          ),
+          autofocus: true,
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value;
+            });
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _searchQuery = '';
+                _searchController.clear();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('清除'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -197,6 +258,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
         currentNavIndex: 3,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: widget.knFontColor),
+            onPressed: () {
+              _showSearchDialog();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -339,6 +408,8 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   }
 
   Widget _buildLessonChart() {
+    final displayData = filteredLessonData;
+
     if (lessonCountingData.isEmpty) {
       return const Center(
         child: Text(
@@ -348,13 +419,84 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: lessonCountingData.length,
-      itemBuilder: (context, index) {
-        final item = lessonCountingData[index];
-        return _buildStudentLessonCard(item);
-      },
+    // 如果搜索后无结果
+    if (displayData.isEmpty && _searchQuery.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '没有找到匹配的学生',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '请尝试其他关键词',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // 显示搜索结果计数
+        if (_searchQuery.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: widget.knBgColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: widget.knBgColor.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: widget.knBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '找到 ${displayData.length} 名学生',
+                  style: TextStyle(
+                    color: widget.knBgColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: displayData.length,
+            itemBuilder: (context, index) {
+              final item = displayData[index];
+              return _buildStudentLessonCard(item);
+            },
+          ),
+        ),
+      ],
     );
   }
 
