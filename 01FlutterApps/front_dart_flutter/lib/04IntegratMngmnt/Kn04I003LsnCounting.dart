@@ -114,9 +114,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
       return lessonCountingData;
     }
     return lessonCountingData.where((student) {
-      return student.stuName
-          .toLowerCase()
-          .contains(_searchQuery.toLowerCase());
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
@@ -682,74 +680,82 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 如果有 onTap 回调，则将标签做成可点击的链接样式
-              onTap != null
-                  ? GestureDetector(
-                      onTap: onTap,
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    )
-                  : Text(
+          // 左侧：课程标签（固定宽度）
+          SizedBox(
+            width: 40,
+            child: onTap != null
+                ? GestureDetector(
+                    onTap: onTap,
+                    child: Text(
                       label,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        // color: Colors.grey,
-                        color: Colors.black,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-              Text(
-                '${count.toStringAsFixed(1)}节',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          // 分层进度条容器
-          Container(
-            height: 8,
-            child: Stack(
-              children: [
-                // 底层：灰色进度条（固定长度，代表满额43节课）
-                Container(
-                  width: double.infinity, // ← 在这里！
-                  height: 4,
-                  decoration: BoxDecoration(
-                    // color: Colors.grey[200],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                // 上层：彩色进度条
-                FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: barWidth,
-                  child: Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
+                  )
+                : Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-              ],
+          ),
+          const SizedBox(width: 2),
+          // 中间：进度条（自动伸缩填充）
+          Expanded(
+            child: Container(
+              height: 8,
+              child: Stack(
+                children: [
+                  // 底层：白色进度条（固定长度，代表满额课时）
+                  Container(
+                    width: double.infinity,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Colors.grey[300]!,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  // 上层：彩色进度条
+                  FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: barWidth,
+                    child: Container(
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          // 右侧：课时标签（固定宽度）
+          SizedBox(
+            width: 42,
+            child: Text(
+              '${count.toStringAsFixed(1)}节',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],
