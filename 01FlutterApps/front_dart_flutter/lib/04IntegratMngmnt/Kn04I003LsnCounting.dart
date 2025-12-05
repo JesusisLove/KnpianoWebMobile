@@ -73,7 +73,8 @@ class Kn04I003LsnCounting extends StatefulWidget {
   _Kn04I003LsnCountingState createState() => _Kn04I003LsnCountingState();
 }
 
-class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
+class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
+    with TickerProviderStateMixin {
   int selectedYear = DateTime.now().year;
   int selectedMonthFrom = 1;
   int selectedMonthTo = DateTime.now().month;
@@ -92,6 +93,9 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
+  // Tab 控制器
+  TabController? _tabController;
+
   // final double maxLessons = 43.0; // 满课时数
 
   @override
@@ -105,10 +109,36 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
-  // 过滤学生数据
+  // 判断学生是否满课时
+  bool _isFullLesson(Kn04I003LsnCountingBean student) {
+    return student.totalLsnCnt1 >= student.standartYearLsnCnt &&
+        student.payStyle == 1;
+  }
+
+  // 判断是否需要显示 Tab（基于后台返回的 lessonCountingData）
+  bool get _shouldShowTabs {
+    return lessonCountingData.any((student) => _isFullLesson(student));
+  }
+
+  // 获取满课时学生列表
+  List<Kn04I003LsnCountingBean> get _fullLessonStudents {
+    return lessonCountingData
+        .where((student) => _isFullLesson(student))
+        .toList();
+  }
+
+  // 获取未满课时学生列表
+  List<Kn04I003LsnCountingBean> get _notFullLessonStudents {
+    return lessonCountingData
+        .where((student) => !_isFullLesson(student))
+        .toList();
+  }
+
+  // 过滤学生数据（无 Tab 时使用）
   List<Kn04I003LsnCountingBean> get filteredLessonData {
     if (_searchQuery.isEmpty) {
       return lessonCountingData;
@@ -116,6 +146,58 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     return lessonCountingData.where((student) {
       return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+  }
+
+  // 过滤满课时学生（在 Tab 内搜索）
+  List<Kn04I003LsnCountingBean> get _filteredFullLessonStudents {
+    final fullStudents = _fullLessonStudents;
+    if (_searchQuery.isEmpty) {
+      return fullStudents;
+    }
+    return fullStudents.where((student) {
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  // 过滤未满课时学生（在 Tab 内搜索）
+  List<Kn04I003LsnCountingBean> get _filteredNotFullLessonStudents {
+    final notFullStudents = _notFullLessonStudents;
+    if (_searchQuery.isEmpty) {
+      return notFullStudents;
+    }
+    return notFullStudents.where((student) {
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  // 管理 TabController 的创建和销毁（核心逻辑）
+  // 注意：此方法不调用 setState，由调用者负责触发重建
+  void _manageTabController() {
+    if (_shouldShowTabs) {
+      // 需要显示 Tab
+      print('✅ 需要显示 Tab');
+      if (_tabController == null) {
+        // 还没有创建，创建新的（不使用 setState）
+        print('🆕 创建新的 TabController');
+        _tabController = TabController(length: 2, vsync: this);
+        print('✔️ TabController 创建完成');
+      } else {
+        print('ℹ️ TabController 已存在，保持现有状态');
+      }
+    } else {
+      // 不需要显示 Tab
+      print('❌ 不需要显示 Tab');
+      if (_tabController != null) {
+        // 已经创建了，销毁它（不使用 setState）
+        print('🗑️ 销毁现有的 TabController');
+        _tabController!.dispose();
+        _tabController = null;
+        print('✔️ TabController 销毁完成');
+      } else {
+        print('ℹ️ TabController 本来就是 null，无需销毁');
+      }
+    }
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
   // 页面初始加载数据 - 使用 /mb_kn_lsn_counting
@@ -140,6 +222,9 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
               .map((json) => Kn04I003LsnCountingBean.fromJson(json))
               .toList();
           isLoading = false;
+
+          // 根据后台返回的数据管理 TabController（在 setState 内部调用）
+          _manageTabController();
         });
 
         // print('Initial data loaded: ${lessonCountingData.length} records');
@@ -180,6 +265,9 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
               .map((json) => Kn04I003LsnCountingBean.fromJson(json))
               .toList();
           isLoading = false;
+
+          // 根据后台返回的数据管理 TabController（在 setState 内部调用）
+          _manageTabController();
         });
 
         // print('Search completed: ${lessonCountingData.length} records');
@@ -406,8 +494,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   }
 
   Widget _buildLessonChart() {
-    final displayData = filteredLessonData;
-
+    // 如果后台返回的数据为空
     if (lessonCountingData.isEmpty) {
       return const Center(
         child: Text(
@@ -417,6 +504,53 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
       );
     }
 
+    // 根据后台返回的数据判断是否需要显示 Tab
+    if (_shouldShowTabs && _tabController != null) {
+      // 显示 Tab 分组
+      return Column(
+        children: [
+          // TabBar
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: widget.knBgColor,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: widget.knBgColor,
+              indicatorWeight: 3,
+              tabs: [
+                Tab(text: '✅🏆满课时 (${_fullLessonStudents.length})'),
+                const Tab(text: '未满课时'),
+              ],
+            ),
+          ),
+          // TabBarView
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // 满课时学生列表
+                _buildStudentList(_filteredFullLessonStudents),
+                // 未满课时学生列表
+                _buildStudentList(_filteredNotFullLessonStudents),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 不显示 Tab，显示全部学生列表
+    return _buildStudentList(filteredLessonData);
+  }
+
+  // 构建学生列表
+  Widget _buildStudentList(List<Kn04I003LsnCountingBean> displayData) {
     // 如果搜索后无结果
     if (displayData.isEmpty && _searchQuery.isNotEmpty) {
       return Center(
