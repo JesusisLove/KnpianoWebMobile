@@ -170,34 +170,22 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
     }).toList();
   }
 
-  // 管理 TabController 的创建和销毁（核心逻辑）
-  // 注意：此方法不调用 setState，由调用者负责触发重建
+  // 管理 TabController 的创建和销毁
   void _manageTabController() {
     if (_shouldShowTabs) {
       // 需要显示 Tab
-      print('✅ 需要显示 Tab');
       if (_tabController == null) {
-        // 还没有创建，创建新的（不使用 setState）
-        print('🆕 创建新的 TabController');
+        // 创建新的 TabController
         _tabController = TabController(length: 2, vsync: this);
-        print('✔️ TabController 创建完成');
-      } else {
-        print('ℹ️ TabController 已存在，保持现有状态');
       }
     } else {
       // 不需要显示 Tab
-      print('❌ 不需要显示 Tab');
       if (_tabController != null) {
-        // 已经创建了，销毁它（不使用 setState）
-        print('🗑️ 销毁现有的 TabController');
+        // 销毁现有的 TabController
         _tabController!.dispose();
         _tabController = null;
-        print('✔️ TabController 销毁完成');
-      } else {
-        print('ℹ️ TabController 本来就是 null，无需销毁');
       }
     }
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
   // 页面初始加载数据 - 使用 /mb_kn_lsn_counting
