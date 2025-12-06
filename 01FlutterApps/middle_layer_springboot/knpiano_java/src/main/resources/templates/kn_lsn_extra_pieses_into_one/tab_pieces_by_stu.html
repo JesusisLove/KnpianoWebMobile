@@ -159,15 +159,16 @@
                             th:attr="data-lesson-id=${info.lessonId}, data-subject-id=${info.subjectId}, data-subject-sub-id=${info.subjectSubId}, data-class-duration=${info.classDuration}, data-stu-id=${info.stuId}">
                             <!-- ===== 新增：checkbox列 ===== -->
                             <td>
-                                <input type="checkbox" class="lesson-checkbox" 
+                                <input type="checkbox" class="lesson-checkbox"
                                        th:id="'checkbox-' + ${info.lessonId}"
-                                       th:attr="data-lesson-id=${info.lessonId}, 
-                                               data-subject-id=${info.subjectId}, 
-                                               data-subject-sub-id=${info.subjectSubId}, 
-                                               data-class-duration=${info.classDuration}, 
-                                               data-stu-id=${info.stuId}, 
-                                               data-subject-name=${info.subjectName}, 
-                                               data-subject-sub-name=${info.subjectSubName}"
+                                       th:attr="data-lesson-id=${info.lessonId},
+                                               data-subject-id=${info.subjectId},
+                                               data-subject-sub-id=${info.subjectSubId},
+                                               data-class-duration=${info.classDuration},
+                                               data-stu-id=${info.stuId},
+                                               data-subject-name=${info.subjectName},
+                                               data-subject-sub-name=${info.subjectSubName},
+                                               data-scan-qr-date=${info.scanQrDate != null ? #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}"
                                        >
                             </td>
                             <!-- ===== 完全保持原有的数据显示 ===== -->
@@ -214,6 +215,7 @@
                         <th class="col-subjectName">科目名称</th>
                         <th class="col-subjectLevel">子科目名称</th>
                         <th class="col-scanQRDate">签到日期</th>
+                        <th class="col-memo">备注</th>
                         <th class="action-column">操作</th>
                     </tr>
                 </thead>
@@ -288,7 +290,7 @@
             function getSelectedCheckboxes(stuId) {
                 const table = document.getElementById('fragments-table-' + stuId);
                 const checkboxes = table.querySelectorAll('.lesson-checkbox:checked:not(:disabled)');
-                
+
                 return Array.from(checkboxes).map(checkbox => ({
                     element: checkbox,
                     lessonId: checkbox.getAttribute('data-lesson-id'),
@@ -297,7 +299,8 @@
                     classDuration: parseInt(checkbox.getAttribute('data-class-duration')),
                     stuId: checkbox.getAttribute('data-stu-id'),
                     subjectName: checkbox.getAttribute('data-subject-name'),
-                    subjectSubName: checkbox.getAttribute('data-subject-sub-name')
+                    subjectSubName: checkbox.getAttribute('data-subject-sub-name'),
+                    scanQrDate: checkbox.getAttribute('data-scan-qr-date')
                 }));
             }
 
@@ -373,13 +376,14 @@
                     <td class="col-subjectName">${assembledRecord.subjectName}</td>
                     <td class="col-subjectLevel">${assembledRecord.subjectSubName}</td>
                     <td class="col-scanQRDate datetime-cell">
-                        <input type="datetime-local" 
-                               class="checkin-datetime" 
-                               id="checkin-${rowId}" 
+                        <input type="datetime-local"
+                               class="checkin-datetime"
+                               id="checkin-${rowId}"
                                value="${getCurrentDateTime()}"
                                title="签到日期"
                                required>
                     </td>
+                    <td class="col-memo">${assembledRecord.memo}</td>
                     <td class="action-column">
                         <button class="btn btn-sm btn-danger" onclick="undoAssembly(this, '${stuId}')">还原</button>
                         <button class="btn btn-sm btn-primary" onclick="saveAndExecute(this, '${stuId}')">保存并且执行加课换正课</button>
@@ -441,7 +445,8 @@
                     stuId: row.querySelector('.col-stuId').textContent,
                     subjectName: row.querySelector('.col-subjectName').textContent,
                     subjectSubName: row.querySelector('.col-subjectLevel').textContent,
-                    scanQRDate: formatDateTimeForJava(scanQRDateInput.value) // ===== 新增：签到日期 =====
+                    scanQRDate: formatDateTimeForJava(scanQRDateInput.value), // ===== 新增：签到日期 =====
+                    memo: row.querySelector('.col-memo').textContent // ===== 新增：备注 =====
                 };
                 
                 // ===== 新增：获取标准课时长 =====
@@ -479,7 +484,8 @@
                     { name: 'subjectName', value: assembledData.subjectName },   // 科目名称
                     { name: 'subjectSubName', value: assembledData.subjectSubName }, // 子科目名称
                     { name: 'standardDuration', value: assembledData.standardDuration }, // 标准课时长
-                    { name: 'scanQRDate', value: assembledData.scanQRDate }   // ===== 新增：签到日期 =====
+                    { name: 'scanQRDate', value: assembledData.scanQRDate },   // ===== 新增：签到日期 =====
+                    { name: 'memo', value: assembledData.memo }   // ===== 新增：备注 =====
                 ];
                 
                 formFields.forEach(field => {
@@ -590,18 +596,29 @@
                 }
                 
                 // 拼凑成功：创建记录
+
+                // 收集所有签到日期并排序
+                const scanQrDates = selectedData
+                    .map(item => item.scanQrDate)
+                    .filter(date => date && date.trim() !== '') // 过滤空日期
+                    .sort(); // 按日期排序
+
+                // 生成备注字符串
+                const memoText = '来自零碎加课：' + scanQrDates.join('，');
+
                 const assembledRecord = {
                     source: selectedData.map(item => item.lessonId).join(','),
                     subjectId: maxSubRecord.subjectId,
                     subjectSubId: maxSubRecord.subjectSubId,
                     stuId: maxSubRecord.stuId,
                     subjectName: maxSubRecord.subjectName,
-                    subjectSubName: maxSubRecord.subjectSubName
+                    subjectSubName: maxSubRecord.subjectSubName,
+                    memo: memoText
                 };
-                
+
                 // 禁用选中的复选框
                 disableSelectedCheckboxes(selectedData);
-                
+
                 // 添加到拼凑完成表格
                 addToAssembledTable(stuId, assembledRecord);
                 
