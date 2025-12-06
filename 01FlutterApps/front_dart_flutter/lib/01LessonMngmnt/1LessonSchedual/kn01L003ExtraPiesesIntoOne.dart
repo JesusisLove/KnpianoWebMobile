@@ -561,6 +561,11 @@ class _Kn01L003ExtraPiesesIntoOneState
       // 修改：使用用户选择的日期时间
       request.fields['scanQRDate'] = formattedSelectedDateTime;
 
+      // 生成备注内容：来自零碎课 + 扫码日期列表
+      String memoContent = '来自零碎课：' +
+          selectedPieces.map((piece) => piece.formattedScanQrDate).join(',');
+      request.fields['memo'] = memoContent;
+
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 

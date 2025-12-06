@@ -741,6 +741,17 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                               ? Colors.grey[700]!
                               : (isExtraLesson ? Colors.pink : textColor)),
                     ),
+                    // 如果是零碎课拼凑成的换正课，显示备注信息
+                    if (isPiecesLesson && lesson.memo != null && lesson.memo!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '备注: ${lesson.memo}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ],
                 ],
               ),
