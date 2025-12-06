@@ -49,6 +49,7 @@ VIEW v_info_lesson_include_extra2sche AS
             then 1 -- 加课换正课的场合，因为已经成为其他日期的正课，所以强行成为正课区分
             else lsn.lesson_type -- 上记以外的场合
         end AS lesson_type,
+        lsn.memo,
         -- mst.del_flg AS del_flg,
         lsn.create_date AS create_date,
         lsn.update_date AS update_date
