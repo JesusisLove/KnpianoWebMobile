@@ -57,6 +57,7 @@ public class Kn01L002ExtraToScheDao {
     }
 
     // 手机前端页面:year 抽取当前年度的加课记录，adjustedBaseDate 学生档案科目调整基准日
+    // adjustedBaseDate 收纳的是学生在界面选择的日期值
     public List<Kn01L002ExtraToScheBean> getInfoList(String stuId, String year, String adjustedBaseDate) {
         List<Kn01L002ExtraToScheBean> list = kn01l002ExtraToScheMapper.getInfoListExtraCanBeSche(stuId, year, adjustedBaseDate);
         return list;
