@@ -49,7 +49,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             FROM (
                 SELECT vDoc.*,
                     ROW_NUMBER() OVER (
-                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id, vDoc.subject_sub_id  
                         ORDER BY vDoc.adjusted_date DESC 
                     ) AS rn 
                 FROM v_info_student_document vDoc
@@ -105,7 +105,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             FROM (
                 SELECT vDoc.*,
                     ROW_NUMBER() OVER (
-                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id, vDoc.subject_sub_id 
                         ORDER BY vDoc.adjusted_date DESC 
                     ) AS rn 
                 FROM v_info_student_document vDoc
@@ -191,7 +191,7 @@ https://mybatis.org/mybatis-3/getting-started.html
             FROM (
                 SELECT vDoc.*,
                     ROW_NUMBER() OVER (
-                        PARTITION BY vDoc.stu_id, vDoc.subject_id 
+                        PARTITION BY vDoc.stu_id, vDoc.subject_id, vDoc.subject_sub_id 
                         ORDER BY vDoc.adjusted_date DESC 
                     ) AS rn 
                 FROM v_info_student_document vDoc
@@ -263,7 +263,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         )
         SELECT * FROM extra_lessons
         <where>
-            <if test="params.extra_lsn_pay_status != null and params.extra_lsn_pay_status != -1">
+            <if test="params.extra_lsn_pay_status != null and params.extra_lsn_pay_status != '' and params.extra_lsn_pay_status != -1">
                 AND pay_flg = #{params.extra_lsn_pay_status}
             </if>
         </where>
