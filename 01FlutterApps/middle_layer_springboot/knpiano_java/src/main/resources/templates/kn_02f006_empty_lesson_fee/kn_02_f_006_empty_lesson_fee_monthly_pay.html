@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>空课学费按月支付</title>
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+        <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .btn-green {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-green:hover {
+            background-color: #218838;
+            color: white;
+        }
+
+        .form-group+.form-group {
+            margin-left: 20px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .search-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .result-table {
+            margin-top: 20px;
+        }
+
+        .highlight-row {
+            background-color: #fff3cd;
+        }
+
+        .btn-generate {
+            background-color: #007bff;
+            color: white;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-generate:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .alert {
+            margin-top: 20px;
+        }
+
+        .business-description {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .business-description h5 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .business-description ul {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="commons/bar::sidebar(activeUri='kn_02_f_006_empty_lesson_fee_monthly_pay_link_active')"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <!-- 页面标题 -->
+                <div class="page-header">
+                    <h2>空课学费按月支付</h2>
+                    <p style="margin: 0; margin-top: 10px;">查询达到43节课的学生并生成剩余月份的临时课程</p>
+                </div>
+
+                <!-- 业务说明 -->
+                <div class="business-description">
+                    <h5>业务说明</h5>
+                    <ul>
+                        <li>按月交费的学生，年度课程目标是43节课</li>
+                        <li>如果学生提前完成了43节课（例如10月份），则11月和12月仍需支付课费</li>
+                        <li>此功能用于查询这些学生，并可生成"虚拟课程"用于课费收取</li>
+                        <li>完成月份数小于12个月的学生需要生成临时课程</li>
+                    </ul>
+                </div>
+
+                <!-- 成功消息 -->
+                <div th:if="${successMessage != null && successMessage != ''}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>成功!</strong> <span th:text="${successMessage}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- 错误消息 -->
+                <div th:if="${errorMessageList != null && !errorMessageList.isEmpty()}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>错误!</strong>
+                    <ul style="margin-bottom: 0;">
+                        <li th:each="msg : ${errorMessageList}" th:text="${msg}"></li>
+                    </ul>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- 查询条件区域 -->
+                <div class="search-section">
+                    <form th:action="@{/kn_02_f_006_empty_lesson_fee_monthly_pay/search}" method="get">
+                        <div class="form-row align-items-center">
+                            <div class="col-auto">
+                                <label for="selectedyear">选择年度:</label>
+                            </div>
+                            <div class="col-auto">
+                                <select class="form-control" id="selectedyear" name="selectedyear">
+                                    <option th:each="year : ${knyearlist}"
+                                            th:value="${year}"
+                                            th:text="${year}"
+                                            th:selected="${searchParams != null && searchParams.selectedyear != null && year == searchParams.selectedyear}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-green">查询</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 查询结果表格 -->
+                <div th:if="${infoList != null && !infoList.isEmpty()}" class="result-table">
+                    <h4>查询结果 (共 <span th:text="${#lists.size(infoList)}"></span> 条记录)</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>序号</th>
+                                    <th>学生姓名</th>
+                                    <th>科目名称</th>
+                                    <th>累计课程数</th>
+                                    <th>完成月份数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item, iterStat : ${infoList}"
+                                    th:classappend="${item.monthsCompleted < 12} ? 'highlight-row' : ''">
+                                    <td th:text="${iterStat.count}"></td>
+                                    <td th:text="${item.stuName}"></td>
+                                    <td th:text="${item.subjectName}"></td>
+                                    <td th:text="${item.cumulativeCount}"></td>
+                                    <td th:text="${item.monthsCompleted}"></td>
+                                    <td>
+                                        <!-- monthsCompleted == 12：空月课费对象外 -->
+                                        <span th:if="${item.monthsCompleted == 12}" class="text-muted">
+                                            空月课费对象外
+                                        </span>
+
+                                        <!-- hasGenerated == 1：已生成临时课程 - 可点击查看详情 -->
+                                        <a th:if="${item.monthsCompleted < 12 && item.hasGenerated == 1}"
+                                           href="javascript:void(0)"
+                                           class="text-success"
+                                           style="cursor: pointer; text-decoration: underline;"
+                                           onclick="viewMonthlyDetails(this)"
+                                           th:attr="data-stuid=${item.stuId},
+                                                    data-stuname=${item.stuName},
+                                                    data-subjectid=${item.subjectId},
+                                                    data-subjectname=${item.subjectName}">
+                                            空月课费已生成
+                                        </a>
+
+                                        <!-- hasGenerated == 0 && monthsCompleted < 12：显示生成按钮 -->
+                                        <button th:if="${item.monthsCompleted < 12 && item.hasGenerated == 0}"
+                                                type="button"
+                                                class="btn btn-generate btn-sm"
+                                                onclick="generateEmptyLesson(this)"
+                                                th:attr="data-stuid=${item.stuId},
+                                                         data-stuname=${item.stuName},
+                                                         data-subjectid=${item.subjectId},
+                                                         data-subjectname=${item.subjectName},
+                                                         data-months=${item.monthsCompleted}">
+                                            生成空月课费
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 无数据提示 -->
+                <div th:if="${infoList != null && infoList.isEmpty()}" class="alert alert-info" role="alert">
+                    没有找到符合条件的学生记录。
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 月度明细模态框 -->
+    <div class="modal fade" id="monthlyDetailsModal" tabindex="-1" role="dialog" aria-labelledby="monthlyDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="monthlyDetailsModalLabel">空月课费月度明细</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="studentInfo" class="mb-3">
+                        <strong>学生：</strong><span id="modalStuName"></span>&nbsp;&nbsp;
+                        <strong>科目：</strong><span id="modalSubjectName"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>序号</th>
+                                    <th>排课日期</th>
+                                    <th>课费金额</th>
+                                    <th>结算状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthlyDetailsTableBody">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script th:inline="javascript">
+        // 生成临时课程功能
+        function generateEmptyLesson(button) {
+            const stuId = button.getAttribute('data-stuid');
+            const stuName = button.getAttribute('data-stuname');
+            const subjectId = button.getAttribute('data-subjectid');
+            const subjectName = button.getAttribute('data-subjectname');
+            const monthsCompleted = button.getAttribute('data-months');
+
+            // 获取选中的年度
+            const selectedYear = document.getElementById('selectedyear').value;
+
+            const remainingMonths = 12 - parseInt(monthsCompleted);
+
+            if (confirm(`确定要为 ${stuName} 的 ${subjectName} 生成剩余 ${remainingMonths} 个月的临时课程吗？`)) {
+                // 准备数据
+                const data = {
+                    stuId: stuId,
+                    stuName: stuName,
+                    subjectId: subjectId,
+                    subjectName: subjectName,
+                    monthsCompleted: parseInt(monthsCompleted),
+                    year: selectedYear
+                };
+
+                const generateUrl = /*[[@{/kn_02_f_006_empty_lesson_fee_monthly_pay/generate}]]*/ '';
+
+                console.log('生成URL:', generateUrl);
+                console.log('发送数据:', data);
+
+                // 发送POST请求
+                fetch(generateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+                    console.log('Response redirected:', response.redirected);
+                    console.log('Response url:', response.url);
+
+                    if (response.ok || response.redirected) {
+                        // 后端返回重定向，跟随重定向刷新页面
+                        window.location.href = response.url;
+                    } else {
+                        alert('生成失败，HTTP状态码: ' + response.status + '\n请查看浏览器控制台了解详情。');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('发生错误：' + error.message);
+                });
+            }
+        }
+
+        // 查看月度明细功能
+        function viewMonthlyDetails(link) {
+            const stuId = link.getAttribute('data-stuid');
+            const stuName = link.getAttribute('data-stuname');
+            const subjectId = link.getAttribute('data-subjectid');
+            const subjectName = link.getAttribute('data-subjectname');
+
+            // 获取选中的年度
+            const selectedYear = document.getElementById('selectedyear').value;
+
+            // 设置模态框标题信息
+            document.getElementById('modalStuName').textContent = stuName;
+            document.getElementById('modalSubjectName').textContent = subjectName;
+
+            const getDetailsUrl = /*[[@{/kn_02_f_006_empty_lesson_fee_monthly_pay/getMonthlyDetails}]]*/ '';
+            const url = `${getDetailsUrl}?stuId=${stuId}&subjectId=${subjectId}&year=${selectedYear}`;
+
+            console.log('查询月度明细URL:', url);
+
+            // 发送GET请求获取月度明细
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('月度明细结果:', result);
+
+                if (result.success) {
+                    const detailList = result.data;
+                    const tbody = document.getElementById('monthlyDetailsTableBody');
+                    tbody.innerHTML = ''; // 清空表格
+
+                    if (detailList && detailList.length > 0) {
+                        detailList.forEach((item, index) => {
+                            const row = tbody.insertRow();
+
+                            // 序号
+                            row.insertCell(0).textContent = index + 1;
+
+                            // 排课日期
+                            row.insertCell(1).textContent = item.schedualDate || '';
+
+                            // 课费金额（乘以4显示当月实际学费）
+                            const monthlyFee = item.lsnFee ? (item.lsnFee * 4).toFixed(2) : '';
+                            row.insertCell(2).textContent = monthlyFee;
+
+                            // 结算状态
+                            const ownFlgCell = row.insertCell(3);
+                            if (item.ownFlg === '1') {
+                                ownFlgCell.innerHTML = '<span class="badge badge-success">已结算</span>';
+                            } else {
+                                ownFlgCell.innerHTML = '<span class="badge badge-warning">未结算</span>';
+                            }
+
+                            // 操作
+                            const actionCell = row.insertCell(4);
+                            if (item.ownFlg === '1') {
+                                actionCell.innerHTML = '<span class="text-muted">已结算不可撤销</span>';
+                            } else {
+                                const cancelBtn = document.createElement('button');
+                                cancelBtn.className = 'btn btn-danger btn-sm';
+                                cancelBtn.textContent = '撤销';
+                                cancelBtn.onclick = function() {
+                                    cancelEmptyLessonFee(item.lsnTmpId, item.lsnFeeId, stuName, subjectName, item.schedualDate);
+                                };
+                                actionCell.appendChild(cancelBtn);
+                            }
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center">暂无数据</td></tr>';
+                    }
+
+                    // 显示模态框
+                    $('#monthlyDetailsModal').modal('show');
+                } else {
+                    alert('查询失败：' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('发生错误：' + error.message);
+            });
+        }
+
+        // 撤销空月课费功能
+        function cancelEmptyLessonFee(lsnTmpId, lsnFeeId, stuName, subjectName, schedualDate) {
+            if (confirm(`确定要撤销 ${stuName} 的 ${subjectName} 在 ${schedualDate} 的空月课费吗？\n\n撤销后将删除临时课程和课费记录，此操作不可恢复！`)) {
+                const data = {
+                    lsnTmpId: lsnTmpId,
+                    lsnFeeId: lsnFeeId
+                };
+
+                const cancelUrl = /*[[@{/kn_02_f_006_empty_lesson_fee_monthly_pay/cancel}]]*/ '';
+
+                console.log('撤销URL:', cancelUrl);
+                console.log('撤销数据:', data);
+
+                // 发送POST请求
+                fetch(cancelUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('撤销结果:', result);
+
+                    if (result.success) {
+                        alert(result.message);
+                        // 关闭模态框并刷新页面
+                        $('#monthlyDetailsModal').modal('hide');
+                        window.location.reload();
+                    } else {
+                        alert('撤销失败：' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('发生错误：' + error.message);
+                });
+            }
+        }
+
+    </script>
+</body>
+
+</html>

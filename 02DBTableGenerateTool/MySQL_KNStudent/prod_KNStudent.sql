@@ -40,6 +40,8 @@ DROP VIEW IF EXISTS `v_total_lsnfee_with_paid_unpaid_every_month`;
 DROP VIEW IF EXISTS `v_total_lsnfee_with_paid_unpaid_every_month_every_student`;
 DROP VIEW IF EXISTS `v_info_lesson_fee_include_extra2sche`;
 DROP VIEW IF EXISTS `v_info_all_extra_lsns`;
+DROP VIEW IF EXISTS `v_info_lesson_tmp`;
+DROP VIEW IF EXISTS `v_info_tmp_lesson_after_43_month_fee_unpaid_yet`;
 
 -- Functions
 DROP FUNCTION IF EXISTS `currval`;
@@ -64,6 +66,8 @@ DROP PROCEDURE IF EXISTS `sp_sum_unpaid_lsnfee_by_stu_and_month`;
 DROP PROCEDURE IF EXISTS `sp_get_advance_pay_subjects_and_lsnschedual_info`;
 DROP PROCEDURE IF EXISTS `sp_execute_weekly_batch_lsn_schedule`;
 DROP PROCEDURE IF EXISTS `sp_execute_advc_lsn_fee_pay`;
+DROP PROCEDURE IF EXISTS `sp_insert_tmp_lesson_info`;
+DROP PROCEDURE IF EXISTS `sp_cancel_tmp_lesson_info`;
 
 -- 00採番テーブル定義
 -- USE prod_KNStudent;
@@ -82,6 +86,7 @@ INSERT INTO sequence VALUES ('kn-sub-','学科番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-sub-eda-','学科枝番',   0, 1);
 INSERT INTO sequence VALUES ('kn-bnk-','銀行番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-lsn-','授業番号',   0, 1);
+INSERT INTO sequence VALUES ('kn-lsn-tmp-','仮授業番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-fee-','課費番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-pay-','精算番号',   0, 1);
 
@@ -233,7 +238,7 @@ CREATE TABLE `t_info_lesson` (
 -- DROP TABLE IF EXISTS `t_info_lesson_fee`;
 CREATE TABLE `t_info_lesson_fee` (
   `lsn_fee_id` varchar(255) NOT NULL,
-  `lesson_id` varchar(255) NOT NULL,
+  `lesson_id` varchar(255) NOT NULL COMMENT '课程ID（可引用t_info_lesson或t_info_lesson_tmp）',
   `pay_style` int DEFAULT NULL,
   `lsn_fee` float DEFAULT NULL,
   `lsn_month` varchar(7) DEFAULT NULL,
@@ -241,10 +246,11 @@ CREATE TABLE `t_info_lesson_fee` (
   `del_flg` int DEFAULT '0',
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_date` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`lsn_fee_id`, `lesson_id`),
-  KEY `fk_lesson_id` (`lesson_id`),
-  CONSTRAINT `fk_lesson_id` FOREIGN KEY (`lesson_id`) REFERENCES `t_info_lesson` (`lesson_id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`lsn_fee_id`,`lesson_id`),
+  KEY `fk_lesson_id` (`lesson_id`)
+  -- 外键约束已删除，因为lesson_id需要同时支持正式课程表(t_info_lesson)和临时课程表(t_info_lesson_tmp)
+  -- CONSTRAINT `fk_lesson_id` FOREIGN KEY (`lesson_id`) REFERENCES `t_info_lesson` (`lesson_id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='课程费用表（支持正式课程和临时课程）';
 
 -- 22授業課費精算管理
 -- USE prod_KNStudent;
@@ -342,6 +348,20 @@ CREATE TABLE t_info_lesson_pieces_extra_to_sche (
 PRIMARY KEY (lesson_id,old_lesson_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- DROP TABLE IF EXISTS `t_info_lesson_tmp`;
+CREATE TABLE `t_info_lesson_tmp` (
+  `lsn_tmp_id` VARCHAR(32) NOT NULL,
+  `stu_id` VARCHAR(32) NULL,
+  `subject_id` VARCHAR(32) NULL,
+  `subject_sub_id` VARCHAR(32) NULL,
+  `lsn_fee` FLOAT DEFAULT NULL,
+  `schedual_date` DATETIME NULL,
+  `scanqr_date` DATETIME NULL,
+  `del_flg` int DEFAULT '0',
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`lsn_tmp_id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 -- ///// VIEW ///////////////////////////////////////////////////////////////////////////////
 -- 学科基本情報マスタ
 -- USE prod_KNStudent;
@@ -1719,6 +1739,88 @@ WHERE main.scanqr_date IS NOT NULL
     WHERE lsn.lesson_id = main.lesson_id
   );
 
+-- 临时课程信息视图
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_info_lesson_tmp`;
+CREATE
+    ALGORITHM = UNDEFINED
+    DEFINER = root@localhost
+    SQL SECURITY DEFINER
+VIEW v_info_lesson_tmp AS
+    SELECT
+        a.lsn_tmp_id AS lsn_tmp_id,
+        a.subject_id AS subject_id,
+        c.subject_name AS subject_name,
+        a.subject_sub_id AS subject_sub_id,
+        c.subject_sub_name AS subject_sub_name,
+        a.stu_id AS stu_id,
+        CASE
+            WHEN b.del_flg = 1 THEN CONCAT(b.stu_name, '(已退学)')
+            ELSE b.stu_name
+        END AS stu_name,
+        CASE
+            WHEN b.del_flg = 1 THEN
+                CASE
+                    WHEN b.nik_name IS NOT NULL AND b.nik_name != '' THEN CONCAT(b.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(b.stu_name, '未知姓名'), '(已退学)')
+                END
+            ELSE b.nik_name
+        END AS nik_name,
+        a.schedual_date AS schedual_date,
+        a.scanqr_date AS scanQR_date,
+        a.del_flg AS del_flg,
+        a.create_date AS create_date,
+        a.update_date AS update_date
+    FROM
+        ((t_info_lesson_tmp a
+        INNER JOIN t_mst_student b ON ((a.stu_id = b.stu_id)))
+        INNER JOIN v_info_subject_edaban c ON (((a.subject_id = c.subject_id)
+            AND (a.subject_sub_id = c.subject_sub_id))));
+
+-- USE prod_KNStudent;
+-- DROP VIEW IF EXISTS `v_info_tmp_lesson_after_43_month_fee_unpaid_yet`;
+-- 手机前端页面使用
+/*
+这个视图的前提业务是：按月交费的学生在某月比如10月份完成了规定年度的43节课，那么，43节课是一年12个月的课程，10份就上满了43节课，
+这是提前完成了规定课程数，但是11月和12月的课费还没有交，通过执行存储过程(sp_insert_tmp_lesson_info)来给徐你课程表(t_info_lesson_tmp)插入11月和12月的课程信息，
+同时也给课费表t_info_lesson_fee插入11月和12月的课费信息，但是这两个月的课费是未支付状态（own_flg=0），
+存储过程的执行准备放在Batch系统里执行。每年的12月1号执行这个Batch任务。
+这个视图就是用来统计虚拟课程的课费（即，空月按月支付的课费）这些未支付的按月支付课费信息。
+*/
+CREATE
+    ALGORITHM = UNDEFINED
+    DEFINER = root@localhost
+    SQL SECURITY DEFINER
+VIEW v_info_tmp_lesson_after_43_month_fee_unpaid_yet AS
+/*
+把按月交费的科目做一个统计，月交费场合下的lsn_fee_id lsn_tmp_id是1:n的关系，
+此视图是将n个lesson的课时和课费做一个求和统计，
+使得lsn_pay_id,lsn_fee_id能清楚地表达出这两个字段的1:1关系
+*/
+SELECT
+    '' as lsn_pay_id,
+    fee.lsn_fee_id,
+    tmp.stu_id,
+    tmp.stu_name,
+    tmp.nik_name,
+    tmp.subject_id,
+    tmp.subject_name,
+    tmp.subject_sub_id,
+    tmp.subject_sub_name,
+    fee.lsn_fee as subject_price,
+    1 as pay_style,
+    0 AS lsn_count,
+    fee.lsn_fee * 4 as lsn_fee,
+    NULL as pay_date,
+    1 as lesson_type,
+    left(tmp.schedual_date,7) as lsn_month,
+    fee.own_flg as own_flg
+FROM
+    v_info_lesson_tmp tmp
+INNER JOIN
+	t_info_lesson_fee fee
+ON tmp.lsn_tmp_id = fee.lesson_id;
+
 -- ///// FUNCTION ///////////////////////////////////////////////////////////////////////////////
 -- USE prod_KNStudent;
 -- DROP FUNCTION IF EXISTS `currval`;
@@ -1885,6 +1987,18 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- 23虚拟课程表管理（假如该生10月已经上满43节课，后续的11，12月需要虚拟课程ID产生11月，12月的按月缴纳的课费而设立的虚拟课程表管理）
+-- USE prod_KNStudent;
+-- DROP TRIGGER IF EXISTS `before_update_t_info_lesson_pay`;
+-- 更新t_info_lesson_pay表update_date字段的触发器
+DELIMITER $$
+CREATE TRIGGER before_update_t_info_lesson_tmp
+BEFORE UPDATE ON t_info_lesson_tmp
+FOR EACH ROW
+BEGIN
+   SET NEW.update_date = CURRENT_TIMESTAMP;
+END$$
+DELIMITER ;
 
 -- ///// PROCEDURE ///////////////////////////////////////////////////////////////////////////////
 -- 1.年利用度星期生成表结合学生固定排课表，对学生进行一星期自动化排课
@@ -2572,6 +2686,193 @@ BEGIN
     VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, '成功');
 
 END //
+DELIMITER ;
+
+-- ==========================================
+-- 存储过程: sp_insert_tmp_lesson_info
+-- 功能: 从学生档案视图查询最新课程信息并插入到临时课程表
+-- 参数:
+--   p_stu_id: 学生学号
+--   p_subject_id: 科目编号
+--   p_target_date: 目标日期（格式: yyyy-mm-dd）
+-- 创建日期: 2025-12-22
+-- ==========================================
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_insert_tmp_lesson_info//
+
+CREATE PROCEDURE sp_insert_tmp_lesson_info(
+    IN p_stu_id VARCHAR(32),
+    IN p_subject_id VARCHAR(32),
+    IN p_target_date VARCHAR(10)
+)
+BEGIN
+    DECLARE v_lsn_tmp_id VARCHAR(32);
+    DECLARE v_lsn_fee_id VARCHAR(32);
+    DECLARE v_stu_id VARCHAR(32);
+    DECLARE v_subject_id VARCHAR(32);
+    DECLARE v_subject_sub_id VARCHAR(32);
+    DECLARE v_lesson_fee FLOAT;
+    DECLARE v_lesson_fee_adjusted FLOAT;
+    DECLARE v_lsn_fee FLOAT;
+    DECLARE v_record_count INT DEFAULT 0;
+
+    -- 异常处理
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- 发生错误时回滚
+        ROLLBACK;
+        -- 可以选择抛出错误信息
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- 生成主键ID（前缀 + 数字）
+    SET v_lsn_tmp_id = CONCAT('kn-lsn-tmp-', nextval('kn-lsn-tmp-'));
+
+    -- 从学生档案视图查询最新的课程信息
+    -- 1. 查询价格调整日期 <= 当前日期的记录
+    -- 2. 使用窗口函数按调整日期降序排序
+    -- 3. LIMIT 1 在窗口函数基础上取最新记录
+    -- 4. 只查询 t_info_lesson_tmp 表需要的字段
+    SELECT
+        vDoc.stu_id,
+        vDoc.subject_id,
+        vDoc.subject_sub_id,
+        vDoc.lesson_fee,
+        vDoc.lesson_fee_adjusted,
+        row_number() OVER (
+            PARTITION BY vDoc.stu_id, vDoc.subject_id
+            ORDER BY vDoc.adjusted_date DESC
+        ) AS rn
+    INTO
+        v_stu_id,
+        v_subject_id,
+        v_subject_sub_id,
+        v_lesson_fee,
+        v_lesson_fee_adjusted,
+        v_record_count  -- 复用该变量存储 rn 值
+    FROM v_info_student_document vDoc
+    WHERE vDoc.adjusted_date <= CURDATE()
+      AND vDoc.stu_id = p_stu_id
+      AND vDoc.subject_id = p_subject_id
+    LIMIT 1;
+
+    -- 检查是否找到记录
+    IF v_stu_id IS NULL THEN
+        -- 没有找到符合条件的记录
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '未找到符合条件的学生课程档案记录';
+    END IF;
+
+    -- 计算课程费用：优先使用 lesson_fee_adjusted，如无则使用 lesson_fee
+    SET v_lsn_fee = COALESCE(v_lesson_fee_adjusted, v_lesson_fee);
+
+    -- 插入到临时课程表（del_flg, create_date, update_date 使用默认值）
+    INSERT INTO t_info_lesson_tmp (
+        lsn_tmp_id,
+        stu_id,
+        subject_id,
+        subject_sub_id,
+        schedual_date,
+        scanqr_date
+    ) VALUES (
+        v_lsn_tmp_id,                               -- 主键（采番）
+        v_stu_id,                                   -- 学生ID（从视图查询）
+        v_subject_id,                               -- 科目ID（从视图查询）
+        v_subject_sub_id,                           -- 子科目ID（从视图查询）
+        STR_TO_DATE(p_target_date, '%Y-%m-%d'),     -- 计划日期（参数传入，转换为DATETIME）
+        STR_TO_DATE(p_target_date, '%Y-%m-%d')      -- 扫码日期（参数传入，转换为DATETIME）
+    );
+
+    -- 生成课费表主键ID
+    SET v_lsn_fee_id = CONCAT('kn-fee-', nextval('kn-fee-'));
+
+    -- 插入到课费表（del_flg, create_date, update_date 使用默认值）
+    -- 注意：如果外键约束导致插入失败，需要禁用约束检查或修改外键定义
+    INSERT INTO t_info_lesson_fee (
+        lsn_fee_id,
+        lesson_id,
+        pay_style,
+        lsn_fee,
+        lsn_month,
+        own_flg
+    ) VALUES (
+        v_lsn_fee_id,                               -- 主键（采番）
+        v_lsn_tmp_id,                               -- 课程ID（引用临时课程表）
+        1,                                          -- 支付方式（固定值1）
+        v_lsn_fee,                                  -- 课程费用（COALESCE结果）
+        SUBSTRING(p_target_date, 1, 7),             -- 课程月份（yyyy-mm格式）
+        0                                           -- own_flg（固定值0）
+    );
+
+    COMMIT;
+
+    -- 可选：返回插入的记录ID
+    SELECT v_lsn_tmp_id AS inserted_lsn_tmp_id;
+
+END//
+
+DELIMITER ;
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_cancel_tmp_lesson_info//
+
+CREATE PROCEDURE sp_cancel_tmp_lesson_info(
+    IN p_lsn_tmp_id VARCHAR(32),
+    IN p_lsn_fee_id VARCHAR(32)
+)
+BEGIN
+    DECLARE v_own_flg CHAR(1);
+    DECLARE v_count INT;
+
+    -- 异常处理：如果发生错误则回滚
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- 检查课费记录是否存在并获取结算状态
+    SELECT own_flg INTO v_own_flg
+    FROM t_info_lesson_fee
+    WHERE lsn_fee_id = p_lsn_fee_id;
+
+    -- 如果课费记录不存在
+    IF v_own_flg IS NULL THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '未找到对应的课费记录！';
+    END IF;
+
+    -- 如果课费已结算，不允许撤销
+    IF v_own_flg = '1' THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '该课费已结算，无法撤销！';
+    END IF;
+
+    -- 删除课费表记录
+    DELETE FROM t_info_lesson_fee
+    WHERE lsn_fee_id = p_lsn_fee_id;
+
+    -- 删除临时课程表记录
+    DELETE FROM t_info_lesson_tmp
+    WHERE lsn_tmp_id = p_lsn_tmp_id;
+
+    COMMIT;
+
+    -- 返回成功标识
+    SELECT 'SUCCESS' AS result;
+
+END//
+
 DELIMITER ;
 
 

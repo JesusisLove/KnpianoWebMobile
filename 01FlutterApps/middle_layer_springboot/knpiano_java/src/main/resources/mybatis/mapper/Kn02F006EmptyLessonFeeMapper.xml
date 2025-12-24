@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.mapper.Kn02F006EmptyLessonFeeMapper">
+
+    <!-- 查询在指定年度达到43节课的学生列表 -->
+    <select id="getStudentsReached43Lessons" resultType="com.liu.springboot04web.bean.Kn02F006EmptyLessonFeeBean">
+        WITH monthly_summary AS (
+            -- 计算每个学生每月的课程数
+            SELECT
+                vStat.stu_id,
+                vStat.stu_name,
+                vStat.subject_id,
+                vStat.subject_name,
+                vStat.lsn_month,
+                SUM(vStat.lsn_count) AS monthly_count
+            FROM v_info_lsn_statistics_by_stuid vStat
+            WHERE vStat.lesson_type = 1  -- 按月交费的学生
+              AND vStat.lsn_month BETWEEN CONCAT(#{year}, '-01') AND CONCAT(#{year}, '-12')  -- 指定年度
+            GROUP BY vStat.stu_id, vStat.stu_name, vStat.subject_id, vStat.subject_name, vStat.lsn_month
+        )
+        SELECT
+            stu_id AS stuId,
+            stu_name AS stuName,
+            subject_id AS subjectId,
+            subject_name AS subjectName,
+            SUM(monthly_count) AS cumulativeCount,
+            COUNT(DISTINCT lsn_month) AS monthsCompleted,
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM t_info_lesson_tmp tmp
+                WHERE tmp.stu_id = monthly_summary.stu_id
+                  AND tmp.subject_id = monthly_summary.subject_id
+                  AND YEAR(tmp.schedual_date) = #{year}
+            ) THEN 1 ELSE 0 END AS hasGenerated
+        FROM monthly_summary
+        GROUP BY stu_id, stu_name, subject_id, subject_name
+        HAVING SUM(monthly_count) >= 43  -- 累计课程数 >= 43
+        ORDER BY stu_name, subject_id
+    </select>
+
+    <!-- 调用存储过程生成临时课程和课费 
+        调用存储过程时，应该使用<update>标签，而不是<select>标签
+        <select>标签要求必须返回结果（需要resultType或resultMap）
+        <update>标签用于INSERT/UPDATE/DELETE或调用无返回值的存储过程
+    -->
+    <update id="callInsertTmpLessonInfo" statementType="CALLABLE">
+        {call sp_insert_tmp_lesson_info(
+            #{stuId, mode=IN, jdbcType=VARCHAR},
+            #{subjectId, mode=IN, jdbcType=VARCHAR},
+            #{targetDate, mode=IN, jdbcType=VARCHAR}
+        )}
+    </update>
+
+    <!-- 查询某个学生某个科目在指定年度的空月课费月度明细 -->
+    <select id="getMonthlyDetailsForCancel" resultType="com.liu.springboot04web.bean.Kn02F006EmptyLessonFeeBean">
+        SELECT
+            tmp.lsn_tmp_id AS lsnTmpId,
+            tmp.stu_id AS stuId,
+            tmp.subject_id AS subjectId,
+            tmp.schedual_date AS schedualDate,
+            fee.lsn_fee_id AS lsnFeeId,
+            fee.lsn_fee AS lsnFee,
+            fee.own_flg AS ownFlg
+        FROM t_info_lesson_tmp tmp
+        INNER JOIN t_info_lesson_fee fee ON tmp.lsn_tmp_id = fee.lesson_id
+        WHERE tmp.stu_id = #{stuId}
+          AND tmp.subject_id = #{subjectId}
+          AND YEAR(tmp.schedual_date) = #{year}
+        ORDER BY tmp.schedual_date
+    </select>
+
+    <!-- 调用存储过程撤销空月课费 -->
+    <update id="callCancelTmpLessonInfo" statementType="CALLABLE">
+        {call sp_cancel_tmp_lesson_info(
+            #{lsnTmpId, mode=IN, jdbcType=VARCHAR},
+            #{lsnFeeId, mode=IN, jdbcType=VARCHAR}
+        )}
+    </update>
+
+</mapper>
