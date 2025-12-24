@@ -66,7 +66,10 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   void calculateHasPaidFee() {
     paymentAmount = widget.monthData
         .where((item) => item.ownFlg == 1)
-        .fold(0.0, (sum, item) => sum + item.lsnPay);
+        .fold(0.0, (sum, item) =>
+            sum + (item.lessonType == 1
+                ? (item.subjectPrice! * 4)
+                : item.lsnPay));
   }
 
   void updatePaymentAmount() {
