@@ -4,7 +4,7 @@
 -- 不包括预先调整的科目信息（即大于系统当前日期yyyy-MM-dd的预设科目，比如，A学生目前在学习钢琴3级，下月进入钢琴4级，所以下月的4级的科目信息不应该抽出来）
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER 
 VIEW v_latest_subject_info_from_student_document AS 
 select subquery.stu_id AS stu_id,

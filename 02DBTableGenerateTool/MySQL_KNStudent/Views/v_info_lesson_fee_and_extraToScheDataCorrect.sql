@@ -6,7 +6,11 @@
 * 该视图就是将原来的课费信息和换正课后的课费信息进行了重新整合。
 */
 -- DROP VIEW IF EXISTS v_info_lesson_fee_and_extraToScheDataCorrect;
-CREATE VIEW v_info_lesson_fee_and_extraToScheDataCorrect AS 
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`%` 
+    SQL SECURITY DEFINER
+VIEW v_info_lesson_fee_and_extraToScheDataCorrect AS 
     -- 未换正课的课费信息
     SELECT 
         lsn_fee_id,

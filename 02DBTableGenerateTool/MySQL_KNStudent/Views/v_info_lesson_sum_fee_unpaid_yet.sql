@@ -7,7 +7,7 @@
  */
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_info_lesson_sum_fee_unpaid_yet AS
 /* 
