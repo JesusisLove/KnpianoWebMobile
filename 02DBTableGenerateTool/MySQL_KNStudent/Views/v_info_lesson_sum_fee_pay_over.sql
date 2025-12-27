@@ -89,7 +89,7 @@ FROM
         t_info_lesson_pay pay
     ON
         fee.lsn_fee_id = pay.lsn_fee_id
-GROUP BY 
+GROUP BY
     pay.lsn_pay_id,
     fee.lsn_fee_id,
     fee.stu_id,
@@ -103,5 +103,6 @@ GROUP BY
     fee.pay_style,
     fee.lsn_month,
     pay.pay_date,
+    pay.bank_id,
     fee.lesson_type
 ;
