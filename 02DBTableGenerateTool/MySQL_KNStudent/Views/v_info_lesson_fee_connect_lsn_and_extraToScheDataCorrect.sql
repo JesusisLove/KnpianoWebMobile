@@ -1,7 +1,8 @@
 -- use prod_KNStudent;
-use KNStudent;
+-- use KNStudent;
 /**
 * 获取所有学生签完到的上课记录和课费记录
+* 此处UNION临时课与课费关联的记录，目的在于，不要遗漏空月课费已支付情况下的课费统计。
 */
 DROP VIEW IF EXISTS v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect;
 CREATE 
@@ -73,7 +74,7 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         fee.lsn_fee_id AS lsn_fee_id,
         fee.lesson_id AS lesson_id,
         1 AS lesson_type,                        -- 临时课=月计划
-        1 AS lsn_count,                          -- 固定值1
+        0 AS lsn_count,                          -- 固定值0（因为是虚课）
         tmp.stu_id AS stu_id,
         tmp.stu_name AS stu_name,                -- 不需要判断退学
         tmp.nik_name AS nik_name,                -- 不需要判断退学

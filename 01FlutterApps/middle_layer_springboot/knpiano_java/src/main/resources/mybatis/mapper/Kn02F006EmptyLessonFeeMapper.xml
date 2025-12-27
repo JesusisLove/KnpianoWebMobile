@@ -7,37 +7,53 @@
     <!-- 查询在指定年度达到43节课的学生列表 -->
     <select id="getStudentsReached43Lessons" resultType="com.liu.springboot04web.bean.Kn02F006EmptyLessonFeeBean">
         WITH monthly_summary AS (
-            -- 计算每个学生每月的课程数
+            -- 计算每个学生每月的课程数（排除临时课程）
             SELECT
-                vStat.stu_id,
-                vStat.stu_name,
-                vStat.subject_id,
-                vStat.subject_name,
-                vStat.lsn_month,
-                SUM(vStat.lsn_count) AS monthly_count
-            FROM v_info_lsn_statistics_by_stuid vStat
-            WHERE vStat.lesson_type = 1  -- 按月交费的学生
-              AND vStat.lsn_month BETWEEN CONCAT(#{year}, '-01') AND CONCAT(#{year}, '-12')  -- 指定年度
-            GROUP BY vStat.stu_id, vStat.stu_name, vStat.subject_id, vStat.subject_name, vStat.lsn_month
+                vLsn.stu_id,
+                vLsn.stu_name,
+                vLsn.subject_id,
+                vLsn.subject_name,
+                vLsn.lsn_month,
+                SUM(vLsn.lsn_count) AS monthly_count
+            FROM v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect vLsn
+            WHERE vLsn.lesson_type = 1  -- 按月交费的学生
+              AND vLsn.lsn_month BETWEEN CONCAT(#{year}, '-01') AND CONCAT(#{year}, '-12')  -- 指定年度
+              AND vLsn.lesson_id NOT LIKE 'kn-lsn-tmp-%'  -- 排除临时课程(统计年度43节课不能把虚课算进去，这是AI帮我考虑的，真棒👍)
+            GROUP BY vLsn.stu_id, vLsn.stu_name, vLsn.subject_id, vLsn.subject_name, vLsn.lsn_month
+        ),
+        cumulative_summary AS (
+            -- 计算累计课程数，找出达到43节课的月份
+            SELECT
+                stu_id,
+                stu_name,
+                subject_id,
+                subject_name,
+                lsn_month,
+                monthly_count,
+                SUM(monthly_count) OVER (
+                    PARTITION BY stu_id, subject_id
+                    ORDER BY lsn_month
+                ) AS cumulative_count
+            FROM monthly_summary
         )
         SELECT
-            stu_id AS stuId,
-            stu_name AS stuName,
-            subject_id AS subjectId,
-            subject_name AS subjectName,
-            SUM(monthly_count) AS cumulativeCount,
-            COUNT(DISTINCT lsn_month) AS monthsCompleted,
+            cs.stu_id AS stuId,
+            cs.stu_name AS stuName,
+            cs.subject_id AS subjectId,
+            cs.subject_name AS subjectName,
+            MAX(cs.cumulative_count) AS cumulativeCount,
+            CAST(SUBSTRING(MIN(CASE WHEN cs.cumulative_count >= 43 THEN cs.lsn_month END), 6, 2) AS UNSIGNED) AS monthsCompleted,
             CASE WHEN EXISTS (
                 SELECT 1
                 FROM t_info_lesson_tmp tmp
-                WHERE tmp.stu_id = monthly_summary.stu_id
-                  AND tmp.subject_id = monthly_summary.subject_id
+                WHERE tmp.stu_id = cs.stu_id
+                  AND tmp.subject_id = cs.subject_id
                   AND YEAR(tmp.schedual_date) = #{year}
             ) THEN 1 ELSE 0 END AS hasGenerated
-        FROM monthly_summary
-        GROUP BY stu_id, stu_name, subject_id, subject_name
-        HAVING SUM(monthly_count) >= 43  -- 累计课程数 >= 43
-        ORDER BY stu_name, subject_id
+        FROM cumulative_summary cs
+        WHERE cs.cumulative_count >= 43  -- 只选择达到43节课的记录
+        GROUP BY cs.stu_id, cs.stu_name, cs.subject_id, cs.subject_name
+        ORDER BY cs.stu_name, cs.subject_id
     </select>
 
     <!-- 调用存储过程生成临时课程和课费 

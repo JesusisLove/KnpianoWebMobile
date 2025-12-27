@@ -175,6 +175,7 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th>序号</th>
+                                    <th>学生编号</th>
                                     <th>学生姓名</th>
                                     <th>科目名称</th>
                                     <th>累计课程数</th>
@@ -186,6 +187,7 @@
                                 <tr th:each="item, iterStat : ${infoList}"
                                     th:classappend="${item.monthsCompleted < 12} ? 'highlight-row' : ''">
                                     <td th:text="${iterStat.count}"></td>
+                                    <td th:text="${item.stuId}"></td>
                                     <td th:text="${item.stuName}"></td>
                                     <td th:text="${item.subjectName}"></td>
                                     <td th:text="${item.cumulativeCount}"></td>

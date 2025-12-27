@@ -86,7 +86,7 @@ INSERT INTO sequence VALUES ('kn-sub-','学科番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-sub-eda-','学科枝番',   0, 1);
 INSERT INTO sequence VALUES ('kn-bnk-','銀行番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-lsn-','授業番号',   0, 1);
-INSERT INTO sequence VALUES ('kn-lsn-tmp-','仮授業番号',   0, 1);
+INSERT INTO sequence VALUES ('kn-lsn-tmp-','虚课番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-fee-','課費番号',   0, 1);
 INSERT INTO sequence VALUES ('kn-pay-','精算番号',   0, 1);
 

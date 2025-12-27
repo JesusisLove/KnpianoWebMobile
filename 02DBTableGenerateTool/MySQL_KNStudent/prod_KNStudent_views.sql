@@ -113,6 +113,44 @@ VIEW `v_info_student_document` AS
             AND (`doc`.`subject_id` = `sub`.`subject_id`))))
     ;
 
+-- 临时课程信息视图
+-- USE prod_KNStudent;
+DROP VIEW IF EXISTS `v_info_lesson_tmp`;
+CREATE
+    ALGORITHM = UNDEFINED
+    DEFINER = `root`@`%`
+    SQL SECURITY DEFINER
+VIEW v_info_lesson_tmp AS
+    SELECT
+        a.lsn_tmp_id AS lsn_tmp_id,
+        a.subject_id AS subject_id,
+        c.subject_name AS subject_name,
+        a.subject_sub_id AS subject_sub_id,
+        c.subject_sub_name AS subject_sub_name,
+        a.stu_id AS stu_id,
+        CASE
+            WHEN b.del_flg = 1 THEN CONCAT(b.stu_name, '(已退学)')
+            ELSE b.stu_name
+        END AS stu_name,
+        CASE
+            WHEN b.del_flg = 1 THEN
+                CASE
+                    WHEN b.nik_name IS NOT NULL AND b.nik_name != '' THEN CONCAT(b.nik_name, '(已退学)')
+                    ELSE CONCAT(COALESCE(b.stu_name, '未知姓名'), '(已退学)')
+                END
+            ELSE b.nik_name
+        END AS nik_name,
+        a.schedual_date AS schedual_date,
+        a.scanqr_date AS scanQR_date,
+        a.del_flg AS del_flg,
+        a.create_date AS create_date,
+        a.update_date AS update_date
+    FROM
+        ((t_info_lesson_tmp a
+        INNER JOIN t_mst_student b ON ((a.stu_id = b.stu_id)))
+        INNER JOIN v_info_subject_edaban c ON (((a.subject_id = c.subject_id)
+            AND (a.subject_sub_id = c.subject_sub_id))))
+;
 
 -- USE prod_KNStudent;
 DROP VIEW IF EXISTS `v_earliest_fixed_week_info`;
@@ -736,7 +774,7 @@ VIEW v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect AS
         fee.lsn_fee_id AS lsn_fee_id,
         fee.lesson_id AS lesson_id,
         1 AS lesson_type,                        -- 临时课=月计划
-        1 AS lsn_count,                          -- 固定值1
+        0 AS lsn_count,                          -- 固定值0
         tmp.stu_id AS stu_id,
         tmp.stu_name AS stu_name,                -- 不需要判断退学
         tmp.nik_name AS nik_name,                -- 不需要判断退学
@@ -931,6 +969,7 @@ GROUP BY
     newtmptbl.lsn_fee_id,
     newtmptbl.stu_id,
     newtmptbl.stu_name,
+    newtmptbl.nik_name,
     newtmptbl.subject_id,
     newtmptbl.subject_name,
     newtmptbl.subject_sub_id,
@@ -1047,6 +1086,7 @@ GROUP BY
     fee.pay_style,
     fee.lsn_month,
     pay.pay_date,
+    pay.bank_id,
     fee.lesson_type
 ;
 
@@ -1133,6 +1173,7 @@ VIEW v_sum_haspaid_lsnfee_by_stu_and_month AS
         stu_name AS stu_name,
         nik_name AS nik_name,
         SUM(lsn_fee) AS lsn_fee,
+        SUM(lsn_pay) AS lsn_pay,
         lsn_month AS lsn_month
     FROM
         v_info_lesson_sum_fee_pay_over
@@ -1277,7 +1318,7 @@ VIEW v_total_lsnfee_with_paid_unpaid_every_month AS
         UNION ALL 
         SELECT 
             0.0 AS should_pay_lsn_fee,
-            SUM(T2.lsn_fee) AS has_paid_lsn_fee,
+            SUM(T2.lsn_pay) AS has_paid_lsn_fee,
             0.0 AS unpaid_lsn_fee,
             T2.lsn_month AS lsn_month
         FROM
@@ -1408,45 +1449,6 @@ WHERE main.scanqr_date IS NOT NULL
     INNER JOIN t_info_lesson_pay pay ON fee.lsn_fee_id = pay.lsn_fee_id
     WHERE lsn.lesson_id = main.lesson_id
   )
-;
-
--- 临时课程信息视图
--- USE prod_KNStudent;
-DROP VIEW IF EXISTS `v_info_lesson_tmp`;
-CREATE
-    ALGORITHM = UNDEFINED
-    DEFINER = `root`@`%`
-    SQL SECURITY DEFINER
-VIEW v_info_lesson_tmp AS
-    SELECT
-        a.lsn_tmp_id AS lsn_tmp_id,
-        a.subject_id AS subject_id,
-        c.subject_name AS subject_name,
-        a.subject_sub_id AS subject_sub_id,
-        c.subject_sub_name AS subject_sub_name,
-        a.stu_id AS stu_id,
-        CASE
-            WHEN b.del_flg = 1 THEN CONCAT(b.stu_name, '(已退学)')
-            ELSE b.stu_name
-        END AS stu_name,
-        CASE
-            WHEN b.del_flg = 1 THEN
-                CASE
-                    WHEN b.nik_name IS NOT NULL AND b.nik_name != '' THEN CONCAT(b.nik_name, '(已退学)')
-                    ELSE CONCAT(COALESCE(b.stu_name, '未知姓名'), '(已退学)')
-                END
-            ELSE b.nik_name
-        END AS nik_name,
-        a.schedual_date AS schedual_date,
-        a.scanqr_date AS scanQR_date,
-        a.del_flg AS del_flg,
-        a.create_date AS create_date,
-        a.update_date AS update_date
-    FROM
-        ((t_info_lesson_tmp a
-        INNER JOIN t_mst_student b ON ((a.stu_id = b.stu_id)))
-        INNER JOIN v_info_subject_edaban c ON (((a.subject_id = c.subject_id)
-            AND (a.subject_sub_id = c.subject_sub_id))))
 ;
 
 -- USE prod_KNStudent;

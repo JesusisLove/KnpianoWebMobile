@@ -3,7 +3,7 @@
 * 获取所有学生签完到的上课记录和课费记录
 */
 -- use prod_KNStudent;
-use KNStudent;
+-- use KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrectBefore;
 CREATE 
     ALGORITHM = UNDEFINED 

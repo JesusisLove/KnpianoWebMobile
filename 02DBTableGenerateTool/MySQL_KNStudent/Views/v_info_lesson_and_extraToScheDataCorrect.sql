@@ -9,7 +9,7 @@
 *该视图只针对加课换正课的数据处理，对其调课记录，正课记录没有影响。
 */
 -- use prod_KNStudent;
-use KNStudent;
+-- use KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_and_extraToScheDataCorrect;
 CREATE 
     ALGORITHM = UNDEFINED 

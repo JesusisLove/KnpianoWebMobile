@@ -153,8 +153,9 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                     AND left(lsn_month, 7) = #{yearMonth}
                 </if>
             </where>
+            <!-- 这部分空月课费的 union all的处理已经合并到 v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect视图里面了，此处代码废弃-->
             <!-- 2025-12-22 追加开始： 提前上满43节课后，后续的月份的空课月计划课费的缴纳处理 -->
-        union all
+        <!-- union all
         select   stu_id
                 ,stu_name
                 ,lsn_pay_id
@@ -182,7 +183,7 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 <if test="yearMonth != null and yearMonth.length() == 7">
                     AND left(lsn_month, 7) = #{yearMonth}
                 </if>
-            </where>
+            </where> -->
         <!-- 2025-12-22 追加开始： 提前上满43节课后，后续的月份的空课月计划课费的缴纳处理 -->
         union all
         select   paid.stu_id
