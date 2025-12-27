@@ -5,7 +5,7 @@
 -- 后台维护用
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_info_lesson_pay_over AS
     SELECT 

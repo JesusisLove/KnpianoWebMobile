@@ -1,4 +1,4 @@
--- CREATE DEFINER=`root`@`localhost` FUNCTION `setval`(seq_id VARCHAR(50), value INTEGER) RETURNS int
+-- CREATE DEFINER=`root`@`%` FUNCTION `setval`(seq_id VARCHAR(50), value INTEGER) RETURNS int
 --     DETERMINISTIC
 -- BEGIN
 --     UPDATE sequence
@@ -8,7 +8,7 @@
 -- END
 -- workbench 8.0版本下使用的sql语句 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` FUNCTION `setval`(seq_id VARCHAR(50), value INTEGER) RETURNS int
+CREATE DEFINER=`root`@`%` FUNCTION `setval`(seq_id VARCHAR(50), value INTEGER) RETURNS int
     DETERMINISTIC
 BEGIN
     UPDATE sequence

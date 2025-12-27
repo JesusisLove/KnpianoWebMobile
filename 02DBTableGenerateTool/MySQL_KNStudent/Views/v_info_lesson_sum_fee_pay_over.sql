@@ -7,7 +7,7 @@
 		v_sum_haspaid_lsnfee_by_stu_and_month */ 
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER 
 VIEW v_info_lesson_sum_fee_pay_over AS
 /* 

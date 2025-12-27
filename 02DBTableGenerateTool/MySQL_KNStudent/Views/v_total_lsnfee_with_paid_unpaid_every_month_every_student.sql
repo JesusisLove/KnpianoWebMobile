@@ -5,7 +5,7 @@
 -- 每个学生当前年度每月总课费的总支付，未支付状况查询 v_total_lsnfee_with_paid_unpaid_every_month_every_student
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_total_lsnfee_with_paid_unpaid_every_month_every_student AS
     SELECT 
@@ -34,7 +34,7 @@ VIEW v_total_lsnfee_with_paid_unpaid_every_month_every_student AS
             T2.stu_name AS stu_name,
             T2.nik_name AS nik_name,
             0.0 AS should_pay_lsn_fee,
-            SUM(T2.lsn_fee) AS has_paid_lsn_fee,
+            SUM(T2.lsn_pay) AS has_paid_lsn_fee,
             0.0 AS unpaid_lsn_fee,
             T2.lsn_month AS lsn_month
         FROM

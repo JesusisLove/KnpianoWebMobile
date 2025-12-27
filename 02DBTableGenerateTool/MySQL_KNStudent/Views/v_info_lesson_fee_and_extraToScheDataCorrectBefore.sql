@@ -4,7 +4,11 @@
 -- 同时，会在t_info_lesson_extra_to_sche中,记录原来的lsn_fee_id和换正课后所在月份的新的lsn_fee_id
 -- 该视图就是将原来的课费信息和换正课后的课费信息进行了重新整合。
 DROP VIEW IF EXISTS v_info_lesson_fee_and_extraToScheDataCorrectBefore;
-CREATE VIEW v_info_lesson_fee_and_extraToScheDataCorrectBefore AS 
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`%` 
+    SQL SECURITY DEFINER
+ VIEW v_info_lesson_fee_and_extraToScheDataCorrectBefore AS 
     select 
         lsn_fee_id,
         lesson_id,

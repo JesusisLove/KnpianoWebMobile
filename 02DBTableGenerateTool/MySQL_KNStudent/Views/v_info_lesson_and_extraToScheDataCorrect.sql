@@ -13,7 +13,7 @@ use KNStudent;
 DROP VIEW IF EXISTS v_info_lesson_and_extraToScheDataCorrect;
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_info_lesson_and_extraToScheDataCorrect AS
     SELECT 

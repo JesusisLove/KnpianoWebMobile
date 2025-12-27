@@ -8,7 +8,7 @@
 -- ④对课费管理视图的学费（已支付未支付都包括在内）的总计算按学生按月的分组查询 v_sum_lsn_fee_for_fee_connect_lsn
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_sum_lsn_fee_for_fee_connect_lsn_by_stu_month AS
     SELECT 
