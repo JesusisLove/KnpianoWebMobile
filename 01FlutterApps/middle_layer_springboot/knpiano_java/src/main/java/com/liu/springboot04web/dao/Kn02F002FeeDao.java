@@ -133,4 +133,9 @@ public class Kn02F002FeeDao {
 
         return knLsnFee001Mapper.getInfoLsnStatisticsByStuId(stuId, year);
     }
+
+    // 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+    public String getLastPaymentBankId(String stuId, String currentMonth) {
+        return knLsnFee001Mapper.getLastPaymentBankId(stuId, currentMonth);
+    }
 }

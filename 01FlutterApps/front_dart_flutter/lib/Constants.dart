@@ -110,6 +110,9 @@ class Constants {
 // 执行课费预支付处理
   static const String apiExecuteAdvcLsnPay = '/liu/mb_kn_advc_pay_lsn_execute';
 
+// 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+  static const String apiDefaultBankId = '/liu/mb_kn_default_bank';
+
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
 // 学生一览画面，点击“学生基本信息管理”按钮的url请求
