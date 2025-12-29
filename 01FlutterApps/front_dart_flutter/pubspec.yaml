@@ -66,11 +66,12 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
   # 本地开发环境用
-  #  - kn-local-config/apiconfig.json
+  #  - kn-local-config/apiconfig.json     # 前端设备（真机访问不可，虚拟设备访问可)访问的服务器源：启动本地的SpringBoot，链接本地开发环境数据库（与VPN无关）
+  #  - kn-vpn-config/apiconfig.json        # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动本地的SpringBoot，链接NAS上的测试数据库
   # NAS测试环境用
-  #  - kn-nas-test-config/apiconfig.json
+  #  - kn-nas-test-config/apiconfig.json  # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动—NAS上的SpringBoot，链接NAS上的测试环境数据库
   # NAS本番环境用
-    - kn-nas-config/apiconfig.json
+    - kn-nas-config/apiconfig.json       # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动—NAS上的SpringBoot，链接NAS上的生产环境数据库
     - images/student-placeholder.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
