@@ -159,12 +159,12 @@ public class Kn02F002FeeController{
     private Map<String, String> getResultsTabStus(Collection<Kn02F002FeeBean> collection) {
         // 首先创建一个用于去重的Map
         Map<String, String> tempMap = new HashMap<>();
-        
+
         // 填充临时Map
         for (Kn02F002FeeBean bean : collection) {
             tempMap.putIfAbsent(bean.getStuId(), bean.getStuName());
         }
-        
+
         // 按值（学生姓名）排序并收集到新的LinkedHashMap中
         return tempMap.entrySet()
                 .stream()
@@ -175,5 +175,14 @@ public class Kn02F002FeeController{
                     (oldValue, newValue) -> oldValue,  // 处理重复键的情况
                     LinkedHashMap::new  // 使用LinkedHashMap保持排序
                 ));
+    }
+
+    // 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+    @GetMapping("/kn_default_bank/{stuId}/{currentMonth}")
+    @ResponseBody
+    public String getDefaultBankId(@PathVariable("stuId") String stuId,
+                                   @PathVariable("currentMonth") String currentMonth) {
+        String bankId = knLsnFee001Dao.getLastPaymentBankId(stuId, currentMonth);
+        return bankId != null ? bankId : "";
     }
 }

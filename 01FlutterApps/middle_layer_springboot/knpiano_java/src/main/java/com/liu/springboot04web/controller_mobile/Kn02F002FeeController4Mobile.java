@@ -70,10 +70,18 @@ public class Kn02F002FeeController4Mobile {
 
     // 【課費精算管理】撤销ボタンを押下して、当該情報を引き戻すこと
     @DeleteMapping("/mb_kn_lsn_pay_undo/{lsnPayId}/{lsnFeeId}/{payMonth}")
-    public ResponseEntity<String> undoLsnPay(@PathVariable("lsnPayId") String lsnPayId, 
+    public ResponseEntity<String> undoLsnPay(@PathVariable("lsnPayId") String lsnPayId,
                                              @PathVariable("lsnFeeId") String lsnFeeId,
                                              @PathVariable("payMonth") String payMonth) {
         knLsnPay001Dao.excuteUndoLsnPay(lsnPayId, lsnFeeId, payMonth);
         return ResponseEntity.ok("Ok");
+    }
+
+    // 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+    @GetMapping("/mb_kn_default_bank/{stuId}/{currentMonth}")
+    public ResponseEntity<String> getDefaultBankId(@PathVariable("stuId") String stuId,
+                                                    @PathVariable("currentMonth") String currentMonth) {
+        String bankId = knLsnFee001Dao.getLastPaymentBankId(stuId, currentMonth);
+        return ResponseEntity.ok(bankId != null ? bankId : "");
     }
 }

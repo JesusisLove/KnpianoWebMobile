@@ -51,7 +51,10 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
         (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
     calculateHasPaidFee();
-    fetchBankList();
+    fetchBankList().then((_) {
+      // 银行列表获取成功后，获取默认银行ID
+      fetchDefaultBankId();
+    });
   }
 
   // 画面初期化，统计课费总额
@@ -101,6 +104,33 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
       });
     } else {
       // Handle error
+    }
+  }
+
+  // 获取默认银行ID（上一个月支付时使用的银行）
+  Future<void> fetchDefaultBankId() async {
+    final String stuId = widget.monthData.first.stuId;
+    final String currentMonth = widget.monthData.first.lsnMonth; // 格式：2025-12
+
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiDefaultBankId}/$stuId/$currentMonth';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final String bankId = utf8.decode(response.bodyBytes);
+
+        // 如果返回了有效的银行ID，设置为默认选中
+        if (bankId.isNotEmpty) {
+          setState(() {
+            selectedBankId = bankId;
+          });
+        }
+      }
+    } catch (e) {
+      print('Failed to load default bank ID: $e');
+      // 不影响正常流程，用户可以手动选择银行
     }
   }
 

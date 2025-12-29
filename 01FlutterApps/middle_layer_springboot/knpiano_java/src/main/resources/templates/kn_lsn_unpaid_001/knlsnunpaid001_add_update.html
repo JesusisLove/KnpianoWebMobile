@@ -147,6 +147,19 @@
             color: #6c757d;
         }
 
+        /* 下拉列表样式优化 */
+        select.form-control {
+            padding: 10px 15px;
+            line-height: 1.8;
+            min-height: 45px;
+        }
+
+        select.form-control option {
+            padding: 10px;
+            line-height: 2;
+            min-height: 40px;
+        }
+
         /* 特殊字段样式 */
         .readonly-field {
             position: relative;
@@ -359,12 +372,16 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var contextPath = /*[[@{/}]]*/ '/';
+        /*]]>*/
+
         // 表单验证
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
             const inputs = form.querySelectorAll('input[type="text"]:not([readonly]):not([disabled]), select');
-            
+
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.value.trim() !== '') {
@@ -374,7 +391,62 @@
                     }
                 });
             });
+
+            // 获取默认银行ID（上一个月支付时使用的银行）
+            fetchDefaultBankId();
         });
+
+        // 获取默认银行ID
+        function fetchDefaultBankId() {
+            const stuIdInput = document.querySelector('input[name="stuId"]');
+            const currentMonthInput = document.querySelector('input[name="payMonth"]');
+
+            // 检查元素是否存在
+            if (!stuIdInput || !currentMonthInput) {
+                console.log('stuId or payMonth input not found');
+                return;
+            }
+
+            const stuId = stuIdInput.value;
+            const currentMonth = currentMonthInput.value;
+
+            console.log('fetchDefaultBankId - stuId:', stuId, 'currentMonth:', currentMonth);
+
+            // 确保学生ID和月份都存在且不为空
+            if (!stuId || !currentMonth || stuId.trim() === '' || currentMonth.trim() === '') {
+                console.log('stuId or currentMonth is empty, stuId=[' + stuId + '], currentMonth=[' + currentMonth + ']');
+                return;
+            }
+
+            // 构建API URL
+            const apiUrl = contextPath + 'kn_default_bank/' + stuId + '/' + currentMonth;
+            console.log('Fetching default bank from:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    throw new Error('Failed to fetch default bank ID: ' + response.status);
+                })
+                .then(bankId => {
+                    console.log('Received bank ID:', bankId);
+                    // 如果返回了有效的银行ID，设置为默认选中
+                    if (bankId && bankId.trim() !== '') {
+                        const bankSelect = document.querySelector('select[name="bankId"]');
+                        if (bankSelect) {
+                            bankSelect.value = bankId.trim();
+                            bankSelect.style.borderColor = '#28a745';
+                            console.log('Bank ID set to:', bankId.trim());
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log('Failed to load default bank ID:', error);
+                    // 不影响正常流程，用户可以手动选择银行
+                });
+        }
     </script>
 </body>
 
