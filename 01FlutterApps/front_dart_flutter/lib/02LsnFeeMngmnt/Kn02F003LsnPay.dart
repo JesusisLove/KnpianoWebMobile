@@ -52,8 +52,14 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     calculateTotalFee();
     calculateHasPaidFee();
     fetchBankList().then((_) {
-      // 银行列表获取成功后，获取默认银行ID
-      fetchDefaultBankId();
+      // 检查是否有未支付的课费（至少有一个 ownFlg == 0）
+      bool hasUnpaidFee = widget.monthData.any((item) => item.ownFlg == 0);
+
+      // 只有存在未支付课费时才自动设置默认银行
+      // 如果所有课费都已支付（所有 ownFlg == 1），则不自动设置，用户可手动选择
+      if (hasUnpaidFee) {
+        fetchDefaultBankId();
+      }
     });
   }
 
@@ -67,12 +73,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
 
   // 画面初期化，计算目前已支付课费总额
   void calculateHasPaidFee() {
-    paymentAmount = widget.monthData
-        .where((item) => item.ownFlg == 1)
-        .fold(0.0, (sum, item) =>
-            sum + (item.lessonType == 1
-                ? (item.subjectPrice! * 4)
-                : item.lsnPay));
+    paymentAmount = widget.monthData.where((item) => item.ownFlg == 1).fold(
+        0.0,
+        (sum, item) =>
+            sum +
+            (item.lessonType == 1 ? (item.subjectPrice! * 4) : item.lsnPay));
   }
 
   void updatePaymentAmount() {
