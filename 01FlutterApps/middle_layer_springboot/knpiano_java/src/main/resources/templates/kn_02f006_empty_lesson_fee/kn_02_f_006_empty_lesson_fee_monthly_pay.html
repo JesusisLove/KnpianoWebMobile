@@ -110,7 +110,7 @@
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 <!-- 页面标题 -->
                 <div class="page-header">
-                    <h2>空课学费按月支付</h2>
+                    <h2>空课学费按月支付（使用对象：按月支付课费的学生）</h2>
                     <p style="margin: 0; margin-top: 10px;">查询达到43节课的学生并生成剩余月份的临时课程</p>
                 </div>
 
@@ -121,7 +121,9 @@
                         <li>按月交费的学生，年度课程目标是43节课</li>
                         <li>如果学生提前完成了43节课（例如10月份），则11月和12月仍需支付课费</li>
                         <li>此功能用于查询这些学生，并可生成"虚拟课程"用于课费收取</li>
-                        <li>完成月份数小于12个月的学生需要生成临时课程</li>
+                        <li>达成月份：表示学生在第几个月累计达到43节课（例如：12表示在12月达到43节）</li>
+                        <li>在12月之前达到43节课的学生（达成月份 &lt; 12），需要为后续月份生成空月课费</li>
+                        <li><strong>空月课费</strong>：提前完成43节课后，剩余月份虽然不上课，但仍需支付剩余月份的每月课费。43节课的总学费 = 每月学费 × 12个月，无论是在6个月、10个月还是12个月上完43节课，都需要支付12个月的学费</li>
                     </ul>
                 </div>
 
@@ -179,7 +181,7 @@
                                     <th>学生姓名</th>
                                     <th>科目名称</th>
                                     <th>累计课程数</th>
-                                    <th>完成月份数</th>
+                                    <th>达成月份</th>
                                     <th>操作</th>
                                 </tr>
                             </thead>
@@ -193,7 +195,7 @@
                                     <td th:text="${item.cumulativeCount}"></td>
                                     <td th:text="${item.monthsCompleted}"></td>
                                     <td>
-                                        <!-- monthsCompleted == 12：空月课费对象外 -->
+                                        <!-- monthsCompleted == 12：在12月达到43节课，无需生成空月课费 -->
                                         <span th:if="${item.monthsCompleted == 12}" class="text-muted">
                                             空月课费对象外
                                         </span>
@@ -211,7 +213,7 @@
                                             空月课费已生成
                                         </a>
 
-                                        <!-- hasGenerated == 0 && monthsCompleted < 12：显示生成按钮 -->
+                                        <!-- hasGenerated == 0 && monthsCompleted < 12：在12月前达到43节，显示生成按钮 -->
                                         <button th:if="${item.monthsCompleted < 12 && item.hasGenerated == 0}"
                                                 type="button"
                                                 class="btn btn-generate btn-sm"

@@ -353,7 +353,7 @@
                             <div class="form-group">
                                 <label>结算月</label>
                                 <input name="payMonth" type="month" class="form-control" placeholder="选择结算月份"
-                                    th:value="${selectedinfo.lsnMonth}">
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnMonth} : ''">
                             </div>
                             
                             <div class="form-group">
