@@ -5,6 +5,7 @@ import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
+import '02LsnFeeMngmnt/Kn02F006ExtraLsnReport.dart';
 import '03StuDocMngmnt/3bankBasic/kn03D003Bnk_list.dart';
 import '03StuDocMngmnt/4stuDoc/kn03D004StuDoc_list.dart';
 import '04IntegratMngmnt/Kn04I003LsnCounting.dart';
@@ -422,11 +423,18 @@ class HomePageState extends State<HomePage> {
             },
           },
           {
-            'icon': Icons.trending_up,
-            'text': "收入趋势",
-            'description': "收入变化分析",
+            'icon': Icons.assignment_add,
+            'text': "加课处理报告",
+            'description': "查看加课支付/未支付状况",
             'onPressed': () {
-              // 占位按钮，让网格看起来更饱满
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Kn02F006ExtraLsnReport(
+                            knBgColor: Constants.lsnfeeThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "学费管理",
+                          )));
             },
           },
         ];
