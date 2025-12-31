@@ -284,49 +284,75 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
     );
   }
 
-  /// 构建筛选区域（年度选择）
+  /// 构建筛选区域（年度选择和统计信息）
   Widget _buildFilterSection() {
+    // 计算统计信息
+    final students = filteredStudents;
+    final studentCount = students.length;
+    final subjectCount = students.fold<int>(
+      0,
+      (sum, student) => sum + student.subjectStats.length,
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
       ),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '$selectedYear年度加课处理报告',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          // 左侧：统计信息
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '学生人数: $studentCount',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '科目个数: $subjectCount',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
+          // 右侧：年度选择器
           GestureDetector(
             onTap: () => _showYearPicker(context),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
                 color: widget.knBgColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: widget.knBgColor.withOpacity(0.3)),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.calendar_today, color: widget.knBgColor),
-                  const SizedBox(width: 8),
+                  Icon(Icons.calendar_today, color: widget.knBgColor, size: 18),
+                  const SizedBox(width: 6),
                   Text(
                     '$selectedYear年',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: widget.knBgColor,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Icon(Icons.arrow_drop_down, color: widget.knBgColor),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_drop_down, color: widget.knBgColor, size: 20),
                 ],
               ),
             ),
@@ -338,6 +364,9 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
 
   /// 构建图例说明
   Widget _buildLegend() {
+    // 判断是否有任何过滤条件
+    final hasAnyFilter = filterPaid || filterUnpaid || filterConverted;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
@@ -349,16 +378,29 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildLegendItem('已支付', paidColor, Icons.credit_card),
-          _buildLegendItem('未支付', unpaidColor, Icons.pending),
-          _buildLegendItem('已转换', convertedColor, Icons.swap_horiz),
+          _buildLegendItem(
+            '已支付',
+            paidColor,
+            Icons.credit_card,
+            isActive: !hasAnyFilter || filterPaid,
+          ),
+          _buildLegendItem(
+            '未支付',
+            unpaidColor,
+            Icons.pending,
+            isActive: !hasAnyFilter || filterUnpaid,
+          ),
+          _buildLegendItem(
+            '已转换',
+            convertedColor,
+            Icons.swap_horiz,
+            isActive: !hasAnyFilter || filterConverted,
+          ),
           // 过滤按钮
           IconButton(
             icon: Icon(
               Icons.filter_list,
-              color: (filterPaid || filterUnpaid || filterConverted)
-                  ? widget.knBgColor
-                  : Colors.grey[600],
+              color: hasAnyFilter ? widget.knBgColor : Colors.grey[600],
             ),
             onPressed: _showFilterDialog,
             tooltip: '过滤',
@@ -369,13 +411,21 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
   }
 
   /// 构建单个图例项
-  Widget _buildLegendItem(String label, Color color, IconData icon) {
+  Widget _buildLegendItem(
+    String label,
+    Color color,
+    IconData icon, {
+    required bool isActive,
+  }) {
+    // 如果不活跃，使用灰色；否则使用原色
+    final displayColor = isActive ? color : Colors.grey;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: color, size: 16),
+        Icon(icon, color: displayColor, size: 16),
         const SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: color)),
+        Text(label, style: TextStyle(fontSize: 12, color: displayColor)),
       ],
     );
   }
