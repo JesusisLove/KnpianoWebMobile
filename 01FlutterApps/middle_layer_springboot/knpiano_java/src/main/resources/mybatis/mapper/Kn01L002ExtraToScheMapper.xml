@@ -159,7 +159,7 @@ https://mybatis.org/mybatis-3/getting-started.html
                 AND allextra.class_duration = doc.minutes_per_lsn
         LEFT JOIN t_info_lesson_extra_to_sche tosche ON allextra.lesson_id = tosche.lesson_id
         <where>
-            <if test="stuId != null and stuId != ''">
+            <if test="stuId != null and stuId != '' and stuId != 'ALL'">
               AND  allextra.stu_id = #{stuId}
             </if>
             AND substring(allextra.schedual_date,1,4) = #{year}
