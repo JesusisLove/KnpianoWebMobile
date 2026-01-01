@@ -4,24 +4,42 @@
 <head>
     <title>Fragments</title>
     <style>
+        /* 只保留列控制功能的样式，表格样式全部移到主页面 */
         .column-control {
-            text-align: right;
-            margin-bottom: 10px;
             position: relative;
+            margin: 20px;
+            display: inline-block;
+        }
+
+        .column-control button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .column-control button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .column-menu {
             position: absolute;
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             display: none;
             right: 0;
             top: 100%;
-            min-width: 150px;
+            min-width: 200px;
+            margin-top: 5px;
         }
 
         .column-menu.show {
@@ -30,18 +48,31 @@
 
         .column-menu label {
             display: block;
-            padding: 5px;
+            padding: 8px 12px;
             cursor: pointer;
             white-space: nowrap;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            font-weight: normal;
+            margin: 2px 0;
         }
 
         .column-menu label:hover {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
-        /* 确保操作列始终显示 */
-        .action-column {
-            display: table-cell !important;
+        .column-menu input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .column-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 180px !important;
+            }
         }
     </style>
 </head>
@@ -50,8 +81,8 @@
     <div th:fragment="lessonTable(stuid, stuName)">
         <!-- 列控制按钮和菜单 -->
         <div class="column-control">
-            <button onclick="toggleColumnMenu(event)" class="btn btn-sm btn-secondary">
-                显示/隐藏列
+            <button onclick="toggleColumnMenu(event)">
+                🔧 显示/隐藏列
             </button>
             <div id="columnMenu" class="column-menu">
                 <label>
@@ -70,13 +101,13 @@
                     <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 子科目名称
+                    <input type="checkbox" checked onchange="toggleColumn('col-subjectLevel')" /> 科目级别
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-classDuration')" /> 上课时长
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 课程種別
+                    <input type="checkbox" checked onchange="toggleColumn('col-lessonType')" /> 课程種别
                 </label>
                 <label>
                     <input type="checkbox" checked onchange="toggleColumn('col-schedualType')" /> 排课手段
@@ -100,27 +131,28 @@
                     <input type="checkbox" checked onchange="toggleColumn('col-changingEffect')" /> 换正课果效
                 </label>
                 <label>
-                    <input type="checkbox" checked onchange="toggleColumn('col-memoReason')" /> 换正课果效
+                    <input type="checkbox" checked onchange="toggleColumn('col-memoReason')" /> 无意义理由
                 </label>
             </div>
         </div>
-        <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'">
+
+        <div th:id="${stuid}" class="tab-pane fade" th:classappend="'show active'" style="overflow-x: auto; max-width: 100%;">
             <table class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th class="col-lessonId">课程<br>编号</th>
-                        <th class="col-subjectId">科目<br>编号</th>
-                        <th class="col-subjectSubId">子科目<br>编号</th>
-                        <th class="col-stuId">学生<br>编号</th>
-                        <th class="col-subjectName">科目<br>名称</th>
-                        <th class="col-subjectLevel">科目<br>级别</th>
-                        <th class="col-classDuration">上课时长<br>（分钟）</th>
-                        <th class="col-lessonType">课程<br>種別</th>
-                        <th class="col-schedualType">排课<br>手段</th>
-                        <th class="col-schedualDate">计划课<br>日期</th>
-                        <th class="col-adjustedDate">调课<br>日期</th>
-                        <th class="col-extraToDurDate">加课换正课<br>日期</th>
-                        <th class="col-scanQrDate">上课签到<br>日期</th>
+                        <th class="col-lessonId">课程编号</th>
+                        <th class="col-subjectId">科目编号</th>
+                        <th class="col-subjectSubId">子科目编号</th>
+                        <th class="col-stuId">学生编号</th>
+                        <th class="col-subjectName">科目名称</th>
+                        <th class="col-subjectLevel">科目级别</th>
+                        <th class="col-classDuration">上课时长（分钟）</th>
+                        <th class="col-lessonType">课程種别</th>
+                        <th class="col-schedualType">排课手段</th>
+                        <th class="col-schedualDate">计划课日期</th>
+                        <th class="col-adjustedDate">调课日期</th>
+                        <th class="col-extraToDurDate">加课换正课日期</th>
+                        <th class="col-scanQrDate">上课签到日期</th>
                         <th class="col-payFlg">支付状况</th>
                         <th class="col-changingEffect">换正课果效</th>
                         <th class="col-memoReason">无意义理由</th>
@@ -139,11 +171,16 @@
                         <td class="col-subjectName">[[${info.subjectName}]]</td>
                         <td class="col-subjectLevel">[[${info.subjectSubName}]]</td>
                         <td class="col-classDuration">[[${info.classDuration}]]</td>
-                        <td class="col-lessonType" th:text="${info.lessonType == 0 ? '课结算' : 
-                                      info.lessonType == 1 ? '月计划' : 
-                                      info.extraToDurDate != null ? '已换正课' : '月加课'}"></td>
-                        <td class="col-schedualType"
-                            th:text="${info.schedualType == 0 ? '手动排课' : info.schedualType == 1 ? 'Batch排课' : '不明'}">
+                        <td class="col-lessonType">
+                            <span th:if="${info.lessonType == 0}" class="status-badge status-course-settle">课结算</span>
+                            <span th:if="${info.lessonType == 1}" class="status-badge status-month-plan">月计划</span>
+                            <span th:if="${info.lessonType == 2 && info.extraToDurDate == null}" class="status-badge status-month-extra">月加课</span>
+                            <span th:if="${info.extraToDurDate != null}" class="status-badge status-converted">已换正课</span>
+                        </td>
+                        <td class="col-schedualType">
+                            <span th:if="${info.schedualType == 0}" class="status-badge status-manual">手动排课</span>
+                            <span th:if="${info.schedualType == 1}" class="status-badge status-batch">Batch排课</span>
+                            <span th:unless="${info.schedualType == 0 || info.schedualType == 1}" class="status-badge status-unknown">不明</span>
                         </td>
                         <td class="col-schedualDate">[[${info.schedualDate != null ?
                             #dates.format(info.schedualDate,'yyyy/MM/dd HH:mm') : ''}]]</td>
@@ -153,39 +190,42 @@
                             #dates.format(info.extraToDurDate,'yyyy/MM/dd') : ''}]]</td>
                         <td class="col-scanQrDate">[[${info.scanQrDate != null ?
                             #dates.format(info.scanQrDate,'yyyy/MM/dd') : ''}]]</td>
-                        <td class="col-payFlg">[[${info.payFlg}]]</td>
+                        <td class="col-payFlg">
+                            <span th:if="${info.payFlg == 0}" class="status-badge status-unpaid">未支付</span>
+                            <span th:if="${info.payFlg == 1}" class="status-badge status-paid">已支付</span>
+                        </td>
                         <td class="col-changingEffect">
                             <span th:if="${info.payFlg == 0 && info.extraToDurDate != null}"
-                                th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}" th:style="${info.isGoodChange == 1 ? 
-                                          'color: #4CAF50; font-weight: bold;' : 
-                                          'color: #FF0000; font-weight: bold;'}">
+                                th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}" 
+                                th:class="${info.isGoodChange == 1 ? 'status-badge status-meaningful' : 'status-badge status-meaningless'}">
                             </span>
                             <span th:if="${info.payFlg == 1 && info.extraToDurDate != null }"
-                                th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}" th:style="${info.isGoodChange == 1 ? 
-                                          'color: #4CAF50; font-weight: bold;' : 
-                                          'color: #FF0000; font-weight: bold;'}">
+                                th:text="${info.isGoodChange == 1 ? '有意义的换课' : '无意义的换课'}" 
+                                th:class="${info.isGoodChange == 1 ? 'status-badge status-meaningful' : 'status-badge status-meaningless'}">
                             </span>
                         </td>
-                        
-                        <!-- th:utext 会把 HTML 标签正确解析， memoReason里面有<br>,会把<br>解析成THML的换行符，达到文本的换行显示👍-->
-                        <td class="col-memoReason" style="font-size: 8px;" th:utext="${info.memoReason}">[[${info.memoReason}]]</td>
-
+                        <td class="col-memoReason" th:utext="${info.memoReason}">[[${info.memoReason}]]</td>
                         <td class="action-column">
                             <div th:if="${info.payFlg == 0}">
-                                <a class="btn btn-sm btn-primary" th:if="${info.extraToDurDate == null}"
-                                    th:href="@{/kn_extra_lsn_detail/}+${info.lessonId}" methods="GET">加课换正课</a>
-                                <a class="btn btn-sm btn-danger" th:unless="${info.extraToDurDate == null}"
-                                    th:href="@{/kn_extra_lsn_undo/{id}(id=${info.lessonId})}" methods="GET">撤销</a>
+                                <a class="btn btn-primary" th:if="${info.extraToDurDate == null}"
+                                    th:href="@{/kn_extra_lsn_detail/}+${info.lessonId}" methods="GET">💱 加课换正课</a>
+                                <a class="btn btn-danger" th:unless="${info.extraToDurDate == null}"
+                                    th:href="@{/kn_extra_lsn_undo/{id}(id=${info.lessonId})}" methods="GET">↩️ 撤销</a>
                             </div>
                             <div th:if="${info.payFlg == 1}">
-                                <a class="btn btn-sm btn-secondary disabled" style="cursor: not-allowed; opacity: 0.65;"
-                                    role="button">已结算完了</a>
+                                <a class="btn btn-secondary disabled" style="cursor: not-allowed; opacity: 0.65;"
+                                    role="button">✅ 已结算完了</a>
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- 删除处理的表单提交 -->
+        <form id="deleteSubjectForm" action="" method="post">
+            <input type="hidden" name="_method" value="Delete" />
+        </form>
 
         <!-- 列控制相关的 JavaScript -->
         <script th:inline="javascript">

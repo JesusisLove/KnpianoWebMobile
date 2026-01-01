@@ -7,25 +7,354 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
-    <title>Dashboard Template · Bootstrap</title>
+    <title>课费信息编辑 · Bootstrap</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
         rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        /* 整体页面样式 */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            padding: 40px;
+            animation: fadeInUp 0.8s ease;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 标题样式 */
+        .page-title {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        /* 表单容器样式 */
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        /* 表单组样式 */
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        /* 输入框样式 */
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .form-control:read-only {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* 特殊输入框样式 */
+        .readonly-field {
+            position: relative;
+        }
+
+        .readonly-field::after {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+        }
+
+        /* 金额输入框样式 */
+        .currency-input {
+            position: relative;
+        }
+
+        .currency-input::before {
+            content: '¥';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 1;
+        }
+
+        .currency-input .form-control {
+            padding-left: 45px;
+        }
+
+        /* 月份输入框样式 */
+        .month-input {
+            position: relative;
+        }
+
+        .month-input::after {
+            content: '\f073';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            pointer-events: none;
+        }
+
+        /* 按钮样式 */
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f3f4;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* 返回按钮 */
+        .btn-back {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* 字段描述样式 */
+        .field-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-paid {
+            background: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+        }
+
+        .status-unpaid {
+            background: #ffc107;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .form-container {
+                padding: 25px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .btn-primary {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        /* 动画效果 */
+        .form-group {
+            animation: slideInLeft 0.6s ease;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 加载状态 */
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 
@@ -33,37 +362,343 @@
 </head>
 
 <body>
-
-    <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+    <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
-        <div class="row">"
+        <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_fee_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <form th:action="@{/kn_lsn_fee_001}" method="post">
-                    <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" />
-                    <div class="form-group"><br> <label>课费编号</label> <input name="lsnFeeId" type="text"
-                            class="form-control" placeholder="システム自動採番、入力不可" readonly
-                            th:value="${selectedinfo!=null}?${selectedinfo.lsnFeeId}"></div>
-                    <div class="form-group"><br> <label>课程编号</label> <input name="lessonId" type="text"
-                            class="form-control" placeholder="" readonly
-                            th:value="${selectedinfo!=null}?${selectedinfo.lessonId}"></div>
-                    <div class="form-group"><br> <label>支付金额</label> <input name="lsnFee" type="text"
-                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.lsnFee}">
+                <div class="main-content">
+                    <h1 class="page-title">
+                        <i class="fas fa-edit"></i>
+                        课费信息编辑
+                    </h1>
+                    
+                    <div class="form-container">
+                        <form th:action="@{/kn_lsn_fee_001}" method="post" id="editForm">
+                            <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" />
+                            
+                            <div class="form-group">
+                                <label for="lsnFeeId">
+                                    <i class="fas fa-hashtag"></i>
+                                    课费编号
+                                </label>
+                                <div class="readonly-field">
+                                    <input name="lsnFeeId" id="lsnFeeId" type="text" class="form-control" 
+                                           placeholder="系统自动编号，不可编辑" readonly 
+                                           th:value="${selectedinfo!=null}?${selectedinfo.lsnFeeId}">
+                                </div>
+                                <div class="field-description">
+                                    系统自动生成的唯一标识符
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lessonId">
+                                    <i class="fas fa-book"></i>
+                                    课程编号
+                                </label>
+                                <div class="readonly-field">
+                                    <input name="lessonId" id="lessonId" type="text" class="form-control" 
+                                           placeholder="关联的课程编号" readonly 
+                                           th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
+                                </div>
+                                <div class="field-description">
+                                    与此课费关联的课程标识
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lsnFee">
+                                    <i class="fas fa-yen-sign"></i>
+                                    支付金额
+                                </label>
+                                <div class="currency-input">
+                                    <input name="lsnFee" id="lsnFee" type="number" class="form-control" 
+                                           placeholder="请输入支付金额" step="0.01" min="0"
+                                           th:value="${selectedinfo!=null}?${selectedinfo.lsnFee}" required>
+                                </div>
+                                <div class="field-description">
+                                    本次课程的费用金额（日元）
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lsnMonth">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    支付月份
+                                </label>
+                                <div class="month-input">
+                                    <input name="lsnMonth" id="lsnMonth" type="month" class="form-control" 
+                                           placeholder="选择支付月份" 
+                                           th:value="${selectedinfo!=null}?${selectedinfo.lsnMonth}" required>
+                                </div>
+                                <div class="field-description">
+                                    课费对应的年月
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="ownFlg">
+                                    <i class="fas fa-check-circle"></i>
+                                    支付状态
+                                </label>
+                                <select name="ownFlg" id="ownFlg" class="form-control" required>
+                                    <option value="">请选择支付状态</option>
+                                    <option value="0" th:selected="${selectedinfo!=null && selectedinfo.ownFlg == 0}">
+                                        <span class="status-indicator status-unpaid"></span>
+                                        未支付
+                                    </option>
+                                    <option value="1" th:selected="${selectedinfo!=null && selectedinfo.ownFlg == 1}">
+                                        <span class="status-indicator status-paid"></span>
+                                        已支付
+                                    </option>
+                                </select>
+                                <div class="field-description">
+                                    当前课费的支付状态
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delFlg">
+                                    <i class="fas fa-trash-alt"></i>
+                                    删除标记
+                                </label>
+                                <div class="readonly-field">
+                                    <input name="delFlg" id="delFlg" type="text" class="form-control" 
+                                           placeholder="删除状态标记" readonly 
+                                           th:value="${selectedinfo!=null}?${selectedinfo.delFlg}">
+                                </div>
+                                <div class="field-description">
+                                    系统管理字段，标识记录是否已删除
+                                </div>
+                            </div>
+                            
+                            <div class="btn-container">
+                                <a href="#" onclick="history.back()" class="btn-back">
+                                    <i class="fas fa-arrow-left"></i>
+                                    返回
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="saveBtn">
+                                    <i class="fas fa-save"></i>
+                                    保存课费信息
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="form-group"><br> <label>支付月</label> <input name="lsnMonth" type="month"
-                            class="form-control" placeholder=""
-                            th:value="${selectedinfo!=null}?${selectedinfo.lsnMonth}" required></div>
-                    <div class="form-group"><br> <label>支付状态</label> <input name="ownFlg" type="text"
-                            class="form-control" placeholder="" th:value="${selectedinfo!=null}?${selectedinfo.ownFlg}">
-                    </div>
-                    <div class="form-group"><br> <label>削除フラグ</label> <input name="delFlg" type="text"
-                            class="form-control" placeholder="" readonly
-                            th:value="${selectedinfo!=null}?${selectedinfo.delFlg}"></div>
-                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
-                </form>
+                </div>
             </main>
         </div>
     </div>
+
+    <!-- JavaScript -->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 表单验证增强
+            const form = document.getElementById('editForm');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            // 金额输入框格式化
+            const lsnFeeInput = document.getElementById('lsnFee');
+            lsnFeeInput.addEventListener('input', function() {
+                let value = this.value;
+                // 移除非数字字符（除了小数点）
+                value = value.replace(/[^\d.]/g, '');
+                // 确保只有一个小数点
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                // 限制小数位数为2位
+                if (parts[1] && parts[1].length > 2) {
+                    value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+                this.value = value;
+                
+                // 实时验证
+                validateAmount();
+            });
+            
+            // 金额验证
+            function validateAmount() {
+                const amount = parseFloat(lsnFeeInput.value);
+                const isValid = !isNaN(amount) && amount >= 0;
+                
+                if (!isValid && lsnFeeInput.value !== '') {
+                    lsnFeeInput.style.borderColor = '#dc3545';
+                    showFieldError(lsnFeeInput, '请输入有效的金额');
+                } else {
+                    lsnFeeInput.style.borderColor = '#28a745';
+                    hideFieldError(lsnFeeInput);
+                }
+            }
+            
+            // 支付状态选择增强
+            const ownFlgSelect = document.getElementById('ownFlg');
+            ownFlgSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (this.value === '1') {
+                    this.style.borderColor = '#28a745';
+                    this.style.backgroundColor = '#f8fff9';
+                } else if (this.value === '0') {
+                    this.style.borderColor = '#ffc107';
+                    this.style.backgroundColor = '#fffbf0';
+                } else {
+                    this.style.borderColor = '#e9ecef';
+                    this.style.backgroundColor = '#fafbfc';
+                }
+            });
+            
+            // 月份输入增强
+            const lsnMonthInput = document.getElementById('lsnMonth');
+            lsnMonthInput.addEventListener('change', function() {
+                if (this.value) {
+                    this.style.borderColor = '#28a745';
+                    hideFieldError(this);
+                }
+            });
+            
+            // 表单提交处理
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 验证必填字段
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = '#dc3545';
+                        showFieldError(field, '此字段为必填项');
+                    } else {
+                        field.style.borderColor = '#28a745';
+                        hideFieldError(field);
+                    }
+                });
+                
+                // 验证金额
+                const amount = parseFloat(lsnFeeInput.value);
+                if (isNaN(amount) || amount < 0) {
+                    isValid = false;
+                    lsnFeeInput.style.borderColor = '#dc3545';
+                    showFieldError(lsnFeeInput, '请输入有效的金额');
+                }
+                
+                if (isValid) {
+                    // 显示加载状态
+                    saveBtn.classList.add('btn-loading');
+                    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+                    saveBtn.disabled = true;
+                    
+                    // 延迟提交以显示加载效果
+                    setTimeout(() => {
+                        form.submit();
+                    }, 1000);
+                } else {
+                    // 显示错误提示
+                    showAlert('请检查表单中的错误信息', 'error');
+                }
+            });
+            
+            // 显示字段错误
+            function showFieldError(field, message) {
+                hideFieldError(field); // 先清除之前的错误
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error';
+                errorDiv.style.color = '#dc3545';
+                errorDiv.style.fontSize = '0.8rem';
+                errorDiv.style.marginTop = '5px';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+                
+                field.parentNode.appendChild(errorDiv);
+            }
+            
+            // 隐藏字段错误
+            function hideFieldError(field) {
+                const existingError = field.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+            
+            // 显示提示信息
+            function showAlert(message, type = 'info') {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+                alertDiv.style.position = 'fixed';
+                alertDiv.style.top = '20px';
+                alertDiv.style.right = '20px';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.style.minWidth = '300px';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                `;
+                
+                document.body.appendChild(alertDiv);
+                
+                // 自动移除
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+            
+            // 页面加载完成动画
+            setTimeout(() => {
+                document.querySelector('.main-content').style.opacity = '1';
+                document.querySelector('.main-content').style.transform = 'translateY(0)';
+            }, 100);
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S 保存
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveBtn.click();
+                }
+                
+                // Esc 返回
+                if (e.key === 'Escape') {
+                    if (confirm('确定要返回吗？未保存的更改将丢失。')) {
+                        history.back();
+                    }
+                }
+            });
+            
+            // 自动保存提示（可选功能）
+            let hasChanges = false;
+            const originalValues = {};
+            
+            // 记录原始值
+            form.querySelectorAll('input, select').forEach(field => {
+                if (!field.readOnly && field.type !== 'hidden') {
+                    originalValues[field.name] = field.value;
+                    
+                    field.addEventListener('input', function() {
+                        hasChanges = this.value !== originalValues[this.name];
+                    });
+                }
+            });
+            
+            // 页面离开警告
+            window.addEventListener('beforeunload', function(e) {
+                if (hasChanges) {
+                    e.preventDefault();
+                    e.returnValue = '您有未保存的更改，确定要离开吗？';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

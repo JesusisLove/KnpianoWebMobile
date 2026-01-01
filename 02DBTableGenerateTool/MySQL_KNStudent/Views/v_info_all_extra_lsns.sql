@@ -5,7 +5,7 @@
 -- 已经结算的加课费
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_info_all_extra_lsns AS 
 SELECT 

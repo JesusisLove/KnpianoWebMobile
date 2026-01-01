@@ -4,12 +4,12 @@ spring:
     #访问本地MySQL数据库使用的用户名和密码
     #username: root
     #password: 
-    #url: jdbc:mysql://127.0.0.1:3306/KNStudent
-    #url: jdbc:mysql://127.0.0.1:3306/prod_KNStudent
+    #url: jdbc:mysql://127.0.0.1:3306/YourDataBase
 
     #访问NAS服务器上的MySQL数据库使用的用户名和密码
-    username: root
-    password: 7654321
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
 
     #シンガポール
     #开发用的数据库
@@ -18,37 +18,78 @@ spring:
     #url: jdbc:mysql://127.0.0.1:3306/dev_KNStudent
 
     #观妮用的数据库
-    url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
+    #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Singapore&useSSL=false&allowPublicKeyRetrieval=true
     #url: jdbc:mysql://192.168.50.101:49168/prod_KNStudent?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-
 
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
-    #数据源其他配置
-    initialSize: 5
-    minIdle: 5
-    maxActive: 20
-    maxWait: 60000
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 30000
-    validationQuery: SELECT 1 FROM DUAL
-    testWhileInle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-    #配置监控统计拦截的filters，去掉后监控姐妹sql无法统计，'wall'用于防火墙
-    filters: stat,wall.log4j
-    maxPoolPreparedStatementPerConnectionSize: 20
-    usGlobalDataSourceStat: true
-    connectionProperties: druid.stat.mergeSql-true;druid.stat.slowSqlMillis-500
-#  jpa:
-#    hibernate:
-#      #更新或者创建数据表结构（第一次启动，如果没有数据表就会创建，以后，如果实体类标注的数据表的结构有修改，就会自动更新数据库相应的表结构）
-#      ddl-auto: update
-#    #执行SQL语句的时候，可以在控制台显示SQL文
-#    show-sql: true
+    # ==================== 2025-08-08 Druid数据源配置 解决NAS启动时容器启动顺序问题 ====================
+    # 配置目的：解决NAS系统启动时，Java应用启动速度快于MySQL服务启动的问题
+    # 问题场景：NAS在早上8:00自动启动时，MySQL容器需要较长时间完成初始化和启动
+    #          而Java应用容器启动较快，导致应用启动时连接不到数据库而失败
+    # 解决方案：通过增加数据库连接超时时间和重试机制，让Java应用等待MySQL完成启动
+    # =====================================================================================
+    
+    # Druid 连接池配置 - 用于启动时等待数据库
+    druid:
+      # 基础连接池配置
+      initial-size: 5                              # 初始化连接数
+      min-idle: 5                                  # 最小空闲连接数
+      max-active: 20                               # 最大活跃连接数
+      max-wait: 60000                              # 获取连接最大等待时间（毫秒）
+
+      # 连接超时配置
+      connection-timeout: 60000                    # 连接超时时间（毫秒）- 从默认30秒增加到60秒
+      validation-query-timeout: 10                 # 连接验证超时时间（秒）
+      initialization-fail-timeout: 300000          # 初始化失败超时（毫秒）- 5分钟，确保MySQL有足够启动时间⭐关键配置
+      fail-fast: false                             # 禁用快速失败 - 允许应用在数据库暂时不可用时继续尝试连接
+
+      # 连接测试配置 - 确保获取的连接是有效的
+      validation-query: SELECT 1 FROM DUAL         # 连接验证SQL
+      test-on-borrow: true                         # 从连接池获取连接时测试连接有效性
+      test-on-return: false                        # 归还连接时不测试（提高性能）
+      test-while-idle: true                        # 空闲时测试连接有效性
+
+      # 空闲连接管理
+      time-between-eviction-runs-millis: 60000     # 空闲连接检测间隔（毫秒）- 每60秒检查一次
+      min-evictable-idle-time-millis: 300000       # 连接空闲最小保持时间（毫秒）- 5分钟
+
+      # 预编译语句配置
+      pool-prepared-statements: true               # 开启PSCache
+      max-pool-prepared-statement-per-connection-size: 20  # 每个连接PSCache大小
+
+      # 监控统计配置
+      filters: stat,wall,log4j                     # 监控统计拦截filters（stat:监控统计 wall:防火墙 log4j:日志）
+      use-global-data-source-stat: true            # 使用全局数据源统计
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500  # 合并SQL统计，慢SQL阈值500ms
+
+  # ==================== 2025-08-08 新增配置 SQL初始化配置 ====================
+  # 配置目的：避免应用启动时因为数据库表已存在或其他SQL执行问题导致启动失败
+  # 适用场景：当数据库已经初始化过，重复执行建表语句可能会报错
+  # ========================================================================
+  sql:
+    init:
+      # 遇到错误时继续执行 - 避免因为表已存在等问题导致启动失败
+      continue-on-error: true
+      # 初始化模式设置为never - 不自动执行SQL初始化脚本
+      mode: never
+
+# ==================== 自定义数据库连接等待配置 ====================
+# 配置目的：为DatabaseConnectionWaiter组件提供可配置的重试参数
+# 使用场景：Java代码中的数据库连接重试逻辑可以读取这些配置值
+# 优势：不需要硬编码重试参数，可以根据不同环境调整等待时间
+# ================================================================
+database:
+  connection:
+    # 最大重试次数 - 总共尝试30次连接数据库
+    max-retries: 30
+    # 重试间隔（毫秒）- 每次重试间隔10秒，避免频繁连接浪费资源
+    retry-interval: 10000
+    # 总等待超时时间（毫秒）- 最多等待5分钟，通常MySQL在这个时间内可以完成启动
+    total-timeout: 300000
+
 mybatis:
   # Location of MyBatis xml config file.
   config-location: classpath:mybatis/mybatis-config.xml
@@ -58,11 +99,3 @@ mybatis:
 #  configuration:
 #    use-actual-param-name: true
 
-# 2025-02-23 在生产环境中，应该明确指定允许访问的源(origins)
-# 这里定义了允许跨域访问的源地址。你可以根据不同环境设置不同的值，比如：
-# 开发环境：http://localhost:8080
-# 测试环境：https://test.yourwebsite.com
-# 生产环境：https://www.yourwebsite.com
-cors:
-  allowed-origin: http://192.168.50.101:8080
-  # allowed-origin: http://10.8.0.6:8080

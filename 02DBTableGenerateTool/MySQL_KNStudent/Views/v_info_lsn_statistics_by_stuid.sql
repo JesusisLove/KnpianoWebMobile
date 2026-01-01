@@ -3,7 +3,7 @@
 DROP VIEW IF EXISTS v_info_lsn_statistics_by_stuid;
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost
+    DEFINER = `root`@`%`
     SQL SECURITY DEFINER
 VIEW v_info_lsn_statistics_by_stuid AS
 SELECT 

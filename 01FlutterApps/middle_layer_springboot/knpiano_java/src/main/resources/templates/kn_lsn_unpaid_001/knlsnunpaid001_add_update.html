@@ -27,111 +27,427 @@
                 font-size: 3.5rem;
             }
         }
+
+        /* 页面标题样式 */
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        /* 错误消息样式 */
+        .error-section {
+            background: #f8d7da;
+            border: 2px solid #f44336;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+        }
+
+        .error-section .alert {
+            background: transparent;
+            border: none;
+            color: #721c24;
+            padding: 0;
+            margin: 0;
+        }
+
+        .error-section .alert p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        /* 表单区域样式 */
+        .form-section {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 0;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        .form-title {
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 15px 15px 0 15px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-title::before {
+            content: '💰';
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .form-content {
+            padding: 20px;
+        }
+
+        /* 表单输入样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            background: white;
+        }
+
+        .form-control:disabled,
+        .form-control[readonly] {
+            background: #f8f9fa;
+            border-color: #ced4da;
+            color: #6c757d;
+        }
+
+        /* 下拉列表样式优化 */
+        select.form-control {
+            padding: 10px 15px;
+            line-height: 1.8;
+            min-height: 45px;
+        }
+
+        select.form-control option {
+            padding: 10px;
+            line-height: 2;
+            min-height: 40px;
+        }
+
+        /* 特殊字段样式 */
+        .readonly-field {
+            position: relative;
+        }
+
+        .readonly-field::after {
+            content: '🔒';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .auto-generated {
+            position: relative;
+        }
+
+        .auto-generated::after {
+            content: '⚙️';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        /* 按钮样式 */
+        .btn-save {
+            background: #28a745;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+            min-width: 120px;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 24px;
+            }
+            
+            .form-section {
+                margin: 15px 0;
+            }
+            
+            .form-content {
+                padding: 15px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section,
+        .error-section {
+            animation: slideInUp 0.6s ease-out;
+        }
     </style>
 
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
 </head>
 
 <body>
-
-    <div th:replace="~{commons/bar::topbar}"></div><!-- thymeleaf 公共片段的抽取和引用：在此引用抽取的片段 -->
+    <div th:replace="~{commons/bar::topbar}"></div>
     <div class="container-fluid">
-        <div class="row">"
+        <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_lsn_unpaid_001_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <!-- 显示错误消息 -->
-                <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
-                    <div th:each="errorMessage : ${errorMessageList}">
-                        <p th:text="${errorMessage}"></p>
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>💳 课费精算处理</h2>
+                </div>
+
+                <!-- 错误消息显示 -->
+                <div th:if="${errorMessageList}" class="error-section">
+                    <div class="alert alert-danger" role="alert">
+                        <div th:each="errorMessage : ${errorMessageList}">
+                            <p th:text="${errorMessage}"></p>
+                        </div>
                     </div>
                 </div>
-                <form th:action="@{/kn_lsn_unpaid_001}" method="post">
-                    <input type="hidden" name="_method" value="PUT" th:if="${selectedinfo != null}" />
-                    <div class="form-group"><br>
-                        <label>支払编号</label>
-                        <input name="lsnPayId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lsnPayId} : ''">
-                    </div>
-                    <div class="form-group"><br>
-                        <label>课费编号</label>
-                        <input name="lsnFeeId" type="text" class="form-control" placeholder="" readonly
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lsnFeeId} : ''">
-                    </div>
-                    <div class="form-group"><br>
-                        <label>学生姓名</label>
-                        <input name="stuName" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.stuName} : ''" readonly>
-                        <input name="stuId" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.stuId} : ''">
-                    </div>
-                    <div class="form-group"><br>
-                        <label>科目名称</label>
-                        <input name="subjectName" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.subjectName} : ''" readonly>
-                    </div>
-                    <div class="form-group"><br>
-                        <label>科目級別</label>
-                        <input name="subjectSubName" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.subjectSubName} : ''" readonly>
-                    </div>
-                    <div class="form-group"><br>
-                        <label>支付金額（实际上课产生的费用）</label>
-                        <input name="lsnFee" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''" readonly>
-                    </div>
 
-                    <!-- 按月计划课的支付 -->
-                    <div class="form-group" th:if="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}"><br>
-                        <label>实际支付金额(按月交费的计划课，应满月交付)</label>
-                        <input name="lsnPay" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice*4} : ''">
+                <!-- 表单区域 -->
+                <div class="form-section">
+                    <div class="form-title">课费支付信息录入</div>
+                    
+                    <div class="form-content">
+                        <form th:action="@{/kn_lsn_unpaid_001}" method="post">
+                            <input type="hidden" name="_method" value="PUT" th:if="${selectedinfo != null}" />
+                            
+                            <div class="form-group auto-generated">
+                                <label>支払编号</label>
+                                <input name="lsnPayId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnPayId} : ''">
+                            </div>
+                            
+                            <div class="form-group readonly-field">
+                                <label>课费编号</label>
+                                <input name="lsnFeeId" type="text" class="form-control" placeholder="课费编号" readonly
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnFeeId} : ''">
+                            </div>
+                            
+                            <div class="form-group readonly-field">
+                                <label>学生姓名</label>
+                                <input name="stuName" type="text" class="form-control" placeholder="学生姓名"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.stuName} : ''" readonly>
+                                <input name="stuId" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.stuId} : ''">
+                            </div>
+                            
+                            <div class="form-group readonly-field">
+                                <label>科目名称</label>
+                                <input name="subjectName" type="text" class="form-control" placeholder="科目名称"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectName} : ''" readonly>
+                            </div>
+                            
+                            <div class="form-group readonly-field">
+                                <label>科目級別</label>
+                                <input name="subjectSubName" type="text" class="form-control" placeholder="科目级别"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectSubName} : ''" readonly>
+                            </div>
+                            
+                            <div class="form-group readonly-field">
+                                <label>支付金額（实际上课产生的费用）</label>
+                                <input name="lsnFee" type="text" class="form-control" placeholder="实际产生费用"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''" readonly>
+                            </div>
 
-                        <input name="lessonType" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''">
-                        <input name="payStyle" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''">
-                        <input name="subjectPrice" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice} : ''">
-                    </div>
-                    <!-- 按月计划课以外的课的支付 -->
-                    <div class="form-group" th:unless="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}">
-                        <br>
-                        <label>实际支付金额</label>
-                        <input name="lsnPay" type="text" class="form-control" placeholder=""
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''">
+                            <!-- 按月计划课的支付 -->
+                            <div class="form-group" th:if="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}">
+                                <label>实际支付金额(按月交费的计划课，应满月交付)</label>
+                                <input name="lsnPay" type="text" class="form-control" placeholder="请输入实际支付金额"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice*4} : ''">
 
-                        <input name="lessonType" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''">
-                        <input name="payStyle" type="hidden" class="form-control"
-                            th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''">
-                    </div>
+                                <input name="lessonType" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''">
+                                <input name="payStyle" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''">
+                                <input name="subjectPrice" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.subjectPrice} : ''">
+                            </div>
+                            
+                            <!-- 按月计划课以外的课的支付 -->
+                            <div class="form-group" th:unless="${selectedinfo.lessonType == 1 && selectedinfo.payStyle == 1}">
+                                <label>实际支付金额</label>
+                                <input name="lsnPay" type="text" class="form-control" placeholder="请输入实际支付金额"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnFee} : ''">
 
-                    <!-- 新規登録 模式下 该学生用的银行名称 下拉列表框显示 -->
-                    <div class="form-group" th:unless="${selectedinfo == null}">
-                        <label>银行名称</label>
-                        <select class="form-control" name="bankId">
-                            <option value="">请选择</option>
-                            <option th:each="element,iterStat : ${bankMap}" th:value="${element.key}"
-                                th:utext="${element.value}"
-                                th:selected="${element.key == (selectedinfo != null ? selectedinfo.bankId : iterStat.index == 0)}">
-                            </option>
-                        </select>
+                                <input name="lessonType" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lessonType} : ''">
+                                <input name="payStyle" type="hidden" class="form-control"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.payStyle} : ''">
+                            </div>
+
+                            <!-- 银行名称选择 -->
+                            <div class="form-group" th:unless="${selectedinfo == null}">
+                                <label>银行名称</label>
+                                <select class="form-control" name="bankId">
+                                    <option value="">请选择银行</option>
+                                    <option th:each="element,iterStat : ${bankMap}" th:value="${element.key}"
+                                        th:utext="${element.value}"
+                                        th:selected="${element.key == (selectedinfo != null ? selectedinfo.bankId : iterStat.index == 0)}">
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>结算月</label>
+                                <input name="payMonth" type="month" class="form-control" placeholder="选择结算月份"
+                                    th:value="${selectedinfo != null} ? ${selectedinfo.lsnMonth} : ''">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>支付日期</label>
+                                <input name="payDate" type="date" class="form-control" placeholder="选择支付日期"
+                                    th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-save">💾 保存</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="form-group"><br>
-                        <label>结算月</label>
-                        <input name="payMonth" type="month" class="form-control" placeholder=""
-                            th:value="${selectedinfo.lsnMonth}">
-                    </div>
-                    <div class="form-group"><br>
-                        <label>支付日期</label>
-                        <input name="payDate" type="date" class="form-control" placeholder=""
-                            th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
-                    </div>
-                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
-                </form>
+                </div>
             </main>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var contextPath = /*[[@{/}]]*/ '/';
+        /*]]>*/
+
+        // 表单验证
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[type="text"]:not([readonly]):not([disabled]), select');
+
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== '') {
+                        this.style.borderColor = '#28a745';
+                    } else {
+                        this.style.borderColor = '#dc3545';
+                    }
+                });
+            });
+
+            // 获取默认银行ID（上一个月支付时使用的银行）
+            fetchDefaultBankId();
+        });
+
+        // 获取默认银行ID
+        function fetchDefaultBankId() {
+            const stuIdInput = document.querySelector('input[name="stuId"]');
+            const currentMonthInput = document.querySelector('input[name="payMonth"]');
+
+            // 检查元素是否存在
+            if (!stuIdInput || !currentMonthInput) {
+                console.log('stuId or payMonth input not found');
+                return;
+            }
+
+            const stuId = stuIdInput.value;
+            const currentMonth = currentMonthInput.value;
+
+            console.log('fetchDefaultBankId - stuId:', stuId, 'currentMonth:', currentMonth);
+
+            // 确保学生ID和月份都存在且不为空
+            if (!stuId || !currentMonth || stuId.trim() === '' || currentMonth.trim() === '') {
+                console.log('stuId or currentMonth is empty, stuId=[' + stuId + '], currentMonth=[' + currentMonth + ']');
+                return;
+            }
+
+            // 构建API URL
+            const apiUrl = contextPath + 'kn_default_bank/' + stuId + '/' + currentMonth;
+            console.log('Fetching default bank from:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    throw new Error('Failed to fetch default bank ID: ' + response.status);
+                })
+                .then(bankId => {
+                    console.log('Received bank ID:', bankId);
+                    // 如果返回了有效的银行ID，设置为默认选中
+                    if (bankId && bankId.trim() !== '') {
+                        const bankSelect = document.querySelector('select[name="bankId"]');
+                        if (bankSelect) {
+                            bankSelect.value = bankId.trim();
+                            bankSelect.style.borderColor = '#28a745';
+                            console.log('Bank ID set to:', bankId.trim());
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log('Failed to load default bank ID:', error);
+                    // 不影响正常流程，用户可以手动选择银行
+                });
+        }
+    </script>
 </body>
 
 </html>

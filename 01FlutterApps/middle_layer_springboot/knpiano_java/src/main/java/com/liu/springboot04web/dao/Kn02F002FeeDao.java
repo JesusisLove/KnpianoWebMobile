@@ -123,8 +123,8 @@ public class Kn02F002FeeDao {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 画面初期化显示所科目信息
-    public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String year) {
-        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Mapper.getStuFeeListByYear(stuId, year);
+    public List<Kn02F004FeePaid4MobileBean> getStuFeeDetaillist(String stuId, String yearMonth) {
+        List<Kn02F004FeePaid4MobileBean> list = knLsnFee001Mapper.getStuFeeListByYearmonth(stuId, yearMonth);
         return list;
     }
 
@@ -132,5 +132,10 @@ public class Kn02F002FeeDao {
     public List<Kn02F002FeeBean> getInfoLsnStatisticList(String stuId, String year) {
 
         return knLsnFee001Mapper.getInfoLsnStatisticsByStuId(stuId, year);
+    }
+
+    // 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+    public String getLastPaymentBankId(String stuId, String currentMonth) {
+        return knLsnFee001Mapper.getLastPaymentBankId(stuId, currentMonth);
     }
 }

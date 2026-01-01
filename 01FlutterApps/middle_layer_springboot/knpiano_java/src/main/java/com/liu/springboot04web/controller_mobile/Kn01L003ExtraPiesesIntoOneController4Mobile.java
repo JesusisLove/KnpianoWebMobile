@@ -74,7 +74,8 @@ public class Kn01L003ExtraPiesesIntoOneController4Mobile {
                                                           @RequestParam String subjectName,
                                                           @RequestParam String subjectSubName,
                                                           @RequestParam Integer standardDuration, 
-                                                          @RequestParam String scanQRDate) {
+                                                          @RequestParam String scanQRDate,
+                                                          @RequestParam String memo) {
             // 将sourceIds转换为List<String>
             List<String> oldLessonIdList = Arrays.asList(sourceIds.split(","));
             
@@ -121,7 +122,7 @@ public class Kn01L003ExtraPiesesIntoOneController4Mobile {
             knLsn001Bean.setLessonType(1); // 标记为计划课
             knLsn001Bean.setSchedualDate(scanQRDateTime); // 为了在后面要处理的课费表里能找到计划课的月份，所以用签到日期设置计划课日期
             knLsn001Bean.setScanQrDate(scanQRDateTime);
-            
+            knLsn001Bean.setMemo(memo);
             try {
                 // 零碎拼凑的整节加课换正课
                 kn01L003ExtraPiesesIntoOneDao.excutePicesesIntoOneAndChangeToSche(knLsn001Bean);

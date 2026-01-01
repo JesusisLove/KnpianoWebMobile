@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_sum_unpaid_lsnfee_by_stu_and_month`(IN currentYear VARCHAR(4))
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_sum_unpaid_lsnfee_by_stu_and_month`(IN currentYear VARCHAR(4))
 BEGIN
     SET @sql = CONCAT('
         SELECT 

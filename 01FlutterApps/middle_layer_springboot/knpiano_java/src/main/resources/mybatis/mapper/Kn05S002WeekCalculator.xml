@@ -25,11 +25,13 @@
          delete from t_fixedlesson_status where 1=1;
          -->
         
-        TRUNCATE TABLE t_fixedlesson_status
+        <!-- TRUNCATE TABLE t_fixedlesson_status -->
+        delete from t_fixedlesson_status where 1=1
 
     </delete>
 
     <!-- 执行一周计划排课的Batch处理 -->
+    <!-- knbatch 系统里的KNDB4010业务里也有使用到该方法 -->
     <select id="doLsnWeeklySchedual" statementType="CALLABLE">
         {call sp_execute_weekly_batch_lsn_schedule (
             #{weekStart, mode=IN, jdbcType=VARCHAR},
@@ -38,6 +40,7 @@
         )}
     </select>
 
+    <!-- knbatch 系统里的KNDB4010业务里也有使用到该方法 -->
     <update id="updateWeeklyBatchStatus" >
         UPDATE t_fixedlesson_status
            SET fixed_status= #{lsnStatus}
@@ -54,7 +57,8 @@
     </delete>
 
     <!-- 课程表里确认是否有一个签到的课程
-    课题：如果这期间，认为手动排了一节课，并且签到了，因手动排的课导致有记录而不允许撤销，实际上这个排课记录根本就不是batch执行的记录，这种情况下怎么办呢？
+    课题：如果这期间，人为地手动排了一节课，并且执行了签到操作，因手动排的课导致有记录而不允许撤销，
+    实际上这个排课记录根本就不是batch执行的记录，这种情况下怎么办呢？
     课题状态：正在考虑中。。。 
     -->
     <select id= "checkLsnHasSignedOrNot" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">

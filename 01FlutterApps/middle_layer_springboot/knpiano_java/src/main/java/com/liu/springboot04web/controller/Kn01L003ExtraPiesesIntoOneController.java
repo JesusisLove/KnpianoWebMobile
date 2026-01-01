@@ -142,8 +142,9 @@ public class Kn01L003ExtraPiesesIntoOneController {
                                         @RequestParam String stuId,
                                         @RequestParam String subjectName,
                                         @RequestParam String subjectSubName,
-                                        @RequestParam Integer standardDuration, 
+                                        @RequestParam Integer standardDuration,
                                         @RequestParam String scanQRDate,
+                                        @RequestParam(required = false) String memo, // 通过(required = false(来告诉SpringBook，memo参数可选
                                         RedirectAttributes redirectAttributes) {
         
         // 参数验证
@@ -202,7 +203,7 @@ public class Kn01L003ExtraPiesesIntoOneController {
             knLsn001Bean.setLessonType(1); // 标记为计划课
             knLsn001Bean.setSchedualDate(scanQRDateTime); // 为了在后面要处理的课费表里能找到计划课的月份，所以用签到日期设置计划课日期
             knLsn001Bean.setScanQrDate(scanQRDateTime);
-            
+            knLsn001Bean.setMemo(memo);
             try {
                 // 零碎拼凑的整节加课换正课
                 kn01L003ExtraPiesesIntoOneDao.excutePicesesIntoOneAndChangeToSche(knLsn001Bean);

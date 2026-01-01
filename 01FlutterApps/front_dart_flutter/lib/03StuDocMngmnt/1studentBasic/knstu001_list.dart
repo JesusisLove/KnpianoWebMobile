@@ -105,7 +105,10 @@ class StuEditListState extends State<StuEditList> {
         actions: [
           // 如果需要，可以在这里添加额外的操作按钮
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             // 新規”➕”按钮的事件处理函数
             onPressed: _isLoading
                 ? null // 如果正在加载，禁用按钮
@@ -241,7 +244,7 @@ class StuEditListState extends State<StuEditList> {
             Expanded(
               flex: 6, // 生日部分也需要较多空间，尤其是带"Birth:"前缀
               child: Text(
-                'Birth:${student.birthday ?? ""}',
+                'Birth:${student.birthday}',
                 style: const TextStyle(fontSize: 14),
                 overflow: TextOverflow.ellipsis, // 以防日期太长
               ),

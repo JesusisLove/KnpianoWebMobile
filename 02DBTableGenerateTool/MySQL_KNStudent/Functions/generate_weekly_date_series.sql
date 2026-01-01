@@ -1,5 +1,5 @@
 -- 生成星期和日期的列表函数
-CREATE DEFINER=`root`@`localhost` FUNCTION `generate_weekly_date_series`(start_date_str VARCHAR(10), end_date_str VARCHAR(10)) RETURNS varchar(4000) CHARSET utf8mb4
+CREATE DEFINER=`root`@`%` FUNCTION `generate_weekly_date_series`(start_date_str VARCHAR(10), end_date_str VARCHAR(10)) RETURNS varchar(4000) CHARSET utf8mb4
     DETERMINISTIC
 BEGIN
     DECLARE date_list VARCHAR(4000);

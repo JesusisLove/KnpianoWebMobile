@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>一周课程签到表 · KNPiano</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
+        rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* Tab样式 */
+        .nav-tabs .nav-link.active {
+            color: #fff !important;
+            background-color: #ff009d !important;
+            border-color: #ff009d #ff009d #fff !important;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border-color: #ff009d #ff009d #fff;
+        }
+
+        /* 表格样式 */
+        .table th {
+            background-color: #f8f9fa;
+            border-top: 2px solid #dee2e6;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+            padding: 12px 8px;
+        }
+
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px;
+            padding: 10px 8px;
+        }
+
+        .table .student-name {
+            color: #ff009d;
+            font-weight: 500;
+        }
+
+        .table .lesson-id {
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .table .subject-name {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        /* 页面标题样式 */
+        .page-header {
+            border-bottom: 2px solid #ff009d;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Tab内容区域样式 */
+        .tab-content {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        /* 空数据提示样式 */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .no-data i {
+            font-size: 48px;
+            color: #dee2e6;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* 按钮区域样式 */
+        .action-buttons {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .action-buttons .btn {
+            margin: 0 10px;
+            min-width: 120px;
+        }
+
+        /* 前一周/下一周按钮样式 - 天蓝色 */
+        .btn-week-nav {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-week-nav:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            color: white;
+        }
+
+        .btn-week-nav:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            opacity: 0.6;
+        }
+
+        .btn-batch-signin {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-batch-signin:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            color: white;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            color: white;
+        }
+
+        /* 整周无数据提示样式 */
+        .no-weekly-lessons {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .no-weekly-lessons h5 {
+            color: #6c757d;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .no-weekly-lessons p {
+            color: #adb5bd;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .no-weekly-lessons .icon {
+            font-size: 48px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        /* 周次信息显示 */
+        .week-info {
+            background-color: #e7f3ff;
+            border: 1px solid #17a2b8;
+            border-radius: 5px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .week-info h4 {
+            color: #17a2b8;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .week-info p {
+            color: #495057;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="~{commons/bar::topbar}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{commons/bar::sidebar(activeUri='kn_stu_lsn_sign_link_active')}"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="page-header">
+                    <h2 class="mt-4 mb-2">一周课程签到表</h2>
+                    <p class="text-muted">按日期查看学生课程安排信息</p>
+                </div>
+
+                <!-- 当前周次信息显示 -->
+                <div class="week-info">
+                    <h4><span id="currentMonthDisplay">[[${currentmonth}]]</span>月份 第 <span id="currentWeekDisplay">[[${weekNumber}]]</span> 周</h4>
+                    <p>当前查看的周次信息</p>
+                </div>
+
+                <!-- 操作按钮区域 -->
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-week-nav" id="prevWeekBtn" onclick="goToPrevWeek()">
+                        <i class="fas fa-chevron-left"></i> 前一周
+                    </button>
+                    <button type="button" class="btn btn-week-nav" id="nextWeekBtn" onclick="goToNextWeek()">
+                        <i class="fas fa-chevron-right"></i> 下一周
+                    </button>
+                    <button type="button" class="btn btn-batch-signin" onclick="executeBatchSignin()">
+                        <i class="fas fa-check-circle"></i> 执行批量签到
+                    </button>
+                    <button type="button" class="btn btn-back" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i> 返回
+                    </button>
+                </div>
+
+                <!-- 检查是否有整周的课程数据 -->
+                <div th:if="${lessonsByDate == null or lessonsByDate.isEmpty()}">
+                    <!-- 整周无课程数据的提示 -->
+                    <div class="no-weekly-lessons">
+                        <div class="icon">📚</div>
+                        <h5>目前这周没有未签到的课程信息！</h5>
+                        <p>本周所有课程可能都已经签到完成，或者还没有安排课程。</p>
+                    </div>
+                </div>
+
+                <!-- 有课程数据时显示的内容 -->
+                <div th:if="${lessonsByDate != null and !lessonsByDate.isEmpty()}">
+                    <div class="card mt-4">
+                        <div class="card-header" id="detailDescriptionHeader">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" 
+                                        data-target="#detailDescriptionCollapse" aria-expanded="true" 
+                                        aria-controls="detailDescriptionCollapse">
+                                    明细部业务说明：★抽出来的数据都是未签到的数据　👇详细说明
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="detailDescriptionCollapse" class="collapse" 
+                                aria-labelledby="detailDescriptionHeader">
+                            <div class="card-body">
+                                <dl>
+                                    <dd class="indented">🔳如果是在Web页面上操作，会遵循下面的逻辑处理</dd>
+                                    <dd class="indented">①CheckBox选中：备注里没有标注备注信息，是签到的课程对象</dd>
+                                    <dd class="indented">②CheckBox未选中且备注为空：是签到对象外，即便点击【执行批量签到】按钮，程序也是空处理。</dd>
+                                    <dd class="indented">③CheckBox未选中但备注不空：是签到对象外，点击【执行批量签到】按钮，程序也不会执行签到，只是更新该课程的备注。</dd>
+                                    <dd class="indented">🔳如果是手机等设备端已经进行了课程备注入力，或者进行了学生调课操作，Web页面初期化时，checkbox会自动处于下面状态</dd>
+                                    <dd class="indented">①CheckBox选中状态：当前行明细备注里没有标注备注信息</dd>
+                                    <dd class="indented">②CheckBox选中状态：当前行明细备注里有标注备注信息，且包含了“[此为调课，需再确认]”</dd>
+                                    <dd class="indented">③CheckBox未选中：标注了学生不来上课的备注信息，且没有“[此为调课，需再确认]”。</dd>
+                                    <dd class="indented">→确认上面的CheckBox的课程签到状态无误之后，即可点击【执行批量签到】按钮，进行批量签到的处理了。</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab导航 - 按日期分组 -->
+                    <ul class="nav nav-tabs" id="weeklyTab" role="tablist">
+                        <li th:each="entry, iterStat : ${resultsTabStus}" class="nav-item">
+                            <a th:classappend="${iterStat.index == 0} ? 'nav-link active' : 'nav-link'"
+                                th:id="${'tab-' + entry.key + '-nav'}" 
+                                data-toggle="tab" 
+                                th:href="'#tab-' + ${entry.key}" 
+                                role="tab"
+                                th:aria-controls="'tab-' + ${entry.key}"
+                                th:aria-selected="${iterStat.index == 0} ? true : false">
+                                [[${entry.key}]]（[[${entry.value}]]）
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab内容区域 -->
+                    <div class="tab-content" id="weeklyTabContent">
+                        <div th:each="entry, iterStat : ${resultsTabStus}" 
+                             th:id="'tab-' + ${entry.key}" 
+                             class="tab-pane fade"
+                             th:classappend="${iterStat.index == 0} ? 'show active' : ''" 
+                             role="tabpanel"
+                             th:aria-labelledby="'tab-' + ${entry.key} + '-nav'">
+                            
+                            <!-- 直接在这里嵌入Fragment内容，使用th:with确保参数正确传递 -->
+                            <div th:with="currentDateKey=${entry.key}, currentWeekDay=${entry.value}">
+
+                                <!-- 检查是否有当日数据 -->
+                                <div th:if="${lessonsByDate != null and lessonsByDate.containsKey(currentDateKey) and !lessonsByDate.get(currentDateKey).isEmpty()}">
+                                    <!-- 课程统计信息 -->
+                                    <div style="background-color: #f8f9fa; padding: 10px 20px; border-left: 4px solid #ff009d; margin-bottom: 20px; font-size: 13px; color: #495057;">
+                                        共有 [[${lessonsByDate.get(currentDateKey).size()}]] 节课程
+                                    </div>
+
+                                    <!-- 课程表格 -->
+                                    <table class="table table-striped table-sm" style="margin-top: 15px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 4%;">选择</th>
+                                                <th style="width: 8%;">课程编号</th>
+                                                <th style="width: 8%;">学生编号</th>
+                                                <th style="width: 13%;">学生姓名</th>
+                                                <th style="width: 8%;">科目编号</th>
+                                                <th style="width: 10%;">科目名称</th>
+                                                <th style="width: 10%;">子科目编号</th>
+                                                <th style="width: 14%;">子科目名称</th>
+                                                <th style="width: 24%;">备注</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- 直接使用预先分组的数据 -->
+                                            <tr th:each="lesson : ${lessonsByDate.get(currentDateKey)}">
+                                                <td>
+                                                    <!-- <input type="checkbox" 
+                                                           class="lesson-checkbox" 
+                                                           th:id="'lesson-' + ${currentDateKey} + '-' + ${lesson.lessonId}"
+                                                           th:data-tab="${currentDateKey}"
+                                                           th:data-lesson-id="${lesson.lessonId}"
+                                                           checked="checked"> -->
+                                                    <input type="checkbox" 
+                                                        class="lesson-checkbox" 
+                                                        th:id="'lesson-' + ${currentDateKey} + '-' + ${lesson.lessonId}"
+                                                        th:data-tab="${currentDateKey}"
+                                                        th:data-lesson-id="${lesson.lessonId}"
+                                                        th:checked="${lesson.memo == null || lesson.memo == '' || (lesson.memo != null && lesson.memo.contains('[此为调课，需再确认]'))}">
+                                                </td>
+                                                <td class="lesson-id">[[${lesson.lessonId}]]</td>
+                                                <td>[[${lesson.stuId}]]</td>
+                                                <td class="student-name">[[${lesson.stuName}]]</td>
+                                                <td>[[${lesson.subjectId}]]</td>
+                                                <td class="subject-name">[[${lesson.subjectName}]]</td>
+                                                <td>[[${lesson.subjectSubId}]]</td>
+                                                <td>[[${lesson.subjectSubName}]]</td>
+                                                <td>
+                                                    <input type="text" 
+                                                           class="form-control form-control-sm lesson-remark" 
+                                                           placeholder="备注"
+                                                           th:id="'remark-' + ${currentDateKey} + '-' + ${lesson.lessonId}"
+                                                           th:data-lesson-id="${lesson.lessonId}"
+                                                           style="font-size: 12px;"
+                                                           th:value="${lesson.memo != null ? lesson.memo : ''}">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <!-- 全选控制 -->
+                                    <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                                        <label class="form-check-label">
+                                            <!-- <input type="checkbox" 
+                                                   class="form-check-input select-all-checkbox" 
+                                                   th:id="'selectAll-' + ${currentDateKey}"
+                                                   th:data-tab="${currentDateKey}"
+                                                   checked="checked"> -->
+                                            <input type="checkbox" 
+                                                   class="form-check-input select-all-checkbox" 
+                                                   th:id="'selectAll-' + ${currentDateKey}"
+                                                   th:data-tab="${currentDateKey}">
+
+                                            <strong>全选</strong>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- 单日无数据提示 -->
+                                <div th:unless="${lessonsByDate != null and lessonsByDate.containsKey(currentDateKey) and !lessonsByDate.get(currentDateKey).isEmpty()}" 
+                                     style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                                    <div style="font-size: 64px; color: #dee2e6; margin-bottom: 20px;">📅</div>
+                                    <div style="font-size: 18px; margin-bottom: 10px;">该日期暂无课程安排</div>
+                                    <div style="font-size: 14px; color: #adb5bd;">[[${currentDateKey}]] ([[${currentWeekDay}]])</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!--Bootstrap core JavaScript-->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
+    
+    <!-- 全选功能、批量签到和周次导航JavaScript -->
+    <script th:inline="javascript">
+        // 从后台获取当前周数和月份
+        var currentWeekNumber = /*[[${weekNumber}]]*/ 1;
+
+        // '' 是当后台变量为null或不存在时使用的默认值（空字符串）
+        var currentMonth = /*[[${currentmonth}]]*/ '';
+        
+        $(document).ready(function() {
+            // 确保是数字类型
+            currentWeekNumber = parseInt(currentWeekNumber) || 1;
+            
+            // 初始化按钮状态和显示
+            updateButtonStates();
+
+            // 根据从后台数据库传递到前台页面的数据记录中的备注内容（memo是null，非null）的记录，设置明细表底下的全选checkbox是选中状态还是未选中状态，在页面初期化的时候。
+            $('[id^="tab-"][role="tabpanel"]').each(function() {
+                var tabId = $(this).attr('id');
+                var dateKey = tabId.replace('tab-', '');
+                
+                // 检查当前Tab的全选状态
+                var totalCheckboxes = $('input.lesson-checkbox[data-tab="' + dateKey + '"]').length;
+                var checkedCheckboxes = $('input.lesson-checkbox[data-tab="' + dateKey + '"]:checked').length;
+                
+                var selectAllCheckbox = $('#selectAll-' + dateKey);
+                selectAllCheckbox.prop('checked', checkedCheckboxes === totalCheckboxes);
+            });
+            
+            // 全选/全不选功能
+            $('.select-all-checkbox').change(function() {
+                var currentTab = $(this).data('tab');
+                var isChecked = $(this).is(':checked');
+                
+                // 获取当前Tab下的所有课程checkbox
+                $('input.lesson-checkbox[data-tab="' + currentTab + '"]').prop('checked', isChecked);
+            });
+            
+            // 当单个课程checkbox状态改变时，检查是否需要更新全选状态
+            $(document).on('change', '.lesson-checkbox', function() {
+                var currentTab = $(this).data('tab');
+                var totalCheckboxes = $('input.lesson-checkbox[data-tab="' + currentTab + '"]').length;
+                var checkedCheckboxes = $('input.lesson-checkbox[data-tab="' + currentTab + '"]:checked').length;
+                
+                var selectAllCheckbox = $('#selectAll-' + currentTab);
+                
+                if (checkedCheckboxes === totalCheckboxes) {
+                    // 如果所有课程都被选中，则全选checkbox也选中
+                    selectAllCheckbox.prop('checked', true);
+                } else {
+                    // 如果不是所有课程都被选中，则全选checkbox不选中
+                    selectAllCheckbox.prop('checked', false);
+                }
+            });
+            
+            // Tab切换时，确保全选状态正确
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var targetTab = $(e.target).attr('href').replace('#tab-', '');
+                
+                // 检查当前Tab的全选状态
+                var totalCheckboxes = $('input.lesson-checkbox[data-tab="' + targetTab + '"]').length;
+                var checkedCheckboxes = $('input.lesson-checkbox[data-tab="' + targetTab + '"]:checked').length;
+                
+                var selectAllCheckbox = $('#selectAll-' + targetTab);
+                selectAllCheckbox.prop('checked', checkedCheckboxes === totalCheckboxes);
+            });
+        });
+
+        // 更新按钮状态和显示
+        function updateButtonStates() {
+            var prevBtn = $('#prevWeekBtn');
+            var nextBtn = $('#nextWeekBtn');
+            
+            // 前一周按钮：只有当周数等于1时才不可用
+            if (currentWeekNumber <= 1) {
+                prevBtn.prop('disabled', true);
+            } else {
+                prevBtn.prop('disabled', false);
+            }
+            
+            // 下一周按钮：只有当周数大于52时才不可用
+            if (currentWeekNumber > 52) {
+                nextBtn.prop('disabled', true);
+            } else {
+                nextBtn.prop('disabled', false);
+            }
+            
+            // 更新显示的周数
+            $('#currentWeekDisplay').text(currentWeekNumber);
+            
+            // 更新显示的月份
+            $('#currentMonthDisplay').text(currentMonth);
+            
+            // 调试输出
+            console.log('当前周数:', currentWeekNumber, '当前月份:', currentMonth);
+        }
+
+        // 前一周按钮功能
+        function goToPrevWeek() {
+            if (currentWeekNumber > 1) {
+                var targetWeek = currentWeekNumber - 1;
+                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                console.log('前一周跳转URL:', url);
+                window.location.href = url;
+            }
+        }
+
+        // 下一周按钮功能
+        function goToNextWeek() {
+            if (currentWeekNumber <= 52) {
+                var targetWeek = currentWeekNumber + 1;
+                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                console.log('下一周跳转URL:', url);
+                window.location.href = url;
+            }
+        }
+
+        // 返回功能
+        function goBack() {
+                // window.history.back();
+                // 返回到批量执行上课签到页面
+                window.location.href = '/liu/kn_stu_lsn_sign';
+        }
+
+        // 批量签到功能
+        function executeBatchSignin() {
+            // 检查是否有课程数据
+            if ($('.lesson-checkbox').length === 0) {
+                alert('目前没有未签到的课程信息，无法执行批量签到操作！');
+                return;
+            }
+
+            // 收集所有Tab的数据
+            var allTabsData = [];
+            
+            // 遍历所有Tab
+            $('[id^="tab-"][role="tabpanel"]').each(function() {
+                var tabId = $(this).attr('id');
+                var dateKey = tabId.replace('tab-', '');
+                
+                // 获取当前Tab下的所有课程数据
+                var tabLessons = [];
+                $(this).find('.lesson-checkbox').each(function() {
+                    var checkbox = $(this);
+                    var lessonId = checkbox.data('lesson-id');
+                    var isSelected = checkbox.is(':checked') ? 1 : 0;
+                    
+                    // 获取对应的备注
+                    var remarkInput = $(this).closest('tr').find('.lesson-remark');
+                    var remark = remarkInput.val() || '';
+                    
+                    tabLessons.push({
+                        selected: isSelected,
+                        lessonId: lessonId,
+                        remark: remark
+                    });
+                });
+                
+                // 只有当Tab有课程数据时才添加
+                if (tabLessons.length > 0) {
+                    allTabsData.push({
+                        dateKey: dateKey,
+                        lessons: tabLessons
+                    });
+                }
+            });
+            
+            // 验证是否有数据
+            if (allTabsData.length === 0) {
+                alert('没有找到任何课程数据！');
+                return;
+            }
+            
+            // 统计选中的课程数量
+            var totalSelected = 0;
+            allTabsData.forEach(function(tab) {
+                tab.lessons.forEach(function(lesson) {
+                    if (lesson.selected === 1) {
+                        totalSelected++;
+                    }
+                });
+            });
+            
+            // 确认操作
+            if (!confirm('确定要执行批量签到吗？\n' +
+                        '共有 ' + allTabsData.length + ' 个日期的数据\n' +
+                        '其中 ' + totalSelected + ' 节课程被选中进行签到')) {
+                return;
+            }
+            
+            // 提交数据到后端
+            submitBatchSigninData(allTabsData);
+        }
+
+        // 提交批量签到数据到后端
+        function submitBatchSigninData(data) {
+            // 创建隐藏表单
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/liu/kn_batch_lesson_signin';  // 你需要在后端创建这个接口
+            form.style.display = 'none';
+            
+            // 添加数据字段 - 将JSON数据转为字符串
+            var dataInput = document.createElement('input');
+            dataInput.type = 'hidden';
+            dataInput.name = 'signinData';
+            dataInput.value = JSON.stringify(data);
+            form.appendChild(dataInput);
+            
+            // 添加表单到页面并提交
+            document.body.appendChild(form);
+            
+            // 显示提交中状态
+            var submitBtn = $('.btn-batch-signin');
+            var originalText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 签到中...');
+            
+            try {
+                form.submit();
+            } catch (error) {
+                console.error('提交失败:', error);
+                alert('提交失败，请重试！');
+                // 恢复按钮状态
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -7,15 +7,20 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.0.1">
-    <title>Dashboard Template · Bootstrap</title>
+    <title>子科目信息管理系统</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
     <!-- Bootstrap core CSS -->
-    <!--<link href="../assets/dist/css/bootstrap.css" rel="stylesheet">-->
     <link href="../assets/dist/css/bootstrap.css" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.css}"
         rel="stylesheet">
     <style>
+        body {
+            background: linear-gradient(135deg, #fc7f7f 0%, #ff6b6b 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
         .bd-placeholder-img {
             font-size: 1.125rem;
             text-anchor: middle;
@@ -30,6 +35,442 @@
                 font-size: 3.5rem;
             }
         }
+
+        .container-fluid {
+            padding: 20px;
+        }
+
+        /* 页面标题样式 */
+        .page-title {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4);
+            border: 3px solid #00b894;
+            text-align: center;
+            transform: perspective(1000px) rotateX(5deg);
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 800;
+            font-size: 34px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        /* 业务说明区域样式 */
+        .business-description {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 6px 20px rgba(162, 155, 254, 0.4);
+            border: 3px solid #6c5ce7;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .business-description::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 1s;
+        }
+
+        .business-description:hover::before {
+            left: 100%;
+        }
+
+        .business-description p {
+            color: white;
+            font-weight: 700;
+            margin: 0;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* 新增按钮区域样式 */
+        .action-section {
+            background: linear-gradient(135deg, #fdcb6e 0%, #f39c12 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 6px 20px rgba(253, 203, 110, 0.4);
+            border: 3px solid #f39c12;
+            text-align: center;
+            position: relative;
+        }
+
+        .action-section .btn-success {
+            background: linear-gradient(45deg, #e17055, #d63031) !important;
+            border: none !important;
+            padding: 15px 30px !important;
+            border-radius: 30px !important;
+            font-weight: 800 !important;
+            font-size: 18px !important;
+            box-shadow: 0 6px 20px rgba(225, 112, 85, 0.5) !important;
+            transition: all 0.4s ease !important;
+            color: white !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .action-section .btn-success:hover {
+            transform: translateY(-5px) scale(1.08) !important;
+            box-shadow: 0 12px 30px rgba(225, 112, 85, 0.6) !important;
+            background: linear-gradient(45deg, #d63031, #b2bec3) !important;
+        }
+
+        /* 搜索区域样式 */
+        .search-section {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            border-radius: 20px;
+            padding: 35px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.5);
+            border: 3px solid #0984e3;
+            position: relative;
+        }
+
+        .search-section::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .search-section .form-control {
+            border-radius: 15px;
+            border: 3px solid #74b9ff;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.4s ease;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .search-section .form-control:focus {
+            border-color: #0984e3;
+            box-shadow: 0 0 0 0.3rem rgba(116, 185, 255, 0.4);
+            background: white;
+            transform: scale(1.03);
+        }
+
+        .search-section .form-control::placeholder {
+            color: #0984e3;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        /* 搜索按钮样式 */
+        .btn-search {
+            background: linear-gradient(45deg, #e84393, #fd79a8) !important;
+            border: none !important;
+            color: white !important;
+            padding: 15px 35px !important;
+            border-radius: 30px !important;
+            font-weight: 800 !important;
+            font-size: 18px !important;
+            transition: all 0.4s ease !important;
+            box-shadow: 0 6px 20px rgba(232, 67, 147, 0.5) !important;
+            margin-top: 20px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-4px) scale(1.08) !important;
+            box-shadow: 0 12px 30px rgba(232, 67, 147, 0.6) !important;
+            background: linear-gradient(45deg, #fd79a8, #fab1a0) !important;
+        }
+
+        /* 列控制区域样式 */
+        .column-control-section {
+            background: linear-gradient(135deg, #81ecec 0%, #74b9ff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 6px 20px rgba(129, 236, 236, 0.4);
+            border: 3px solid #74b9ff;
+        }
+
+        .column-control {
+            position: relative;
+            display: inline-block;
+        }
+
+        .column-control button {
+            background: linear-gradient(45deg, #00b894, #00cec9) !important;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+            font-size: 16px;
+        }
+
+        .column-control button:hover {
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 8px 25px rgba(0, 184, 148, 0.6);
+            background: linear-gradient(45deg, #00cec9, #74b9ff) !important;
+        }
+
+        .column-menu {
+            position: absolute;
+            background: white;
+            border: 3px solid #74b9ff;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(116, 185, 255, 0.4);
+            z-index: 1000;
+            display: none;
+            right: 0;
+            top: 100%;
+            min-width: 280px;
+            margin-top: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .column-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .column-menu label {
+            display: block;
+            padding: 12px 15px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 4px 0;
+            color: #2d3436;
+            border: 2px solid transparent;
+        }
+
+        .column-menu label:hover {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            transform: translateX(5px);
+            border-color: #0984e3;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.3);
+            accent-color: #74b9ff;
+        }
+
+        /* 表格区域样式 */
+        .table-section {
+            background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(250, 177, 160, 0.4);
+            border: 3px solid #e17055;
+            position: relative;
+        }
+
+        .table-section::before {
+            content: '📊';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            opacity: 0.7;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .styled-table {
+            background: white !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .styled-table thead th {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%) !important;
+            color: white !important;
+            font-weight: 800 !important;
+            text-align: center !important;
+            padding: 20px 10px !important;
+            border: 1px solid #636e72 !important;
+            font-size: 14px !important;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4) !important;
+            letter-spacing: 0.8px !important;
+            vertical-align: middle !important;
+            text-transform: uppercase !important;
+        }
+
+        .styled-table tbody tr {
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+
+        .styled-table tbody tr:nth-child(even) {
+            background: #f8f9fa !important;
+        }
+
+        .styled-table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .styled-table tbody tr:hover {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%) !important;
+            transform: scale(1.02) !important;
+            box-shadow: 0 6px 20px rgba(250, 177, 160, 0.4) !important;
+        }
+
+        .styled-table tbody td {
+            padding: 18px 12px !important;
+            vertical-align: middle !important;
+            border-bottom: 2px solid #ddd !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            border-left: 1px solid #ddd !important;
+            border-right: 1px solid #ddd !important;
+        }
+
+        /* 操作按钮样式 */
+        .styled-table .btn-primary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 8px 18px !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            margin-right: 8px !important;
+        }
+
+        .styled-table .btn-primary:hover {
+            transform: translateY(-3px) scale(1.08) !important;
+            box-shadow: 0 6px 15px rgba(116, 185, 255, 0.5) !important;
+        }
+
+        .styled-table .btn-danger {
+            background: linear-gradient(45deg, #e84393, #fd79a8) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 8px 18px !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .styled-table .btn-danger:hover {
+            transform: translateY(-3px) scale(1.08) !important;
+            box-shadow: 0 6px 15px rgba(232, 67, 147, 0.5) !important;
+        }
+
+        /* 分割线样式 */
+        hr {
+            border: none;
+            height: 5px;
+            background: linear-gradient(to right, transparent, #e84393, #74b9ff, #00b894, transparent);
+            margin: 35px 0;
+            border-radius: 3px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title h2 {
+                font-size: 26px;
+            }
+            
+            .search-section {
+                padding: 25px;
+            }
+            
+            .column-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 220px !important;
+            }
+
+            .styled-table {
+                font-size: 10px !important;
+            }
+
+            .styled-table thead th,
+            .styled-table tbody td {
+                padding: 10px 6px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .business-description,
+        .search-section,
+        .table-section,
+        .action-section,
+        .column-control-section {
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .page-title {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* 主内容区域美化 */
+        main {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 25px;
+            padding: 35px !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            margin: 25px;
+            backdrop-filter: blur(10px);
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="dashboard.css" th:href="@{/dashboard/dashboard.css}" rel="stylesheet">
@@ -41,77 +482,134 @@
         <div class="row">
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_05s003_subject_edabn_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <h2 class="mt-4 mb-2">子科目信息</h2>
-                <p class="text-muted small mb-4" style="font-size: 0.875rem;">
-                    ★业务说明：
-                </p>
+                
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>📋 子科目信息管理</h2>
+                </div>
+
+                <!-- 业务说明 -->
+                <div class="business-description">
+                    <p>★业务说明：子科目信息的查询、新增、修改和删除管理功能</p>
+                </div>
+
                 <hr />
-                <h2><a class="btn btn-sm btn-success" th:href="@{/kn_05s003_subject_edabn}">子科目管理設定新規</a></h2>
+
+                <!-- 新增按钮区域 -->
+                <div class="action-section">
+                    <a class="btn btn-success" th:href="@{/kn_05s003_subject_edabn}">
+                        ➕ 子科目管理設定新規
+                    </a>
+                </div>
+
                 <hr />
-                <!-- 検索部 -->
-                <form action="#" th:action="@{/kn_05s003_subject_edabn/search}" th:object="${searchForm}" method="get">
-                    <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectId" name="subjectId"
-                                th:value="${edaSubMap != null ? edaSubMap['subjectId'] : ''}" placeholder="科目编号">
+
+                <!-- 检索区域 -->
+                <div class="search-section">
+                    <form action="#" th:action="@{/kn_05s003_subject_edabn/search}" th:object="${searchForm}" method="get">
+                        <div class="form-row">
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="subjectId" name="subjectId"
+                                    th:value="${edaSubMap != null ? edaSubMap['subjectId'] : ''}" placeholder="🆔 科目编号">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="subjectName" name="subjectName"
+                                    th:value="${edaSubMap != null ? edaSubMap['subjectName'] : ''}" placeholder="📚 科目名称">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="subjectSubId" name="subjectSubId"
+                                    th:value="${edaSubMap != null ? edaSubMap['subjectSubId'] : ''}" placeholder="🔢 子科目编号">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="subjectSubName" name="subjectSubName"
+                                    th:value="${edaSubMap != null ? edaSubMap['subjectSubName'] : ''}" placeholder="📖 子科目名称">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <input type="text" class="form-control" id="subjectPrice" name="subjectPrice"
+                                    th:value="${edaSubMap != null ? edaSubMap['subjectPrice'] : ''}" placeholder="💰 科目価格">
+                            </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectName" name="subjectName"
-                                th:value="${edaSubMap != null ? edaSubMap['subjectName'] : ''}" placeholder="科目名称">
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-search">🔍 検索</button>
                         </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectSubId" name="subjectSubId"
-                                th:value="${edaSubMap != null ? edaSubMap['subjectSubId'] : ''}" placeholder="子科目编号">
-                        </div>
-                        <div class="form-group col-md-2">
-                            <input type="text" class="form-control" id="subjectSubName" name="subjectSubName"
-                                th:value="${edaSubMap != null ? edaSubMap['subjectSubName'] : ''}" placeholder="子科目名称">
-                        </div>
-                        <div class="form-group col-md-1.2">
-                            <input type="date" class="form-control" id="subjectPrice" name="subjectPrice"
-                                th:value="${edaSubMap != null ? edaSubMap['subjectPrice'] : ''}" placeholder="科目価格">
+                    </form>
+                </div>
+
+                <!-- 列控制区域 -->
+                <div class="column-control-section">
+                    <div class="column-control">
+                        <button onclick="toggleColumnMenu(event)">
+                            🎛️ 显示/隐藏列
+                        </button>
+                        <div id="columnMenu" class="column-menu">
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectId')" /> 科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectName')" /> 科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubId')" /> 子科目编号
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectSubName')" /> 子科目名称
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-subjectPrice')" /> 科目価格
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-createDate')" /> 作成日
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-updateDate')" /> 更新日
+                            </label>
+                            <label>
+                                <input type="checkbox" checked onchange="toggleColumn('col-actions')" /> 操作
+                            </label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">検索</button>
-                </form>
-                <!-- 明細部 -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th>科目编号</th>
-                                <th>科目名称</th>
-                                <th>子科目编号</th>
-                                <th>子科目名称</th>
-                                <th>科目価格</th>
-                                <th>作成日</th>
-                                <th>更新日</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="info:${infoList}">
-                                <td>[[${info.subjectId}]]</td>
-                                <td>[[${info.subjectName}]]</td>
-                                <td>[[${info.subjectSubId}]]</td>
-                                <td>[[${info.subjectSubName}]]</td>
-                                <td>[[${info.subjectPrice}]]</td>
-                                <td>[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
-                                <td>[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                </div>
 
-                                <td>
-                                    <a class="btn btn-sm btn-primary"
-                                        th:href="@{/kn_05s003_subject_edabn/{subId}/{edabanId}
-                                                                                                    (subId=${info.subjectId}, 
-                                                                                                    edabanId=${info.subjectSubId})}"
-                                        methods="GET">変更</a>
-                                    <button class="btn btn-sm btn-danger deleteBtn"
-                                        th:attr="liu_del_uri=@{/kn_05s003_subject_edabn/{subId}/{edabanId}
-                                                                                                    (subId=${info.subjectId}, 
-                                                                                                    edabanId=${info.subjectSubId})}">削除</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- 明細部 -->
+                <div class="table-section">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm styled-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-subjectId">科目编号</th>
+                                    <th class="col-subjectName">科目名称</th>
+                                    <th class="col-subjectSubId">子科目编号</th>
+                                    <th class="col-subjectSubName">子科目名称</th>
+                                    <th class="col-subjectPrice">科目価格</th>
+                                    <th class="col-createDate">作成日</th>
+                                    <th class="col-updateDate">更新日</th>
+                                    <th class="col-actions">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="info:${infoList}">
+                                    <td class="col-subjectId">[[${info.subjectId}]]</td>
+                                    <td class="col-subjectName">[[${info.subjectName}]]</td>
+                                    <td class="col-subjectSubId">[[${info.subjectSubId}]]</td>
+                                    <td class="col-subjectSubName">[[${info.subjectSubName}]]</td>
+                                    <td class="col-subjectPrice">¥[[${info.subjectPrice}]]</td>
+                                    <td class="col-createDate">[[${#dates.format(info.createDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                                    <td class="col-updateDate">[[${#dates.format(info.updateDate,'yyyy/MM/dd hh:mm:ss')}]]</td>
+                                    <td class="col-actions">
+                                        <a class="btn btn-sm btn-primary"
+                                            th:href="@{/kn_05s003_subject_edabn/{subId}/{edabanId}
+                                                                                                        (subId=${info.subjectId}, 
+                                                                                                        edabanId=${info.subjectSubId})}"
+                                            methods="GET">変更</a>
+                                        <button class="btn btn-sm btn-danger deleteBtn"
+                                            th:attr="liu_del_uri=@{/kn_05s003_subject_edabn/{subId}/{edabanId}
+                                                                                                        (subId=${info.subjectId}, 
+                                                                                                        edabanId=${info.subjectSubId})}">削除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </main>
             <!-- 削除処理-->
@@ -120,15 +618,77 @@
             </form>
         </div>
     </div>
-    <!--Bootstrap core JavaScrip
-=============================-->
+
+    <!--Bootstrap core JavaScript-->
     <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.slim.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}"></script>
 
-    <!-- Icons -->
+    <!-- 列控制相关的 JavaScript -->
+    <script>
+        // 存储列显示状态
+        var columnStates = JSON.parse(localStorage.getItem('subSubjectColumnStates') || '{}');
 
-    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実現する-->
+        // 控制列显示菜单的显示/隐藏
+        function toggleColumnMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('columnMenu');
+            menu.classList.toggle('show');
+        }
+
+        // 控制列的显示/隐藏
+        function toggleColumn(columnClass) {
+            // 更新状态
+            columnStates[columnClass] = !columnStates[columnClass];
+            const isVisible = columnStates[columnClass];
+
+            // 更新所有具有该类名的元素
+            const cells = document.getElementsByClassName(columnClass);
+            Array.from(cells).forEach(cell => {
+                cell.style.display = isVisible ? '' : 'none';
+            });
+
+            // 保存状态
+            localStorage.setItem('subSubjectColumnStates', JSON.stringify(columnStates));
+
+            // 同步复选框状态
+            const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isVisible;
+            });
+        }
+
+        // 应用保存的列状态
+        function applyColumnStates() {
+            Object.entries(columnStates).forEach(([columnClass, isVisible]) => {
+                const cells = document.getElementsByClassName(columnClass);
+                Array.from(cells).forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+
+                // 更新复选框状态
+                const checkboxes = document.querySelectorAll(`input[onchange="toggleColumn('${columnClass}')"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isVisible;
+                });
+            });
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('columnMenu');
+            if (!event.target.closest('.column-control')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // 页面加载时初始化列状态
+        document.addEventListener('DOMContentLoaded', function () {
+            applyColumnStates();
+        });
+    </script>
+
+    <!-- 削除プロセスには、JSで削除ボタンのクリックイベントで実现する-->
     <script>
         $(".deleteBtn").click(function () {
             if (confirm('本当に削除しますか？')) {

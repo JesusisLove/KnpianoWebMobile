@@ -112,7 +112,10 @@ class _Kn05S003SubEdaListState extends State<Kn05S003SubEdaView> {
         currentNavIndex: 2,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             // 新規”➕”按钮的事件处理函数
             onPressed: _isLoading
                 ? null // 如果正在加载，禁用按钮

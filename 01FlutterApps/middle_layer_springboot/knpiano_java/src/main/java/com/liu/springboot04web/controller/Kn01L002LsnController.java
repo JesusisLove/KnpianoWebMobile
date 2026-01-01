@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.liu.springboot04web.bean.Kn01L002LsnBean;
 import com.liu.springboot04web.bean.Kn03D004StuDocBean;
@@ -25,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpSession;
 
 @Controller
 @Service
@@ -53,7 +56,7 @@ public class Kn01L002LsnController{
 
     // 【KNPiano后台维护 课程信息管理】ボタンをクリック
     @GetMapping("/kn_lsn_001_all")
-    public String list(Model model) {
+    public String list(Model model, HttpSession session) {
         /* 获取课费明细一览 */
         LocalDate currentDate = LocalDate.now();// 获取当前日期
         // 格式化为 yyyy
@@ -66,6 +69,10 @@ public class Kn01L002LsnController{
         // 用保持变量里的检索条件从DB里抽取数据
         Collection<Kn01L002LsnBean> collection = knLsn001Dao.getInfoList(year);
         this.lsnStuList = collection;
+
+        // 2025-11-03 将学生下拉列表框信息保存到Session会话中，以便其他操作可以使用（签到，删除，撤销操作之后的页面重定向）
+        session.setAttribute("lsnStuList", collection);
+
         for (Kn01L002LsnBean bean:collection) {
             setButtonUsable(bean);
         }
@@ -92,8 +99,34 @@ public class Kn01L002LsnController{
     }
 
     // 【検索部】検索ボタンを押下
+    /**
+     * 
+     * @param queryParams
+     * @param session 使用session的目的是因为，撤销操作，删除操作，签到操作完之后都重定向到该请求
+     * @param model
+     * @return
+     */
     @GetMapping("/kn_lsn_001/search")
-    public String search(@RequestParam Map<String, Object> queryParams, Model model) {
+    public String search(@RequestParam Map<String, Object> queryParams, HttpSession session, Model model) {
+
+        // 2025-11-03 将搜索条件保存到会话中，以便其他操作可以使用（签到，删除，撤销操作之后的页面重定向）
+        session.setAttribute("lastSearchParams", new HashMap<>(queryParams));
+
+        // 2025-11-03 从Session里恢复学生下拉列表框信息 开始 
+        LocalDate currentDate = LocalDate.now();// 获取当前日期
+        // 2025-11-03 格式化为 yyyy
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        String year = currentDate.format(formatter);
+        session.getAttribute("lsnStuList");
+        @SuppressWarnings("unchecked")
+        Collection<Kn01L002LsnBean> lsnStuList = (Collection<Kn01L002LsnBean>)
+            session.getAttribute("lsnStuList");
+        if (lsnStuList == null) {
+            // 重新获取数据
+            lsnStuList = knLsn001Dao.getInfoList(year);
+        }
+        // 2025-11-03 从Session里恢复学生下拉列表框信息 结束
+
         // 把画面传来的年和月拼接成yyyy-mm的        
         Map<String, Object> params = new HashMap<>();
         String lsnMonth = (String) queryParams.get("selectedmonth");
@@ -162,31 +195,51 @@ public class Kn01L002LsnController{
 
     // 【一覧画面明细部】削除ボタンを押下
     @DeleteMapping("/kn_lsn_001/{id}")
-    public String excuteInfoDelete(@PathVariable("id") String id) {
+    public String excuteInfoDelete(@PathVariable("id") String id,
+                                    RedirectAttributes redirectAttributes,
+                                    HttpSession session) {
         knLsn001Dao.delete(id);
-        return "redirect:/kn_lsn_001_all";
+        /* 2025-11-03 重定向到search方法 修正开始 */
+        // return "redirect:/kn_lsn_001_all";
+        // 从会话中恢复上次的搜索参数
+        return redirectToSrarch(session, redirectAttributes);
+        /* 2025-11-03 重定向到search方法 修正结束 */
     }
 
     // 【一覧画面明细部】签到ボタンを押下
     @GetMapping("/kn_lsn_001_lsn_sign/{lessonid}")
-    public String lessonSign(@PathVariable("lessonid") String id, Model model) {
+    public String lessonSign(@PathVariable("lessonid") String id, 
+                             RedirectAttributes redirectAttributes,
+                             HttpSession session) {
         // 拿到该课程信息
         Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
         
         // 执行签到
         knLsn001Dao.excuteSign(knLsn001Bean);
-        return "redirect:/kn_lsn_001_all";
+
+        /* 2025-11-03 重定向到search方法 修正开始 */
+        // return "redirect:/kn_lsn_001_all";
+        // 从会话中恢复上次的搜索参数
+        return redirectToSrarch(session, redirectAttributes);
+        /* 2025-11-03 重定向到search方法 修正结束 */
     }
 
     // 【一覧画面明细部】撤销ボタンを押下
     @GetMapping("/kn_lsn_001_lsn_undo/{lessonid}")
-    public String lessonUndo(@PathVariable("lessonid") String id, Model model) {
+    public String lessonUndo(@PathVariable("lessonid") String id,
+                             RedirectAttributes redirectAttributes,
+                             HttpSession session) {
     
         // 拿到该课程信息
         Kn01L002LsnBean knLsn001Bean = knLsn001Dao.getInfoById(id);
         // 撤销签到登记
         knLsn001Dao.excuteUndo(knLsn001Bean);
-        return "redirect:/kn_lsn_001_all";
+
+        /* 2025-11-03 重定向到search方法 修正开始 */
+        // return "redirect:/kn_lsn_001_all";
+        // 从会话中恢复上次的搜索参数
+        return redirectToSrarch(session, redirectAttributes);
+        /* 2025-11-03 重定向到search方法 修正结束 */
     }
 
     // 【一覧画面明细部】备注ボタンを押下
@@ -375,5 +428,36 @@ public class Kn01L002LsnController{
         }
 
         return (msgList.size() != 0);
+    }
+
+    // 2025-11-03 签到，删除，撤销操作之后的页面重定向
+    private String redirectToSrarch (HttpSession session, RedirectAttributes redirectAttributes) {
+
+        /*
+         * 解释用@SuppressWarnings("unchecked")的理由：
+         * 因为session.getAttribute()返回的是Object类型，需要转换为Map<String, Object>，
+         * 但编译器无法在编译时验证这个转换是否安全，所以使用@SuppressWarnings("unchecked")来抑制这个警告。
+         * 通过使用这个注解，可以避免在编译时看到黄色警告线，使代码更清晰。
+         * 应当谨慎使用此注解，只有当你确定类型转换是安全的情况下才使用它。
+        */
+        @SuppressWarnings("unchecked")
+        Map<String, Object> lastSearchParams = (Map<String, Object>) session.getAttribute("lastSearchParams");
+        
+        if (lastSearchParams != null) {
+            // 将参数添加到重定向URL
+            for (Map.Entry<String, Object> entry : lastSearchParams.entrySet()) {
+                redirectAttributes.addAttribute(entry.getKey(), entry.getValue());
+            }
+        } else {
+            // 如果没有保存的搜索参数，添加默认值
+            LocalDate currentDate = LocalDate.now();
+            String currentYear = String.valueOf(currentDate.getYear());
+            String currentMonth = currentDate.format(DateTimeFormatter.ofPattern("MM"));
+            
+            redirectAttributes.addAttribute("selectedyear", currentYear);
+            redirectAttributes.addAttribute("selectedmonth", currentMonth);
+        }
+        
+        return "redirect:/kn_lsn_001/search";
     }
 }

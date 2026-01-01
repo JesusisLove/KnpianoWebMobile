@@ -86,6 +86,8 @@ class Constants {
 
 // 学费月度报告
   static const String apiStuFeeDetailByYear = '/liu/mb_kn_lsn_fee_by_year';
+  static const String apiStuFeeDetailByYearMonth =
+      '/liu/mb_kn_lsn_fee_by_yearmonth';
 
 // 点击学费入账按钮，往后端发送学费入账保存请求
   static const String apiStuPaySave = '/liu/mb_kn_lsn_pay_save';
@@ -107,6 +109,9 @@ class Constants {
 
 // 执行课费预支付处理
   static const String apiExecuteAdvcLsnPay = '/liu/mb_kn_advc_pay_lsn_execute';
+
+// 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
+  static const String apiDefaultBankId = '/liu/mb_kn_default_bank';
 
 // ******* 档案管理模块 *******//
 //.......学生................................................................................
@@ -249,10 +254,19 @@ class Constants {
 
 // 画面控件背景颜色主题
   static const Color lessonThemeColor = Color.fromARGB(255, 57, 150, 50);
-  static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
-  static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
-  static const Color ingergThemeColor = Color.fromARGB(255, 41, 170, 235);
-  static const Color settngThemeColor = Color.fromARGB(255, 20, 110, 170);
+
+  // static const Color lsnfeeThemeColor = Color.fromARGB(255, 184, 134, 11); // (暗金色)
+  // static const Color lsnfeeThemeColor = Color.fromARGB(255, 230, 54, 180);
+  static const Color lsnfeeThemeColor = Color(0xFFf5576c);
+
+  // static const Color stuDocThemeColor = Color.fromARGB(255, 235, 115, 30);
+  static const Color stuDocThemeColor = Color.fromARGB(255, 139, 69, 19);
+
+  // static const Color ingergThemeColor = Color.fromARGB(255, 41, 170, 235);
+  static const Color ingergThemeColor = Color.fromARGB(255, 122, 4, 133);
+
+  // static const Color settngThemeColor = Color.fromARGB(255, 20, 110, 170);
+  static const Color settngThemeColor = Color(0xFF764ba2);
 
   static const double enabledBorderSideWidth = 0.5;
   static const double focusedBorderSideWidth = 1.5;

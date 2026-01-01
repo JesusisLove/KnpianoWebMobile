@@ -3,12 +3,13 @@ package com.liu.springboot04web.bean;
 public class Kn04I003LsnCountingBean implements KnPianoBean {
     private String stuId;          // 学生ID
     private String subjectId;      // 科目ID
-    // private int lessonType;
+    private int    payStyle;
     private Float totalLsnCnt0;    // 按课时收费统计的上课总数
     private Float totalLsnCnt1;    // 按计划课统计的上课总数
-    private Float totalLsnCnt2;    // 按加课时统计的上课总数
-    private String stuName;       // 学生姓名
-    private String subjectName;   // 科目名称
+    private Float totalLsnCnt2;    // 按加课时统计的上课总数(整节加课统计)
+    private Float totalLsnCnt3;    // 按加课时统计的上课总数(零碎加课统计)
+    private String stuName;        // 学生姓名
+    private String subjectName;    // 科目名称
     private Float yearLsnCnt;      // 年度计划总课时
 
     // Getter 和 Setter 方法
@@ -24,13 +25,13 @@ public class Kn04I003LsnCountingBean implements KnPianoBean {
         return subjectId;
     }
 
-    // public int getLessonType() {
-    //     return lessonType;
-    // }
+    public int getPayStyle() {
+        return payStyle;
+    }
 
-    // public void setLessonType(int lessonType) {
-    //     this.lessonType = lessonType;
-    // }
+    public void setPayStyle(int payStyle) {
+        this.payStyle = payStyle;
+    }
 
     public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
@@ -77,6 +78,14 @@ public class Kn04I003LsnCountingBean implements KnPianoBean {
 
         public Float getYearLsnCnt() {
         return yearLsnCnt;
+    }
+    
+    public Float getTotalLsnCnt3() {
+        return totalLsnCnt3;
+    }
+
+    public void setTotalLsnCnt3(Float totalLsnCnt3) {
+        this.totalLsnCnt3 = totalLsnCnt3;
     }
 
     public void setYearLsnCnt(Float yearLsnCnt) {
