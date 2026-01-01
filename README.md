@@ -6,7 +6,7 @@ KnpianoWebMobile是一个基于Flutter+SpringBoot+MySQL的钢琴1对1教学，�
 
 ## 技术栈
 
-- **前端**: Flutter (支持移动端和Web端)
+- **前端**: Flutter (支持移动设备的前端应用)和Thymeleaf（Web端的数据维护及管理）
 - **后端**: Spring Boot + MyBatis
 - **数据库**: MySQL 8.0+
 
@@ -33,7 +33,7 @@ KnpianoWebMobile/
 
 ### 3. MySQL_KNStudent (数据库)
 - 完整的数据库表结构定义
-- 视图、存储过程、函数
+- 视图、存储过程、函数、触发器
 - 详见 `02DBTableGenerateTool/MySQL_KNStudent/CLAUDE.md`
 
 ## 最近更新
