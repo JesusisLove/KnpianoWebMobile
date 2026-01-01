@@ -1,9 +1,11 @@
 package com.liu.springboot04web.othercommon;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -121,6 +123,43 @@ public class DateUtils {
                 .toLocalDate();
         
         return date1.isBefore(date2) || date1.isEqual(date2);
+    }
+
+    /** 2025-11-08 新增
+     * 计算指定日期所在月份中，有多少个与该日期相同星期几的天数。
+     * 例如，如果输入的日期是星期二，则计算该月有多少个星期二。
+     *
+     * @param dateStr 日期字符串，格式为"yyyy-MM-dd"，例如"2025-09-30"
+     * @return 该月中相同星期几的天数
+     * @throws DateTimeParseException 如果输入的日期字符串格式不正确
+     */
+    public static int countWeekdaysInMonth(String dateStr) {
+        // 解析输入的日期字符串
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateStr, formatter);
+        
+        // 获取输入日期是星期几
+        DayOfWeek targetDayOfWeek = date.getDayOfWeek();
+        
+        // 获取该月的第一天
+        LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+        
+        // 获取该月第一个目标星期几的日期
+        LocalDate firstTargetDay = firstDayOfMonth;
+        while (firstTargetDay.getDayOfWeek() != targetDayOfWeek) {
+            firstTargetDay = firstTargetDay.plusDays(1);
+        }
+        
+        // 计数该月中有多少个相同的星期几
+        int count = 0;
+        LocalDate currentDate = firstTargetDay;
+        
+        while (currentDate.getMonthValue() == date.getMonthValue()) {
+            count++;
+            currentDate = currentDate.plusDays(7);
+        }
+        
+        return count;
     }
 }
 

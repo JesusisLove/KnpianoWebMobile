@@ -23,6 +23,14 @@ public class Kn01L002ExtraToScheController4Mobile {
     @Autowired
     private Kn01L002ExtraToScheDao kn01L002ExtraToScheDao;
 
+    // 手机前端：加课消化管理的在课学生一览
+    @GetMapping("/mb_kn_lsn_all_extra/{year}")
+    public ResponseEntity<List<Kn01L002ExtraToScheBean>> getInfoStuLsnExtraList(@PathVariable Integer year) {
+        // 获取当前正在上课的所有学生的排课信息
+        List<Kn01L002ExtraToScheBean> collection = kn01L002ExtraToScheDao.getLsnExtraInfoList(Integer.toString(year));
+        return ResponseEntity.ok(collection);
+    }
+
     // 因为有了配置类CorsConfig，这里的CrossOrigin的配置不需要了
     @GetMapping("/mb_kn_extratosche_all/{stuId}/{year}")
     public ResponseEntity<List<Kn01L002ExtraToScheBean>> getExtraLsnList(@PathVariable String stuId,

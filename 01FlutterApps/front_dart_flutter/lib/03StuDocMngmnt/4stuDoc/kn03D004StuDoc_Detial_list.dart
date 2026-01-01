@@ -71,6 +71,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
         throw Exception('Failed to load archived students');
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching student data: $e');
     } finally {
       setState(() {
@@ -104,7 +105,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
 
         actions: [
           IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
               // 新規"➕"按钮的事件处理函数
               onPressed: _isLoading
                   ? null // 如果正在加载，禁用按钮
@@ -147,12 +151,25 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
   // 新增：格式化年度计划总课时显示文本
   String _formatYearLsnCnt(Kn03D004StuDocBean student) {
     // 如果是按月付费且有年度计划总课时数据
-    if (student.payStyle == 1 &&
-        student.yearLsnCnt != null &&
-        student.yearLsnCnt! > 0) {
+    if (student.payStyle == 1 && student.yearLsnCnt > 0) {
       return '年计划: ${student.yearLsnCnt}课时';
     }
     return ''; // 课时付费或没有数据时返回空字符串
+  }
+
+  // 新增：根据payStyle获取价格标签文本
+  String _getPriceLabelText(int payStyle) {
+    return payStyle == 1 ? '课费（元/月）' : '单价（元/时）';
+  }
+
+  // 新增：根据payStyle计算显示价格
+  double _getDisplayPrice(Kn03D004StuDocBean student) {
+    double basePrice = student.lessonFeeAdjusted > 0
+        ? student.lessonFeeAdjusted
+        : student.lessonFee;
+
+    // 如果是按月付费，价格乘以4
+    return student.payStyle == 1 ? basePrice * 4 : basePrice;
   }
 
   // 风格二：編集、削除
@@ -171,12 +188,20 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
           itemBuilder: (context, index) {
             final student = students[index];
             final yearLsnCntText = _formatYearLsnCnt(student);
+            final priceLabelText = _getPriceLabelText(student.payStyle);
+            final displayPrice = _getDisplayPrice(student);
 
             return ListTile(
               leading: const CircleAvatar(
                 backgroundImage: AssetImage('images/student-placeholder.png'),
               ),
-              title: Text('${student.subjectName} ${student.subjectSubName}'),
+              title: Text(
+                '${student.subjectName} ${student.subjectSubName}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -185,9 +210,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                     children: [
                       Expanded(
                         child: Text(
-                          student.lessonFeeAdjusted > 0
-                              ? '课程单价: ＄${student.lessonFeeAdjusted.toStringAsFixed(2)}'
-                              : '课程单价: ＄${student.lessonFee.toStringAsFixed(2)}',
+                          '$priceLabelText: ＄${displayPrice.toStringAsFixed(2)}',
                           style: const TextStyle(fontSize: 13),
                         ),
                       ),
@@ -205,7 +228,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           yearLsnCntText,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.blue[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -214,10 +237,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           student.payStyle == 1 ? '按月付费' : '课时付费',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             color: student.payStyle == 1
-                                ? Colors.green[600]
-                                : Colors.orange[600],
+                                ? Colors.blue[600]
+                                : Colors.green[600],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -233,10 +256,10 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                         Text(
                           student.payStyle == 1 ? '按月付费' : '课时付费',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 14,
                             color: student.payStyle == 1
-                                ? Colors.green[600]
-                                : Colors.orange[600],
+                                ? Colors.blue[600]
+                                : Colors.green[600],
                             fontWeight: FontWeight.w500,
                           ),
                         ),

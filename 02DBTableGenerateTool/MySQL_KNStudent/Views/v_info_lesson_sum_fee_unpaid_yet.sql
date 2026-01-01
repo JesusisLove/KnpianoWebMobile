@@ -7,7 +7,7 @@
  */
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_info_lesson_sum_fee_unpaid_yet AS
 /* 
@@ -73,10 +73,11 @@ FROM (
         lsn_month,
         own_flg
 ) newtmptbl
-GROUP BY 
+GROUP BY
     newtmptbl.lsn_fee_id,
     newtmptbl.stu_id,
     newtmptbl.stu_name,
+    newtmptbl.nik_name,
     newtmptbl.subject_id,
     newtmptbl.subject_name,
     newtmptbl.subject_sub_id,

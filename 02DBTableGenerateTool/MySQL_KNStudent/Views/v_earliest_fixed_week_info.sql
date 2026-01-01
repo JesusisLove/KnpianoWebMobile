@@ -8,7 +8,11 @@
 同样道理，如果换成stu_id是其他的学生编号，也是按照这个要求，在他的当前科目中找出星期最早的那个记录显示出来。
 理解了我的要求了吗？请你按照我的要求给我写一个Mysql的Sql语句。
 */
-CREATE VIEW v_earliest_fixed_week_info AS
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`%` 
+    SQL SECURITY DEFINER
+VIEW v_earliest_fixed_week_info AS
 SELECT 
     t1.stu_id AS stu_id,
     t1.subject_id AS subject_id,

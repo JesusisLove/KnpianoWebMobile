@@ -35,6 +35,206 @@
             }
         }
 
+        /* 页面标题样式 */
+        .page-title {
+            background: #6c5ce7;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: none;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .page-subtitle {
+            margin: 8px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        /* 表单区域样式 */
+        .form-section {
+            background: #dff0d8;
+            border: 2px solid #5cb85c;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .form-section .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-section label {
+            color: #5cb85c;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-section .form-control {
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: white;
+            transition: all 0.3s ease;
+            padding: 12px 15px;
+        }
+
+        .form-section .form-control:focus {
+            border-color: #5cb85c;
+            box-shadow: 0 0 0 0.1rem rgba(92, 184, 92, 0.25);
+            background: white;
+            outline: none;
+        }
+
+        .form-section .form-control:read-only {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        /* 日期选择器样式 */
+        .form-section .input-group {
+            margin-bottom: 15px;
+        }
+
+        .form-section .input-group-append .input-group-text {
+            background: white;
+            border: 1px solid #ccc;
+            border-left: none;
+            color: #5cb85c;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .form-section .input-group .form-control {
+            border-right: none;
+        }
+
+        /* 按钮容器样式 */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+        }
+
+        /* 提交按钮样式 */
+        .btn-submit {
+            background: #5cb85c !important;
+            border: none !important;
+            color: white !important;
+            padding: 12px 24px !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-submit:hover {
+            background: #4cae4c !important;
+            color: white !important;
+        }
+
+        /* 返回按钮样式 */
+        .btn-back {
+            background: #6c757d !important;
+            border: none !important;
+            color: white !important;
+            padding: 12px 24px !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+            display: inline-block !important;
+        }
+
+        .btn-back:hover {
+            background: #5a6268 !important;
+            color: white !important;
+            text-decoration: none !important;
+        }
+
+        /* 错误消息样式 */
+        .alert-danger {
+            background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 15px 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .alert-danger p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        /* 隐藏字段样式 */
+        input[type="hidden"] {
+            display: none !important;
+        }
+
+        /* 主容器样式 */
+        main {
+            padding: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title {
+                padding: 15px 20px;
+                margin: 15px 0;
+            }
+            
+            .page-title h2 {
+                font-size: 20px;
+            }
+            
+            .form-section {
+                padding: 20px 15px;
+                margin: 15px 0;
+            }
+            
+            .btn-submit,
+            .btn-back {
+                padding: 10px 20px !important;
+                font-size: 14px !important;
+                width: auto;
+                min-width: 120px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* 添加动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section,
+        .alert-danger {
+            animation: fadeIn 0.5s ease-out;
+        }
+
         .radio-group .form-check {
             display: block;
             margin-bottom: 10px;
@@ -50,115 +250,130 @@
         <div class="row">"
             <div th:replace="~{commons/bar::sidebar(activeUri='kn_extra_lesson_link_active')}"></div>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <!-- 页面标题 -->
+                <div class="page-title">
+                    <h2>📝 课程详情编辑</h2>
+                    <p class="page-subtitle">
+                        ⭐ 编辑和管理课程的详细信息，包括时间安排和课程属性调整
+                    </p>
+                </div>
+
                 <!-- 显示错误消息 -->
                 <div th:if="${errorMessageList}" class="alert alert-danger" role="alert">
                     <div th:each="errorMessage : ${errorMessageList}">
                         <p th:text="${errorMessage}"></p>
                     </div>
                 </div>
-                <form th:action="@{/kn_extra_tobe_sche}" method="put">
-                    <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" /><br>
 
-                    <div class="form-group"><br> <label>课程编号</label>
-                        <input name="lessonId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
-                            th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
-                    </div><br>
+                <!-- 表单区域 -->
+                <div class="form-section">
+                    <form th:action="@{/kn_extra_tobe_sche}" method="put">
+                        <input type="hidden" name="_method" value="put" th:if="${selectedinfo!=null}" /><br>
 
-                    <!-- 照会 模式下 学生姓名用 文本框且readonly显示 -->
-                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>学生姓名</label>
-                        <input name="stuName" type="text" class="form-control" th:value="${selectedinfo.stuName}"
-                            readonly>
-                        <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
-                    </div>
-                    <br>
+                        <div class="form-group"><br> <label>📋 课程编号</label>
+                            <input name="lessonId" type="text" class="form-control" placeholder="システム自動採番、入力不可" readonly
+                                th:value="${selectedinfo!=null}?${selectedinfo.lessonId}">
+                        </div><br>
 
-                    <!-- 照会 模式下 子科目名称用 文本框且操作不可 -->
-                    <div class="form-group"
-                        th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>子科目名称</label>
-                        <input id="subjectSubName" name="subjectSubName" type="text"
-                            th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" readonly>
-                        <input id="subjectSubId" name="subjectSubId" type="hidden"
-                            th:value="${selectedinfo != null ? selectedinfo.subjectSubId : ''}">
-                    </div>
-
-                    <!-- 照会 模式下 科目名称用 文本框且readonly显示 -->
-                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>科目名称</label>
-                        <input name="subjectName" type="text" class="form-control"
-                            th:value="${selectedinfo.subjectName}" readonly>
-                        <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
-                    </div>
-
-                    <!-- 照会 模式下 子科目名称用 文本框且操作不 -->
-                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <label>子科目名称</label>
-                        <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" readonly>
-                        <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
-                    </div>
-
-                    <br><label>课程属性</label>
-                    <!-- 照会 模式下的课程属性 使用 文本框 -->
-                    <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
-                        <!-- 显示用的文本框，用户无法编辑 -->
-                        <input type="text" class="form-control"
-                            th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}"
-                            readonly>
-                        <!-- 隐藏的实际提交值的输入框 -->
-                        <input name="lessonType" type="hidden" th:value="${selectedinfo.lessonType}">
-                    </div>
-                    <br>
-
-                    <!-- 照会模式下的学生上课时长 -->
-                    <div class="form-group">
-                        <label>上课时长</label>
-                        <!-- 显示用的文本框，用户无法编辑 -->
-                        <input type="text" class="form-control" name="classDuration" id="lsnduration"
-                            th:value="${selectedinfo != null ? selectedinfo.classDuration : ''}" readonly>
-                        <!-- 隐藏的实际提交值的输入框 -->
-                        <input name="classDurationHidden" type="hidden"
-                            th:value="${selectedinfo != null ? selectedinfo.classDuration : ''}">
-                    </div>
-
-                    <br>
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br>
-                        <label>计划排课日期：</label> <br>
-                        <input id="datetimepickerInput" name="schedualDate" type="text"
-                            class="form-control datetimepicker-input"
-                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
-                            data-target="#datetimepickerContainer" readonly />
-                        <div class="input-group-append" data-target="#datetimepickerContainer"
-                            data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        <!-- 照会 模式下 学生姓名用 文本框且readonly显示 -->
+                        <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
+                            <label>👤 学生姓名</label>
+                            <input name="stuName" type="text" class="form-control" th:value="${selectedinfo.stuName}"
+                                readonly>
+                            <input name="stuId" type="hidden" class="form-control" th:value="${selectedinfo.stuId}">
                         </div>
-                    </div>
-                    <br>
+                        <br>
 
-                    <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest">
-                        <label>课程调整日期：</label> <br>
-                        <input name="lsnAdjustedDate" type="text" class="form-control datetimepicker-input"
-                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
-                            data-target="#datetimepickerContainer" readonly />
-                        <div class="input-group-append" data-target="#datetimepickerContainer"
-                            data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        <!-- 照会 模式下 子科目名称用 文本框且操作不可 -->
+                        <div class="form-group"
+                            th:if="${(selectedinfo==null) || (#strings.isEmpty(selectedinfo.lessonId))}">
+                            <label>📚 子科目名称</label>
+                            <input id="subjectSubName" name="subjectSubName" type="text"
+                                th:value="${selectedinfo != null ? selectedinfo.subjectSubName : ''}" readonly>
+                            <input id="subjectSubId" name="subjectSubId" type="hidden"
+                                th:value="${selectedinfo != null ? selectedinfo.subjectSubId : ''}">
                         </div>
-                    </div>
 
-                    <div class="form-group"><br>
-                        <label>课程属性变换日期（学生用额外追加的课顶替来周或来月哪天的计划课程）</label>
-                        <input name="extraToDurDate" type="date" class="form-control"
-                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
-                    </div>
+                        <!-- 照会 模式下 科目名称用 文本框且readonly显示 -->
+                        <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
+                            <label>📖 科目名称</label>
+                            <input name="subjectName" type="text" class="form-control"
+                                th:value="${selectedinfo.subjectName}" readonly>
+                            <input name="subjectId" type="hidden" th:value="${selectedinfo.subjectId}">
+                        </div>
 
-                    <div class="form-group"><br> <label>实际上课日期（学生实际来上课的时间）</label>
-                        <input name="scanQrDate" type="date" class="form-control"
-                            th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}"
-                            readonly>
-                    </div>
-                    <button type="submit" class="btn btn-primary" th:text="保存"></button>
-                </form>
+                        <!-- 照会 模式下 子科目名称用 文本框且操作不 -->
+                        <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
+                            <label>📚 子科目名称</label>
+                            <input name="subjectSubName" type="text" th:value="${selectedinfo.subjectSubName}" readonly>
+                            <input name="subjectSubId" type="hidden" th:value="${selectedinfo.subjectSubId}">
+                        </div>
+
+                        <br><label>🏷️ 课程属性</label>
+                        <!-- 照会 模式下的课程属性 使用 文本框 -->
+                        <div class="form-group" th:if="${selectedinfo!=null && (!#strings.isEmpty(selectedinfo.lessonId))}">
+                            <!-- 显示用的文本框，用户无法编辑 -->
+                            <input type="text" class="form-control"
+                                th:value="${selectedinfo.lessonType == 0 ? '课结算' : (selectedinfo.lessonType == 1 ? '月计划' : '月加课')}"
+                                readonly>
+                            <!-- 隐藏的实际提交值的输入框 -->
+                            <input name="lessonType" type="hidden" th:value="${selectedinfo.lessonType}">
+                        </div>
+                        <br>
+
+                        <!-- 照会模式下的学生上课时长 -->
+                        <div class="form-group">
+                            <label>⏱️ 上课时长</label>
+                            <!-- 显示用的文本框，用户无法编辑 -->
+                            <input type="text" class="form-control" name="classDuration" id="lsnduration"
+                                th:value="${selectedinfo != null ? selectedinfo.classDuration : ''}" readonly>
+                            <!-- 隐藏的实际提交值的输入框 -->
+                            <input name="classDurationHidden" type="hidden"
+                                th:value="${selectedinfo != null ? selectedinfo.classDuration : ''}">
+                        </div>
+
+                        <br>
+                        <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest"><br>
+                            <label>📅 计划排课日期：</label> <br>
+                            <input id="datetimepickerInput" name="schedualDate" type="text"
+                                class="form-control datetimepicker-input"
+                                th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                data-target="#datetimepickerContainer" readonly />
+                            <div class="input-group-append" data-target="#datetimepickerContainer"
+                                data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="input-group date" id="datetimepickerContainer" data-target-input="nearest">
+                            <label>🔄 课程调整日期：</label> <br>
+                            <input name="lsnAdjustedDate" type="text" class="form-control datetimepicker-input"
+                                th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm')}"
+                                data-target="#datetimepickerContainer" readonly />
+                            <div class="input-group-append" data-target="#datetimepickerContainer"
+                                data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group"><br>
+                            <label>🔄 课程属性变换日期（学生用额外追加的课顶替来周或来月哪天的计划课程）</label>
+                            <input name="extraToDurDate" type="date" class="form-control"
+                                th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.extraToDurDate, 'yyyy-MM-dd')}">
+                        </div>
+
+                        <div class="form-group"><br> <label>✅ 实际上课日期（学生实际来上课的时间）</label>
+                            <input name="scanQrDate" type="date" class="form-control"
+                                th:value="${selectedinfo!=null}?${#dates.format(selectedinfo.scanQrDate, 'yyyy-MM-dd')}"
+                                readonly>
+                        </div>
+                        <div class="button-container">
+                            <a href="javascript:history.back()" class="btn btn-back">🔙 返回</a>
+                            <button type="submit" class="btn btn-submit">💾 保存</button>
+                        </div>
+                    </form>
+                </div>
             </main>
         </div>
     </div>
@@ -192,13 +407,6 @@
             });
         });
     </script>
-    <style>
-        /* 调整控件最右侧按钮的宽度 */
-        .input-group-append .input-group-text {
-            min-width: 60px;
-            /* 设置按钮的最小宽度 */
-        }
-    </style>
     <!-- 为了使用可以选择 yyyy/mm/dd HH:mm 的datetimepicker控件，结果不好使 先暂时保留 结束 -->
 </body>
 

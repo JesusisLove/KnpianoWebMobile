@@ -4,7 +4,7 @@
 -- 视图 不要做驼峰命名变更，为了java程序处理的统一性。
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`localhost` 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW `v_info_student_document` AS
     SELECT 

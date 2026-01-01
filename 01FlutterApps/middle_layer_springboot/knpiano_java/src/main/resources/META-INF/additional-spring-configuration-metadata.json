@@ -8,5 +8,75 @@
     "name": "spring.datasource.initialSize",
     "type": "java.lang.String",
     "description": "A description for 'spring.datasource.initialSize'"
+  },
+  {
+    "name": "spring.datasource.maxActive",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.maxActive'"
+  },
+  {
+    "name": "spring.datasource.maxWait",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.maxWait'"
+  },
+  {
+    "name": "spring.datasource.connectionProperties",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.connectionProperties'"
+  },
+  {
+    "name": "spring.datasource.usGlobalDataSourceStat",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.usGlobalDataSourceStat'"
+  },
+  {
+    "name": "spring.datasource.maxPoolPreparedStatementPerConnectionSize",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.maxPoolPreparedStatementPerConnectionSize'"
+  },
+  {
+    "name": "spring.datasource.filters",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.filters'"
+  },
+  {
+    "name": "spring.datasource.poolPreparedStatements",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.poolPreparedStatements'"
+  },
+  {
+    "name": "spring.datasource.testOnReturn",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.testOnReturn'"
+  },
+  {
+    "name": "spring.datasource.testOnBorrow",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.testOnBorrow'"
+  },
+  {
+    "name": "spring.datasource.testWhileInle",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.testWhileInle'"
+  },
+  {
+    "name": "spring.datasource.validationQuery",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.validationQuery'"
+  },
+  {
+    "name": "spring.datasource.minEvictableIdleTimeMillis",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.minEvictableIdleTimeMillis'"
+  },
+  {
+    "name": "spring.datasource.timeBetweenEvictionRunsMillis",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.timeBetweenEvictionRunsMillis'"
+  },
+  {
+    "name": "cors.allowed-origin",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.allowed-origin'"
   }
 ]}

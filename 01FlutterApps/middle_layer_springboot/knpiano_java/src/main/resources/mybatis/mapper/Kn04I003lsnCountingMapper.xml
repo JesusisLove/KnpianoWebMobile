@@ -10,13 +10,45 @@ https://mybatis.org/mybatis-3/getting-started.html
 <mapper namespace="com.liu.springboot04web.dao.Kn04I003lsnCountingDao">
 
     <select id="getStuLsnCount" resultType="com.liu.springboot04web.bean.Kn04I003LsnCountingBean">
+        WITH v_info_lsn_statistics AS
+            (SELECT 
+                stu_id,
+                stu_name,
+                subject_name,
+                subject_id,
+                subject_sub_id,
+                subject_sub_name,
+                CASE 
+                    WHEN lsn_count &lt;  1.0 AND lesson_type = 2 THEN 3 
+                    ELSE lesson_type 
+                END AS lesson_type,
+                SUM(lsn_count) AS lsn_count
+            FROM v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect
+            WHERE lsn_month BETWEEN #{year_month_from} AND #{year_month_to}
+            GROUP BY 
+                stu_id, 
+                stu_name, 
+                subject_name, 
+                subject_id, 
+                subject_sub_id, 
+                subject_sub_name,
+                CASE 
+                    WHEN lsn_count &lt;  1.0 AND lesson_type = 2 THEN 3 
+                    ELSE lesson_type 
+                END
+            ORDER BY 
+                stu_name,
+                subject_id, 
+                subject_sub_id,
+                lesson_type)
         SELECT 
             lsn.stu_id, lsn.stu_name,
-            lsn.subject_id, lsn.subject_name,doc.year_lsn_cnt,
+            lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt, doc.pay_style,
             SUM(CASE WHEN lesson_type = 0 THEN lsn_count ELSE 0 END) AS total_lsn_cnt0,
             SUM(CASE WHEN lesson_type = 1 THEN lsn_count ELSE 0 END) AS total_lsn_cnt1,
-            SUM(CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END) AS total_lsn_cnt2
-        FROM v_info_lsn_statistics_by_stuid lsn
+            SUM(CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END) AS total_lsn_cnt2,
+            SUM(CASE WHEN lesson_type = 3 THEN lsn_count ELSE 0 END) AS total_lsn_cnt3
+        FROM v_info_lsn_statistics lsn
         INNER JOIN
              v_latest_subject_info_from_student_document doc
         ON lsn.stu_id = doc.stu_id
@@ -25,8 +57,7 @@ https://mybatis.org/mybatis-3/getting-started.html
         AND EXISTS(
                 SELECT 1 FROM t_mst_student mst WHERE mst.stu_id  = lsn.stu_id AND mst.del_flg = 0
                 )
-        AND lsn.lsn_month BETWEEN #{year_month_from} AND #{year_month_to}
-        GROUP BY lsn.stu_id, lsn.stu_name, lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt
+        GROUP BY lsn.stu_id, lsn.stu_name, lsn.subject_id, lsn.subject_name, doc.year_lsn_cnt, doc.pay_style
         ORDER BY lsn.stu_name, lsn.subject_id;
     </select>
 </mapper>

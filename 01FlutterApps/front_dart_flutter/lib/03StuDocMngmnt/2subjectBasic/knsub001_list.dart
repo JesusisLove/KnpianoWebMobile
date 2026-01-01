@@ -102,7 +102,10 @@ class _SubjectViewPageState extends State<SubjectViewPage> {
           addInvisibleRightButton: true,
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
               // 新規”➕”按钮的事件处理函数
               onPressed: _isLoading
                   ? null // 如果正在加载，禁用按钮

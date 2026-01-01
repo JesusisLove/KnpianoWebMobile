@@ -3,7 +3,7 @@ use prod_KNStudent;
 DROP VIEW IF EXISTS v_sum_lsn_fee_for_fee_connect_lsn;
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_sum_lsn_fee_for_fee_connect_lsn AS
 /* 这是按照学生实际上的课产生的实际的学费

@@ -207,13 +207,8 @@ class _Kn01L003ExtraPiesesIntoOneState
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.latestLsnPrice}/$currentYear/${widget.stuId}';
 
-      print('正在调用API: $apiUrl');
-
       // 使用GET请求
       final response = await http.get(Uri.parse(apiUrl));
-
-      print('API响应状态码: ${response.statusCode}');
-      print('API响应内容: ${response.body}');
 
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
@@ -222,8 +217,6 @@ class _Kn01L003ExtraPiesesIntoOneState
         latestPrices = pricesJson
             .map((json) => Kn03D004StuDocBean.fromJson(json))
             .toList();
-
-        print('成功获取到 ${latestPrices.length} 条价格信息');
       } else {
         throw Exception('API调用失败，状态码: ${response.statusCode}');
       }
@@ -567,6 +560,11 @@ class _Kn01L003ExtraPiesesIntoOneState
       request.fields['standardDuration'] = targetMinutesPerLsn.toString();
       // 修改：使用用户选择的日期时间
       request.fields['scanQRDate'] = formattedSelectedDateTime;
+
+      // 生成备注内容：来自零碎课 + 扫码日期列表
+      String memoContent = '来自零碎课：' +
+          selectedPieces.map((piece) => piece.formattedScanQrDate).join(',');
+      request.fields['memo'] = memoContent;
 
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();

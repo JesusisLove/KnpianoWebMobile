@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+关于Mybatis的SQL文件映射该怎么写，我们要参照Mybatis的官方文档，官方文档都托管到了GitHub下
+我们就从GitHub网站去搜索MyBatis的相关资料
+配置的参照例子
+https://mybatis.org/mybatis-3/getting-started.html
+
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.springboot04web.dao.Kn04I004BatchLsnSignDao">
+
+    <select id="getWeeksForYear" resultType="com.liu.springboot04web.bean.Kn04I004BatchLsnSignBean">
+        select * from t_fixedlesson_status
+    </select>
+
+    <select id="getLsnScheOfWeek" resultType="com.liu.springboot04web.bean.Kn04I004BatchLsnSignBean">
+        WITH weekLesson AS(
+            SELECT 
+                lesson_id
+                ,stu_id
+                ,stu_name
+                ,subject_id
+                ,subject_name
+                ,subject_sub_id
+                ,subject_sub_name
+                ,lesson_type
+                ,CASE 
+                    WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
+                    ELSE schedual_date 
+                END AS schedual_date
+                ,CASE(DAYOFWEEK(
+                        CASE 
+                            WHEN lsn_adjusted_date IS NOT NULL THEN lsn_adjusted_date
+                            ELSE schedual_date 
+                        END)
+                    )
+                    WHEN 1 THEN 'Sun'
+                    WHEN 2 THEN 'Mon'
+                    WHEN 3 THEN 'Tue'
+                    WHEN 4 THEN 'Wed'
+                    WHEN 5 THEN 'Thu'
+                    WHEN 6 THEN 'Fri'
+                    WHEN 7 THEN 'Sat'
+                END AS sche_week
+                ,scanQR_date
+                ,CASE 
+                     WHEN lsn_adjusted_date IS NOT NULL THEN CONCAT(IFNULL(memo, ''), '[此为调课，需再确认]')
+                     ELSE memo 
+				END AS memo
+            FROM v_info_lesson 
+        )
+        SELECT 
+			lesson_id
+            ,stu_id
+            ,stu_name
+            ,subject_id
+            ,subject_name
+            ,subject_sub_id
+            ,subject_sub_name
+            ,lesson_type
+			,schedual_date
+            ,sche_week
+            ,memo
+        FROM weekLesson
+        WHERE LEFT(schedual_date,10) BETWEEN #{startWeek} AND #{endWeek}
+        AND scanQR_date is null
+        ORDER BY schedual_date
+    </select>
+
+    <select id="getLsnScheOfWeekByWeekNumber" resultType="com.liu.springboot04web.bean.Kn04I004BatchLsnSignBean">
+        select * from t_fixedlesson_status where week_number = #{weekNum}
+    </select>
+
+
+</mapper>

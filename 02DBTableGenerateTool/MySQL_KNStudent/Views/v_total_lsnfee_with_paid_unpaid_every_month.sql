@@ -5,7 +5,7 @@
 -- 所有在课学生的每个月总课费，已支付，未支付状况 v_total_lsnfee_with_paid_unpaid_every_month
 CREATE 
     ALGORITHM = UNDEFINED 
-    DEFINER = root@localhost 
+    DEFINER = `root`@`%` 
     SQL SECURITY DEFINER
 VIEW v_total_lsnfee_with_paid_unpaid_every_month AS
     SELECT 
@@ -26,7 +26,7 @@ VIEW v_total_lsnfee_with_paid_unpaid_every_month AS
         UNION ALL 
         SELECT 
             0.0 AS should_pay_lsn_fee,
-            SUM(T2.lsn_fee) AS has_paid_lsn_fee,
+            SUM(T2.lsn_pay) AS has_paid_lsn_fee,
             0.0 AS unpaid_lsn_fee,
             T2.lsn_month AS lsn_month
         FROM

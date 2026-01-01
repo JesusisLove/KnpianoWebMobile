@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, unnecessary_null_comparison
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -13,7 +13,6 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import 'AddCourseDialog.dart';
-import 'EditCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
 import 'RescheduleLessonDialog.dart';
 import 'package:flutter/rendering.dart';
@@ -361,23 +360,19 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Kn01L002LsnBean> getSchedualLessonForTime(String time) {
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
     return studentLsns.where((event) {
-      String eventScheduleDateStr =
-          event.schedualDate != null && event.schedualDate.length >= 10
-              ? event.schedualDate.substring(0, 10)
-              : '';
-      String eventTime1 =
-          event.schedualDate != null && event.schedualDate.length >= 16
-              ? event.schedualDate.substring(11, 16)
-              : '';
+      String eventScheduleDateStr = event.schedualDate.length >= 10
+          ? event.schedualDate.substring(0, 10)
+          : '';
+      String eventTime1 = event.schedualDate.length >= 16
+          ? event.schedualDate.substring(11, 16)
+          : '';
 
-      String eventAdjustedDateStr =
-          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
-              ? event.lsnAdjustedDate.substring(0, 10)
-              : '';
-      String eventTime2 =
-          event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 16
-              ? event.lsnAdjustedDate.substring(11, 16)
-              : '';
+      String eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+          ? event.lsnAdjustedDate.substring(0, 10)
+          : '';
+      String eventTime2 = event.lsnAdjustedDate.length >= 16
+          ? event.lsnAdjustedDate.substring(11, 16)
+          : '';
 
       return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) ||
           (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
@@ -1174,17 +1169,17 @@ class _TimeTileState extends State<TimeTile>
     String selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
 
     String eventScheduleDateStr = '';
-    if (event.schedualDate != null && event.schedualDate.length >= 10) {
+    if (event.schedualDate.length >= 10) {
       eventScheduleDateStr = event.schedualDate.substring(0, 10);
     }
 
     String eventAdjustedDateStr = '';
-    if (event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10) {
+    if (event.lsnAdjustedDate.length >= 10) {
       eventAdjustedDateStr = event.lsnAdjustedDate.substring(0, 10);
     }
 
-    bool hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
-    bool hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
+    bool hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    bool hasBeenSigned = event.scanQrDate.isNotEmpty;
 
     return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) ||
         ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) ||
@@ -1193,13 +1188,10 @@ class _TimeTileState extends State<TimeTile>
 
   @override
   Widget build(BuildContext context) {
-    bool isHighlighted = widget.time == widget.highlightedTime;
     return GestureDetector(
       // 将GestureDetector移到最外层
       onTap: widget.onTap,
       child: Container(
-        // 这是是设置时间槽的背景颜色
-        // color: isHighlighted ? Colors.red[100] : Colors.transparent,
         child: widget.events.isEmpty
             ? _buildTimeLine()
             : Padding(
@@ -1245,7 +1237,6 @@ class _TimeTileState extends State<TimeTile>
 
   Widget _buildTimeText() {
     final isFullHour = widget.time.endsWith(':00');
-    const backgroundColor = Colors.white;
 
     if (isFullHour) {
       return Text(
@@ -1284,19 +1275,15 @@ class _TimeTileState extends State<TimeTile>
 
   Widget _buildEventTile(BuildContext context, Kn01L002LsnBean event) {
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr =
-        event.schedualDate != null && event.schedualDate.length >= 10
-            ? event.schedualDate.substring(0, 10)
-            : '';
-    final eventAdjustedDateStr =
-        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
-            ? event.lsnAdjustedDate.substring(0, 10)
-            : '';
-    final hasBeenRescheduled =
-        event.lsnAdjustedDate != null && event.lsnAdjustedDate.isNotEmpty;
+    final eventScheduleDateStr = event.schedualDate.length >= 10
+        ? event.schedualDate.substring(0, 10)
+        : '';
+    final eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+        ? event.lsnAdjustedDate.substring(0, 10)
+        : '';
+    final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
 
-    final hasBeenSigned =
-        event.scanQrDate != null && event.scanQrDate.isNotEmpty;
+    final hasBeenSigned = event.scanQrDate.isNotEmpty;
 
     final isScheduledUnsignedLsn = selectedDayStr == eventScheduleDateStr &&
         !hasBeenRescheduled &&
@@ -1546,17 +1533,15 @@ class _TimeTileState extends State<TimeTile>
 
     // 检查是否为已调课但未签到的课程
     final selectedDayStr = DateFormat('yyyy-MM-dd').format(widget.selectedDay);
-    final eventScheduleDateStr =
-        event.schedualDate != null && event.schedualDate.length >= 10
-            ? event.schedualDate.substring(0, 10)
-            : '';
-    final eventAdjustedDateStr =
-        event.lsnAdjustedDate != null && event.lsnAdjustedDate.length >= 10
-            ? event.lsnAdjustedDate.substring(0, 10)
-            : '';
+    final eventScheduleDateStr = event.schedualDate.length >= 10
+        ? event.schedualDate.substring(0, 10)
+        : '';
+    final eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+        ? event.lsnAdjustedDate.substring(0, 10)
+        : '';
 
-    final hasBeenRescheduled = event.lsnAdjustedDate?.isNotEmpty ?? false;
-    final hasBeenSigned = event.scanQrDate?.isNotEmpty ?? false;
+    final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    final hasBeenSigned = event.scanQrDate.isNotEmpty;
 
     final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
         hasBeenRescheduled &&

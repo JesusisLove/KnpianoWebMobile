@@ -329,7 +329,7 @@ class MonthLineItem extends StatelessWidget {
     double totalFee = monthData.fold(0, (sum, item) => sum + item.lsnFee);
     final currentMonth = DateTime.now().month;
     final bool isAdvancePay = monthData.any((item) => item.advcFlg == 0);
-    bool allPaid = monthData.every((item) => item.ownFlg == 1);
+    bool isAllPaid = monthData.every((item) => item.ownFlg == 1);
 
     Color monthColor = month < currentMonth
         ? Colors.grey
@@ -375,7 +375,7 @@ class MonthLineItem extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => Kn02F003LsnPay(
                             monthData: monthData,
-                            allPaid: allPaid,
+                            isAllPaid: isAllPaid,
                             knBgColor: knBgColor,
                             knFontColor: knFontColor,
                             pagePath: pagePath,
@@ -388,12 +388,12 @@ class MonthLineItem extends StatelessWidget {
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
-                    if (!allPaid)
+                    if (!isAllPaid)
                       const PopupMenuItem<String>(
                         value: 'record',
                         child: Text('学费记账'),
                       ),
-                    if (allPaid)
+                    if (isAllPaid)
                       const PopupMenuItem<String>(
                         value: 'view',
                         child: Text('学费查看'),

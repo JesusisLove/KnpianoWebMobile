@@ -32,10 +32,8 @@ public class Kn05S002WeekCalculatorController4Mobile {
     // 执行新的年度周次的新规（一年执行一次：）
     @GetMapping("/mb_kn_calculate_Weeks_new")
     public void calculateWeeksForYear(@RequestParam int year) {
-
-        // TODO 先执行删除所有去年的周次排课记录
-
-
+        // 先执行删除所有去年的周次排课记录
+        kn05S002WeekCalculatorDao.deleteAll();
         // 生成新年度的52周次的周排课表
         kn05S002WeekCalculatorDao.insertWeeksForYear(year);
     }

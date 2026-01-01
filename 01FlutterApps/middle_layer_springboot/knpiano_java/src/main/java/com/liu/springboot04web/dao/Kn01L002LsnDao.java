@@ -38,11 +38,6 @@ public class Kn01L002LsnDao {
         return list;
     }
 
-    public List<Kn01L002LsnBean> getLsnExtraInfoList(String year) {
-        List<Kn01L002LsnBean> list = knLsn001Mapper.getLsnExtraInfoList(year);
-        return list;
-    }
-
     // 手机前端：上课进度管理用的在课学生一览
     public List<Kn01L002LsnBean> getStuNameList(String year) {
         List<Kn01L002LsnBean> list = knLsn001Mapper.getStuNameList(year);

@@ -8,6 +8,9 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
+import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraPiesesIntoOne.dart';
 
 // Bean class for lesson counting data
 class Kn04I003LsnCountingBean {
@@ -15,20 +18,24 @@ class Kn04I003LsnCountingBean {
   final String stuName;
   final String subjectId;
   final String subjectName;
-  final double yearLsnCnt;
+  final int payStyle;
+  final double standartYearLsnCnt;
   final double totalLsnCnt0; // 按课时收费
   final double totalLsnCnt1; // 计划课
-  final double totalLsnCnt2; // 加时课
+  final double totalLsnCnt2; // 加时课（整节加课课统计）
+  final double totalLsnCnt3; // 加时课（零碎加课课统计
 
   Kn04I003LsnCountingBean({
     required this.stuId,
     required this.stuName,
     required this.subjectId,
     required this.subjectName,
-    required this.yearLsnCnt,
+    required this.payStyle,
+    required this.standartYearLsnCnt,
     required this.totalLsnCnt0,
     required this.totalLsnCnt1,
     required this.totalLsnCnt2,
+    required this.totalLsnCnt3,
   });
 
   factory Kn04I003LsnCountingBean.fromJson(Map<String, dynamic> json) {
@@ -37,10 +44,12 @@ class Kn04I003LsnCountingBean {
       stuName: json['stuName'] as String? ?? '',
       subjectId: json['subjectId'] as String? ?? '',
       subjectName: json['subjectName'] as String? ?? '',
-      yearLsnCnt: json['yearLsnCnt']?.toDouble() ?? 0.0,
+      payStyle: json['payStyle'] as int? ?? 0,
+      standartYearLsnCnt: json['yearLsnCnt']?.toDouble() ?? 0.0,
       totalLsnCnt0: json['totalLsnCnt0']?.toDouble() ?? 0.0,
       totalLsnCnt1: json['totalLsnCnt1']?.toDouble() ?? 0.0,
       totalLsnCnt2: json['totalLsnCnt2']?.toDouble() ?? 0.0,
+      totalLsnCnt3: json['totalLsnCnt3']?.toDouble() ?? 0.0,
     );
   }
 
@@ -64,7 +73,8 @@ class Kn04I003LsnCounting extends StatefulWidget {
   _Kn04I003LsnCountingState createState() => _Kn04I003LsnCountingState();
 }
 
-class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
+class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
+    with TickerProviderStateMixin {
   int selectedYear = DateTime.now().year;
   int selectedMonthFrom = 1;
   int selectedMonthTo = DateTime.now().month;
@@ -79,6 +89,13 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   final String titleName = '学生课程统计';
   late String pagePath;
 
+  // 搜索功能相关
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  // Tab 控制器
+  TabController? _tabController;
+
   // final double maxLessons = 43.0; // 满课时数
 
   @override
@@ -87,6 +104,88 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     pagePath = '${widget.pagePath} >> $titleName';
     // 页面初始加载 - 调用第一个API
     loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _tabController?.dispose();
+    super.dispose();
+  }
+
+  // 判断学生是否满课时
+  bool _isFullLesson(Kn04I003LsnCountingBean student) {
+    return student.totalLsnCnt1 >= student.standartYearLsnCnt &&
+        student.payStyle == 1;
+  }
+
+  // 判断是否需要显示 Tab（基于后台返回的 lessonCountingData）
+  bool get _shouldShowTabs {
+    return lessonCountingData.any((student) => _isFullLesson(student));
+  }
+
+  // 获取满课时学生列表
+  List<Kn04I003LsnCountingBean> get _fullLessonStudents {
+    return lessonCountingData
+        .where((student) => _isFullLesson(student))
+        .toList();
+  }
+
+  // 获取未满课时学生列表
+  List<Kn04I003LsnCountingBean> get _notFullLessonStudents {
+    return lessonCountingData
+        .where((student) => !_isFullLesson(student))
+        .toList();
+  }
+
+  // 过滤学生数据（无 Tab 时使用）
+  List<Kn04I003LsnCountingBean> get filteredLessonData {
+    if (_searchQuery.isEmpty) {
+      return lessonCountingData;
+    }
+    return lessonCountingData.where((student) {
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  // 过滤满课时学生（在 Tab 内搜索）
+  List<Kn04I003LsnCountingBean> get _filteredFullLessonStudents {
+    final fullStudents = _fullLessonStudents;
+    if (_searchQuery.isEmpty) {
+      return fullStudents;
+    }
+    return fullStudents.where((student) {
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  // 过滤未满课时学生（在 Tab 内搜索）
+  List<Kn04I003LsnCountingBean> get _filteredNotFullLessonStudents {
+    final notFullStudents = _notFullLessonStudents;
+    if (_searchQuery.isEmpty) {
+      return notFullStudents;
+    }
+    return notFullStudents.where((student) {
+      return student.stuName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  // 管理 TabController 的创建和销毁
+  void _manageTabController() {
+    if (_shouldShowTabs) {
+      // 需要显示 Tab
+      if (_tabController == null) {
+        // 创建新的 TabController
+        _tabController = TabController(length: 2, vsync: this);
+      }
+    } else {
+      // 不需要显示 Tab
+      if (_tabController != null) {
+        // 销毁现有的 TabController
+        _tabController!.dispose();
+        _tabController = null;
+      }
+    }
   }
 
   // 页面初始加载数据 - 使用 /mb_kn_lsn_counting
@@ -98,7 +197,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
     try {
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.intergLsnCounting}';
-      print('Loading initial data from: $apiUrl');
+      // print('Loading initial data from: $apiUrl');
 
       final response = await http.get(Uri.parse(apiUrl));
 
@@ -111,9 +210,12 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
               .map((json) => Kn04I003LsnCountingBean.fromJson(json))
               .toList();
           isLoading = false;
+
+          // 根据后台返回的数据管理 TabController（在 setState 内部调用）
+          _manageTabController();
         });
 
-        print('Initial data loaded: ${lessonCountingData.length} records');
+        // print('Initial data loaded: ${lessonCountingData.length} records');
       } else {
         throw Exception('Failed to load initial data: ${response.statusCode}');
       }
@@ -151,9 +253,12 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
               .map((json) => Kn04I003LsnCountingBean.fromJson(json))
               .toList();
           isLoading = false;
+
+          // 根据后台返回的数据管理 TabController（在 setState 内部调用）
+          _manageTabController();
         });
 
-        print('Search completed: ${lessonCountingData.length} records');
+        // print('Search completed: ${lessonCountingData.length} records');
       } else {
         throw Exception('Failed to search data: ${response.statusCode}');
       }
@@ -163,6 +268,45 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
         isLoading = false;
       });
     }
+  }
+
+  // 显示搜索对话框
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('搜索学生'),
+        content: TextField(
+          controller: _searchController,
+          decoration: const InputDecoration(
+            hintText: '请输入学生姓名',
+            prefixIcon: Icon(Icons.search),
+          ),
+          autofocus: true,
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value;
+            });
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _searchQuery = '';
+                _searchController.clear();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('清除'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -188,6 +332,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
         currentNavIndex: 3,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: widget.knFontColor),
+            onPressed: () {
+              _showSearchDialog();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -330,6 +482,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   }
 
   Widget _buildLessonChart() {
+    // 如果后台返回的数据为空
     if (lessonCountingData.isEmpty) {
       return const Center(
         child: Text(
@@ -339,13 +492,131 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: lessonCountingData.length,
-      itemBuilder: (context, index) {
-        final item = lessonCountingData[index];
-        return _buildStudentLessonCard(item);
-      },
+    // 根据后台返回的数据判断是否需要显示 Tab
+    if (_shouldShowTabs && _tabController != null) {
+      // 显示 Tab 分组
+      return Column(
+        children: [
+          // TabBar
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: widget.knBgColor,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: widget.knBgColor,
+              indicatorWeight: 3,
+              tabs: [
+                Tab(text: '✅🏆满课时 (${_fullLessonStudents.length})'),
+                const Tab(text: '未满课时'),
+              ],
+            ),
+          ),
+          // TabBarView
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // 满课时学生列表
+                _buildStudentList(_filteredFullLessonStudents),
+                // 未满课时学生列表
+                _buildStudentList(_filteredNotFullLessonStudents),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 不显示 Tab，显示全部学生列表
+    return _buildStudentList(filteredLessonData);
+  }
+
+  // 构建学生列表
+  Widget _buildStudentList(List<Kn04I003LsnCountingBean> displayData) {
+    // 如果搜索后无结果
+    if (displayData.isEmpty && _searchQuery.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '没有找到匹配的学生',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '请尝试其他关键词',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // 显示搜索结果计数
+        if (_searchQuery.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: widget.knBgColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: widget.knBgColor.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: widget.knBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '找到 ${displayData.length} 名学生',
+                  style: TextStyle(
+                    color: widget.knBgColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: displayData.length,
+            itemBuilder: (context, index) {
+              final item = displayData[index];
+              return _buildStudentLessonCard(item);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -362,15 +633,47 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             // 第一行：学生姓名、科目、总计、完成度
             Row(
               children: [
-                // 学生姓名
+                // 学生姓名（可点击跳转到课程进度统计页面）
                 Expanded(
                   flex: 2,
-                  child: Text(
-                    item.stuName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  child: InkWell(
+                    onTap: () {
+                      // 跳转到课程进度统计页面
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Kn01L002LsnStatistic(
+                            stuId: item.stuId,
+                            stuName: item.stuName,
+                            knBgColor: Constants.lessonThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "综合管理 >> 学生课程统计",
+                          ),
+                        ),
+                      );
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          // 如果计划总课时达到43节,显示🏆图标
+                          if (item.totalLsnCnt1 >= item.standartYearLsnCnt &&
+                              item.payStyle == 1)
+                            const TextSpan(
+                              text: '✅🏆',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          TextSpan(
+                            text: item.stuName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue, // 改为蓝色，表示可点击
+                              decoration:
+                                  TextDecoration.underline, // 添加下划线，表示可点击
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -404,7 +707,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 const SizedBox(width: 8),
                 // 计划总课时
                 Text(
-                  '计划: ${item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt.toStringAsFixed(1)}节',
+                  '计划: ${item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt.toStringAsFixed(1)}节',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -414,12 +717,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
                 const SizedBox(width: 8),
                 // 完成度
                 Text(
-                  '完成度: ${((item.totalLsnCnt1 / (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)) * 100).toStringAsFixed(1)}%',
+                  '完成度: ${((item.totalLsnCnt1 / (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt)) * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: item.totalLsnCnt1 >=
-                            (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt)
+                            (item.standartYearLsnCnt == 0
+                                ? 43
+                                : item.standartYearLsnCnt)
                         ? Colors.green
                         : widget.knBgColor,
                   ),
@@ -429,17 +734,61 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
             const SizedBox(height: 12),
             // 课程进度条
             if (item.totalLsnCnt0 > 0)
-              _buildLessonBar('时费课', item.totalLsnCnt0,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.green),
+              _buildLessonBar(
+                  '时费课',
+                  item.totalLsnCnt0,
+                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                  Colors.green),
             if (item.totalLsnCnt1 > 0)
               _buildLessonBar(
                   '计划课',
                   item.totalLsnCnt1,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt),
+                  (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
                   widget.knBgColor),
             if (item.totalLsnCnt2 > 0)
-              _buildLessonBar('加时课', item.totalLsnCnt2,
-                  (item.yearLsnCnt == 0 ? 43 : item.yearLsnCnt), Colors.pink),
+              _buildLessonBar(
+                '加时课',
+                item.totalLsnCnt2,
+                (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                Colors.pink,
+                onTap: () {
+                  // 跳转到加课消化管理页面
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExtraToSchePage(
+                        stuId: item.stuId,
+                        stuName: item.stuName,
+                        knBgColor: widget.knBgColor,
+                        knFontColor: widget.knFontColor,
+                        pagePath: pagePath,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            if (item.totalLsnCnt3 > 0)
+              _buildLessonBar(
+                '零碎课',
+                item.totalLsnCnt3,
+                (item.standartYearLsnCnt == 0 ? 43 : item.standartYearLsnCnt),
+                Colors.pink,
+                onTap: () {
+                  // 跳转到零碎加课拼整课页面
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Kn01L003ExtraPiesesIntoOne(
+                        stuId: item.stuId,
+                        stuName: item.stuName,
+                        knBgColor: widget.knBgColor,
+                        knFontColor: widget.knFontColor,
+                        pagePath: pagePath,
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -447,65 +796,88 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting> {
   }
 
   Widget _buildLessonBar(
-      String label, double count, double maxLessons, Color color) {
+      String label, double count, double maxLessons, Color color,
+      {VoidCallback? onTap}) {
     double barWidth = (count / maxLessons).clamp(0.0, 1.0);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  // color: Colors.grey,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                '${count.toStringAsFixed(1)}节',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          // 分层进度条容器
-          Container(
-            height: 8,
-            child: Stack(
-              children: [
-                // 底层：灰色进度条（固定长度，代表满额43节课）
-                Container(
-                  width: double.infinity, // ← 在这里！
-                  height: 4,
-                  decoration: BoxDecoration(
-                    // color: Colors.grey[200],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                // 上层：彩色进度条
-                FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: barWidth,
-                  child: Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
+          // 左侧：课程标签（固定宽度）
+          SizedBox(
+            width: 40,
+            child: onTap != null
+                ? GestureDetector(
+                    onTap: onTap,
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-              ],
+          ),
+          const SizedBox(width: 2),
+          // 中间：进度条（自动伸缩填充）
+          Expanded(
+            child: Container(
+              height: 8,
+              child: Stack(
+                children: [
+                  // 底层：白色进度条（固定长度，代表满额课时）
+                  Container(
+                    width: double.infinity,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Colors.grey[300]!,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  // 上层：彩色进度条
+                  FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: barWidth,
+                    child: Container(
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          // 右侧：课时标签（固定宽度）
+          SizedBox(
+            width: 42,
+            child: Text(
+              '${count.toStringAsFixed(1)}节',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],

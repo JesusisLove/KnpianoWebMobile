@@ -48,6 +48,10 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
   // 新增：年度计划总课时
   TextEditingController yearLsnCntController = TextEditingController();
 
+  // 新增：月付费相关的控制器
+  TextEditingController standardPriceMonthController = TextEditingController();
+  TextEditingController adjustedPriceMonthController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -125,6 +129,47 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
     return payStyle == 1; // 按月付费时显示
   }
 
+  // 新增：判断是否应该显示月付费相关字段
+  bool _shouldShowMonthlyFields() {
+    return payStyle == 1; // 按月付费时显示
+  }
+
+  // 新增：更新标准价格（月）
+  void _updateStandardPriceMonth() {
+    if (payStyle == 1) {
+      double monthlyPrice = standardPrice * 4;
+      standardPriceMonthController.text = monthlyPrice.toStringAsFixed(2);
+    }
+  }
+
+  // 新增：处理调整价格（月）的变化
+  void _onAdjustedPriceMonthChanged(String value) {
+    if (value.isNotEmpty) {
+      double? monthlyPrice = double.tryParse(value);
+      if (monthlyPrice != null) {
+        double lessonPrice = monthlyPrice / 4;
+        adjustedPriceController.text = lessonPrice.toStringAsFixed(2);
+      }
+    } else {
+      adjustedPriceController.clear();
+    }
+  }
+
+  // 新增：处理调整价格的变化
+  void _onAdjustedPriceChanged(String value) {
+    if (payStyle == 1) {
+      if (value.isNotEmpty) {
+        double? lessonPrice = double.tryParse(value);
+        if (lessonPrice != null) {
+          double monthlyPrice = lessonPrice * 4;
+          adjustedPriceMonthController.text = monthlyPrice.toStringAsFixed(2);
+        }
+      } else {
+        adjustedPriceMonthController.clear();
+      }
+    }
+  }
+
   Widget _buildSubjectDropdown() {
     return DropdownButtonFormField<KnSub001Bean>(
       decoration: const InputDecoration(
@@ -166,9 +211,107 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
         setState(() {
           selectedSubjectSub = newValue;
           standardPrice = newValue?.subjectPrice ?? 0.0;
+          // 更新标准价格（月）
+          _updateStandardPriceMonth();
         });
       },
     );
+  }
+
+  // 新增：构建标准价格行（包含标准价格（月）和标准价格）
+  Widget _buildStandardPriceRow() {
+    if (_shouldShowMonthlyFields()) {
+      return Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              readOnly: true,
+              controller: standardPriceMonthController,
+              decoration: const InputDecoration(
+                labelText: '标准价格（月）',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 1,
+              minLines: 1,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextFormField(
+              readOnly: true,
+              controller:
+                  TextEditingController(text: standardPrice.toStringAsFixed(2)),
+              decoration: const InputDecoration(
+                labelText: '标准价格',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 1,
+              minLines: 1,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return TextFormField(
+        readOnly: true,
+        controller:
+            TextEditingController(text: standardPrice.toStringAsFixed(2)),
+        decoration: const InputDecoration(
+          labelText: '标准价格',
+          border: OutlineInputBorder(),
+        ),
+        maxLines: 1,
+        minLines: 1,
+      );
+    }
+  }
+
+  // 新增：构建调整价格行（包含调整价格（月）和调整价格）
+  Widget _buildAdjustedPriceRow() {
+    if (_shouldShowMonthlyFields()) {
+      return Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: adjustedPriceMonthController,
+              decoration: const InputDecoration(
+                labelText: '调整价格（月）',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              maxLines: 1,
+              minLines: 1,
+              onChanged: _onAdjustedPriceMonthChanged,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextFormField(
+              controller: adjustedPriceController,
+              decoration: const InputDecoration(
+                labelText: '调整价格',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              maxLines: 1,
+              minLines: 1,
+              onChanged: _onAdjustedPriceChanged,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return TextFormField(
+        controller: adjustedPriceController,
+        decoration: const InputDecoration(
+          labelText: '调整价格',
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
+        maxLines: 1,
+        minLines: 1,
+      );
+    }
   }
 
   @override
@@ -266,6 +409,14 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                       setState(() {
                         payStyle = value;
                         isMonthlyPayment = (value == 1);
+                        // 当切换到按月付费时，更新标准价格（月）
+                        if (value == 1) {
+                          _updateStandardPriceMonth();
+                        } else {
+                          // 当切换到课时付费时，清空月付费相关字段
+                          standardPriceMonthController.clear();
+                          adjustedPriceMonthController.clear();
+                        }
                       });
                     },
                   ),
@@ -279,6 +430,11 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
                       setState(() {
                         payStyle = value;
                         isMonthlyPayment = (value == 1);
+                        // 当切换到课时付费时，清空月付费相关字段
+                        if (value == 0) {
+                          standardPriceMonthController.clear();
+                          adjustedPriceMonthController.clear();
+                        }
                       });
                     },
                   ),
@@ -287,7 +443,7 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
             ),
             const SizedBox(height: 8),
 
-            // 年度计划总课时 - 新增字段，只在按月付费时显示
+            // 年度计划总课时 - 只在按月付费时显示
             if (_shouldShowYearLsnCnt()) ...[
               TextFormField(
                 controller: yearLsnCntController,
@@ -321,29 +477,15 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
               },
             ),
             const SizedBox(height: 8),
-            TextFormField(
-              readOnly: true,
-              controller:
-                  TextEditingController(text: standardPrice.toStringAsFixed(2)),
-              decoration: const InputDecoration(
-                labelText: '标准价格',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 1,
-              minLines: 1,
-            ),
+
+            // 使用新的标准价格行构建方法
+            _buildStandardPriceRow(),
             const SizedBox(height: 8),
-            TextFormField(
-              controller: adjustedPriceController,
-              decoration: const InputDecoration(
-                labelText: '调整价格',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              maxLines: 1,
-              minLines: 1,
-            ),
+
+            // 使用新的调整价格行构建方法
+            _buildAdjustedPriceRow(),
             const SizedBox(height: 8),
+
             ElevatedButton(
               child: const Text('保存'),
               onPressed: () {
@@ -440,7 +582,7 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
       'minutesPerLsn': selectedDuration,
       'lessonFee': standardPrice,
       'lessonFeeAdjusted': double.tryParse(adjustedPriceController.text) ?? 0.0,
-      'yearLsnCnt': yearLsnCntValue, // 新增：年度计划总课时
+      'yearLsnCnt': yearLsnCntValue, // 年度计划总课时
     };
 
     try {
@@ -562,14 +704,20 @@ class _StudentDocumentPageState extends State<StudentDocumentPage> {
       selectedDuration = null;
       standardPrice = 0.0;
       adjustedPriceController.clear();
-      yearLsnCntController.clear(); // 新增：清空年度计划总课时
+      yearLsnCntController.clear(); // 清空年度计划总课时
+      // 新增：清空月付费相关字段
+      standardPriceMonthController.clear();
+      adjustedPriceMonthController.clear();
     });
   }
 
   @override
   void dispose() {
     adjustedPriceController.dispose();
-    yearLsnCntController.dispose(); // 新增：释放年度计划总课时控制器
+    yearLsnCntController.dispose(); // 释放年度计划总课时控制器
+    // 新增：释放月付费相关控制器
+    standardPriceMonthController.dispose();
+    adjustedPriceMonthController.dispose();
     super.dispose();
   }
 }

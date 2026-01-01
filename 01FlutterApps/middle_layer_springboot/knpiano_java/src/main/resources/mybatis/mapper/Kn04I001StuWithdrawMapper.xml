@@ -12,17 +12,48 @@ https://mybatis.org/mybatis-3/getting-started.html
         select * from t_mst_student
     </select>
 
-    <select id="getInfoListWitParm" resultType="com.liu.springboot04web.bean.Kn03D001StuBean">
-        select * from t_mst_student
+    <select id="getInfoListWitParm" resultType="com.liu.springboot04web.bean.Kn04I001StuWithdrawBean">
+        <!-- 已经在上课的学生 -->
+        SELECT 
+            stu.stu_id, 
+            stu.stu_name, 
+            stu.nik_name,
+            MIN(scanqr_date) AS enter_date, 
+            MAX(scanqr_date) AS quit_date 
+        FROM v_info_lesson lsn
+        INNER JOIN t_mst_student stu
+        ON lsn.stu_id = stu.stu_id
         <where>
             <if test="stuId != null and stuId != ''">
-                AND stu_id = #{stuId}
+                AND stu.stu_id = #{stuId}
             </if>
             <if test="delFlg != null">
-                AND del_flg = #{delFlg}
+                AND stu.del_flg = #{delFlg}
             </if>
         </where>
-        order by stu_name
+        GROUP BY stu.stu_id,stu.stu_name,stu.nik_name
+        UNION ALL
+        <!-- 连一次课都没有签到的学生（可能行极小，但是又不能忽略的Pattern） -->
+        SELECT
+            mst.stu_id, 
+            mst.stu_name, 
+            mst.nik_name,
+            NULL AS start_date, 
+            NULL AS end_date 
+        FROM t_mst_student mst
+        <where>
+            <if test="stuId != null and stuId != ''">
+                AND mst.stu_id = #{stuId}
+            </if>
+            <if test="delFlg != null">
+                AND mst.del_flg = #{delFlg}
+            </if>
+        AND NOT EXISTS (
+            SELECT 1 FROM v_info_lesson lsn  
+            WHERE lsn.stu_id = mst.stu_id
+        )
+        </where>
+        ORDER BY stu_name
     </select>
 
     <!-- 后端维护的Web页面里的休学/退学处理-->

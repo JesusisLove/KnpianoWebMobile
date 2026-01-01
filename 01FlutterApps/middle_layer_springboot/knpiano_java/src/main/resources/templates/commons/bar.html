@@ -162,6 +162,13 @@
                         </li>
                         <li>
                             <a class="nav-link" href="#"
+                                th:href="@{/kn_02_f_006_empty_lesson_fee_monthly_pay}"
+                                th:class="${activeUri}=='kn_02_f_006_empty_lesson_fee_monthly_pay_link_active'?'nav-link active':'nav-link'">
+                                <i class="fas fa-file"></i> 空课学费按月支付
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#"
                                 th:href="@{/kn02f005_all/{year}(year=${#dates.year(#dates.createNow())})}"
                                 th:class="${activeUri}=='kn02f005_all_active'?'nav-link active':'nav-link'">
                                 <i class="fas fa-file"></i> 学费月度报表
@@ -203,6 +210,12 @@
                             <a class="nav-link" href="#" th:href="@{/kn_subject_eda_stu_all}"
                                 th:class="${activeUri == 'kn_subject_eda_stu_all_link_active'} ? 'nav-link active' : 'nav-link'">
                                 <i class="fas fa-chart-bar"></i> 按科目查看学生
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="#" th:href="@{/kn_stu_lsn_sign}"
+                                th:class="${activeUri == 'kn_stu_lsn_sign_link_active'} ? 'nav-link active' : 'nav-link'">
+                                <i class="fas fa-chart-bar"></i> 批量执行上课签到
                             </a>
                         </li>
                     </ul>

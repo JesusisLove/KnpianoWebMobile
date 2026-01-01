@@ -130,7 +130,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         addInvisibleRightButton: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             // 新規"➕"按钮的事件处理函数
             onPressed: _isLoading
                 ? null // 如果正在加载，禁用按钮

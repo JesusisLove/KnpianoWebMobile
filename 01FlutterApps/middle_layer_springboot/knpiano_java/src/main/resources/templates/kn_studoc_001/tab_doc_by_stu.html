@@ -4,24 +4,47 @@
 <head>
     <title>Fragments</title>
     <style>
+        body {
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 列控制区域样式 */
         .column-control {
             text-align: right;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             position: relative;
+        }
+
+        .column-control button {
+            background: #34495e !important;
+            border: none;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .column-control button:hover {
+            transform: translateY(-1px) scale(1.02);
         }
 
         .column-menu {
             position: absolute;
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #1abc9c;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(22, 160, 133, 0.3);
             z-index: 1000;
             display: none;
             right: 0;
             top: 100%;
-            min-width: 150px;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .column-menu.show {
@@ -30,18 +53,140 @@
 
         .column-menu label {
             display: block;
-            padding: 5px;
+            padding: 6px 10px;
             cursor: pointer;
             white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            margin: 2px 0;
+            color: #2c3e50;
+            border: 1px solid transparent;
+            background: #ecf0f1;
+            font-size: 11px;
         }
 
         .column-menu label:hover {
-            background-color: #f5f5f5;
+            background: #1abc9c;
+            color: white;
+            transform: translateX(2px);
+            border-color: #16a085;
+        }
+
+        .column-menu input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+            accent-color: #1abc9c;
+        }
+
+        /* 表格样式 */
+        .table {
+            background: white !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .table thead th {
+            background: #2c3e50 !important;
+            color: #ecf0f1 !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            padding: 12px 8px !important;
+            border: 1px solid #34495e !important;
+            font-size: 12px !important;
+            letter-spacing: 0.3px !important;
+            vertical-align: middle !important;
+            text-transform: uppercase !important;
+        }
+
+        .table tbody td {
+            padding: 8px 6px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #ddd !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            text-align: center !important;
+            border-left: 1px solid #ddd !important;
+            border-right: 1px solid #ddd !important;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease !important;
+            border: none !important;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f8f9fa !important;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+
+        .table tbody tr:hover {
+            background: #fff3cd !important;
+            transform: scale(1.01) !important;
+        }
+
+        /* 表格操作按钮样式 */
+        .table .btn-primary {
+            background: #3498db !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            margin-right: 5px !important;
+        }
+
+        .table .btn-primary:hover {
+            transform: translateY(-1px) scale(1.05) !important;
+        }
+
+        .table .btn-danger {
+            background: #e74c3c !important;
+            border: none !important;
+            border-radius: 15px !important;
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .table .btn-danger:hover {
+            transform: translateY(-1px) scale(1.05) !important;
         }
 
         /* 确保操作列始终显示 */
         .action-column {
             display: table-cell !important;
+        }
+
+        /* Tab内容区域 */
+        .tab-pane {
+            background: transparent;
+            border-radius: 10px;
+            padding: 0;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .column-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 180px !important;
+            }
+
+            .table {
+                font-size: 9px !important;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 6px 4px !important;
+                font-size: 9px !important;
+            }
         }
     </style>
 </head>
@@ -143,11 +288,11 @@
                         <td class="col-lessonFeeAdjusted"
                             th:text="${studoc != null && studoc.lessonFeeAdjusted != null ? studoc.lessonFeeAdjusted : ''}">
                         </td>
-                        <td class="col-createDate"
-                            th:text="${studoc != null && studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}">
-                        </td>
                         <td class="col-yearLsnCnt"
                             th:text="${studoc != null && studoc.yearLsnCnt > 0 ? studoc.yearLsnCnt : '--'}">
+                        </td>
+                        <td class="col-createDate"
+                            th:text="${studoc != null && studoc.createDate != null ? #dates.format(studoc.createDate, 'yyyy-MM-dd HH:mm:ss') : ''}">
                         </td>
                         <td class="col-updateDate"
                             th:text="${studoc != null && studoc.updateDate != null ? #dates.format(studoc.updateDate, 'yyyy-MM-dd HH:mm:ss') : ''}">

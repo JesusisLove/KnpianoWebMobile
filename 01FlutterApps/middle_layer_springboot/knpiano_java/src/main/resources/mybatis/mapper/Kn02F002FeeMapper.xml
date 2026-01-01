@@ -29,8 +29,11 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
             <if test="year != null and year != ''">
                 SUBSTRING(main.lsn_month, 1, 4) = #{year}
             </if>
+            <!-- 2025-08-07 结果集导致出现学号为null的原因是，人为地修改了课程表的子科目级别导致，
+                 所以，正常情况下学生学号不会为null，所以不要该条件-->
+            <!-- AND main.stu_id IS NOT NULL -->
         </where>
-        ORDER BY main.stu_name,main.lsn_month
+        ORDER BY main.stu_name,main.lsn_month desc, main.subject_id, main.lesson_type, main.lesson_id desc
     </select>
 
     <!-- 手机前端：学费支付管理的在课学生一览 -->
@@ -41,6 +44,9 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
             <if test="year != null and year != ''">
                 substring(lsn_month, 1, 4) = #{year}
             </if>
+            <!-- 2025-08-07 结果集导致出现学号为null的原因是，人为地修改了课程表的子科目级别导致，
+                 所以，正常情况下学生学号不会为null，所以不要该条件-->
+            <!-- AND stu_id IS NOT NULL -->
         </where>
         order by stu_name
     </select>
@@ -114,12 +120,13 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 AND main.own_flg = #{params.own_flg}
             </if>
         </where>
-        ORDER BY main.stu_name, main.lsn_month desc, main.lsn_fee_id desc, main.subject_id, main.subject_sub_id desc, main.lesson_type
+        ORDER BY main.stu_name, main.lsn_month desc, main.lesson_type, main.subject_id, main.lesson_id desc
     </select> 
 
     <!-- 手机前端用：从学生课程管理表视图中取得在课学生正在上的课程费用 -->
-    <select id="getStuFeeListByYear" resultType="com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean">
+    <select id="getStuFeeListByYearmonth" resultType="com.liu.springboot04web.bean.Kn02F004FeePaid4MobileBean">
         select   stu_id
+                ,stu_name
                 ,lsn_pay_id
                 ,lsn_fee_id
                 ,subject_id
@@ -137,10 +144,50 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
                 ,1 as advc_flg
                 ,'' as bank_name
             from v_info_lesson_sum_fee_unpaid_yet
-            where stu_id = #{stuId}
-            and lsn_month like CONCAT('%', #{year}, '%')
+            <where>
+                stu_id = #{stuId}
+                <if test="yearMonth != null and yearMonth.length() == 4">
+                    AND left(lsn_month, 4) = #{yearMonth}
+                </if>
+                <if test="yearMonth != null and yearMonth.length() == 7">
+                    AND left(lsn_month, 7) = #{yearMonth}
+                </if>
+            </where>
+            <!-- 这部分空月课费的 union all的处理已经合并到 v_info_lesson_fee_connect_lsn_and_extraToScheDataCorrect视图里面了，此处代码废弃-->
+            <!-- 2025-12-22 追加开始： 提前上满43节课后，后续的月份的空课月计划课费的缴纳处理 -->
+        <!-- union all
+        select   stu_id
+                ,stu_name
+                ,lsn_pay_id
+                ,lsn_fee_id
+                ,subject_id
+                ,subject_name
+                ,subject_sub_name
+                ,subject_price
+                ,pay_style
+                ,lesson_type
+                ,lsn_count
+                ,lsn_fee
+                ,0 as lsn_pay
+                ,lsn_month
+                ,pay_date
+                ,own_flg
+                ,1 as advc_flg
+                ,'' as bank_name
+            from v_info_tmp_lesson_after_43_month_fee_unpaid_yet
+            <where>
+                stu_id = #{stuId}
+                <if test="yearMonth != null and yearMonth.length() == 4">
+                    AND left(lsn_month, 4) = #{yearMonth}
+                </if>
+                <if test="yearMonth != null and yearMonth.length() == 7">
+                    AND left(lsn_month, 7) = #{yearMonth}
+                </if>
+            </where> -->
+        <!-- 2025-12-22 追加开始： 提前上满43节课后，后续的月份的空课月计划课费的缴纳处理 -->
         union all
         select   paid.stu_id
+                ,paid.stu_name
                 ,paid.lsn_pay_id
                 ,paid.lsn_fee_id
                 ,paid.subject_id
@@ -162,8 +209,15 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
             on paid.lsn_pay_id = lfap.lsn_pay_id
             left join t_mst_bank bnk
             on paid.bank_id = bnk.bank_id
-            where stu_id = #{stuId}
-            and lsn_month like CONCAT('%', #{year}, '%')
+            <where>
+                stu_id = #{stuId}
+                <if test="yearMonth != null and yearMonth.length() == 4">
+                    AND left(lsn_month, 4) = #{yearMonth}
+                </if>
+                <if test="yearMonth != null and yearMonth.length() == 7">
+                    AND left(lsn_month, 7) = #{yearMonth}
+                </if>
+            </where>
         order by lsn_month, subject_id;
     </select>
 
@@ -231,27 +285,40 @@ https://mybatis.org/mybatis-3/getting-started.htmlf
 
     <!-- 手机前端课程进度统计页面的上课完了Tab页（统计指定年度中的每一个已经签到完了的课程（已支付/未支付的课程都算） -->
     <select id= "getInfoLsnStatisticsByStuId" resultType="com.liu.springboot04web.bean.Kn02F002FeeBean">
-        SELECT 
+        SELECT
            subject_id,subject_name,
            SUM(lsn_count0) AS total_lsn_count0,
            SUM(lsn_count1) AS total_lsn_count1,
            SUM(lsn_count2) AS total_lsn_count2,
-           lsn_month 
+           lsn_month
        FROM
-           (SELECT 
+           (SELECT
                subject_id,subject_name,
                CASE WHEN lesson_type = 0 THEN lsn_count ELSE 0 END AS lsn_count0,
                CASE WHEN lesson_type = 1 THEN lsn_count ELSE 0 END AS lsn_count1,
                CASE WHEN lesson_type = 2 THEN lsn_count ELSE 0 END AS lsn_count2,
                lsn_month
-           FROM 
-               v_info_lsn_statistics_by_stuid 
+           FROM
+               v_info_lsn_statistics_by_stuid
            WHERE stu_id = #{stuId}
              AND substring(lsn_month,1,4) = #{year}
            ) AS derived_table
-       GROUP BY 
+       GROUP BY
            subject_id, subject_name, lsn_month
-       ORDER BY 
+       ORDER BY
            subject_id, lsn_month;
+    </select>
+
+    <!-- 获取该学生上一个支付月份使用的银行ID（用于设置默认银行） -->
+    <select id="getLastPaymentBankId" resultType="String">
+        SELECT pay.bank_id
+        FROM t_info_lesson_pay pay
+        INNER JOIN t_info_lesson_fee fee ON pay.lsn_fee_id = fee.lsn_fee_id
+        LEFT JOIN t_info_lesson lsn ON fee.lesson_id = lsn.lesson_id
+        LEFT JOIN t_info_lesson_tmp tmp ON fee.lesson_id = tmp.lsn_tmp_id
+        WHERE COALESCE(lsn.stu_id, tmp.stu_id) = #{stuId}
+          AND fee.lsn_month &lt; #{currentMonth}
+        ORDER BY fee.lsn_month DESC, pay.pay_date DESC
+        LIMIT 1
     </select>
 </mapper>

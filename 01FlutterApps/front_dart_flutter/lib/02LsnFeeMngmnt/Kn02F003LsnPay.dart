@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
-import '../CommonProcess/CommonMethod.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
 import 'Kn02F002FeeBean.dart';
@@ -15,7 +14,7 @@ import 'Kn02F004UnpaidBean.dart';
 // ignore: must_be_immutable
 class Kn02F003LsnPay extends StatefulWidget {
   final List<Kn02F002FeeBean> monthData;
-  bool allPaid;
+  bool isAllPaid;
   // AppBar背景颜色
   final Color knBgColor;
   // 字体颜色
@@ -26,7 +25,7 @@ class Kn02F003LsnPay extends StatefulWidget {
   Kn02F003LsnPay(
       {super.key,
       required this.monthData,
-      required this.allPaid,
+      required this.isAllPaid,
       required this.knBgColor,
       required this.knFontColor,
       required this.pagePath});
@@ -51,14 +50,34 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     selectedSubjects = List.generate(widget.monthData.length,
         (index) => widget.monthData[index].ownFlg == 1);
     calculateTotalFee();
-    fetchBankList();
+    calculateHasPaidFee();
+    fetchBankList().then((_) {
+      // 检查是否有未支付的课费（至少有一个 ownFlg == 0）
+      bool hasUnpaidFee = widget.monthData.any((item) => item.ownFlg == 0);
+
+      // 只有存在未支付课费时才自动设置默认银行
+      // 如果所有课费都已支付（所有 ownFlg == 1），则不自动设置，用户可手动选择
+      if (hasUnpaidFee) {
+        fetchDefaultBankId();
+      }
+    });
   }
 
+  // 画面初期化，统计课费总额
   void calculateTotalFee() {
     totalFee = widget.monthData.fold(
         0,
         (sum, fee) =>
             sum + (fee.lessonType == 1 ? (fee.subjectPrice! * 4) : fee.lsnFee));
+  }
+
+  // 画面初期化，计算目前已支付课费总额
+  void calculateHasPaidFee() {
+    paymentAmount = widget.monthData.where((item) => item.ownFlg == 1).fold(
+        0.0,
+        (sum, item) =>
+            sum +
+            (item.lessonType == 1 ? (item.subjectPrice! * 4) : item.lsnPay));
   }
 
   void updatePaymentAmount() {
@@ -90,6 +109,33 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
       });
     } else {
       // Handle error
+    }
+  }
+
+  // 获取默认银行ID（上一个月支付时使用的银行）
+  Future<void> fetchDefaultBankId() async {
+    final String stuId = widget.monthData.first.stuId;
+    final String currentMonth = widget.monthData.first.lsnMonth; // 格式：2025-12
+
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.apiDefaultBankId}/$stuId/$currentMonth';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final String bankId = utf8.decode(response.bodyBytes);
+
+        // 如果返回了有效的银行ID，设置为默认选中
+        if (bankId.isNotEmpty) {
+          setState(() {
+            selectedBankId = bankId;
+          });
+        }
+      }
+    } catch (e) {
+      print('Failed to load default bank ID: $e');
+      // 不影响正常流程，用户可以手动选择银行
     }
   }
 
@@ -213,7 +259,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
               onPressed: () {
                 Navigator.of(context).pop();
                 restorePayment(lsnPayId, lsnFeeId);
-                widget.allPaid = false;
+                widget.isAllPaid = false;
               },
             ),
           ],
@@ -245,7 +291,6 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     }
   }
 
-  // 修改: 添加显示银行选择器的方法
 // 修改: 添加显示银行选择器的方法
   void _showBankPicker() {
     // 找到当前选中银行的索引，如果没有选中则默认为0
@@ -320,27 +365,27 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-        title:
-            '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
-        subtitle: "${widget.pagePath} >> $titleName",
-        context: context,
-        appBarBackgroundColor: widget.knBgColor,
-        titleColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red - 20,
-            widget.knFontColor.green - 20,
-            widget.knFontColor.blue - 20),
-        subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
-        addInvisibleRightButton: false,
-        currentNavIndex: 1,
-        subtitleTextColor: Colors.white,
-        titleFontSize: 20.0,
-        subtitleFontSize: 12.0,
-      ),
+          title:
+              '${widget.monthData.first.stuName} ${widget.monthData.first.month}月份的学费账单',
+          subtitle: "${widget.pagePath} >> $titleName",
+          context: context,
+          appBarBackgroundColor: widget.knBgColor,
+          titleColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red - 20,
+              widget.knFontColor.green - 20,
+              widget.knFontColor.blue - 20),
+          subtitleBackgroundColor: Color.fromARGB(
+              widget.knFontColor.alpha,
+              widget.knFontColor.red + 20,
+              widget.knFontColor.green + 20,
+              widget.knFontColor.blue + 20),
+          addInvisibleRightButton: false,
+          currentNavIndex: 1,
+          subtitleTextColor: Colors.white,
+          titleFontSize: 20.0,
+          subtitleFontSize: 12.0,
+          refreshPreviousPage: true), //刷新上一页面
       // 修改: 更新body部分的布局和样式
       body: Column(
         children: [
@@ -358,8 +403,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 bool isPaymentToday = false;
                 if (fee.payDate != null && fee.payDate!.isNotEmpty) {
                   try {
-                    final paymentDate =
-                        CommonMethod.parseServerDate(fee.payDate!);
+                    final paymentDate = DateTime.parse(fee.payDate!);
                     isPaymentToday =
                         DateFormat('yyyy-MM-dd').format(paymentDate) ==
                             DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -492,7 +536,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 const SizedBox(height: 16),
                 // 修改: 调整学费入账按钮的样式
                 ElevatedButton(
-                  onPressed: !widget.allPaid ? validateAndSave : null,
+                  onPressed: !widget.isAllPaid ? validateAndSave : null,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: widget.knFontColor,
                     backgroundColor: widget.knBgColor,
