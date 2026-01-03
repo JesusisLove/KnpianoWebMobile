@@ -648,6 +648,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                             knBgColor: Constants.lessonThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "综合管理 >> 学生课程统计",
+                            selectedYear: selectedYear,
                           ),
                         ),
                       );
@@ -762,6 +763,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                         knBgColor: widget.knBgColor,
                         knFontColor: widget.knFontColor,
                         pagePath: pagePath,
+                        selectedYear: selectedYear,
                       ),
                     ),
                   );
@@ -784,6 +786,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                         knBgColor: widget.knBgColor,
                         knFontColor: widget.knFontColor,
                         pagePath: pagePath,
+                        selectedYear: selectedYear,
                       ),
                     ),
                   );

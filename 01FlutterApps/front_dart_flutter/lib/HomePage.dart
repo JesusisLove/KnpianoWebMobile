@@ -317,13 +317,12 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StudentNameMenuCommon(
+                      builder: (context) => const StudentNameMenuCommon(
                             knBgColor: consts.Constants.lessonThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "上课进度管理>>在课学生一览",
                             pageId: Constants.kn01L002LsnStatistic,
-                            strUri:
-                                '${Constants.lsnInfoStuName}/${DateTime.now().year}',
+                            strUri: Constants.lsnInfoStuName,
                           )));
             },
           },
@@ -335,13 +334,12 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StudentNameMenuCommon(
+                      builder: (context) => const StudentNameMenuCommon(
                             knBgColor: consts.Constants.lessonThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "加课消化管理>>在课学生一览",
                             pageId: Constants.kn01L003ExtraToSche,
-                            strUri:
-                                '${Constants.lsnExtraInfoStuName}/${DateTime.now().year}',
+                            strUri: Constants.lsnExtraInfoStuName,
                           )));
             },
           },
@@ -353,13 +351,12 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StudentNameMenuCommon(
+                      builder: (context) => const StudentNameMenuCommon(
                             knBgColor: consts.Constants.lessonThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "碎课拼成整课>>在课学生一览",
                             pageId: Constants.kn01L003ExtraPiesesIntoOne,
-                            strUri:
-                                '${Constants.piceseLsnStuName}/${DateTime.now().year}',
+                            strUri: Constants.piceseLsnStuName,
                           )));
             },
           },
@@ -380,13 +377,12 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StudentNameMenuCommon(
+                      builder: (context) => const StudentNameMenuCommon(
                             knBgColor: consts.Constants.lsnfeeThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "学费支付管理>>在课学生一览",
                             pageId: Constants.stuLsnFeeListPage,
-                            strUri:
-                                '${Constants.apiStuNameByYear}/${DateTime.now().year}',
+                            strUri: Constants.apiStuNameByYear,
                           )));
             },
           },

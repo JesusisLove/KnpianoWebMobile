@@ -21,6 +21,7 @@ class LsnFeeDetail extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    required this.selectedYear,
   });
   final String stuId;
   final String stuName;
@@ -30,6 +31,7 @@ class LsnFeeDetail extends StatefulWidget {
   final Color knFontColor;
   // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
   late String pagePath;
+  final int selectedYear;
 
   @override
   _LsnFeeDetailState createState() => _LsnFeeDetailState();
@@ -51,7 +53,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     super.initState();
     int currentYear = DateTime.now().year;
     years = List.generate(currentYear - 2017, (index) => currentYear - index);
-    selectedYear = currentYear;
+    selectedYear = widget.selectedYear; // 使用传递过来的年度参数
     _stuNameController = TextEditingController(text: widget.stuName);
     widget.pagePath = '${widget.pagePath} >> $titleName';
     fetchFeeDetails();
@@ -194,6 +196,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                               knBgColor: widget.knBgColor,
                               knFontColor: widget.knFontColor,
                               pagePath: widget.pagePath,
+                              selectedYear: selectedYear,
                             )));
                 if (success == true) {
                   // 如果预支付成功，刷新页面数据

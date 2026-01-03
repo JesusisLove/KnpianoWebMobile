@@ -44,6 +44,13 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
+  // 年度选择器相关
+  int selectedYear = DateTime.now().year;
+  List<int> years = List.generate(
+    DateTime.now().year - 2024 + 1,
+    (index) => 2024 + index,
+  ).reversed.toList(); // 从当前年到2024年，降序排列
+
   @override
   void initState() {
     super.initState();
@@ -65,7 +72,8 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
     setState(() {
       _isLoading = true; // 开始加载
     });
-    final String apiUrl = '${KnConfig.apiBaseUrl}${widget.strUri}';
+    // 将选择的年度作为参数传递给后台
+    final String apiUrl = '${KnConfig.apiBaseUrl}${widget.strUri}/$selectedYear';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -107,6 +115,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
     // 修复：注释掉触觉反馈，避免编译问题
     // HapticFeedback.lightImpact();
     // 导航到页面ID的Mapping文件，根据相应的PageId跳转至PageId对应的业务画面。
+    // 传递选择的年度参数
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -114,6 +123,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
                   pageId: pageId,
                   stuId: stuId,
                   stuName: stuName,
+                  selectedYear: selectedYear,
                 )));
   }
 
@@ -256,14 +266,45 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
             ),
           ),
           const SizedBox(width: 12),
-          Text(
-            _searchQuery.isEmpty
-                ? '共 ${students.length} 名在课学生'
-                : '找到 ${filteredStudents.length} 名学生',
-            style: TextStyle(
-              color: widget.knBgColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              _searchQuery.isEmpty
+                  ? '共 ${students.length} 名在课学生'
+                  : '找到 ${filteredStudents.length} 名学生',
+              style: TextStyle(
+                color: widget.knBgColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          // 年度选择器
+          GestureDetector(
+            onTap: () => _showYearPicker(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+              decoration: BoxDecoration(
+                color: widget.knBgColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: widget.knBgColor.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, color: widget.knBgColor, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$selectedYear年',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: widget.knBgColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_drop_down, color: widget.knBgColor, size: 18),
+                ],
+              ),
             ),
           ),
         ],
@@ -489,6 +530,129 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
       widget.knBgColor.withOpacity(0.7),
     ];
     return colorVariations[index % colorVariations.length];
+  }
+
+  // 显示年度选择器（滚轮式）
+  void _showYearPicker(BuildContext context) {
+    int tempSelectedYear = selectedYear;
+    final initialIndex = years.indexOf(selectedYear);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: 300,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // 顶部标题栏
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: widget.knBgColor.withOpacity(0.1),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('取消', style: TextStyle(fontSize: 16)),
+                        ),
+                        Text(
+                          '选择年度',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: widget.knBgColor,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            if (tempSelectedYear != selectedYear) {
+                              setState(() {
+                                selectedYear = tempSelectedYear;
+                              });
+                              // 刷新数据，将年度作为参数传递给后台
+                              fetchStudents();
+                            }
+                          },
+                          child: Text(
+                            '确定',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: widget.knBgColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 滚轮选择器
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // 中间选中区域的背景
+                        Center(
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: widget.knBgColor.withOpacity(0.1),
+                              border: Border(
+                                top: BorderSide(color: widget.knBgColor.withOpacity(0.3)),
+                                bottom: BorderSide(color: widget.knBgColor.withOpacity(0.3)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // 滚轮
+                        ListWheelScrollView.useDelegate(
+                          controller: FixedExtentScrollController(initialItem: initialIndex >= 0 ? initialIndex : 0),
+                          itemExtent: 50,
+                          perspective: 0.003,
+                          diameterRatio: 1.5,
+                          physics: const FixedExtentScrollPhysics(),
+                          onSelectedItemChanged: (index) {
+                            setModalState(() {
+                              tempSelectedYear = years[index];
+                            });
+                          },
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: years.length,
+                            builder: (context, index) {
+                              final year = years[index];
+                              final isSelected = year == tempSelectedYear;
+                              return Center(
+                                child: Text(
+                                  '$year年',
+                                  style: TextStyle(
+                                    fontSize: isSelected ? 24 : 20,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    color: isSelected ? widget.knBgColor : Colors.black87,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
 

@@ -23,6 +23,7 @@ class Kn01L002LsnStatistic extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    required this.selectedYear,
   });
   final String stuId;
   final String stuName;
@@ -32,6 +33,8 @@ class Kn01L002LsnStatistic extends StatefulWidget {
   final Color knFontColor;
   // 画面迁移路径：例如，上课进度管理>>学生姓名一览>> xxx的课程进度状况
   late String pagePath;
+  // 从上一页面传递过来的年度参数
+  final int selectedYear;
 
   @override
   _Kn01L002LsnStatisticState createState() => _Kn01L002LsnStatisticState();
@@ -63,10 +66,10 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     widget.pagePath = '${widget.pagePath} >> $titleName';
     _tabController = TabController(length: 2, vsync: this);
 
-    // 初始化年份列表和选中年份
+    // 初始化年份列表和选中年份（使用传递过来的年度参数）
     int currentYear = DateTime.now().year;
     _years = List.generate(currentYear - 2017, (index) => currentYear - index);
-    _selectedYear = currentYear;
+    _selectedYear = widget.selectedYear; // 使用传递的年度参数而不是当前年度
     _fetchData();
   }
 
