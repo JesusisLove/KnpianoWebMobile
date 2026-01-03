@@ -20,6 +20,7 @@ class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
   final Color knBgColor;
   final Color knFontColor;
   late String pagePath;
+  final int selectedYear;
 
   Kn02F003AdvcLsnFeePayPage({
     super.key,
@@ -28,6 +29,7 @@ class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    required this.selectedYear,
   });
 
   @override
@@ -36,7 +38,7 @@ class Kn02F003AdvcLsnFeePayPage extends StatefulWidget {
 }
 
 class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
-  int selectedYear = DateTime.now().year;
+  late int selectedYear;
   int selectedMonth = DateTime.now().month;
   List<Kn02F003AdvcLsnFeePayBean> stuFeeDetailList = [];
   int stuFeeDetailCount = 0;
@@ -52,6 +54,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   @override
   void initState() {
     super.initState();
+    selectedYear = widget.selectedYear; // 使用传递过来的年度参数
     int currentYear = DateTime.now().year;
     years = List.generate(currentYear - 2017, (index) => currentYear - index);
     // 设置加载状态并获取数据

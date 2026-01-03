@@ -111,6 +111,7 @@ class Kn01L003ExtraPiesesIntoOne extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    required this.selectedYear,
   });
 
   final String stuId;
@@ -118,6 +119,7 @@ class Kn01L003ExtraPiesesIntoOne extends StatefulWidget {
   final Color knBgColor;
   final Color knFontColor;
   late String pagePath;
+  final int selectedYear;
 
   @override
   _Kn01L003ExtraPiesesIntoOneState createState() =>
@@ -177,7 +179,7 @@ class _Kn01L003ExtraPiesesIntoOneState
   // 获取零碎课数据
   Future<void> _fetchPiecesData() async {
     try {
-      final String currentYear = DateTime.now().year.toString();
+      final String currentYear = widget.selectedYear.toString(); // 使用传递过来的年度参数
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.piceseLsnIntoOne}/$currentYear/${widget.stuId}';
       final response = await http.get(Uri.parse(apiUrl));
@@ -202,7 +204,7 @@ class _Kn01L003ExtraPiesesIntoOneState
   // 获取学生最新课程价格
   Future<void> _fetchLatestPrices() async {
     try {
-      final String currentYear = DateTime.now().year.toString();
+      final String currentYear = widget.selectedYear.toString(); // 使用传递过来的年度参数
       // 在URL路径中包含年度和学生ID
       final String apiUrl =
           '${KnConfig.apiBaseUrl}${Constants.latestLsnPrice}/$currentYear/${widget.stuId}';

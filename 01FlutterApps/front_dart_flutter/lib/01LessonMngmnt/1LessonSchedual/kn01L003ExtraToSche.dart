@@ -26,6 +26,7 @@ class ExtraToSchePage extends StatefulWidget {
     required this.knBgColor,
     required this.knFontColor,
     required this.pagePath,
+    required this.selectedYear,
   });
 
   final String stuId;
@@ -33,6 +34,7 @@ class ExtraToSchePage extends StatefulWidget {
   final Color knBgColor;
   final Color knFontColor;
   late String pagePath;
+  final int selectedYear;
 
   @override
   _ExtraToSchePageState createState() => _ExtraToSchePageState();
@@ -82,7 +84,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
     int currentYear = DateTime.now().year;
     years =
         List.generate(currentYear - 2017 + 1, (index) => currentYear - index);
-    selectedYear = currentYear;
+    selectedYear = widget.selectedYear; // 使用传递过来的年度参数
     widget.pagePath = '${widget.pagePath} >> 加课消化管理';
     futureLessons = fetchLessons();
     // 启动初始数据加载

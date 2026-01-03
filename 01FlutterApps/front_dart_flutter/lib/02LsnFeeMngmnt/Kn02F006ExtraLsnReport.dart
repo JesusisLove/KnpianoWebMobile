@@ -845,6 +845,7 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
           knBgColor: widget.knBgColor,
           knFontColor: widget.knFontColor,
           pagePath: widget.pagePath,
+          selectedYear: selectedYear,
         ),
       ),
     );
