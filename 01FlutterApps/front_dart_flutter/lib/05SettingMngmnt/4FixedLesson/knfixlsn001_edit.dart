@@ -35,6 +35,7 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
   String? selectedStudent;
   String? selectedSubject;
   String? selectedDay;
+  String? originalDay;  // 原始的星期几（用于删除旧记录）
   String? selectedHour;
   String? selectedMinute;
 
@@ -54,6 +55,7 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
       selectedStudent = widget.lesson!.studentName;
       selectedSubject = widget.lesson!.subjectName;
       selectedDay = widget.lesson!.fixedWeek;
+      originalDay = widget.lesson!.fixedWeek;  // 保存原始星期几
       // 设置时间
       selectedHour = widget.lesson!.classTime.split(':')[0];
       selectedMinute = widget.lesson!.classTime.split(':')[1];
@@ -141,7 +143,7 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
               const Text('固定星期几',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              // 修改: 更新DropdownButtonFormField的样式
+              // 修改: 更新DropdownButtonFormField的样式，启用编辑
               DropdownButtonFormField<String>(
                 value: selectedDay,
                 decoration: const InputDecoration(
@@ -149,13 +151,18 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 ),
-                onChanged: null,
-                items: [
-                  DropdownMenuItem<String>(
-                    value: selectedDay,
-                    child: Text(selectedDay!),
-                  )
-                ],
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedDay = newValue;
+                  });
+                },
+                validator: (value) => value == null ? '请选择星期' : null,
+                items: days.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 16),
 
@@ -286,7 +293,8 @@ class ScheduleFormEditState extends State<ScheduleFormEdit> {
         body: jsonEncode(<String, dynamic>{
           'stuId': selectedStuId,
           'subjectId': selectedSubId,
-          'fixedWeek': selectedDay,
+          'originalFixedWeek': originalDay,  // 原始星期几（用于删除）
+          'fixedWeek': selectedDay,          // 新的星期几（用于插入）
           'fixedHour': selectedHour,
           'fixedMinute': selectedMinute,
         }),
