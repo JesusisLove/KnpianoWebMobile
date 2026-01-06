@@ -147,10 +147,11 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
 
     try {
       // 构造targetYearMonth（yyyy-MM格式）
-      final currentYear = DateTime.now().year;
+      // 从selectedYearMonth中提取年份（yyyy-MM格式中的前4个字符）
+      final yearPart = selectedYearMonth.substring(0, 4);
       // 确保月份为两位数格式（添加前导零）
       final formattedMonth = currentDisplayMonth.padLeft(2, '0');
-      final targetYearMonth = '$currentYear-$formattedMonth';
+      final targetYearMonth = '$yearPart-$formattedMonth';
 
       // 构造API URL
       final String apiMonthlyLsnPaidAndUnpaidDetailUrl =
