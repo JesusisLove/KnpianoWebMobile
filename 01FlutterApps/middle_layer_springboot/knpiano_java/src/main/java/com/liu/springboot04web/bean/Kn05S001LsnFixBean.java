@@ -7,6 +7,7 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
     private String stuId;          // 学生ID
     private String subjectId;      // 科目ID
     private String fixedWeek;      // 固定的星期
+    private String originalFixedWeek;  // 原始的星期（用于更新时删除旧记录）
     private Integer fixedHour;     // 固定的小时
     private Integer fixedMinute;   // 固定的分钟
 
@@ -36,6 +37,14 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
 
     public void setFixedWeek(String fixedWeek) {
         this.fixedWeek = fixedWeek;
+    }
+
+    public String getOriginalFixedWeek() {
+        return originalFixedWeek;
+    }
+
+    public void setOriginalFixedWeek(String originalFixedWeek) {
+        this.originalFixedWeek = originalFixedWeek;
     }
 
     public Integer getFixedHour() {
