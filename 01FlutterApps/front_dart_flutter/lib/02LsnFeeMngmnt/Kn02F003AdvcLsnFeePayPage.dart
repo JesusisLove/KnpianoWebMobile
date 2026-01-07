@@ -55,8 +55,7 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   void initState() {
     super.initState();
     selectedYear = widget.selectedYear; // 使用传递过来的年度参数
-    int currentYear = DateTime.now().year;
-    years = List.generate(currentYear - 2017, (index) => currentYear - index);
+    years = Constants.generateYearList(); // 使用统一的年度列表生成方法
     // 设置加载状态并获取数据
     setState(() {
       _isLoading = true;

@@ -67,8 +67,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     _tabController = TabController(length: 2, vsync: this);
 
     // 初始化年份列表和选中年份（使用传递过来的年度参数）
-    int currentYear = DateTime.now().year;
-    _years = List.generate(currentYear - 2017, (index) => currentYear - index);
+    _years = Constants.generateYearList(); // 使用统一的年度列表生成方法
     _selectedYear = widget.selectedYear; // 使用传递的年度参数而不是当前年度
     _fetchData();
   }

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../ApiConfig/KnApiConfig.dart';
+import '../Constants.dart';
 import 'customUI/KnAppBar.dart';
 import 'customUI/KnLoadingIndicator.dart';
 import 'pageIdMapping.dart';
@@ -46,10 +47,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
 
   // 年度选择器相关
   int selectedYear = DateTime.now().year;
-  List<int> years = List.generate(
-    DateTime.now().year - 2024 + 1,
-    (index) => 2024 + index,
-  ).reversed.toList(); // 从当前年到2024年，降序排列
+  List<int> years = Constants.generateYearList(); // 使用统一的年度列表生成方法
 
   @override
   void initState() {

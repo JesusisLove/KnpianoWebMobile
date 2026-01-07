@@ -81,9 +81,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   @override
   void initState() {
     super.initState();
-    int currentYear = DateTime.now().year;
-    years =
-        List.generate(currentYear - 2017 + 1, (index) => currentYear - index);
+    years = Constants.generateYearList(); // 使用统一的年度列表生成方法
     selectedYear = widget.selectedYear; // 使用传递过来的年度参数
     widget.pagePath = '${widget.pagePath} >> 加课消化管理';
     futureLessons = fetchLessons();

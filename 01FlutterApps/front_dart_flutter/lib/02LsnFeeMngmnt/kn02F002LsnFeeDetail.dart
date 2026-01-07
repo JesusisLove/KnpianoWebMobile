@@ -51,8 +51,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
   @override
   void initState() {
     super.initState();
-    int currentYear = DateTime.now().year;
-    years = List.generate(currentYear - 2017, (index) => currentYear - index);
+    years = Constants.generateYearList(); // 使用统一的年度列表生成方法
     selectedYear = widget.selectedYear; // 使用传递过来的年度参数
     _stuNameController = TextEditingController(text: widget.stuName);
     widget.pagePath = '${widget.pagePath} >> $titleName';
