@@ -57,9 +57,7 @@ class _Kn02F006ExtraLsnReportState extends State<Kn02F006ExtraLsnReport> {
 
   // 年度选择
   int selectedYear = DateTime.now().year;
-  List<int> years = List.generate(
-          DateTime.now().year - 2017, (index) => DateTime.now().year - index)
-      .toList();
+  List<int> years = Constants.generateYearList(); // 使用统一的年度列表生成方法
 
   // 数据存储
   List<Kn01L003LsnExtraBean> allExtraLessons = [];

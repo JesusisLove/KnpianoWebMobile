@@ -79,9 +79,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
   int selectedMonthFrom = 1;
   int selectedMonthTo = DateTime.now().month;
 
-  List<int> years = List.generate(
-          DateTime.now().year - 2017, (index) => DateTime.now().year - index)
-      .toList();
+  List<int> years = Constants.generateYearList(); // 使用统一的年度列表生成方法
   List<int> months = List.generate(12, (index) => index + 1);
 
   List<Kn04I003LsnCountingBean> lessonCountingData = [];
