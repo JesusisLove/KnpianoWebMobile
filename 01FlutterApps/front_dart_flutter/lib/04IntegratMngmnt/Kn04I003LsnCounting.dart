@@ -943,8 +943,23 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                 children: years
                     .map((int year) => Center(child: Text('${year}年')))
                     .toList(),
-                onSelectedItemChanged: (int index) =>
-                    setState(() => selectedYear = years[index]),
+                onSelectedItemChanged: (int index) {
+                  setState(() {
+                    selectedYear = years[index];
+
+                    // 🔧 2026-01-09 新增：年度变化时自动调整结束月份
+                    // 如果选择年 < 当前年，结束月自动切换为12月
+                    // 如果选择年 = 当前年，结束月自动切换为当前月
+                    int systemYear = DateTime.now().year;
+                    int systemMonth = DateTime.now().month;
+
+                    if (selectedYear < systemYear) {
+                      selectedMonthTo = 12;
+                    } else if (selectedYear == systemYear) {
+                      selectedMonthTo = systemMonth;
+                    }
+                  });
+                },
               ),
             ),
           ],
