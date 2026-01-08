@@ -499,6 +499,11 @@
                 document.getElementById('errorMessageContent').textContent = errorMessage;
                 document.getElementById('errorMessageDiv').style.display = 'block';
             }
+
+            // 🔧 2026-01-08 修复：添加年度变化监听器，当年度变化时自动提交表单重新查询学生列表
+            document.getElementById('lsnfeeyear').addEventListener('change', function() {
+                this.closest('form').submit();
+            });
         });
 
         // 处理复选框改变事件
