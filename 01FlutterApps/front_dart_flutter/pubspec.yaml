@@ -65,13 +65,24 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-  # 本地开发环境用
-  #  - kn-local-config/apiconfig.json     # 前端设备（真机访问不可，虚拟设备访问可)访问的服务器源：启动本地的SpringBoot，链接本地开发环境数据库（与VPN无关）
-  #  - kn-vpn-config/apiconfig.json        # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动本地的SpringBoot，链接NAS上的测试数据库
-  # NAS测试环境用
-  #  - kn-nas-test-config/apiconfig.json  # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动—NAS上的SpringBoot，链接NAS上的测试环境数据库
-  # NAS本番环境用
-    - kn-nas-config/apiconfig.json       # 前端设备（真机通过VPN链接NAS，访问可）访问的服务器源：启动—NAS上的SpringBoot，链接NAS上的生产环境数据库
+  # ========================================
+  # 2026/01/03更新：支持多环境配置
+  # ========================================
+  # 所有环境配置都打包进应用，运行时通过 --dart-define=ENV=xxx 参数选择加载哪个配置
+  #
+  # 使用方法：
+  #   本地开发：   flutter run -d chrome --dart-define=ENV=local
+  #   VPN开发：    flutter run -d chrome --dart-define=ENV=vpn
+  #   测试环境：   flutter build web --release --dart-define=ENV=test
+  #   生产环境：   flutter build web --release --dart-define=ENV=prod
+  #   默认环境：   flutter run -d chrome (默认使用local)
+  #
+  # 配置文件说明：
+    - kn-local-config/apiconfig.json     # ENV=local  - 本地开发环境（localhost:8080）
+    - kn-vpn-config/apiconfig.json       # ENV=vpn    - VPN开发环境（10.8.0.10:8080）
+    - kn-nas-test-config/apiconfig.json  # ENV=test   - NAS测试环境（192.168.50.101:8964）
+    - kn-nas-config/apiconfig.json       # ENV=prod   - NAS生产环境（192.168.50.101:xxxx）
+  # 临时用的图片资源 
     - images/student-placeholder.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
