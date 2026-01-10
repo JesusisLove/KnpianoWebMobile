@@ -39,6 +39,8 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
   bool _isLoading = false; // 修改加载状态标志
   bool _showDeleteButtons = false; // 控制删除按钮显示的状态
   bool _isDataLoaded = false; // 数据是否已加载完成
+  String _searchQuery = ''; // 搜索关键词
+  final TextEditingController _searchController = TextEditingController(); // 搜索输入控制器
 
   @override
   void initState() {
@@ -46,9 +48,60 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
     fetchStuOffLsnInfo();
   }
 
+  // 显示搜索对话框
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('搜索学生'),
+        content: TextField(
+          controller: _searchController,
+          decoration: const InputDecoration(
+            hintText: '请输入学生姓名',
+            prefixIcon: Icon(Icons.search),
+          ),
+          autofocus: true,
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value;
+            });
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _searchQuery = '';
+                _searchController.clear();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('清除'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 过滤学生列表
+  List<StudentLeaveBean> get filteredStudents {
+    if (_searchQuery.isEmpty) {
+      return students;
+    }
+    return students.where((student) {
+      final name = student.nikName.isNotEmpty ? student.nikName : student.stuName;
+      return name.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
   @override
   void dispose() {
     stuOffLsnNotifier.dispose(); // 释放资源
+    _searchController.dispose(); // 释放搜索控制器
     super.dispose();
   }
 
@@ -168,10 +221,11 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
 
   // 构建网格项目（学生卡片或添加按钮）
   Widget _buildGridItem(int index) {
-    if (index < students.length) {
+    final displayStudents = filteredStudents;
+    if (index < displayStudents.length) {
       // 学生卡片
-      return _buildStudentCard(students[index]);
-    } else if (index == students.length) {
+      return _buildStudentCard(displayStudents[index]);
+    } else if (index == displayStudents.length) {
       // 添加按钮
       return _buildAddButton();
     } else {
@@ -349,6 +403,14 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
         actions: [
+          // 搜索按钮
+          IconButton(
+            icon: const Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: _isLoading ? null : _showSearchDialog,
+          ),
           // 当加载中时禁用按钮
           IconButton(
             icon: Icon(
@@ -371,7 +433,7 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
                       children: [
                         // 计算包含添加按钮的总数量
                         for (int rowIndex = 0;
-                            rowIndex < ((students.length + 1) / 4).ceil();
+                            rowIndex < ((filteredStudents.length + 1) / 4).ceil();
                             rowIndex++)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
