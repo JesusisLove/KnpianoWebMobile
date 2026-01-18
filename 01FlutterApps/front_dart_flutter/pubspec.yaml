@@ -89,6 +89,8 @@ flutter:
     - kn-nas-config/apiconfig.json       # ENV=prod   - NAS生产环境（192.168.50.101:xxxx）
   # 临时用的图片资源
     - images/student-placeholder.png
+  # [Flutter页面主题改造] 2026-01-18 添加背景图片资源
+  #  - images/lesson_header_bg.jpg
   # [Flutter页面主题改造] 2026-01-17 添加主题配置文件
     - assets/themes/fairytale.json       # 童话风格（默认）
     - assets/themes/minimal.json         # 简约风格

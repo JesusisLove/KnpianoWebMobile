@@ -350,26 +350,26 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      // 按钮名称 - 使用深色文字
+                      // 按钮名称 - 使用模块主题颜色
                       Text(
                         text,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
+                          color: borderColor,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      // 功能描述
+                      // 功能描述 - 使用模块主题颜色（稍淡）
                       Text(
                         description,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: borderColor.withOpacity(0.7),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -502,8 +502,8 @@ class HomePageState extends State<HomePage> {
         ];
         // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
-          _buildGridButtons(
-              lessonButtons, KnModuleMapper.getModuleGradientByIndex(context, 0))
+          _buildGridButtons(lessonButtons,
+              KnModuleMapper.getModuleGradientByIndex(context, 0))
         ];
 
       case 1:
@@ -646,8 +646,8 @@ class HomePageState extends State<HomePage> {
         ];
         // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
-          _buildGridButtons(docButtons,
-              KnModuleMapper.getModuleGradientByIndex(context, 2))
+          _buildGridButtons(
+              docButtons, KnModuleMapper.getModuleGradientByIndex(context, 2))
         ];
 
       case 3:
@@ -801,17 +801,30 @@ class HomePageState extends State<HomePage> {
               // Logo区域
               _buildPianoLogo(),
 
-              // 页面标题区域
+              // [Flutter页面主题改造] 2026-01-18 页面标题区域，上课管理模块使用背景图片
               Container(
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  // 上课管理模块(index=0)使用背景图片，其他模块使用渐变色
+                  // image: widget.currentNavIndex == 0
+                  // ? null
+                  // const DecorationImage(
+                  // image: AssetImage('images/lesson_header_bg.jpg'),
+                  // fit: BoxFit.cover,
+                  // )
+                  // : null,
+                  gradient:
+                      // widget.currentNavIndex != 0
+                      //     ?
+                      LinearGradient(
                     colors: pageInfo['gradient'],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                  ),
+                  )
+                  // : null
+                  ,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -891,14 +904,23 @@ class HomePageState extends State<HomePage> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: '上课管理'),
+          // [Flutter页面主题改造] 2026-01-18 上课管理图标改为双音符♫，支持选中颜色变化
+          items: [
             BottomNavigationBarItem(
+                icon: const Text('♫',
+                    style: TextStyle(fontSize: 24, color: Colors.grey)),
+                activeIcon: Text('♫',
+                    style: TextStyle(
+                        fontSize: 24, color: _getPageInfo(0)['gradient'][0])),
+                label: '上课管理'),
+            const BottomNavigationBarItem(
                 icon: Icon(Icons.attach_money), label: '学费管理'),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
                 icon: Icon(Icons.engineering), label: '档案管理'),
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '综合管理'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置管理'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard), label: '综合管理'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: '设置管理'),
           ],
           currentIndex: widget.currentNavIndex,
           selectedItemColor: _getPageInfo(widget.currentNavIndex)['gradient']
