@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:kn_piano/03StuDocMngmnt/1studentBasic/knstu001_list.dart';
 import 'package:kn_piano/03StuDocMngmnt/2subjectBasic/knsub001_list.dart';
 import 'package:kn_piano/05SettingMngmnt/4FixedLesson/knfixlsn001_list.dart';
+// [Flutter页面主题改造] 2026-01-18 添加Provider支持，用于检测当前主题
+import 'package:provider/provider.dart';
 import '01LessonMngmnt/1LessonSchedual/CalendarPage.dart';
 import '02LsnFeeMngmnt/Kn02f005FeeMonthlyReportPage.dart';
 import '02LsnFeeMngmnt/Kn02F006ExtraLsnReport.dart';
@@ -12,10 +14,15 @@ import '04IntegratMngmnt/Kn04I003LsnCounting.dart';
 import '04IntegratMngmnt/SubSubjectOfStudentsListBySubject.dart';
 import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
+// [Flutter页面主题改造] 2026-01-18 添加主题设置页面导入
+import '05SettingMngmnt/6ThemeSetting/ThemeSettingPage.dart';
 import 'ApiConfig/KnApiConfig.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
 import 'Constants.dart'; // 引入包含全局常量的文件
+// [Flutter页面主题改造] 2026-01-17 添加主题系统支持
+import 'theme/kn_theme_colors.dart';
+import 'theme/providers/theme_provider.dart';
 
 // ignore: must_be_immutable
 class HomePage extends StatefulWidget {
@@ -123,59 +130,48 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-17 改造为使用主题系统获取颜色
   // 获取页面标题和描述
   Map<String, dynamic> _getPageInfo(int index) {
+    // 从主题系统获取模块颜色渐变
+    final gradient = KnModuleMapper.getModuleGradientByIndex(context, index);
+
     switch (index) {
       case 0:
         return {
           'title': '上课管理',
           'subtitle': '课程安排与进度跟踪',
-          'gradient': [
-            const Color(0xFF2B7805),
-            const Color(0xFFa8e6cf)
-          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
+          'gradient': gradient,
         };
       case 1:
         return {
           'title': '学费管理',
           'subtitle': '学费收支与财务统计',
-          'gradient': [
-            const Color(0xFFf5576c),
-            const Color(0xFFf093fb)
-          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
+          'gradient': gradient,
         };
       case 2:
         return {
           'title': '档案管理',
           'subtitle': '学生信息与档案维护',
-          'gradient': [
-            const Color(0xFF8B4513),
-            const Color(0xFFCD853F)
-          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
+          'gradient': gradient,
         };
       case 3:
         return {
           'title': '综合管理',
           'subtitle': '统计分析与综合查询',
-          'gradient': [
-            const Color.fromARGB(255, 122, 4, 133),
-            const Color.fromARGB(255, 212, 176, 219)
-          ], // 从前到后颜色渐变（深色的是该模块的主题颜色）
+          'gradient': gradient,
         };
       case 4:
         return {
           'title': '设置管理',
           'subtitle': '系统配置与个性化设置',
-          'gradient': [
-            const Color(0xFF764ba2),
-            const Color(0xFF667eea)
-          ] // 从前到后颜色渐变（深色的是该模块的主题颜色）,
+          'gradient': gradient,
         };
       default:
         return {
           'title': '管理系统',
           'subtitle': '欢迎使用',
-          'gradient': [Colors.blue, Colors.purple],
+          'gradient': gradient,
         };
     }
   }
@@ -261,9 +257,141 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  // 创建方块网格布局（在前端设备上居上居下居左居右的尺寸设置）
+  // [Flutter页面主题改造] 2026-01-18 创建童话风格按钮（手绘风格边框、白色背景）
+  Widget _buildFairytaleButton({
+    required IconData iconData,
+    required String text,
+    required String description,
+    required VoidCallback onPressed,
+    required Color borderColor,
+  }) {
+    return Container(
+      height: 140,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        // 手绘风格：使用双重边框模拟手绘效果
+        border: Border.all(
+          color: borderColor,
+          width: 3,
+        ),
+        boxShadow: [
+          // 外层阴影模拟手绘的不规则感
+          BoxShadow(
+            color: borderColor.withOpacity(0.15),
+            blurRadius: 0,
+            spreadRadius: 2,
+            offset: const Offset(3, 3),
+          ),
+          // 内层柔和阴影
+          BoxShadow(
+            color: borderColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              // 装饰性小元素（角落的小星星/小点）
+              Positioned(
+                top: 8,
+                right: 12,
+                child: Text(
+                  '✦',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: borderColor.withOpacity(0.6),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 12,
+                child: Text(
+                  '·',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: borderColor.withOpacity(0.5),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              // 主要内容 - 使用Center确保完全居中
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 图标容器 - 简单线条风格
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: borderColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: borderColor.withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          iconData,
+                          color: borderColor.withOpacity(0.8),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // 按钮名称 - 使用深色文字
+                      Text(
+                        text,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      // 功能描述
+                      Text(
+                        description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // [Flutter页面主题改造] 2026-01-18 修改方块网格布局，根据主题选择按钮样式
   Widget _buildGridButtons(
       List<Map<String, dynamic>> buttonData, List<Color> gradient) {
+    // 检测当前是否为童话风格主题
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isFairytaleTheme = themeProvider.currentThemeId == 'fairytale';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28), // 左右边距大小调整
       child: GridView.builder(
@@ -278,13 +406,24 @@ class HomePageState extends State<HomePage> {
         itemCount: buttonData.length,
         itemBuilder: (context, index) {
           final button = buttonData[index];
-          return _buildSquareButton(
-            iconData: button['icon'],
-            text: button['text'],
-            description: button['description'],
-            onPressed: button['onPressed'],
-            gradient: gradient,
-          );
+          // 根据主题选择按钮样式
+          if (isFairytaleTheme) {
+            return _buildFairytaleButton(
+              iconData: button['icon'],
+              text: button['text'],
+              description: button['description'],
+              onPressed: button['onPressed'],
+              borderColor: gradient[0], // 使用主色作为边框颜色
+            );
+          } else {
+            return _buildSquareButton(
+              iconData: button['icon'],
+              text: button['text'],
+              description: button['description'],
+              onPressed: button['onPressed'],
+              gradient: gradient,
+            );
+          }
         },
       ),
     );
@@ -361,9 +500,10 @@ class HomePageState extends State<HomePage> {
             },
           },
         ];
+        // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
           _buildGridButtons(
-              lessonButtons, [const Color(0xFF2B7805), const Color(0xFFa8e6cf)])
+              lessonButtons, KnModuleMapper.getModuleGradientByIndex(context, 0))
         ];
 
       case 1:
@@ -434,9 +574,10 @@ class HomePageState extends State<HomePage> {
             },
           },
         ];
+        // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
           _buildGridButtons(
-              feeButtons, [const Color(0xFFf5576c), const Color(0xFFf093fb)])
+              feeButtons, KnModuleMapper.getModuleGradientByIndex(context, 1))
         ];
 
       case 2:
@@ -503,9 +644,10 @@ class HomePageState extends State<HomePage> {
             },
           },
         ];
+        // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
           _buildGridButtons(docButtons,
-              [const Color(0xFF8B4513), const Color(0xFFCD853F)]) // 保留棕色系
+              KnModuleMapper.getModuleGradientByIndex(context, 2))
         ];
 
       case 3:
@@ -564,11 +706,10 @@ class HomePageState extends State<HomePage> {
             'onPressed': () {},
           },
         ];
+        // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
-          _buildGridButtons(integrationButtons, [
-            const Color.fromARGB(255, 122, 4, 133),
-            const Color.fromARGB(255, 212, 176, 219)
-          ])
+          _buildGridButtons(integrationButtons,
+              KnModuleMapper.getModuleGradientByIndex(context, 3))
         ];
 
       case 4:
@@ -611,17 +752,26 @@ class HomePageState extends State<HomePage> {
             },
           },
           {
-            'icon': Icons.backup,
+            'icon': Icons.palette,
             'text': "选项设置",
-            'description': "系统选项设置",
+            'description': "主题风格切换",
+            // [Flutter页面主题改造] 2026-01-18 导航到主题设置页面
             'onPressed': () {
-              // 占位按钮
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ThemeSettingPage(
+                            knBgColor: consts.Constants.settngThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "设置管理",
+                          )));
             },
           },
         ];
+        // [Flutter页面主题改造] 2026-01-17 使用主题系统颜色
         return [
           _buildGridButtons(settingsButtons,
-              [const Color(0xFF764ba2), const Color(0xFF667eea)])
+              KnModuleMapper.getModuleGradientByIndex(context, 4))
         ];
 
       default:
