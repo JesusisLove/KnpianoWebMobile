@@ -66,6 +66,8 @@ class ThemeColors {
   final Color border;
   final ModuleColors modules;
   final StatusColors status;
+  // [Flutter页面主题改造] 2026-01-20 添加课程卡片颜色配置
+  final LessonCardColors lessonCard;
 
   ThemeColors({
     required this.background,
@@ -77,6 +79,7 @@ class ThemeColors {
     required this.border,
     required this.modules,
     required this.status,
+    required this.lessonCard,
   });
 
   factory ThemeColors.fromJson(Map<String, dynamic> json) {
@@ -90,6 +93,7 @@ class ThemeColors {
       border: _parseColor(json['border']),
       modules: ModuleColors.fromJson(json['modules']),
       status: StatusColors.fromJson(json['status']),
+      lessonCard: LessonCardColors.fromJson(json['lessonCard'] ?? {}),
     );
   }
 
@@ -164,6 +168,28 @@ class StatusColors {
       error: ThemeColors._parseColor(json['error']),
       info: ThemeColors._parseColor(json['info']),
       disabled: ThemeColors._parseColor(json['disabled']),
+    );
+  }
+}
+
+/// [Flutter页面主题改造] 2026-01-20 课程卡片颜色配置
+/// 用于区分不同类型课程的背景颜色
+class LessonCardColors {
+  final Color planned;  // 计划课背景色
+  final Color extra;    // 加课背景色
+  final Color hourly;   // 课时课背景色
+
+  LessonCardColors({
+    required this.planned,
+    required this.extra,
+    required this.hourly,
+  });
+
+  factory LessonCardColors.fromJson(Map<String, dynamic> json) {
+    return LessonCardColors(
+      planned: ThemeColors._parseColor(json['planned'] ?? '#BBDEFB'),
+      extra: ThemeColors._parseColor(json['extra'] ?? '#FFCDD2'),
+      hourly: ThemeColors._parseColor(json['hourly'] ?? '#C8E6C9'),
     );
   }
 }

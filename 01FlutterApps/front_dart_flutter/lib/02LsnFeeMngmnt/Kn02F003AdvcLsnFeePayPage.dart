@@ -110,49 +110,62 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   }
 
   // 显示年份选择器
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showYearPicker() {
+    int tempSelectedIndex = years.indexOf(selectedYear);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.pink[50],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: controlHeight,
-                decoration: BoxDecoration(
-                  color: Colors.pink[100],
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(10)),
-                ),
-                child: const Center(
-                  child: Text(
-                    '选择年份',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red),
+        return StatefulBuilder(
+          builder: (context, setPickerState) => Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.pink[50],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  height: controlHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.pink[100],
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(10)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '选择年份',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32.0,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      selectedYear = years[index];
-                    });
-                  },
-                  children: years
-                      .map((year) => Center(
-                          child: Text(year.toString(),
-                              style: const TextStyle(color: Colors.red))))
-                      .toList(),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 32.0,
+                    scrollController: FixedExtentScrollController(
+                        initialItem: tempSelectedIndex),
+                    onSelectedItemChanged: (int index) {
+                      setPickerState(() {
+                        tempSelectedIndex = index;
+                      });
+                      setState(() {
+                        selectedYear = years[index];
+                      });
+                    },
+                    children: years.asMap().entries
+                        .map((entry) => Center(
+                            child: Text(entry.value.toString(),
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: entry.key == tempSelectedIndex
+                                        ? FontWeight.bold
+                                        : FontWeight.normal))))
+                        .toList(),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -160,49 +173,62 @@ class _Kn02F003AdvcLsnFeePayPageState extends State<Kn02F003AdvcLsnFeePayPage> {
   }
 
   // 显示月份选择器
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showMonthPicker() {
+    int tempSelectedIndex = months.indexOf(selectedMonth);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.pink[50],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.pink[100],
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(10)),
-                ),
-                child: const Center(
-                  child: Text(
-                    '选择月份',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red),
+        return StatefulBuilder(
+          builder: (context, setPickerState) => Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.pink[50],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.pink[100],
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(10)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '选择月份',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32.0,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      selectedMonth = months[index];
-                    });
-                  },
-                  children: months
-                      .map((month) => Center(
-                          child: Text(month.toString().padLeft(2, '0'),
-                              style: const TextStyle(color: Colors.red))))
-                      .toList(),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 32.0,
+                    scrollController: FixedExtentScrollController(
+                        initialItem: tempSelectedIndex),
+                    onSelectedItemChanged: (int index) {
+                      setPickerState(() {
+                        tempSelectedIndex = index;
+                      });
+                      setState(() {
+                        selectedMonth = months[index];
+                      });
+                    },
+                    children: months.asMap().entries
+                        .map((entry) => Center(
+                            child: Text(entry.value.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: entry.key == tempSelectedIndex
+                                        ? FontWeight.bold
+                                        : FontWeight.normal))))
+                        .toList(),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
