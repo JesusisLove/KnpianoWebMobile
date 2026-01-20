@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kn_piano/ApiConfig/KnApiConfig.dart';
 import 'package:kn_piano/Constants.dart';
+import 'package:kn_piano/theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-19
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -877,9 +878,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       );
                     } else {
                       // 加载时只显示时间轴，不显示事件
+                      // [Flutter页面主题改造] 2026-01-20 修复时间轴初始化闪烁问题，添加与TimeTile相同的padding
                       return GestureDetector(
                         onTap: () {}, // 加载时禁用点击
-                        child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             children: [
                               SizedBox(
@@ -1188,14 +1191,19 @@ class _TimeTileState extends State<TimeTile>
 
   @override
   Widget build(BuildContext context) {
+    // [Flutter页面主题改造] 2026-01-18 时间轴行间距调整为原来的2倍
     return GestureDetector(
       // 将GestureDetector移到最外层
       onTap: widget.onTap,
       child: Container(
         child: widget.events.isEmpty
-            ? _buildTimeLine()
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0), // 无事件时也添加间距
+                child: _buildTimeLine(),
+              )
             : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 8.0), // 4.0 -> 8.0 (2倍)
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1378,14 +1386,14 @@ class _TimeTileState extends State<TimeTile>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // [Flutter页面主题改造] 2026-01-19 使用JSON配置的字体样式
                     Text(
                       event.stuName,
-                      style: TextStyle(
+                      style: KnElementTextStyle.cardTitle(
+                        context,
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
                         color: textColor,
-                        decoration: textDecoration,
-                      ),
+                      ).copyWith(decoration: textDecoration),
                     ),
                     const SizedBox(height: 4),
                     Row(

@@ -7,6 +7,7 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn02f005FeeMonthlyReportBean.dart';
 import 'Kn02F003LsnPay.dart';
 import 'Kn02F002FeeBean.dart';
@@ -217,7 +218,7 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
     }
   }
 
-  // 显示月份选择器
+  // [Flutter页面主题改造] 2026-01-18 月份选择器字体跟随主题风格
   void _showMonthPicker() {
     // 默认选中当前显示的月份
     tempSelectedMonthIndex =
@@ -247,27 +248,26 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
                 children: [
                   CupertinoButton(
                     padding: const EdgeInsets.all(0),
-                    child: const Text(
+                    child: Text(
                       '取消',
-                      style: TextStyle(color: Colors.white),
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  const Text(
+                  Text(
                     '选择月份',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: KnPickerTextStyle.pickerTitle(context,
+                        color: Colors.white),
                   ),
                   CupertinoButton(
                     padding: const EdgeInsets.all(0),
-                    child: const Text(
+                    child: Text(
                       '确定',
-                      style: TextStyle(color: Colors.white),
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
@@ -296,7 +296,9 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
                   initialItem: tempSelectedMonthIndex,
                 ),
                 children: widget.availableMonths
-                    .map((month) => Text('$month月份'))
+                    .map((month) => Text('$month月份',
+                        style: KnPickerTextStyle.pickerItem(context,
+                            fontSize: 18)))
                     .toList(),
                 onSelectedItemChanged: (index) {
                   // 只记录临时选择的索引，不立即执行数据获取

@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F003AdvcLsnFeePayPage.dart';
 import 'Kn02F003LsnPay.dart';
@@ -101,6 +102,8 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
     }
   }
 
+  // [Flutter页面主题改造] 2026-01-18 年份选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-19 修复取消/确定按钮字体颜色不一致问题
   void _showYearPicker() {
     showCupertinoModalPopup(
       context: context,
@@ -116,18 +119,18 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
-                    child:
-                        Text('取消', style: TextStyle(color: widget.knFontColor)),
+                    child: Text('取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Text('选择年份',
-                      style: TextStyle(
-                          color: widget.knFontColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14)),
+                      style: KnPickerTextStyle.pickerTitle(context,
+                          color: Colors.white, fontSize: 14)),
                   CupertinoButton(
-                    child:
-                        Text('确定', style: TextStyle(color: widget.knFontColor)),
+                    child: Text('确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
                     onPressed: () {
                       Navigator.of(context).pop();
                       // 确定按钮点击后立即调用获取数据方法
@@ -147,8 +150,9 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                 },
                 children: years
                     .map((year) => Center(
-                        child: Text(year.toString(),
-                            style: TextStyle(color: widget.knBgColor))))
+                        child: Text('$year年',
+                            style: KnPickerTextStyle.pickerItem(context,
+                                color: widget.knBgColor, fontSize: 18))))
                     .toList(),
               ),
             ),
@@ -178,6 +182,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: false,
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         currentNavIndex: 1,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,

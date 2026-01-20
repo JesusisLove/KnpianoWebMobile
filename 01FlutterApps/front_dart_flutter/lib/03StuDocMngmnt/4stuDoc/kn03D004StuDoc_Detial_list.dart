@@ -102,7 +102,7 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
         subtitleTextColor: Colors.white,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
-
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         actions: [
           IconButton(
               icon: const Icon(

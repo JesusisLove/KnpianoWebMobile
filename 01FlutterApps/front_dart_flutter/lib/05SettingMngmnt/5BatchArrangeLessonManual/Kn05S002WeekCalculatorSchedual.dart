@@ -227,6 +227,7 @@ class _Kn05S002WeekCalculatorSchedualState
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小
         addInvisibleRightButton: true,
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         actions: [
           PopupMenuButton<String>(
             icon: Icon(Icons.more_horiz, color: widget.knFontColor),

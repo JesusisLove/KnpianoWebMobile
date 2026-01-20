@@ -85,6 +85,7 @@ class _BankStuPageViewState extends State<BankStuPageView> {
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         actions: <Widget>[
           IconButton(
             icon: const Icon(

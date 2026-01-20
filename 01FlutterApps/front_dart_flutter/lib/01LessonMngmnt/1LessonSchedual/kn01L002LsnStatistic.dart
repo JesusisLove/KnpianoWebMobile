@@ -11,6 +11,7 @@ import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'CalendarPage.dart';
 import 'Kn01L002LsnBean.dart';
 
@@ -223,7 +224,7 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
     return sortedUniqueSubjects;
   }
 
-  // 显示年份选择器
+  // [Flutter页面主题改造] 2026-01-18 年份选择器字体跟随主题风格
   void _showYearPicker() {
     int tempSelectedYear = _selectedYear;
     showCupertinoModalPopup<void>(
@@ -251,13 +252,15 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
-                      child: const Text('取消',
-                          style: TextStyle(color: Colors.black)),
+                      child: Text('取消',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.black)),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     CupertinoButton(
-                      child: const Text('确定',
-                          style: TextStyle(color: Colors.black)),
+                      child: Text('确定',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.black)),
                       onPressed: () {
                         setState(() {
                           _selectedYear = tempSelectedYear;
@@ -285,10 +288,8 @@ class _Kn01L002LsnStatisticState extends State<Kn01L002LsnStatistic>
                     return Center(
                       child: Text(
                         _years[index].toString(),
-                        style: const TextStyle(
-                          color: Color(0xFF1B5E20), // 年度的深绿色字体
-                          fontSize: 20,
-                        ),
+                        style: KnPickerTextStyle.pickerItem(context,
+                            color: const Color(0xFF1B5E20)), // 年度的深绿色字体
                       ),
                     );
                   }),

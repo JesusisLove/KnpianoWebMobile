@@ -7,7 +7,7 @@
   "author": "KNPiano Team",
 
   "colors": {
-    "background": "#FFF8E1",
+    "background": "#FFFFFF",
     "cardBackground": "#FFFFFF",
     "primaryText": "#5D4037",
     "secondaryText": "#8D6E63",
@@ -54,12 +54,23 @@
       "web": "ZCOOL KuaiLe"
     },
     "useGoogleFont": true,
-    "h1": { "size": 24, "weight": "bold", "height": 1.4 },
-    "h2": { "size": 20, "weight": "bold", "height": 1.4 },
+    "h1": { "size": 24, "weight": "regular", "height": 1.4 },
+    "h2": { "size": 20, "weight": "regular", "height": 1.4 },
     "h3": { "size": 18, "weight": "medium", "height": 1.4 },
     "body1": { "size": 16, "weight": "regular", "height": 1.5 },
     "body2": { "size": 14, "weight": "regular", "height": 1.5 },
-    "caption": { "size": 12, "weight": "regular", "height": 1.4 }
+    "caption": { "size": 12, "weight": "regular", "height": 1.4 },
+    "elements": {
+      "cardTitle": { "weight": "regular", "style": "normal" },
+      "listItemTitle": { "weight": "regular", "style": "normal" },
+      "tableHeader": { "weight": "medium", "style": "normal" },
+      "buttonText": { "weight": "regular", "style": "normal" },
+      "dialogTitle": { "weight": "medium", "style": "normal" },
+      "pickerItem": { "weight": "regular", "style": "normal" },
+      "appBarTitle": { "weight": "light", "style": "normal" },
+      "moduleTitle": { "weight": "regular", "style": "normal" },
+      "moduleSubtitle": { "weight": "regular", "style": "normal" }
+    }
   },
 
   "shapes": {

@@ -271,9 +271,10 @@ class HomePageState extends State<HomePage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         // 手绘风格：使用双重边框模拟手绘效果
+        // [Flutter页面主题改造] 2026-01-19 调细边框线宽度
         border: Border.all(
           color: borderColor,
-          width: 3,
+          width: 1,
         ),
         boxShadow: [
           // 外层阴影模拟手绘的不规则感
@@ -340,7 +341,7 @@ class HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: borderColor.withOpacity(0.3),
-                            width: 2,
+                            width: 1, // [Flutter页面主题改造] 2026-01-19 调细边框线宽度
                           ),
                         ),
                         child: Icon(
@@ -842,17 +843,22 @@ class HomePageState extends State<HomePage> {
                         children: [
                           Text(
                             pageInfo['title'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                              // [Flutter页面主题改造] 2026-01-20 fontWeight从JSON配置读取
+                              fontWeight: Provider.of<ThemeProvider>(context, listen: false)
+                                  .currentConfig.typography.elements.moduleTitle.fontWeight,
                               color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             pageInfo['subtitle'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
+                              // [Flutter页面主题改造] 2026-01-20 fontWeight从JSON配置读取
+                              fontWeight: Provider.of<ThemeProvider>(context, listen: false)
+                                  .currentConfig.typography.elements.moduleSubtitle.fontWeight,
                               color: Colors.white70,
                             ),
                           ),
@@ -905,13 +911,21 @@ class HomePageState extends State<HomePage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           // [Flutter页面主题改造] 2026-01-18 上课管理图标改为双音符♫，支持选中颜色变化
+          // [Flutter页面主题改造] 2026-01-19 修复底部导航栏文字对齐问题
+          // [Flutter页面主题改造] 2026-01-20 修复上课管理图标被遮挡问题，fontSize从24调整为20
           items: [
             BottomNavigationBarItem(
-                icon: const Text('♫',
-                    style: TextStyle(fontSize: 24, color: Colors.grey)),
-                activeIcon: Text('♫',
-                    style: TextStyle(
-                        fontSize: 24, color: _getPageInfo(0)['gradient'][0])),
+                icon: const SizedBox(
+                    height: 24,
+                    child: Center(
+                        child: Text('♫',
+                            style: TextStyle(fontSize: 20, color: Colors.grey)))),
+                activeIcon: SizedBox(
+                    height: 24,
+                    child: Center(
+                        child: Text('♫',
+                            style: TextStyle(
+                                fontSize: 20, color: _getPageInfo(0)['gradient'][0])))),
                 label: '上课管理'),
             const BottomNavigationBarItem(
                 icon: Icon(Icons.attach_money), label: '学费管理'),
@@ -927,7 +941,7 @@ class HomePageState extends State<HomePage> {
               [0],
           unselectedItemColor: Colors.grey,
           selectedFontSize: 12,
-          unselectedFontSize: 10,
+          unselectedFontSize: 12, // 统一字体大小以确保对齐
           onTap: _onItemTapped,
         ),
       ),

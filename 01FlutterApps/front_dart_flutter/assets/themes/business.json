@@ -53,12 +53,24 @@
       "android": "Roboto",
       "web": "Roboto"
     },
+    "useGoogleFont": false,
     "h1": { "size": 26, "weight": "bold", "height": 1.3 },
     "h2": { "size": 22, "weight": "bold", "height": 1.3 },
     "h3": { "size": 18, "weight": "medium", "height": 1.3 },
     "body1": { "size": 16, "weight": "regular", "height": 1.6 },
     "body2": { "size": 14, "weight": "regular", "height": 1.5 },
-    "caption": { "size": 12, "weight": "regular", "height": 1.4 }
+    "caption": { "size": 12, "weight": "regular", "height": 1.4 },
+    "elements": {
+      "cardTitle": { "weight": "bold", "style": "normal" },
+      "listItemTitle": { "weight": "bold", "style": "normal" },
+      "tableHeader": { "weight": "bold", "style": "normal" },
+      "buttonText": { "weight": "bold", "style": "normal" },
+      "dialogTitle": { "weight": "bold", "style": "normal" },
+      "pickerItem": { "weight": "regular", "style": "normal" },
+      "appBarTitle": { "weight": "bold", "style": "normal" },
+      "moduleTitle": { "weight": "bold", "style": "normal" },
+      "moduleSubtitle": { "weight": "regular", "style": "normal" }
+    }
   },
 
   "shapes": {

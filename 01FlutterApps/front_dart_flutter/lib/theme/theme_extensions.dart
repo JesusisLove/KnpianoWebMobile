@@ -1,7 +1,9 @@
 // [Flutter页面主题改造] 2026-01-17 新增主题扩展辅助类
 // 提供便捷的BuildContext扩展方法，方便页面访问主题配置
+// [Flutter页面主题改造] 2026-01-18 添加选择器字体样式支持
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'models/theme_config.dart';
 import 'providers/theme_provider.dart';
@@ -77,5 +79,185 @@ extension KnModuleExtension on KnModule {
   /// 获取模块颜色
   ModuleColor getColor(BuildContext context) {
     return context.getModuleColor(name);
+  }
+}
+
+// [Flutter页面主题改造] 2026-01-18 选择器字体样式辅助类
+// [Flutter页面主题改造] 2026-01-19 改为使用JSON配置，移除硬编码判断
+/// 主题感知的选择器字体样式
+class KnPickerTextStyle {
+  /// 获取选择器项目的字体样式（年份、月份等）
+  static TextStyle pickerItem(BuildContext context, {double fontSize = 20, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.pickerItem;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color ?? Colors.black,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取选择器按钮的字体样式（取消、确定等）
+  static TextStyle pickerButton(BuildContext context, {double fontSize = 16, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.buttonText;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color ?? Colors.blue,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取选择器标题的字体样式
+  static TextStyle pickerTitle(BuildContext context, {double fontSize = 16, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.dialogTitle;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color ?? Colors.white,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+}
+
+// [Flutter页面主题改造] 2026-01-19 元素字体样式辅助类
+/// 主题感知的元素字体样式
+class KnElementTextStyle {
+  /// 获取卡片标题的字体样式（如学生姓名）
+  static TextStyle cardTitle(BuildContext context, {double fontSize = 18, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.cardTitle;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取列表项标题的字体样式
+  static TextStyle listItemTitle(BuildContext context, {double fontSize = 16, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.listItemTitle;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取表头的字体样式
+  static TextStyle tableHeader(BuildContext context, {double fontSize = 14, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.tableHeader;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取按钮文字的字体样式
+  static TextStyle buttonText(BuildContext context, {double fontSize = 16, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.buttonText;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取对话框标题的字体样式
+  static TextStyle dialogTitle(BuildContext context, {double fontSize = 16, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.dialogTitle;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// 获取AppBar标题的字体样式
+  static TextStyle appBarTitle(BuildContext context, {double fontSize = 20, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.appBarTitle;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
   }
 }
