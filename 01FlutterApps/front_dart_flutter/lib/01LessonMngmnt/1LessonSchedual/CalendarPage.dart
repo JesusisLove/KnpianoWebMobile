@@ -1203,7 +1203,7 @@ class _TimeTileState extends State<TimeTile>
               )
             : Padding(
                 padding: const EdgeInsets.symmetric(
-                    vertical: 8.0), // 4.0 -> 8.0 (2倍)
+                    vertical: 8.0), // 4.0 -> 8.0 (行间距调整为原来的2倍)
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1335,7 +1335,21 @@ class _TimeTileState extends State<TimeTile>
       backgroundColor = Colors.grey.shade500;
       additionalInfo = '调课From：${event.schedualDate}';
     } else if (isScheduledUnsignedLsn) {
-      backgroundColor = Colors.blue.shade100;
+      // [Flutter页面主题改造] 2026-01-20 根据课程类型设置不同背景颜色
+      // lessonType: 0=课时课(绿色), 1=计划课(蓝色), 2=加课(粉色)
+      final lessonCardColors = context.lessonCardColors;
+      switch (event.lessonType) {
+        case 0: // 课时课
+          backgroundColor = lessonCardColors.hourly;
+          break;
+        case 2: // 加课
+          backgroundColor = lessonCardColors.extra;
+          break;
+        case 1: // 计划课
+        default:
+          backgroundColor = lessonCardColors.planned;
+          break;
+      }
     } else if (isScheduledSignedLsn) {
       backgroundColor = Colors.grey.shade500;
     } else {

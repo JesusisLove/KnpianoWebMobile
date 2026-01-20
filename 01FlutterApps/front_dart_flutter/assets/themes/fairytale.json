@@ -44,6 +44,12 @@
       "error": "#E57373",
       "info": "#64B5F6",
       "disabled": "#BDBDBD"
+    },
+
+    "lessonCard": {
+      "planned": "#BBDEFB",
+      "extra": "#FFCDD2",
+      "hourly": "#C8E6C9"
     }
   },
 

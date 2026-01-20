@@ -293,6 +293,8 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
   }
 
 // 修改: 添加显示银行选择器的方法
+  // [Flutter页面主题改造] 2026-01-18 银行选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showBankPicker() {
     // 找到当前选中银行的索引，如果没有选中则默认为0
     int initialIndex = 0;
@@ -305,62 +307,68 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     // 临时存储选择的索引
     int tempSelectedIndex = initialIndex;
 
-    // [Flutter页面主题改造] 2026-01-18 银行选择器字体跟随主题风格
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => Container(
-        height: 250,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              color: widget.knBgColor,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    child: Text('取消',
-                        style: KnPickerTextStyle.pickerButton(context,
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                color: widget.knBgColor,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      child: Text('取消',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: widget.knFontColor)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Text('选择银行',
+                        style: KnPickerTextStyle.pickerTitle(context,
                             color: widget.knFontColor)),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  Text('选择银行',
-                      style: KnPickerTextStyle.pickerTitle(context,
-                          color: widget.knFontColor)),
-                  CupertinoButton(
-                    child: Text('确定',
-                        style: KnPickerTextStyle.pickerButton(context,
-                            color: widget.knFontColor)),
-                    onPressed: () {
-                      // 点击确定时更新selectedBankId
-                      setState(() {
-                        selectedBankId = bankList[tempSelectedIndex]['bankId'];
-                      });
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+                    CupertinoButton(
+                      child: Text('确定',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: widget.knFontColor)),
+                      onPressed: () {
+                        // 点击确定时更新selectedBankId
+                        setState(() {
+                          selectedBankId = bankList[tempSelectedIndex]['bankId'];
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 32.0,
-                // 设置初始选中的项目
-                scrollController:
-                    FixedExtentScrollController(initialItem: initialIndex),
-                onSelectedItemChanged: (int index) {
-                  // 更新临时选择的索引
-                  tempSelectedIndex = index;
-                },
-                children: bankList
-                    .map((bank) => Text(bank['bankName'],
-                        style: KnPickerTextStyle.pickerItem(context,
-                            fontSize: 18)))
-                    .toList(),
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 32.0,
+                  // 设置初始选中的项目
+                  scrollController:
+                      FixedExtentScrollController(initialItem: tempSelectedIndex),
+                  onSelectedItemChanged: (int index) {
+                    // 更新临时选择的索引
+                    setPickerState(() {
+                      tempSelectedIndex = index;
+                    });
+                  },
+                  children: bankList.asMap().entries
+                      .map((entry) => Text(entry.value['bankName'],
+                          style: entry.key == tempSelectedIndex
+                              ? KnPickerTextStyle.pickerItemSelected(context,
+                                  fontSize: 18)
+                              : KnPickerTextStyle.pickerItem(context,
+                                  fontSize: 18)))
+                      .toList(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -29,6 +29,9 @@ extension ThemeContextExtension on BuildContext {
   /// 获取状态颜色
   StatusColors get statusColors => themeColors.status;
 
+  /// [Flutter页面主题改造] 2026-01-20 获取课程卡片颜色
+  LessonCardColors get lessonCardColors => themeColors.lessonCard;
+
   /// 获取间距配置
   ThemeSpacing get themeSpacing => themeConfig.spacing;
 
@@ -84,9 +87,10 @@ extension KnModuleExtension on KnModule {
 
 // [Flutter页面主题改造] 2026-01-18 选择器字体样式辅助类
 // [Flutter页面主题改造] 2026-01-19 改为使用JSON配置，移除硬编码判断
+// [Flutter页面主题改造] 2026-01-20 添加pickerItemSelected方法，支持选中项粗体显示
 /// 主题感知的选择器字体样式
 class KnPickerTextStyle {
-  /// 获取选择器项目的字体样式（年份、月份等）
+  /// 获取选择器项目的字体样式（未选中项 - 普通粗细）
   static TextStyle pickerItem(BuildContext context, {double fontSize = 20, Color? color}) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final typography = themeProvider.currentConfig.typography;
@@ -96,6 +100,25 @@ class KnPickerTextStyle {
       fontSize: fontSize,
       color: color ?? Colors.black,
       fontWeight: elementStyle.fontWeight,
+      fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// [Flutter页面主题改造] 2026-01-20 获取选择器选中项目的字体样式（选中项 - 粗体）
+  static TextStyle pickerItemSelected(BuildContext context, {double fontSize = 20, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+    final elementStyle = typography.elements.pickerItem;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color ?? Colors.black,
+      fontWeight: FontWeight.bold, // 选中项始终使用粗体
       fontStyle: elementStyle.fontStyle,
     );
 

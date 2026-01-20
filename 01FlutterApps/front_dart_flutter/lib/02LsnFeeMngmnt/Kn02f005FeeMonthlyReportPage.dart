@@ -291,63 +291,74 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
 
   // [Flutter页面主题改造] 2026-01-18 年度选择器字体跟随主题风格
   // [Flutter页面主题改造] 2026-01-19 修复标题区域主题颜色丢失问题
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showYearPicker(BuildContext context) {
+    int tempSelectedIndex = years.indexOf(selectedYear);
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => Container(
-        height: 350,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(color: widget.knBgColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    padding: EdgeInsets.zero,
-                    child: Text('取消',
-                        style: KnPickerTextStyle.pickerButton(context,
-                            color: Colors.white)),
-                  ),
-                  Text(
-                    '选择年度',
-                    style: KnPickerTextStyle.pickerTitle(context,
-                        color: Colors.white),
-                  ),
-                  CupertinoButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      fetchMonthlyReport();
-                    },
-                    padding: EdgeInsets.zero,
-                    child: Text('确定',
-                        style: KnPickerTextStyle.pickerButton(context,
-                            color: Colors.white)),
-                  ),
-                ],
+      builder: (_) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 350,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(color: widget.knBgColor),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      padding: EdgeInsets.zero,
+                      child: Text('取消',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.white)),
+                    ),
+                    Text(
+                      '选择年度',
+                      style: KnPickerTextStyle.pickerTitle(context,
+                          color: Colors.white),
+                    ),
+                    CupertinoButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        fetchMonthlyReport();
+                      },
+                      padding: EdgeInsets.zero,
+                      child: Text('确定',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.white)),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                backgroundColor: Colors.white,
-                itemExtent: 40,
-                scrollController: FixedExtentScrollController(
-                    initialItem: years.indexOf(selectedYear)),
-                children: years
-                    .map((int year) => Center(
-                        child: Text('$year年',
-                            style: KnPickerTextStyle.pickerItem(context,
-                                color: widget.knBgColor))))
-                    .toList(),
-                onSelectedItemChanged: (int index) =>
-                    setState(() => selectedYear = years[index]),
+              Expanded(
+                child: CupertinoPicker(
+                  backgroundColor: Colors.white,
+                  itemExtent: 40,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: tempSelectedIndex),
+                  children: years.asMap().entries
+                      .map((entry) => Center(
+                          child: Text('${entry.value}年',
+                              style: entry.key == tempSelectedIndex
+                                  ? KnPickerTextStyle.pickerItemSelected(context,
+                                      color: widget.knBgColor)
+                                  : KnPickerTextStyle.pickerItem(context,
+                                      color: widget.knBgColor))))
+                      .toList(),
+                  onSelectedItemChanged: (int index) {
+                    setPickerState(() {
+                      tempSelectedIndex = index;
+                    });
+                    setState(() => selectedYear = years[index]);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -219,6 +219,7 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
   }
 
   // [Flutter页面主题改造] 2026-01-18 月份选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showMonthPicker() {
     // 默认选中当前显示的月份
     tempSelectedMonthIndex =
@@ -229,84 +230,91 @@ class _UnpaidFeesPageState extends State<UnpaidFeesPage>
 
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (BuildContext context) => Container(
-        height: 250,
-        padding: const EdgeInsets.only(bottom: 34), // 为底部安全区域留出空间
-        color: CupertinoColors.systemBackground,
-        child: Column(
-          children: [
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: widget.knBgColor, // 使用与AppBar相同的背景色
-                border: const Border(
-                  bottom: BorderSide(color: CupertinoColors.separator),
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 250,
+          padding: const EdgeInsets.only(bottom: 34), // 为底部安全区域留出空间
+          color: CupertinoColors.systemBackground,
+          child: Column(
+            children: [
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: widget.knBgColor, // 使用与AppBar相同的背景色
+                  border: const Border(
+                    bottom: BorderSide(color: CupertinoColors.separator),
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(0),
-                    child: Text(
-                      '取消',
-                      style: KnPickerTextStyle.pickerButton(context,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(0),
+                      child: Text(
+                        '取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Text(
+                      '选择月份',
+                      style: KnPickerTextStyle.pickerTitle(context,
                           color: Colors.white),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Text(
-                    '选择月份',
-                    style: KnPickerTextStyle.pickerTitle(context,
-                        color: Colors.white),
-                  ),
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(0),
-                    child: Text(
-                      '确定',
-                      style: KnPickerTextStyle.pickerButton(context,
-                          color: Colors.white),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(0),
+                      child: Text(
+                        '确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // 确认选择后更新月份并获取数据
+                        if (tempSelectedMonthIndex >= 0 &&
+                            tempSelectedMonthIndex <
+                                widget.availableMonths.length) {
+                          setState(() {
+                            currentDisplayMonth =
+                                widget.availableMonths[tempSelectedMonthIndex];
+                            selectedYearMonth =
+                                '${selectedYearMonth.substring(0, 5)}$currentDisplayMonth';
+                          });
+                          // 获取新选择月份的数据
+                          fetchFeeDetails();
+                        }
+                      },
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // 确认选择后更新月份并获取数据
-                      if (tempSelectedMonthIndex >= 0 &&
-                          tempSelectedMonthIndex <
-                              widget.availableMonths.length) {
-                        setState(() {
-                          currentDisplayMonth =
-                              widget.availableMonths[tempSelectedMonthIndex];
-                          selectedYearMonth =
-                              '${selectedYearMonth.substring(0, 5)}$currentDisplayMonth';
-                        });
-                        // 获取新选择月份的数据
-                        fetchFeeDetails();
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 32,
-                scrollController: FixedExtentScrollController(
-                  initialItem: tempSelectedMonthIndex,
+                  ],
                 ),
-                children: widget.availableMonths
-                    .map((month) => Text('$month月份',
-                        style: KnPickerTextStyle.pickerItem(context,
-                            fontSize: 18)))
-                    .toList(),
-                onSelectedItemChanged: (index) {
-                  // 只记录临时选择的索引，不立即执行数据获取
-                  tempSelectedMonthIndex = index;
-                },
               ),
-            ),
-          ],
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 32,
+                  scrollController: FixedExtentScrollController(
+                    initialItem: tempSelectedMonthIndex,
+                  ),
+                  children: widget.availableMonths.asMap().entries
+                      .map((entry) => Text('${entry.value}月份',
+                          style: entry.key == tempSelectedMonthIndex
+                              ? KnPickerTextStyle.pickerItemSelected(context,
+                                  fontSize: 18)
+                              : KnPickerTextStyle.pickerItem(context,
+                                  fontSize: 18)))
+                      .toList(),
+                  onSelectedItemChanged: (index) {
+                    // 只记录临时选择的索引，不立即执行数据获取
+                    setPickerState(() {
+                      tempSelectedMonthIndex = index;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -896,166 +896,186 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
   }
 
   // [Flutter页面主题改造] 2026-01-18 年度选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showYearPicker(BuildContext context) {
+    int tempSelectedIndex = years.indexOf(selectedYear);
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => Container(
-        height: 350,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: widget.knBgColor, // 添加背景颜色
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '取消',
-                      style: KnPickerTextStyle.pickerButton(context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 350,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: widget.knBgColor, // 添加背景颜色
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        '取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
+                    ),
+                    Text(
+                      '选择年度',
+                      style: KnPickerTextStyle.pickerTitle(context,
                           color: Colors.white),
                     ),
-                  ),
-                  Text(
-                    '选择年度',
-                    style: KnPickerTextStyle.pickerTitle(context,
-                        color: Colors.white),
-                  ),
-                  CupertinoButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // 用户选择后进行筛选查询
-                      searchWithFilters();
-                    },
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '确定',
-                      style: KnPickerTextStyle.pickerButton(context,
-                          color: Colors.white),
+                    CupertinoButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // 用户选择后进行筛选查询
+                        searchWithFilters();
+                      },
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        '确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                backgroundColor: Colors.white,
-                itemExtent: 40,
-                scrollController: FixedExtentScrollController(
-                    initialItem: years.indexOf(selectedYear)),
-                // [Flutter页面主题改造] 2026-01-20 选择器字体颜色跟随模块主题色
-                children: years
-                    .map((int year) => Center(
-                        child: Text('${year}年',
-                            style: KnPickerTextStyle.pickerItem(context,
-                                color: context.getModuleColor('summary').primary))))
-                    .toList(),
-                onSelectedItemChanged: (int index) {
-                  setState(() {
-                    selectedYear = years[index];
+              Expanded(
+                child: CupertinoPicker(
+                  backgroundColor: Colors.white,
+                  itemExtent: 40,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: tempSelectedIndex),
+                  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
+                  children: years.asMap().entries
+                      .map((entry) => Center(
+                          child: Text('${entry.value}年',
+                              style: entry.key == tempSelectedIndex
+                                  ? KnPickerTextStyle.pickerItemSelected(context,
+                                      color: context.getModuleColor('summary').primary)
+                                  : KnPickerTextStyle.pickerItem(context,
+                                      color: context.getModuleColor('summary').primary))))
+                      .toList(),
+                  onSelectedItemChanged: (int index) {
+                    setPickerState(() {
+                      tempSelectedIndex = index;
+                    });
+                    setState(() {
+                      selectedYear = years[index];
 
-                    // 🔧 2026-01-09 新增：年度变化时自动调整结束月份
-                    // 如果选择年 < 当前年，结束月自动切换为12月
-                    // 如果选择年 = 当前年，结束月自动切换为当前月
-                    int systemYear = DateTime.now().year;
-                    int systemMonth = DateTime.now().month;
+                      // 🔧 2026-01-09 新增：年度变化时自动调整结束月份
+                      // 如果选择年 < 当前年，结束月自动切换为12月
+                      // 如果选择年 = 当前年，结束月自动切换为当前月
+                      int systemYear = DateTime.now().year;
+                      int systemMonth = DateTime.now().month;
 
-                    if (selectedYear < systemYear) {
-                      selectedMonthTo = 12;
-                    } else if (selectedYear == systemYear) {
-                      selectedMonthTo = systemMonth;
-                    }
-                  });
-                },
+                      if (selectedYear < systemYear) {
+                        selectedMonthTo = 12;
+                      } else if (selectedYear == systemYear) {
+                        selectedMonthTo = systemMonth;
+                      }
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   // [Flutter页面主题改造] 2026-01-18 月份选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showMonthPicker(BuildContext context, bool isFromMonth) {
     int currentMonth = isFromMonth ? selectedMonthFrom : selectedMonthTo;
+    int tempSelectedIndex = currentMonth - 1;
 
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => Container(
-        height: 350,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: widget.knBgColor, // 添加背景颜色
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '取消',
-                      style: KnPickerTextStyle.pickerButton(context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 350,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: widget.knBgColor, // 添加背景颜色
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        '取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
+                    ),
+                    Text(
+                      isFromMonth ? '选择开始月份' : '选择结束月份',
+                      style: KnPickerTextStyle.pickerTitle(context,
                           color: Colors.white),
                     ),
-                  ),
-                  Text(
-                    isFromMonth ? '选择开始月份' : '选择结束月份',
-                    style: KnPickerTextStyle.pickerTitle(context,
-                        color: Colors.white),
-                  ),
-                  CupertinoButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // 用户选择后进行筛选查询
-                      searchWithFilters();
-                    },
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      '确定',
-                      style: KnPickerTextStyle.pickerButton(context,
-                          color: Colors.white),
+                    CupertinoButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // 用户选择后进行筛选查询
+                        searchWithFilters();
+                      },
+                      padding: EdgeInsets.zero,
+                      child: Text(
+                        '确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                backgroundColor: Colors.white,
-                itemExtent: 40,
-                scrollController:
-                    FixedExtentScrollController(initialItem: currentMonth - 1),
-                // [Flutter页面主题改造] 2026-01-20 选择器字体颜色跟随模块主题色
-                children: months
-                    .map((int month) => Center(
-                        child: Text('${month.toString().padLeft(2, '0')}月',
-                            style: KnPickerTextStyle.pickerItem(context,
-                                color: context.getModuleColor('summary').primary))))
-                    .toList(),
-                onSelectedItemChanged: (int index) {
-                  setState(() {
-                    if (isFromMonth) {
-                      selectedMonthFrom = months[index];
-                    } else {
-                      selectedMonthTo = months[index];
-                    }
-                  });
-                },
+              Expanded(
+                child: CupertinoPicker(
+                  backgroundColor: Colors.white,
+                  itemExtent: 40,
+                  scrollController:
+                      FixedExtentScrollController(initialItem: tempSelectedIndex),
+                  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
+                  children: months.asMap().entries
+                      .map((entry) => Center(
+                          child: Text('${entry.value.toString().padLeft(2, '0')}月',
+                              style: entry.key == tempSelectedIndex
+                                  ? KnPickerTextStyle.pickerItemSelected(context,
+                                      color: context.getModuleColor('summary').primary)
+                                  : KnPickerTextStyle.pickerItem(context,
+                                      color: context.getModuleColor('summary').primary))))
+                      .toList(),
+                  onSelectedItemChanged: (int index) {
+                    setPickerState(() {
+                      tempSelectedIndex = index;
+                    });
+                    setState(() {
+                      if (isFromMonth) {
+                        selectedMonthFrom = months[index];
+                      } else {
+                        selectedMonthTo = months[index];
+                      }
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

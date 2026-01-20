@@ -163,78 +163,88 @@ class _SubSubjectOfStudentsListBySubjectState
   }
 
   // 显示科目选择器
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showSubjectPicker() {
+    int localTempSelectedIndex = subjectList.indexWhere(
+        (subject) => subject['subjectId'] == selectedSubjectId);
+    if (localTempSelectedIndex < 0) localTempSelectedIndex = 0;
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (BuildContext context) => Container(
-        height: 250,
-        padding: const EdgeInsets.only(bottom: 34), // 为底部安全区域留出空间
-        color: CupertinoColors.systemBackground,
-        child: Column(
-          children: [
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: widget.knBgColor,
-                border: const Border(
-                  bottom: BorderSide(color: CupertinoColors.separator),
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 250,
+          padding: const EdgeInsets.only(bottom: 34), // 为底部安全区域留出空间
+          color: CupertinoColors.systemBackground,
+          child: Column(
+            children: [
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: widget.knBgColor,
+                  border: const Border(
+                    bottom: BorderSide(color: CupertinoColors.separator),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(0),
+                      child: Text(
+                        '取消',
+                        style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Text(
+                      '选择科目',
+                      style: KnPickerTextStyle.pickerTitle(context, color: Colors.white),
+                    ),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(0),
+                      child: Text(
+                        '确定',
+                        style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          tempSelectedIndex = localTempSelectedIndex;
+                          selectedSubjectId =
+                              subjectList[tempSelectedIndex]['subjectId'];
+                          selectedSubjectName =
+                              subjectList[tempSelectedIndex]['subjectName'];
+                        });
+                        fetchStudentsBySubject(selectedSubjectId!);
+                      },
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(0),
-                    child: Text(
-                      '取消',
-                      style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 32,
+                  scrollController: FixedExtentScrollController(
+                    initialItem: localTempSelectedIndex,
                   ),
-                  Text(
-                    '选择科目',
-                    style: KnPickerTextStyle.pickerTitle(context, color: Colors.white),
-                  ),
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(0),
-                    child: Text(
-                      '确定',
-                      style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        selectedSubjectId =
-                            subjectList[tempSelectedIndex]['subjectId'];
-                        selectedSubjectName =
-                            subjectList[tempSelectedIndex]['subjectName'];
-                      });
-                      fetchStudentsBySubject(selectedSubjectId!);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 32,
-                scrollController: FixedExtentScrollController(
-                  initialItem: subjectList.indexWhere(
-                      (subject) => subject['subjectId'] == selectedSubjectId),
+                  children: subjectList.asMap().entries
+                      .map((entry) => Center(
+                          child: Text(entry.value['subjectName']!,
+                              style: entry.key == localTempSelectedIndex
+                                  ? KnPickerTextStyle.pickerItemSelected(context)
+                                  : KnPickerTextStyle.pickerItem(context))))
+                      .toList(),
+                  onSelectedItemChanged: (index) {
+                    setPickerState(() {
+                      localTempSelectedIndex = index;
+                    });
+                  },
                 ),
-                children: subjectList
-                    .map((subject) => Center(
-                        child: Text(subject['subjectName']!,
-                            style: KnPickerTextStyle.pickerItem(context))))
-                    .toList(),
-                onSelectedItemChanged: (index) {
-                  tempSelectedIndex = index;
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

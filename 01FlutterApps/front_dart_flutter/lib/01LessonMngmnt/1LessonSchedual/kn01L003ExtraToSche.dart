@@ -477,58 +477,70 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
   }
 
   // [Flutter页面主题改造] 2026-01-18 年份选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
   void _showYearPicker() {
+    int tempSelectedIndex = years.indexOf(selectedYear);
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => Container(
-        height: 250,
-        color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              color: Colors.pink,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    child: Text('取消',
-                        style: KnPickerTextStyle.pickerButton(context,
-                            color: Colors.white)),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  Text('选择年份',
-                      style: KnPickerTextStyle.pickerTitle(context,
-                          color: Colors.white, fontSize: 14)),
-                  CupertinoButton(
-                    child: Text('确定',
-                        style: KnPickerTextStyle.pickerButton(context,
-                            color: Colors.white)),
-                    onPressed: () {
-                      _fetchLessonsData();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (context, setPickerState) => Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                color: Colors.pink,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      child: Text('取消',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.white)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Text('选择年份',
+                        style: KnPickerTextStyle.pickerTitle(context,
+                            color: Colors.white, fontSize: 14)),
+                    CupertinoButton(
+                      child: Text('确定',
+                          style: KnPickerTextStyle.pickerButton(context,
+                              color: Colors.white)),
+                      onPressed: () {
+                        _fetchLessonsData();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                itemExtent: 32.0,
-                onSelectedItemChanged: (int index) {
-                  setState(() {
-                    selectedYear = years[index];
-                  });
-                },
-                children: years
-                    .map((year) => Center(
-                        child: Text(year.toString(),
-                            style: KnPickerTextStyle.pickerItem(context,
-                                color: Colors.pink, fontSize: 18))))
-                    .toList(),
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 32.0,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: tempSelectedIndex),
+                  onSelectedItemChanged: (int index) {
+                    setPickerState(() {
+                      tempSelectedIndex = index;
+                    });
+                    setState(() {
+                      selectedYear = years[index];
+                    });
+                  },
+                  children: years.asMap().entries
+                      .map((entry) => Center(
+                          child: Text(entry.value.toString(),
+                              style: entry.key == tempSelectedIndex
+                                  ? KnPickerTextStyle.pickerItemSelected(context,
+                                      color: Colors.pink, fontSize: 18)
+                                  : KnPickerTextStyle.pickerItem(context,
+                                      color: Colors.pink, fontSize: 18))))
+                      .toList(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
