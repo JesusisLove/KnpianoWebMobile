@@ -12,6 +12,7 @@ import '../../CommonProcess/CommonMethod.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn01L003LsnExtraBean.dart';
 
 // 定义过滤类型
@@ -475,6 +476,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
     }
   }
 
+  // [Flutter页面主题改造] 2026-01-18 年份选择器字体跟随主题风格
   void _showYearPicker() {
     showCupertinoModalPopup(
       context: context,
@@ -490,18 +492,18 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
-                    child:
-                        const Text('取消', style: TextStyle(color: Colors.white)),
+                    child: Text('取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const Text('选择年份',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14)),
+                  Text('选择年份',
+                      style: KnPickerTextStyle.pickerTitle(context,
+                          color: Colors.white, fontSize: 14)),
                   CupertinoButton(
-                    child:
-                        const Text('确定', style: TextStyle(color: Colors.white)),
+                    child: Text('确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
                     onPressed: () {
                       _fetchLessonsData();
                       Navigator.of(context).pop();
@@ -521,7 +523,8 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                 children: years
                     .map((year) => Center(
                         child: Text(year.toString(),
-                            style: const TextStyle(color: Colors.pink))))
+                            style: KnPickerTextStyle.pickerItem(context,
+                                color: Colors.pink, fontSize: 18))))
                     .toList(),
               ),
             ),

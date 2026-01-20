@@ -8,6 +8,7 @@ import 'dart:convert';
 import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../Constants.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F004UnpaidBean.dart';
 
@@ -304,6 +305,7 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     // 临时存储选择的索引
     int tempSelectedIndex = initialIndex;
 
+    // [Flutter页面主题改造] 2026-01-18 银行选择器字体跟随主题风格
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => Container(
@@ -318,18 +320,18 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
-                    child:
-                        Text('取消', style: TextStyle(color: widget.knFontColor)),
+                    child: Text('取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: widget.knFontColor)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Text('选择银行',
-                      style: TextStyle(
-                          color: widget.knFontColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16)),
+                      style: KnPickerTextStyle.pickerTitle(context,
+                          color: widget.knFontColor)),
                   CupertinoButton(
-                    child:
-                        Text('确定', style: TextStyle(color: widget.knFontColor)),
+                    child: Text('确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: widget.knFontColor)),
                     onPressed: () {
                       // 点击确定时更新selectedBankId
                       setState(() {
@@ -351,8 +353,11 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
                   // 更新临时选择的索引
                   tempSelectedIndex = index;
                 },
-                children:
-                    bankList.map((bank) => Text(bank['bankName'])).toList(),
+                children: bankList
+                    .map((bank) => Text(bank['bankName'],
+                        style: KnPickerTextStyle.pickerItem(context,
+                            fontSize: 18)))
+                    .toList(),
               ),
             ),
           ],

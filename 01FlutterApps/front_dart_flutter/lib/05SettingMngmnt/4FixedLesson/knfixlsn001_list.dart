@@ -188,6 +188,7 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
+        leftBalanceCount: 2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
         actions: [
           IconButton(
             icon: Icon(

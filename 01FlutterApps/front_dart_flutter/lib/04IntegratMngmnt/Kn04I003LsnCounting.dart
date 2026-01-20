@@ -8,6 +8,7 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import '../01LessonMngmnt/1LessonSchedual/kn01L002LsnStatistic.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraToSche.dart';
 import '../01LessonMngmnt/1LessonSchedual/kn01L003ExtraPiesesIntoOne.dart';
@@ -269,11 +270,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
   }
 
   // 显示搜索对话框
+  /// [Flutter页面主题改造] 2026-01-20 对话框标题和按钮字体跟随主题风格
   void _showSearchDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('搜索学生'),
+        title: Text('搜索学生',
+            style: KnElementTextStyle.dialogTitle(context,
+                color: widget.knBgColor)),
         content: TextField(
           controller: _searchController,
           decoration: const InputDecoration(
@@ -296,11 +300,15 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
               });
               Navigator.pop(context);
             },
-            child: const Text('清除'),
+            child: Text('清除',
+                style: KnElementTextStyle.buttonText(context,
+                    color: widget.knBgColor)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('确定'),
+            child: Text('确定',
+                style: KnElementTextStyle.buttonText(context,
+                    color: widget.knBgColor)),
           ),
         ],
       ),
@@ -327,6 +335,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
             widget.knFontColor.blue + 20),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: false,
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         currentNavIndex: 3,
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
@@ -886,6 +895,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-18 年度选择器字体跟随主题风格
   void _showYearPicker(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
@@ -906,18 +916,16 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                   CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
-                    child: const Text(
+                    child: Text(
                       '取消',
-                      style: TextStyle(color: Colors.white), // 白色文字
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                   ),
-                  const Text(
+                  Text(
                     '选择年度',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white, // 白色文字
-                    ),
+                    style: KnPickerTextStyle.pickerTitle(context,
+                        color: Colors.white),
                   ),
                   CupertinoButton(
                     onPressed: () {
@@ -926,9 +934,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                       searchWithFilters();
                     },
                     padding: EdgeInsets.zero,
-                    child: const Text(
+                    child: Text(
                       '确定',
-                      style: TextStyle(color: Colors.white), // 白色文字
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                   ),
                 ],
@@ -940,8 +949,12 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                 itemExtent: 40,
                 scrollController: FixedExtentScrollController(
                     initialItem: years.indexOf(selectedYear)),
+                // [Flutter页面主题改造] 2026-01-20 选择器字体颜色跟随模块主题色
                 children: years
-                    .map((int year) => Center(child: Text('${year}年')))
+                    .map((int year) => Center(
+                        child: Text('${year}年',
+                            style: KnPickerTextStyle.pickerItem(context,
+                                color: context.getModuleColor('summary').primary))))
                     .toList(),
                 onSelectedItemChanged: (int index) {
                   setState(() {
@@ -968,6 +981,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-18 月份选择器字体跟随主题风格
   void _showMonthPicker(BuildContext context, bool isFromMonth) {
     int currentMonth = isFromMonth ? selectedMonthFrom : selectedMonthTo;
 
@@ -990,18 +1004,16 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                   CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
-                    child: const Text(
+                    child: Text(
                       '取消',
-                      style: TextStyle(color: Colors.white), // 白色文字
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                   ),
                   Text(
                     isFromMonth ? '选择开始月份' : '选择结束月份',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white, // 白色文字
-                    ),
+                    style: KnPickerTextStyle.pickerTitle(context,
+                        color: Colors.white),
                   ),
                   CupertinoButton(
                     onPressed: () {
@@ -1010,9 +1022,10 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                       searchWithFilters();
                     },
                     padding: EdgeInsets.zero,
-                    child: const Text(
+                    child: Text(
                       '确定',
-                      style: TextStyle(color: Colors.white), // 白色文字
+                      style: KnPickerTextStyle.pickerButton(context,
+                          color: Colors.white),
                     ),
                   ),
                 ],
@@ -1024,9 +1037,12 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                 itemExtent: 40,
                 scrollController:
                     FixedExtentScrollController(initialItem: currentMonth - 1),
+                // [Flutter页面主题改造] 2026-01-20 选择器字体颜色跟随模块主题色
                 children: months
                     .map((int month) => Center(
-                        child: Text('${month.toString().padLeft(2, '0')}月')))
+                        child: Text('${month.toString().padLeft(2, '0')}月',
+                            style: KnPickerTextStyle.pickerItem(context,
+                                color: context.getModuleColor('summary').primary))))
                     .toList(),
                 onSelectedItemChanged: (int index) {
                   setState(() {

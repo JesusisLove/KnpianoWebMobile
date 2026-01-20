@@ -10,6 +10,7 @@ import 'StudentLeaveBean.dart';
 import 'StudentLeaveSettingPage.dart';
 import 'dart:convert';
 import 'dart:async'; // 新增导入
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-20 添加主题扩展
 
 // ignore: must_be_immutable
 class StudentLeaveListPage extends StatefulWidget {
@@ -49,11 +50,14 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
   }
 
   // 显示搜索对话框
+  /// [Flutter页面主题改造] 2026-01-20 对话框标题和按钮字体跟随主题风格
   void _showSearchDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('搜索学生'),
+        title: Text('搜索学生',
+            style: KnElementTextStyle.dialogTitle(context,
+                color: widget.knBgColor)),
         content: TextField(
           controller: _searchController,
           decoration: const InputDecoration(
@@ -76,11 +80,15 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
               });
               Navigator.pop(context);
             },
-            child: const Text('清除'),
+            child: Text('清除',
+                style: KnElementTextStyle.buttonText(context,
+                    color: widget.knBgColor)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('确定'),
+            child: Text('确定',
+                style: KnElementTextStyle.buttonText(context,
+                    color: widget.knBgColor)),
           ),
         ],
       ),
@@ -399,6 +407,7 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
         addInvisibleRightButton: true,
+        leftBalanceCount: 2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小
         subtitleFontSize: 12.0, // 自定义底部文本字体大小

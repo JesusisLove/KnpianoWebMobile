@@ -1,9 +1,12 @@
 // [Flutter页面主题改造] 2026-01-17 改造KnAppBar支持主题系统
 // 保持向后兼容性，现有代码无需修改即可继续使用
+// [Flutter页面主题改造] 2026-01-20 标题fontWeight纳入JSON管理
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../HomePage.dart';
 import '../../theme/theme_extensions.dart';
+import '../../theme/providers/theme_provider.dart';
 
 // ignore: non_constant_identifier_names
 PreferredSizeWidget KnAppBar({
@@ -22,6 +25,8 @@ PreferredSizeWidget KnAppBar({
   TabBar? bottom, // 修改为可选参数
   bool addInvisibleRightButton = false, // 新增参数：是否添加不可见的右侧按钮，使AppBar的布局左右对称
   int currentNavIndex = 0,
+  // [Flutter页面主题改造] 2026-01-19 新增左侧平衡参数，用于在有actions按钮时使标题居中
+  int leftBalanceCount = 0, // 左侧添加的隐藏占位符数量，每个占位符宽度48px（与IconButton相同）
   // [Flutter页面主题改造] 2026-01-17 新增模块名称参数，用于自动获取主题颜色
   // 当传入moduleName时，将优先使用主题系统的颜色
   String? moduleName, // lesson, fee, archive, summary, setting
@@ -34,6 +39,8 @@ PreferredSizeWidget KnAppBar({
   Color effectiveTitleColor = titleColor;
   Color effectiveSubtitleBgColor = subtitleBackgroundColor;
   Color effectiveSubtitleTextColor = subtitleTextColor;
+  // [Flutter页面主题改造] 2026-01-20 标题fontWeight纳入JSON管理
+  FontWeight effectiveTitleFontWeight = FontWeight.w700; // 默认值
 
   if (moduleName != null) {
     try {
@@ -45,6 +52,14 @@ PreferredSizeWidget KnAppBar({
     } catch (e) {
       // 如果主题系统未初始化，使用传入的默认值
     }
+  }
+
+  // [Flutter页面主题改造] 2026-01-20 从JSON配置读取appBarTitle的fontWeight
+  try {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    effectiveTitleFontWeight = themeProvider.currentConfig.typography.elements.appBarTitle.fontWeight;
+  } catch (e) {
+    // 如果主题系统未初始化，使用默认值FontWeight.w700
   }
 
   return PreferredSize(
@@ -74,6 +89,9 @@ PreferredSizeWidget KnAppBar({
                       }
                     },
                   ),
+                  // [Flutter页面主题改造] 2026-01-19 左侧平衡占位符，使标题在有actions时仍能居中
+                  for (int i = 0; i < leftBalanceCount; i++)
+                    const SizedBox(width: 48), // IconButton默认宽度
                   Expanded(
                     child: Center(
                       child: Text(
@@ -81,8 +99,8 @@ PreferredSizeWidget KnAppBar({
                         style: TextStyle(
                           fontSize: titleFontSize,
                           color: effectiveTitleColor,
-                          // fontWeight: FontWeight.bold,
-                          fontWeight: FontWeight.w700, // 比 FontWeight.bold 还粗一点
+                          // [Flutter页面主题改造] 2026-01-20 fontWeight从JSON配置读取
+                          fontWeight: effectiveTitleFontWeight,
                         ),
                       ),
                     ),

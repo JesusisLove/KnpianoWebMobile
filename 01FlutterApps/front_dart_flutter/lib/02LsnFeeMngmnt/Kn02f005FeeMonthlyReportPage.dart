@@ -6,6 +6,7 @@ import '../ApiConfig/KnApiConfig.dart';
 import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../Constants.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn02f005FeeMonthlyUnpaidPage.dart';
 import 'Kn02f005FeeMonthlyReportBean.dart';
 
@@ -288,24 +289,34 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-18 年度选择器字体跟随主题风格
+  // [Flutter页面主题改造] 2026-01-19 修复标题区域主题颜色丢失问题
   void _showYearPicker(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
         height: 350,
-        color: const Color.fromARGB(255, 255, 255, 255),
+        color: Colors.white,
         child: Column(
           children: [
             Container(
               height: 50,
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(color: widget.knBgColor),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
                     padding: EdgeInsets.zero,
-                    child: const Text('取消'),
+                    child: Text('取消',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
+                  ),
+                  Text(
+                    '选择年度',
+                    style: KnPickerTextStyle.pickerTitle(context,
+                        color: Colors.white),
                   ),
                   CupertinoButton(
                     onPressed: () {
@@ -313,7 +324,9 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
                       fetchMonthlyReport();
                     },
                     padding: EdgeInsets.zero,
-                    child: const Text('确定'),
+                    child: Text('确定',
+                        style: KnPickerTextStyle.pickerButton(context,
+                            color: Colors.white)),
                   ),
                 ],
               ),
@@ -325,7 +338,10 @@ class _MonthlyIncomeReportPageState extends State<MonthlyIncomeReportPage> {
                 scrollController: FixedExtentScrollController(
                     initialItem: years.indexOf(selectedYear)),
                 children: years
-                    .map((int year) => Center(child: Text('$year年')))
+                    .map((int year) => Center(
+                        child: Text('$year年',
+                            style: KnPickerTextStyle.pickerItem(context,
+                                color: widget.knBgColor))))
                     .toList(),
                 onSelectedItemChanged: (int index) =>
                     setState(() => selectedYear = years[index]),

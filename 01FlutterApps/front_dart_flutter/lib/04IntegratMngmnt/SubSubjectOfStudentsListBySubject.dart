@@ -8,6 +8,7 @@ import '../CommonProcess/customUI/KnAppBar.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart'; // 添加自定义加载指示器
 import '../Constants.dart';
 import '../03StuDocMngmnt/4stuDoc/Kn03D004StuDocBean.dart';
+import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 
 class SubSubjectOfStudentsListBySubject extends StatefulWidget {
   final Color knBgColor;
@@ -184,27 +185,23 @@ class _SubSubjectOfStudentsListBySubjectState
                 children: [
                   CupertinoButton(
                     padding: const EdgeInsets.all(0),
-                    child: const Text(
+                    child: Text(
                       '取消',
-                      style: TextStyle(color: Colors.white),
+                      style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  const Text(
+                  Text(
                     '选择科目',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: KnPickerTextStyle.pickerTitle(context, color: Colors.white),
                   ),
                   CupertinoButton(
                     padding: const EdgeInsets.all(0),
-                    child: const Text(
+                    child: Text(
                       '确定',
-                      style: TextStyle(color: Colors.white),
+                      style: KnPickerTextStyle.pickerButton(context, color: Colors.white),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
@@ -228,7 +225,9 @@ class _SubSubjectOfStudentsListBySubjectState
                       (subject) => subject['subjectId'] == selectedSubjectId),
                 ),
                 children: subjectList
-                    .map((subject) => Text(subject['subjectName']!))
+                    .map((subject) => Center(
+                        child: Text(subject['subjectName']!,
+                            style: KnPickerTextStyle.pickerItem(context))))
                     .toList(),
                 onSelectedItemChanged: (index) {
                   tempSelectedIndex = index;

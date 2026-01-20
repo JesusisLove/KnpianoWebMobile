@@ -194,6 +194,7 @@ class _StudentLeaveSettingPageState extends State<StudentLeaveSettingPage> {
             widget.knFontColor.green + 20,
             widget.knFontColor.blue + 20),
         addInvisibleRightButton: false, // 显示Home按钮返回主菜单
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         currentNavIndex: 3,
         subtitleTextColor: Colors.white, // 自定义底部文本颜色
         titleFontSize: 20.0, // 自定义标题字体大小

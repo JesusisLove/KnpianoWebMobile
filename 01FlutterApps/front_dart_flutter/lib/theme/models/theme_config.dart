@@ -179,6 +179,8 @@ class ThemeTypography {
   final TextStyleConfig body1;
   final TextStyleConfig body2;
   final TextStyleConfig caption;
+  // [Flutter页面主题改造] 2026-01-19 添加元素样式配置
+  final ElementStyles elements;
 
   ThemeTypography({
     required this.fontFamily,
@@ -189,6 +191,7 @@ class ThemeTypography {
     required this.body1,
     required this.body2,
     required this.caption,
+    required this.elements,
   });
 
   factory ThemeTypography.fromJson(Map<String, dynamic> json) {
@@ -201,7 +204,87 @@ class ThemeTypography {
       body1: TextStyleConfig.fromJson(json['body1']),
       body2: TextStyleConfig.fromJson(json['body2']),
       caption: TextStyleConfig.fromJson(json['caption']),
+      elements: ElementStyles.fromJson(json['elements'] ?? {}),
     );
+  }
+}
+
+/// [Flutter页面主题改造] 2026-01-19 元素样式配置
+/// [Flutter页面主题改造] 2026-01-20 新增moduleTitle和moduleSubtitle
+class ElementStyles {
+  final ElementStyleConfig cardTitle;
+  final ElementStyleConfig listItemTitle;
+  final ElementStyleConfig tableHeader;
+  final ElementStyleConfig buttonText;
+  final ElementStyleConfig dialogTitle;
+  final ElementStyleConfig pickerItem;
+  final ElementStyleConfig appBarTitle;
+  final ElementStyleConfig moduleTitle;     // 模块主页标题（如"上课管理"）
+  final ElementStyleConfig moduleSubtitle;  // 模块主页副标题（如"课程安排与进度跟踪"）
+
+  ElementStyles({
+    required this.cardTitle,
+    required this.listItemTitle,
+    required this.tableHeader,
+    required this.buttonText,
+    required this.dialogTitle,
+    required this.pickerItem,
+    required this.appBarTitle,
+    required this.moduleTitle,
+    required this.moduleSubtitle,
+  });
+
+  factory ElementStyles.fromJson(Map<String, dynamic> json) {
+    return ElementStyles(
+      cardTitle: ElementStyleConfig.fromJson(json['cardTitle'] ?? {'weight': 'bold', 'style': 'normal'}),
+      listItemTitle: ElementStyleConfig.fromJson(json['listItemTitle'] ?? {'weight': 'bold', 'style': 'normal'}),
+      tableHeader: ElementStyleConfig.fromJson(json['tableHeader'] ?? {'weight': 'bold', 'style': 'normal'}),
+      buttonText: ElementStyleConfig.fromJson(json['buttonText'] ?? {'weight': 'bold', 'style': 'normal'}),
+      dialogTitle: ElementStyleConfig.fromJson(json['dialogTitle'] ?? {'weight': 'bold', 'style': 'normal'}),
+      pickerItem: ElementStyleConfig.fromJson(json['pickerItem'] ?? {'weight': 'regular', 'style': 'normal'}),
+      appBarTitle: ElementStyleConfig.fromJson(json['appBarTitle'] ?? {'weight': 'bold', 'style': 'normal'}),
+      moduleTitle: ElementStyleConfig.fromJson(json['moduleTitle'] ?? {'weight': 'bold', 'style': 'normal'}),
+      moduleSubtitle: ElementStyleConfig.fromJson(json['moduleSubtitle'] ?? {'weight': 'regular', 'style': 'normal'}),
+    );
+  }
+}
+
+/// 元素样式配置项
+class ElementStyleConfig {
+  final String weight;
+  final String style;
+
+  ElementStyleConfig({
+    required this.weight,
+    required this.style,
+  });
+
+  factory ElementStyleConfig.fromJson(Map<String, dynamic> json) {
+    return ElementStyleConfig(
+      weight: json['weight'] ?? 'regular',
+      style: json['style'] ?? 'normal',
+    );
+  }
+
+  FontWeight get fontWeight {
+    switch (weight) {
+      case 'bold':
+        return FontWeight.bold;
+      case 'medium':
+        return FontWeight.w500;
+      case 'w700':
+        return FontWeight.w700;
+      case 'regular':
+        return FontWeight.normal;
+      case 'light':
+        return FontWeight.w300;
+      default:
+        return FontWeight.normal;
+    }
+  }
+
+  FontStyle get fontStyle {
+    return style == 'italic' ? FontStyle.italic : FontStyle.normal;
   }
 }
 

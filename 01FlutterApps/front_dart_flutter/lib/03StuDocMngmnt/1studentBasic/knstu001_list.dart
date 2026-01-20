@@ -102,6 +102,7 @@ class StuEditListState extends State<StuEditList> {
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
+        leftBalanceCount: 1, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中
         actions: [
           // 如果需要，可以在这里添加额外的操作按钮
           IconButton(
