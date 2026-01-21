@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import '../../Constants.dart';
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-21 添加主题扩展
 import 'knfixlsn001_add.dart';
 import 'knfixlsn001_edit.dart';
 import 'KnFixLsn001Bean.dart';
@@ -346,21 +347,29 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
               onPressed: _isLoading
                   ? null // 如果正在加载，禁用按钮
                   : () {
+                      // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text('删除确认'),
-                            content: Text('确定要删除${lesson.studentName}的固定排课吗？'),
+                            title: Text('删除确认',
+                                style: KnElementTextStyle.dialogTitle(context,
+                                    color: Constants.settngThemeColor)),
+                            content: Text('确定要删除${lesson.studentName}的固定排课吗？',
+                                style: KnElementTextStyle.dialogContent(context)),
                             actions: <Widget>[
                               TextButton(
-                                child: const Text('取消'),
+                                child: Text('取消',
+                                    style: KnElementTextStyle.buttonText(context,
+                                        color: Colors.red)),
                                 onPressed: () {
                                   Navigator.of(context).pop(); // 关闭对话框
                                 },
                               ),
                               TextButton(
-                                child: const Text('确定'),
+                                child: Text('确定',
+                                    style: KnElementTextStyle.buttonText(context,
+                                        color: Constants.settngThemeColor)),
                                 onPressed: () {
                                   // 执行删除操作
                                   deleteLesson(lesson);

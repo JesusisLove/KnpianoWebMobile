@@ -102,12 +102,10 @@ class _RescheduleLessonTimeDialogState
                   constraints: const BoxConstraints(),
                 ),
                 const SizedBox(width: 8),
-                const Text(
+                // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
+                Text(
                   '将该课调至',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: KnElementTextStyle.dialogTitle(context, fontSize: 16),
                 ),
               ],
             ),
@@ -412,23 +410,30 @@ class _CalendarPageState extends State<CalendarPage> {
   //   });
   // }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleSignCourse(Kn01L002LsnBean event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('执行签到确认'),
+          title: Text('执行签到确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
           content: Text(
-              '签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？'),
+              '签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？',
+              style: KnElementTextStyle.dialogContent(context)),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('确定'),
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
               onPressed: () async {
                 final String signUrl =
                     '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
@@ -459,22 +464,29 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleRestoreCourse(Kn01L002LsnBean event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('撤销确认'),
-          content: Text('确实要撤销【${event.subjectName}】这节课吗？'),
+          title: Text('撤销确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('确实要撤销【${event.subjectName}】这节课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('确定'),
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
               onPressed: () async {
                 final String signUrl =
                     '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
@@ -544,22 +556,29 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleCancelRescheCourse(Kn01L002LsnBean event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('取消调课确认'),
-          content: Text('要取消【${event.subjectName}】这节课的调课吗？'),
+          title: Text('取消调课确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('要取消【${event.subjectName}】这节课的调课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('确定'),
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
               onPressed: () async {
                 final String deleteUrl =
                     '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
@@ -590,22 +609,29 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleDeleteCourse(Kn01L002LsnBean event) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('删除确认'),
-          content: Text('确定要删除【${event.subjectName}】这节课吗？'),
+          title: Text('删除确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('确定要删除【${event.subjectName}】这节课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('确定'),
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
               onPressed: () async {
                 final String deleteUrl =
                     '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
@@ -636,6 +662,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleNoteCourse(Kn01L002LsnBean event) {
     String noteContent = event.memo ?? '';
     bool hasContent = noteContent.isNotEmpty;
@@ -652,10 +679,13 @@ class _CalendarPageState extends State<CalendarPage> {
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            // [Flutter页面主题改造] 2026-01-21 标题和文本框边缘颜色跟模块主题一致
             return AlertDialog(
               title: Row(
                 children: [
-                  const Text('备注'),
+                  Text('备注',
+                      style: KnElementTextStyle.dialogTitle(context,
+                          fontSize: 18, color: Constants.lessonThemeColor)),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
@@ -672,11 +702,16 @@ class _CalendarPageState extends State<CalendarPage> {
                 // 确保支持多语言输入
                 enableInteractiveSelection: true,
                 // 设置输入装饰
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Constants.lessonThemeColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Constants.lessonThemeColor, width: 2),
+                  ),
                   hintText: '请输入备注内容',
                   // 添加内边距使文本不会太靠边
-                  contentPadding: EdgeInsets.all(12),
+                  contentPadding: const EdgeInsets.all(12),
                 ),
                 // 修改onChanged处理方式
                 onChanged: (value) {
@@ -686,19 +721,19 @@ class _CalendarPageState extends State<CalendarPage> {
                   });
                 },
                 // 添加文本样式
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                ),
+                style: KnElementTextStyle.dialogContent(context,
+                    fontSize: 14),
               ),
               actions: <Widget>[
+                // [Flutter页面主题改造] 2026-01-21 增加按钮高度确保文字完整显示
                 SizedBox(
                   width: double.infinity,
-                  height: 40,
+                  height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           hasContent ? Colors.pink[100] : Colors.grey[300],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: hasContent
                         ? () async {
@@ -751,7 +786,9 @@ class _CalendarPageState extends State<CalendarPage> {
                             }
                           }
                         : null,
-                    child: const Text('确认'),
+                    child: Text('确认',
+                        style: KnElementTextStyle.buttonText(context,
+                            fontSize: 16, color: Colors.black87)),
                   ),
                 ),
               ],
@@ -1413,17 +1450,20 @@ class _TimeTileState extends State<TimeTile>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                         Expanded(
                           flex: 2,
                           child: Text(
                             '${event.subjectName} - ${event.subjectSubName}',
-                            style: TextStyle(
+                            style: KnElementTextStyle.cardBody(
+                              context,
                               fontSize: 12,
                               color: textColor,
                               decoration: textDecoration,
                             ),
                           ),
                         ),
+                        // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                         if (additionalInfo.isNotEmpty)
                           Expanded(
                             flex: 4,
@@ -1431,11 +1471,10 @@ class _TimeTileState extends State<TimeTile>
                               padding: const EdgeInsets.only(left: 0),
                               child: Text(
                                 additionalInfo,
-                                style: const TextStyle(
+                                style: KnElementTextStyle.cardBody(
+                                  context,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
-                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             ),
@@ -1446,17 +1485,20 @@ class _TimeTileState extends State<TimeTile>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                         Expanded(
                           flex: 2,
                           child: Text(
                             '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
-                            style: TextStyle(
+                            style: KnElementTextStyle.cardBody(
+                              context,
                               fontSize: 12,
                               color: textColor,
                               decoration: textDecoration,
                             ),
                           ),
                         ),
+                        // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                         if (event.memo != null &&
                             event.memo!.isNotEmpty &&
                             (!isAdjustedUnSignedLsnTo &&
@@ -1467,9 +1509,9 @@ class _TimeTileState extends State<TimeTile>
                               padding: const EdgeInsets.only(left: 0),
                               child: Text(
                                 '备注: ${event.memo}',
-                                style: const TextStyle(
+                                style: KnElementTextStyle.cardBody(
+                                  context,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                 ),
                               ),
@@ -1526,28 +1568,31 @@ class _TimeTileState extends State<TimeTile>
     );
   }
 
+  // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   List<PopupMenuEntry<String>> _buildPopupMenuItems(Kn01L002LsnBean event) {
+    final menuStyle = KnElementTextStyle.popupMenuItem(context);
+
     if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
       if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) ==
           event.scanQrDate) {
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: '撤销',
             height: 36,
-            child: Text('撤销', style: TextStyle(fontSize: 11.5)),
+            child: Text('撤销', style: menuStyle),
           ),
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: '备注',
             height: 36,
-            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+            child: Text('备注', style: menuStyle),
           ),
         ];
       } else {
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: '备注',
             height: 36,
-            child: Text('备注', style: TextStyle(fontSize: 11.5)),
+            child: Text('备注', style: menuStyle),
           ),
         ];
       }
@@ -1572,33 +1617,28 @@ class _TimeTileState extends State<TimeTile>
 
     if (isAdjustedUnSignedLsnFrom) {
       return <PopupMenuEntry<String>>[
-        // const PopupMenuItem<String>(
-        //   value: '修改',
-        //   height: 36,
-        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        // ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '调课',
           height: 36,
-          child: Text('调课', style: TextStyle(fontSize: 11.5)),
+          child: Text('调课', style: menuStyle),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '取消',
           height: 36,
-          child: Text('取消', style: TextStyle(fontSize: 11.5)),
+          child: Text('取消', style: menuStyle),
         ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '删除',
           height: 36,
-          child: Text('删除', style: TextStyle(fontSize: 11.5)),
+          child: Text('删除', style: menuStyle),
         ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '备注',
           height: 36,
-          child: Text('备注', style: TextStyle(fontSize: 11.5)),
+          child: Text('备注', style: menuStyle),
         ),
       ];
     } else {
@@ -1609,34 +1649,28 @@ class _TimeTileState extends State<TimeTile>
           height: 36,
           child: Text(
             '签到',
-            style: TextStyle(
-                fontSize: 11.5,
+            style: menuStyle.copyWith(
                 color: widget.selectedDay.isAfter(DateTime.now())
                     ? Colors.grey
                     : null),
           ),
         ),
         const PopupMenuDivider(height: 1),
-        // const PopupMenuItem<String>(
-        //   value: '修改',
-        //   height: 36,
-        //   child: Text('修改', style: TextStyle(fontSize: 11.5)),
-        // ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '调课',
           height: 36,
-          child: Text('调课', style: TextStyle(fontSize: 11.5)),
+          child: Text('调课', style: menuStyle),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '删除',
           height: 36,
-          child: Text('删除', style: TextStyle(fontSize: 11.5)),
+          child: Text('删除', style: menuStyle),
         ),
         const PopupMenuDivider(height: 1),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: '备注',
           height: 36,
-          child: Text('备注', style: TextStyle(fontSize: 11.5)),
+          child: Text('备注', style: menuStyle),
         ),
       ];
     }

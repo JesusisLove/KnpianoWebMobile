@@ -478,8 +478,10 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
 
   // [Flutter页面主题改造] 2026-01-18 年份选择器字体跟随主题风格
   // [Flutter页面主题改造] 2026-01-20 选中项粗体显示
+  // [Flutter页面主题改造] 2026-01-21 使用模块主题颜色（绿色）
   void _showYearPicker() {
     int tempSelectedIndex = years.indexOf(selectedYear);
+    final themeColor = widget.knBgColor; // 使用模块主题颜色
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => StatefulBuilder(
@@ -490,7 +492,7 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
             children: [
               Container(
                 height: 50,
-                color: Colors.pink,
+                color: themeColor,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -533,9 +535,9 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
                           child: Text(entry.value.toString(),
                               style: entry.key == tempSelectedIndex
                                   ? KnPickerTextStyle.pickerItemSelected(context,
-                                      color: Colors.pink, fontSize: 18)
+                                      color: themeColor, fontSize: 18)
                                   : KnPickerTextStyle.pickerItem(context,
-                                      color: Colors.pink, fontSize: 18))))
+                                      color: themeColor, fontSize: 18))))
                       .toList(),
                 ),
               ),
@@ -572,13 +574,15 @@ class _ExtraToSchePageState extends State<ExtraToSchePage> {
             ),
           ),
           const SizedBox(width: 12),
+          // [Flutter页面主题改造] 2026-01-21 增加按钮宽度，确保年度文字完整显示
           ElevatedButton.icon(
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text('$selectedYear年'),
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.knBgColor,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              minimumSize: const Size(100, 36),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
               ),

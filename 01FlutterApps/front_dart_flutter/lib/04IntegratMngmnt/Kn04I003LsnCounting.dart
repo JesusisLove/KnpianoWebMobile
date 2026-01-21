@@ -271,6 +271,7 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
 
   // 显示搜索对话框
   /// [Flutter页面主题改造] 2026-01-20 对话框标题和按钮字体跟随主题风格
+  /// [Flutter页面主题改造] 2026-01-21 文本框边框颜色跟随模块主题
   void _showSearchDialog() {
     showDialog(
       context: context,
@@ -280,9 +281,15 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                 color: widget.knBgColor)),
         content: TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: '请输入学生姓名',
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Icon(Icons.search, color: widget.knBgColor),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor, width: 2),
+            ),
           ),
           autofocus: true,
           onChanged: (value) {
@@ -670,14 +677,14 @@ class _Kn04I003LsnCountingState extends State<Kn04I003LsnCounting>
                               text: '✅🏆',
                               style: TextStyle(fontSize: 16),
                             ),
+                          // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                           TextSpan(
                             text: item.stuName,
-                            style: const TextStyle(
+                            style: KnElementTextStyle.cardTitle(
+                              context,
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue, // 改为蓝色，表示可点击
-                              decoration:
-                                  TextDecoration.underline, // 添加下划线，表示可点击
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
                             ),
                           ),
                         ],
