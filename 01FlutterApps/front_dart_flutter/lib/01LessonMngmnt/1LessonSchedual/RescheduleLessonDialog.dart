@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../Constants.dart';
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-21
 import 'dart:convert';
 
 class RescheduleLessonDialog extends StatefulWidget {
@@ -26,7 +27,9 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('将该课调至'),
+        // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
+        title: Text('将该课调至',
+            style: KnElementTextStyle.appBarTitle(context, fontSize: 18)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

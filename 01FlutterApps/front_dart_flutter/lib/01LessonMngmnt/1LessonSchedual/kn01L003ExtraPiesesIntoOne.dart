@@ -10,6 +10,7 @@ import '../../../ApiConfig/KnApiConfig.dart';
 import '../../../CommonProcess/customUI/KnAppBar.dart';
 import '../../../CommonProcess/customUI/KnLoadingIndicator.dart';
 import '../../Constants.dart';
+import '../../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-21 添加主题扩展
 
 // 零碎课数据模型
 class Kn01L003ExtraPicesesBean {
@@ -877,12 +878,11 @@ class _Kn01L003ExtraPiesesIntoOneState
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
+                      // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
+                      child: Text(
                         '取消',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: KnElementTextStyle.buttonText(context,
+                            fontSize: 12, color: Colors.white),
                       ),
                     ),
                   ),

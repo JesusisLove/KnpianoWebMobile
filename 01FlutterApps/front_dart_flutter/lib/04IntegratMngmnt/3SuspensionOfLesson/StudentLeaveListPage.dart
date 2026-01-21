@@ -51,6 +51,7 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
 
   // 显示搜索对话框
   /// [Flutter页面主题改造] 2026-01-20 对话框标题和按钮字体跟随主题风格
+  /// [Flutter页面主题改造] 2026-01-21 文本框边框颜色跟随模块主题
   void _showSearchDialog() {
     showDialog(
       context: context,
@@ -60,9 +61,15 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
                 color: widget.knBgColor)),
         content: TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: '请输入学生姓名',
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Icon(Icons.search, color: widget.knBgColor),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor, width: 2),
+            ),
           ),
           autofocus: true,
           onChanged: (value) {

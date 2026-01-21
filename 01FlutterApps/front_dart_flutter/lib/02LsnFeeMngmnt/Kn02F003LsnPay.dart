@@ -244,19 +244,27 @@ class _Kn02F003LsnPayState extends State<Kn02F003LsnPay> {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
+      // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('确认'),
-          content: const Text('您确定要撤销这笔支付吗？'),
+          title: Text('确认',
+              style: KnElementTextStyle.dialogTitle(context,
+                  color: Constants.lsnfeeThemeColor)),
+          content: Text('您确定要撤销这笔支付吗？',
+              style: KnElementTextStyle.dialogContent(context)),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('确认'),
+              child: Text('确认',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Constants.lsnfeeThemeColor)),
               onPressed: () {
                 Navigator.of(context).pop();
                 restorePayment(lsnPayId, lsnFeeId);

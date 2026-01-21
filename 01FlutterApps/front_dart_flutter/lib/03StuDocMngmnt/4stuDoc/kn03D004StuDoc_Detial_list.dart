@@ -8,6 +8,7 @@ import 'package:kn_piano/Constants.dart';
 
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
+import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-21 添加主题扩展
 import '../../CommonProcess/customUI/KnLoadingIndicator.dart'; // 导入自定义加载指示器
 import 'kn03D004StuDoc_Add.dart';
 import 'kn03D004StuDoc_Edit.dart';
@@ -296,22 +297,29 @@ class _StudentDocDetailPageState extends State<StudentDocDetailPage>
                       break;
                     case 'delete':
                       // 删除
+                      // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text('删除确认'),
-                            content:
-                                Text('确定要删除【${student.subjectName}】这门科目吗？'),
+                            title: Text('删除确认',
+                                style: KnElementTextStyle.dialogTitle(context,
+                                    color: Constants.stuDocThemeColor)),
+                            content: Text('确定要删除【${student.subjectName}】这门科目吗？',
+                                style: KnElementTextStyle.dialogContent(context)),
                             actions: <Widget>[
                               TextButton(
-                                child: const Text('取消'),
+                                child: Text('取消',
+                                    style: KnElementTextStyle.buttonText(context,
+                                        color: Colors.red)),
                                 onPressed: () {
                                   Navigator.of(context).pop(); // 关闭对话框
                                 },
                               ),
                               TextButton(
-                                child: const Text('确定'),
+                                child: Text('确定',
+                                    style: KnElementTextStyle.buttonText(context,
+                                        color: Constants.stuDocThemeColor)),
                                 onPressed: () {
                                   _deleteSubjectEdaBan(
                                       student.stuId,

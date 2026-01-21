@@ -317,6 +317,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
   }
 
   /// [Flutter页面主题改造] 2026-01-20 对话框标题和按钮字体跟随主题风格
+  /// [Flutter页面主题改造] 2026-01-21 文本框边框颜色跟随模块主题
   void _showSearchDialog() {
     showDialog(
       context: context,
@@ -326,9 +327,15 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
                 color: widget.knBgColor)),
         content: TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: '请输入学生姓名',
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Icon(Icons.search, color: widget.knBgColor),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.knBgColor, width: 2),
+            ),
           ),
           autofocus: true,
           onChanged: (value) {
@@ -498,6 +505,7 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
               ),
               SizedBox(height: _displayMode == DisplayMode.large ? 12 : 8),
               // 姓名 - 彩色文字
+              // [Flutter页面主题改造] 2026-01-21 使用主题字体
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
@@ -505,10 +513,9 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
                   textAlign: TextAlign.center,
                   maxLines: _displayMode == DisplayMode.large ? 2 : 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: KnElementTextStyle.cardTitle(
+                    context,
                     fontSize: _displayMode == DisplayMode.large ? 16 : 14,
-                    fontWeight: FontWeight.w600,
-                    // 修复：文字改为彩色
                     color: cardColor,
                   ),
                 ),

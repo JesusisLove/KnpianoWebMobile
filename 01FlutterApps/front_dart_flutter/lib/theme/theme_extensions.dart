@@ -171,7 +171,7 @@ class KnPickerTextStyle {
 /// 主题感知的元素字体样式
 class KnElementTextStyle {
   /// 获取卡片标题的字体样式（如学生姓名）
-  static TextStyle cardTitle(BuildContext context, {double fontSize = 18, Color? color}) {
+  static TextStyle cardTitle(BuildContext context, {double fontSize = 18, Color? color, TextDecoration? decoration}) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final typography = themeProvider.currentConfig.typography;
     final elementStyle = typography.elements.cardTitle;
@@ -181,6 +181,7 @@ class KnElementTextStyle {
       color: color,
       fontWeight: elementStyle.fontWeight,
       fontStyle: elementStyle.fontStyle,
+      decoration: decoration,
     );
 
     if (typography.useGoogleFont) {
@@ -276,6 +277,59 @@ class KnElementTextStyle {
       color: color,
       fontWeight: elementStyle.fontWeight,
       fontStyle: elementStyle.fontStyle,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// [Flutter页面主题改造] 2026-01-21 获取弹出菜单项的字体样式
+  /// 童话模式使用普通字重，其他模式也使用普通字重
+  static TextStyle popupMenuItem(BuildContext context, {double fontSize = 17, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: FontWeight.normal, // 所有模式使用普通字重
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// [Flutter页面主题改造] 2026-01-21 获取对话框内容文字的字体样式
+  static TextStyle dialogContent(BuildContext context, {double fontSize = 14, Color? color}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: FontWeight.normal,
+    );
+
+    if (typography.useGoogleFont) {
+      return GoogleFonts.zcoolKuaiLe(textStyle: baseStyle);
+    }
+    return baseStyle;
+  }
+
+  /// [Flutter页面主题改造] 2026-01-21 获取卡片内容文字的字体样式（副标题、描述等）
+  static TextStyle cardBody(BuildContext context, {double fontSize = 12, Color? color, TextDecoration? decoration}) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final typography = themeProvider.currentConfig.typography;
+
+    TextStyle baseStyle = TextStyle(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: FontWeight.normal,
+      decoration: decoration,
     );
 
     if (typography.useGoogleFont) {

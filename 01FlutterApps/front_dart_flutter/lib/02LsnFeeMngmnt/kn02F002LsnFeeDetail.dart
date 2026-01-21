@@ -262,8 +262,9 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                   ),
                 ),
                 const SizedBox(width: 16),
+                // [Flutter页面主题改造] 2026-01-21 增加按钮宽度，确保年度文字完整显示
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: SizedBox(
                     height: 40,
                     child: ElevatedButton(
@@ -271,6 +272,7 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                       style: ElevatedButton.styleFrom(
                         foregroundColor: widget.knFontColor,
                         backgroundColor: widget.knBgColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       child: Text('$selectedYear年'),
                     ),
