@@ -517,13 +517,16 @@
                 });
             }
             
+            // 在循环外声明变量，保存当前月份的section引用（修复闭包问题）
+            var currentMonthSection = null;
+
             // 为每个月填充数据
             for (var month = 1; month <= 12; month++) {
                 var monthData = monthlyData[month] || [];
                 var monthClassName = monthNames[month];
                 var tbody = $('.' + monthClassName + '-weeks');
                 var monthSection = $('.month-' + monthClassName);
-                
+
                 if (monthData.length === 0) {
                     // 如果该月没有数据，隐藏整个月份区块
                     monthSection.hide();
@@ -532,7 +535,7 @@
                     monthData.forEach(function(info) {
                         var buttonClass = 'btn btn-sm scheduleBtn';
                         var buttonText = '去签到';
-                        
+
                         // 如果是当前周，添加特殊样式和文本
                         if (info.isCurrentWeek) {
                             buttonClass += ' btn-current-week';
@@ -540,7 +543,7 @@
                         } else {
                             buttonClass += ' btn-primary';
                         }
-                        
+
                         var row = '<tr>' +
                             '<td>第' + info.weekNumber + '周</td>' +
                             '<td>' + info.startWeekDate + '</td>' +
@@ -556,16 +559,21 @@
                         '</tr>';
                         tbody.append(row);
                     });
-                    
-                    // 如果是当前月份且有数据，页面加载后滚动到此月份
+
+                    // 如果是当前月份，保存section引用（不在循环内执行滚动）
                     if (month === currentMonth) {
-                        setTimeout(function() {
-                            $('html, body').animate({
-                                scrollTop: monthSection.offset().top - 100
-                            }, 1000);
-                        }, 500);
+                        currentMonthSection = monthSection;
                     }
                 }
+            }
+
+            // 在循环结束后，滚动到当前月份（修复JavaScript闭包问题）
+            if (currentMonthSection) {
+                setTimeout(function() {
+                    $('html, body').animate({
+                        scrollTop: currentMonthSection.offset().top - 100
+                    }, 500);
+                }, 300);
             }
             
             // 点击"去签到"按钮
