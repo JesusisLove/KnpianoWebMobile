@@ -99,15 +99,24 @@ class _StudentLeaveSettingPageState extends State<StudentLeaveSettingPage> {
       // 注释: 如果没有选中学生，显示提示对话框
       showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dialogContext) {
           return AlertDialog(
-            title: const Text('提示'),
-            content: const Text('没有退学的学生被选中，请选择要退学的学生。'),
+            title: Text(
+              '提示',
+              style: Theme.of(dialogContext).textTheme.headlineSmall,
+            ),
+            content: Text(
+              '没有退学的学生被选中，请选择要退学的学生。',
+              style: Theme.of(dialogContext).textTheme.bodyMedium,
+            ),
             actions: <Widget>[
               TextButton(
-                child: const Text('确定'),
+                child: Text(
+                  '确定',
+                  style: Theme.of(dialogContext).textTheme.labelLarge,
+                ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                 },
               ),
             ],
@@ -202,11 +211,12 @@ class _StudentLeaveSettingPageState extends State<StudentLeaveSettingPage> {
         actions: [
           TextButton(
             onPressed: _isLoading ? null : saveSelectedStudents, // 加载中禁用保存按钮
-            style: TextButton.styleFrom(
-              foregroundColor:
-                  _isLoading ? Colors.grey : Colors.white, // 加载中改变按钮颜色
-            ),
-            child: const Text('Save'), // 注释: 调用保存方法
+            child: Text(
+              '保存',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: _isLoading ? Colors.grey : widget.knFontColor,
+              ),
+            ), // 注释: 使用主题字体风格
           ),
         ],
       ),

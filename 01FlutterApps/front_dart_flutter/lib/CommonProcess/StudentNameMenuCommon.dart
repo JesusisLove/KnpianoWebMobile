@@ -23,6 +23,8 @@ class StudentNameMenuCommon extends StatefulWidget {
   final String pageId;
   // 接受各业务画面传递过来的uri
   final String strUri;
+  // 是否禁用年度选择器（学费预先支付等不需要年度筛选的功能使用）
+  final bool disableYearPicker;
 
   const StudentNameMenuCommon({
     super.key,
@@ -31,6 +33,7 @@ class StudentNameMenuCommon extends StatefulWidget {
     required this.pagePath,
     required this.pageId,
     required this.strUri,
+    this.disableYearPicker = false,
   });
 
   @override
@@ -281,36 +284,37 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
               ),
             ),
           ),
-          // 年度选择器
-          GestureDetector(
-            onTap: () => _showYearPicker(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-              decoration: BoxDecoration(
-                color: widget.knBgColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: widget.knBgColor.withOpacity(0.3)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.calendar_today, color: widget.knBgColor, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    '$selectedYear年',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: widget.knBgColor,
+          // 年度选择器（学费预先支付等功能禁用）
+          if (!widget.disableYearPicker)
+            GestureDetector(
+              onTap: () => _showYearPicker(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: widget.knBgColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: widget.knBgColor.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.calendar_today, color: widget.knBgColor, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$selectedYear年',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: widget.knBgColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.arrow_drop_down,
-                      color: widget.knBgColor, size: 18),
-                ],
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down,
+                        color: widget.knBgColor, size: 18),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -541,6 +541,7 @@ class HomePageState extends State<HomePage> {
                             pagePath: "学费预先支付>>在课学生一览",
                             pageId: Constants.kn02F003AdvcLsnFeePayPage,
                             strUri: Constants.apiCurrentStuName,
+                            disableYearPicker: true,
                           )));
             },
           },
@@ -914,18 +915,24 @@ class HomePageState extends State<HomePage> {
           // [Flutter页面主题改造] 2026-01-19 修复底部导航栏文字对齐问题
           // [Flutter页面主题改造] 2026-01-20 修复上课管理图标被遮挡问题，fontSize从24调整为20
           items: [
+            // [Flutter页面主题改造] 2026-01-21 修复音符图标垂直居中问题，添加height:1.0
             BottomNavigationBarItem(
                 icon: const SizedBox(
                     height: 24,
                     child: Center(
                         child: Text('♫',
-                            style: TextStyle(fontSize: 20, color: Colors.grey)))),
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.grey,
+                                height: 1.0)))),
                 activeIcon: SizedBox(
                     height: 24,
                     child: Center(
                         child: Text('♫',
                             style: TextStyle(
-                                fontSize: 20, color: _getPageInfo(0)['gradient'][0])))),
+                                fontSize: 20,
+                                color: _getPageInfo(0)['gradient'][0],
+                                height: 1.0)))),
                 label: '上课管理'),
             const BottomNavigationBarItem(
                 icon: Icon(Icons.attach_money), label: '学费管理'),
