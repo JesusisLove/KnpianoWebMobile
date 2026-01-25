@@ -36,7 +36,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   bool _isLoading = false; // 添加加载状态变量
   String _filterSubject = ''; // 过滤科目
   String _filterStudentName = ''; // 过滤学生姓名
-  final TextEditingController _filterStudentNameController = TextEditingController(); // 学生姓名输入控制器
+  final TextEditingController _filterStudentNameController =
+      TextEditingController(); // 学生姓名输入控制器
 
   // 缓存过滤后的数据，确保TabBar和TabBarView使用相同的数据
   List<KnFixLsn001Bean> _cachedLessons = [];
@@ -124,11 +125,14 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   List<KnFixLsn001Bean> filterLessons(List<KnFixLsn001Bean> lessons) {
     return lessons.where((lesson) {
       // 科目过滤
-      bool matchSubject = _filterSubject.isEmpty || lesson.subjectName == _filterSubject;
+      bool matchSubject =
+          _filterSubject.isEmpty || lesson.subjectName == _filterSubject;
 
       // 学生姓名过滤（模糊匹配，不区分大小写）
       bool matchStudent = _filterStudentName.isEmpty ||
-          lesson.studentName.toLowerCase().contains(_filterStudentName.toLowerCase());
+          lesson.studentName
+              .toLowerCase()
+              .contains(_filterStudentName.toLowerCase());
 
       // AND逻辑：所有条件都要满足
       return matchSubject && matchStudent;
@@ -143,10 +147,12 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
     }
 
     // 获取有数据的星期
-    final availableDays = filteredLessons.map((lesson) => lesson.fixedWeek).toSet().toList();
+    final availableDays =
+        filteredLessons.map((lesson) => lesson.fixedWeek).toSet().toList();
 
     // 按照原始weekDays的顺序排序
-    availableDays.sort((a, b) => weekDays.indexOf(a).compareTo(weekDays.indexOf(b)));
+    availableDays
+        .sort((a, b) => weekDays.indexOf(a).compareTo(weekDays.indexOf(b)));
 
     return availableDays;
   }
@@ -189,14 +195,16 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
-        leftBalanceCount: 2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
+        leftBalanceCount:
+            2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
         actions: [
           IconButton(
             icon: Icon(
               Icons.filter_list,
-              color: (_filterSubject.isNotEmpty || _filterStudentName.isNotEmpty)
-                  ? Colors.yellow
-                  : Colors.white,
+              color:
+                  (_filterSubject.isNotEmpty || _filterStudentName.isNotEmpty)
+                      ? Colors.yellow
+                      : Colors.white,
             ),
             onPressed: _isLoading
                 ? null // 如果正在加载，禁用按钮
@@ -356,11 +364,13 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
                                 style: KnElementTextStyle.dialogTitle(context,
                                     color: Constants.settngThemeColor)),
                             content: Text('确定要删除${lesson.studentName}的固定排课吗？',
-                                style: KnElementTextStyle.dialogContent(context)),
+                                style:
+                                    KnElementTextStyle.dialogContent(context)),
                             actions: <Widget>[
                               TextButton(
                                 child: Text('取消',
-                                    style: KnElementTextStyle.buttonText(context,
+                                    style: KnElementTextStyle.buttonText(
+                                        context,
                                         color: Colors.red)),
                                 onPressed: () {
                                   Navigator.of(context).pop(); // 关闭对话框
@@ -368,7 +378,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
                               ),
                               TextButton(
                                 child: Text('确定',
-                                    style: KnElementTextStyle.buttonText(context,
+                                    style: KnElementTextStyle.buttonText(
+                                        context,
                                         color: Constants.settngThemeColor)),
                                 onPressed: () {
                                   // 执行删除操作
@@ -450,7 +461,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   void _showFilterDialog() async {
     // 等待数据加载完成，获取所有科目
     final lessons = await futureFixLsnList;
-    final subjects = lessons.map((lesson) => lesson.subjectName).toSet().toList();
+    final subjects =
+        lessons.map((lesson) => lesson.subjectName).toSet().toList();
     subjects.sort();
 
     // 临时变量
@@ -464,7 +476,9 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('过滤条件'),
+            title: Text('过滤条件',
+                style: KnElementTextStyle.dialogTitle(context,
+                    color: widget.knBgColor)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -540,7 +554,9 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
                   });
                   navigator.pop();
                 },
-                child: const Text('清空'),
+                child: Text('清空',
+                    style: KnElementTextStyle.dialogTitle(context,
+                        color: widget.knBgColor)),
               ),
               TextButton(
                 onPressed: () async {
@@ -586,7 +602,9 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
 
                   navigator.pop();
                 },
-                child: const Text('确定'),
+                child: Text('确定',
+                    style: KnElementTextStyle.dialogTitle(context,
+                        color: widget.knBgColor)),
               ),
             ],
           );
