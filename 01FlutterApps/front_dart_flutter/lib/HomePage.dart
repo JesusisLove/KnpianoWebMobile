@@ -433,7 +433,8 @@ class HomePageState extends State<HomePage> {
   List<Widget> getPageWidgets(int index) {
     switch (index) {
       case 0:
-        // 上课管理页面
+        // 上课管理页面 - [Flutter页面主题改造] 2026-01-26 使用主题系统动态颜色
+        final lessonColor = KnThemeColors.getLessonColors(context).primary;
         final lessonButtons = [
           {
             'icon': Icons.schedule,
@@ -457,8 +458,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StudentNameMenuCommon(
-                            knBgColor: consts.Constants.lessonThemeColor,
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: lessonColor,
                             knFontColor: Colors.white,
                             pagePath: "上课进度管理>>在课学生一览",
                             pageId: Constants.kn01L002LsnStatistic,
@@ -474,8 +475,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StudentNameMenuCommon(
-                            knBgColor: consts.Constants.lessonThemeColor,
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: lessonColor,
                             knFontColor: Colors.white,
                             pagePath: "加课消化管理>>在课学生一览",
                             pageId: Constants.kn01L003ExtraToSche,
@@ -491,8 +492,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StudentNameMenuCommon(
-                            knBgColor: consts.Constants.lessonThemeColor,
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: lessonColor,
                             knFontColor: Colors.white,
                             pagePath: "碎课拼成整课>>在课学生一览",
                             pageId: Constants.kn01L003ExtraPiesesIntoOne,
@@ -508,7 +509,8 @@ class HomePageState extends State<HomePage> {
         ];
 
       case 1:
-        // 学费管理页面 - 恢复原来的粉紫色
+        // 学费管理页面 - [Flutter页面主题改造] 2026-01-26 使用主题系统动态颜色
+        final feeColor = KnThemeColors.getFeeColors(context).primary;
         final feeButtons = [
           {
             'icon': Icons.payment,
@@ -518,8 +520,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StudentNameMenuCommon(
-                            knBgColor: consts.Constants.lsnfeeThemeColor,
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: feeColor,
                             knFontColor: Colors.white,
                             pagePath: "学费支付管理>>在课学生一览",
                             pageId: Constants.stuLsnFeeListPage,
@@ -535,8 +537,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StudentNameMenuCommon(
-                            knBgColor: consts.Constants.lsnfeeThemeColor,
+                      builder: (context) => StudentNameMenuCommon(
+                            knBgColor: feeColor,
                             knFontColor: Colors.white,
                             pagePath: "学费预先支付>>在课学生一览",
                             pageId: Constants.kn02F003AdvcLsnFeePayPage,
@@ -553,8 +555,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const MonthlyIncomeReportPage(
-                            knBgColor: consts.Constants.lsnfeeThemeColor,
+                      builder: (context) => MonthlyIncomeReportPage(
+                            knBgColor: feeColor,
                             knFontColor: Colors.white,
                             pagePath: "学费管理",
                           )));
@@ -569,7 +571,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => Kn02F006ExtraLsnReport(
-                            knBgColor: Constants.lsnfeeThemeColor,
+                            knBgColor: feeColor,
                             knFontColor: Colors.white,
                             pagePath: "学费管理",
                           )));
@@ -583,7 +585,8 @@ class HomePageState extends State<HomePage> {
         ];
 
       case 2:
-        // 档案管理页面 - 保留棕色系
+        // 档案管理页面 - [Flutter页面主题改造] 2026-01-26 使用主题系统动态颜色
+        final archiveColor = KnThemeColors.getArchiveColors(context).primary;
         final docButtons = [
           {
             'icon': Icons.school,
@@ -594,7 +597,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => StuEditList(
-                            knBgColor: consts.Constants.stuDocThemeColor,
+                            knBgColor: archiveColor,
                             knFontColor: Colors.white,
                             pagePath: "档案管理",
                           )));
@@ -609,7 +612,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => SubjectViewPage(
-                            knBgColor: consts.Constants.stuDocThemeColor,
+                            knBgColor: archiveColor,
                             knFontColor: Colors.white,
                             pagePath: "档案管理",
                           )));
@@ -624,7 +627,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => BankViewPage(
-                            knBgColor: consts.Constants.stuDocThemeColor,
+                            knBgColor: archiveColor,
                             knFontColor: Colors.white,
                             pagePath: "档案管理",
                           )));
@@ -639,7 +642,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => StudentDocPage(
-                            knBgColor: consts.Constants.stuDocThemeColor,
+                            knBgColor: archiveColor,
                             knFontColor: Colors.white,
                             pagePath: "档案管理",
                           )));
@@ -653,7 +656,8 @@ class HomePageState extends State<HomePage> {
         ];
 
       case 3:
-        // 综合管理页面
+        // 综合管理页面 - [Flutter页面主题改造] 2026-01-26 使用主题系统动态颜色
+        final summaryColor = KnThemeColors.getSummaryColors(context).primary;
         final integrationButtons = [
           {
             'icon': Icons.person_off,
@@ -664,7 +668,7 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => StudentLeaveListPage(
-                            knBgColor: consts.Constants.ingergThemeColor,
+                            knBgColor: summaryColor,
                             knFontColor: Colors.white,
                             pagePath: "综合管理",
                           )));
@@ -679,8 +683,8 @@ class HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          const SubSubjectOfStudentsListBySubject(
-                            knBgColor: consts.Constants.ingergThemeColor,
+                          SubSubjectOfStudentsListBySubject(
+                            knBgColor: summaryColor,
                             knFontColor: Colors.white,
                             pagePath: "综合管理",
                           )));
@@ -694,8 +698,8 @@ class HomePageState extends State<HomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const Kn04I003LsnCounting(
-                            knBgColor: consts.Constants.ingergThemeColor,
+                      builder: (context) => Kn04I003LsnCounting(
+                            knBgColor: summaryColor,
                             knFontColor: Colors.white,
                             pagePath: "学费管理",
                           )));
