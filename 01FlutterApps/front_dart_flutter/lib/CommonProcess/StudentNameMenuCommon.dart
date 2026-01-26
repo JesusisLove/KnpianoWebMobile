@@ -156,15 +156,15 @@ class _StudentNameMenuCommonState extends State<StudentNameMenuCommon>
             widget.knFontColor.red - 20,
             widget.knFontColor.green - 20,
             widget.knFontColor.blue - 20),
+        // [Flutter页面主题改造] 2026-01-26 副标题背景使用主题色的深色版本，更和谐美观
         subtitleBackgroundColor: Color.fromARGB(
-            widget.knFontColor.alpha,
-            widget.knFontColor.red + 20,
-            widget.knFontColor.green + 20,
-            widget.knFontColor.blue + 20),
+            widget.knBgColor.alpha,
+            (widget.knBgColor.red * 0.6).round(),
+            (widget.knBgColor.green * 0.6).round(),
+            (widget.knBgColor.blue * 0.6).round()),
         subtitleTextColor: Colors.white,
         addInvisibleRightButton: true,
-        leftBalanceCount:
-            2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
+        // [Flutter页面主题改造] 2026-01-27 leftBalanceCount不再需要，KnAppBar已改用Stack布局实现Title绝对居中
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         actions: [
