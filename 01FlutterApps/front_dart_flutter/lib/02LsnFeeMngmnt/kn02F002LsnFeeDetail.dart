@@ -10,6 +10,7 @@ import '../Constants.dart';
 import '../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-18 添加主题扩展
 import 'Kn02F002FeeBean.dart';
 import 'Kn02F003AdvcLsnFeePayPage.dart';
+import 'Kn02F004AdvcLsnFeePayPerLsnPage.dart';
 import 'Kn02F003LsnPay.dart';
 import '../CommonProcess/customUI/KnLoadingIndicator.dart';
 
@@ -216,7 +217,21 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
                               selectedYear: selectedYear,
                             )));
                 if (success == true) {
-                  // 如果预支付成功，刷新页面数据
+                  fetchFeeDetails();
+                }
+              } else if (result == 'prepay_per_lsn') {
+                final bool? success = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Kn02F004AdvcLsnFeePayPerLsnPage(
+                              stuId: widget.stuId,
+                              stuName: widget.stuName,
+                              knBgColor: widget.knBgColor,
+                              knFontColor: widget.knFontColor,
+                              pagePath: widget.pagePath,
+                              selectedYear: selectedYear,
+                            )));
+                if (success == true) {
                   fetchFeeDetails();
                 }
               }
@@ -224,7 +239,11 @@ class _LsnFeeDetailState extends State<LsnFeeDetail> {
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'prepay',
-                child: Text('预支付学费'),
+                child: Text('预支付学费（按月）'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'prepay_per_lsn',
+                child: Text('预支付学费（按课时）'),
               ),
             ],
           ),
