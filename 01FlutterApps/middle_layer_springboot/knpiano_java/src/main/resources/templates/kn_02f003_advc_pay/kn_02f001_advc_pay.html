@@ -352,7 +352,6 @@
                                         <th>课程属性</th>
                                         <th>课程单价</th>
                                         <th>上课时长（分钟）</th>
-                                        <th>计划排课属性</th>
                                         <th>推算的排课日期</th>
                                     </tr>
                                 </thead>
@@ -368,7 +367,6 @@
                                         <td>[[${info.lessonType== 1 ? '月计划课':''}]]</td>
                                         <td>[[${info.subjectPrice}]]</td>
                                         <td>[[${info.minutesPerLsn}]]</td>
-                                        <td>[[${info.schedualDate != null ? '1' : '0'}]]</td>
                                         <td>
                                             <span th:if="${info.schedualDate != null}"
                                                 th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
@@ -529,10 +527,12 @@
 
             document.querySelectorAll('.row-checkbox:checked').forEach(function (checkbox) {
                 var row = checkbox.closest('tr');
-                var scheduleType = parseInt(row.cells[10].textContent);
-                var schedulePlan = scheduleType === 1 ? row.cells[11].querySelector('span').textContent : row.cells[11].querySelector('input').value;
+                var dateCell = row.cells[10];
+                var spanEl = dateCell.querySelector('span');
+                var inputEl = dateCell.querySelector('input');
+                var schedulePlan = spanEl ? spanEl.textContent : inputEl.value;
 
-                if (scheduleType === 0 && !isValidDateFormat(schedulePlan)) {
+                if (!spanEl && !isValidDateFormat(schedulePlan)) {
                     alert('请输入"yyyy-MM-dd HH:mm"格式的日期。');
                     return;
                 }
@@ -546,7 +546,6 @@
                     stuName: row.cells[2].textContent,
                     classDuration: parseInt(row.cells[9].textContent),
                     lessonType: 1,
-                    schedualType: scheduleType,
                     schedualDate: schedulePlan,
                     subjectPrice: parseFloat(row.cells[8].textContent),
                     minutesPerLsn: parseInt(row.cells[9].textContent)
