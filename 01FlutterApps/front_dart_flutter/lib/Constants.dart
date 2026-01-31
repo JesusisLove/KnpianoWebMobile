@@ -110,6 +110,15 @@ class Constants {
 // 执行课费预支付处理
   static const String apiExecuteAdvcLsnPay = '/liu/mb_kn_advc_pay_lsn_execute';
 
+// 取得按课时交费学生的科目列表（科目下拉选择器用）
+  static const String apiAdvcLsnFeePayPerLsnSubjects = '/liu/mb_kn_advc_per_lsn_subjects';
+
+// 取得按课时预支付科目信息
+  static const String apiAdvcLsnFeePayPerLsnInfo = '/liu/mb_kn_advc_pay_per_lsn';
+
+// 执行按课时预支付处理
+  static const String apiExecuteAdvcLsnPayPerLsn = '/liu/mb_kn_advc_pay_per_lsn_execute';
+
 // 获取学生上一个月支付时使用的银行ID（用于设置默认银行）
   static const String apiDefaultBankId = '/liu/mb_kn_default_bank';
 
