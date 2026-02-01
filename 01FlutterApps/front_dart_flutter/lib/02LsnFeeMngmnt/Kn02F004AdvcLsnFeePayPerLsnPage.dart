@@ -136,15 +136,11 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
         setState(() {
           _subjectLoadError = '科目列表加载失败(HTTP ${response.statusCode})';
         });
-        print('Failed to load subject list: HTTP ${response.statusCode}');
-        print('URL: $apiUrl');
       }
     } catch (e) {
       setState(() {
         _subjectLoadError = '科目列表加载失败: $e';
       });
-      print('Error loading subject list: $e');
-      print('URL: $apiUrl');
     }
   }
 
