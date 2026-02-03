@@ -31,8 +31,10 @@ public class Kn02F004AdvcLsnFeePayPerLsnDao {
         return kn02F004Mapper.getAdvcFeePayPerLsnSubjectsByStuId(stuId);
     }
 
-    public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePayPerLsnInfo(String stuId, String yearMonth) {
-        return kn02F004Mapper.getAdvcFeePayPerLsnInfo(stuId, yearMonth);
+    public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePayPerLsnInfo(String stuId, String yearMonth,
+                                                                          Integer lessonCount, String subjectId,
+                                                                          String subjectSubId) {
+        return kn02F004Mapper.getAdvcFeePayPerLsnInfo(stuId, yearMonth, lessonCount, subjectId, subjectSubId);
     }
 
     public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePaidPerLsnInfoByCondition(String stuId,

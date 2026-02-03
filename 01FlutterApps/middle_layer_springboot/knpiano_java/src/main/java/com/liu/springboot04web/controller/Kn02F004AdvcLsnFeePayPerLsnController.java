@@ -19,7 +19,6 @@ import com.liu.springboot04web.mapper.Kn03D003BnkMapper;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.text.SimpleDateFormat;
 
 @Controller
 public class Kn02F004AdvcLsnFeePayPerLsnController {
@@ -77,6 +75,7 @@ public class Kn02F004AdvcLsnFeePayPerLsnController {
         String lsnMonth = (String) queryParams.get("selectedmonth");
         String stuId = (String) queryParams.get("stuId");
         String subjectId = (String) queryParams.get("subjectId");
+        String subjectSubId = (String) queryParams.get("subjectSubId");
         String lessonCountStr = (String) queryParams.get("lessonCount");
         int lessonCount = 4;
         try { lessonCount = Integer.parseInt(lessonCountStr); } catch (Exception e) { /* default 4 */ }
@@ -84,44 +83,15 @@ public class Kn02F004AdvcLsnFeePayPerLsnController {
         if (!validateHasError(model, queryParams, null)) {
             String yearMonth = queryParams.get("selectedyear") + "-" + lsnMonth;
 
-            // 调用SP取得该生所有科目的排课日期推算结果
-            List<Kn02F004AdvcLsnFeePayPerLsnBean> allSubjects = kn02F004Dao.getAdvcFeePayPerLsnInfo(stuId, yearMonth);
+            // 调用SP取得该生指定科目的N条排课日期推算结果（含处理模式A/B/C判定）
+            if (subjectId != null && !subjectId.isEmpty() && subjectSubId != null && !subjectSubId.isEmpty()) {
+                List<Kn02F004AdvcLsnFeePayPerLsnBean> scheduleList = kn02F004Dao.getAdvcFeePayPerLsnInfo(
+                        stuId, yearMonth, lessonCount, subjectId, subjectSubId);
 
-            // 根据选择的科目过滤，生成N节课的排课日期预览
-            if (subjectId != null && !subjectId.isEmpty()) {
-                Kn02F004AdvcLsnFeePayPerLsnBean selectedSubject = null;
-                for (Kn02F004AdvcLsnFeePayPerLsnBean bean : allSubjects) {
-                    if (subjectId.equals(bean.getSubjectId())) {
-                        selectedSubject = bean;
-                        break;
-                    }
-                }
-
-                if (selectedSubject != null && selectedSubject.getSchedualDate() != null) {
-                    // 有固定排课：生成N节课的排课日期（每节间隔7天）
-                    List<Kn02F004AdvcLsnFeePayPerLsnBean> scheduleList = new ArrayList<>();
-                    for (int i = 0; i < lessonCount; i++) {
-                        Kn02F004AdvcLsnFeePayPerLsnBean row = new Kn02F004AdvcLsnFeePayPerLsnBean();
-                        row.setStuId(selectedSubject.getStuId());
-                        row.setStuName(selectedSubject.getStuName());
-                        row.setSubjectId(selectedSubject.getSubjectId());
-                        row.setSubjectSubId(selectedSubject.getSubjectSubId());
-                        row.setSubjectName(selectedSubject.getSubjectName());
-                        row.setSubjectSubName(selectedSubject.getSubjectSubName());
-                        row.setSubjectPrice(selectedSubject.getSubjectPrice());
-                        row.setMinutesPerLsn(selectedSubject.getMinutesPerLsn());
-                        row.setLessonType(selectedSubject.getLessonType());
-
-                        Calendar dateCal = Calendar.getInstance();
-                        dateCal.setTime(selectedSubject.getSchedualDate());
-                        dateCal.add(Calendar.DAY_OF_MONTH, i * 7);
-                        row.setSchedualDate(dateCal.getTime());
-
-                        scheduleList.add(row);
-                    }
+                if (scheduleList != null && !scheduleList.isEmpty()) {
                     model.addAttribute("infoList", scheduleList);
                 } else {
-                    // 无固定排课或SP未返回该科目
+                    // SP未返回结果（无固定排课信息）
                     model.addAttribute("infoList", new ArrayList<>());
                     model.addAttribute("noScheduleMessage",
                             "该生该科目无固定排课信息，暂不支持手动输入排课日期（功能开发中）。");
@@ -154,40 +124,27 @@ public class Kn02F004AdvcLsnFeePayPerLsnController {
     }
 
     // 点击Web页面上的【课费预支付】按钮
+    // 业务逻辑：前端发送第一条排课日期+课时数，SP在执行时会重新遍历候选日期并检查课程状态，
+    // 根据A/B/C/D模式执行不同操作（D模式自动跳过）。这样设计是为了防止Preview到Execution期间数据状态变化。
     @PostMapping("/kn_advc_pay_per_lsn_execute")
     public String executeAdvanceLsnFeePayPerLesson(@RequestParam Map<String, Object> queryParams,
             @RequestBody List<Kn02F004AdvcLsnFeePayPerLsnBean> beans,
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        String stuName = beans.get(0).getStuName();
-        String yearMonth = new SimpleDateFormat("yyyy-MM").format(beans.get(0).getSchedualDate());
-
-        // 对科目的学费进行按课时预支付处理
-        for (Kn02F004AdvcLsnFeePayPerLsnBean bean : beans) {
-            if (!hasPaid(bean)) {
-                kn02F004Dao.executeAdvcLsnFeePayPerLesson(bean);
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage",
-                        stuName + "的" + yearMonth + "的按课时预支付课费已经支付了，不能再重复支付。");
-                return "redirect:/kn_advc_pay_per_lsn";
-            }
+        if (beans == null || beans.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "没有要处理的数据。");
+            return "redirect:/kn_advc_pay_per_lsn";
         }
+
+        String stuName = beans.get(0).getStuName();
+
+        // 调用SP执行按课时预支付（SP内部会重新检查课程状态并判定A/B/C/D模式）
+        Kn02F004AdvcLsnFeePayPerLsnBean bean = beans.get(0);
+        kn02F004Dao.executeAdvcLsnFeePayPerLesson(bean);
 
         redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费按课时预支付成功。");
         return "redirect:/kn_advc_pay_per_lsn";
-    }
-
-    // 判断当前要预支付的课是否在对象月里已经预支付了（避免重复预支付）
-    private boolean hasPaid(Kn02F004AdvcLsnFeePayPerLsnBean bean) {
-        String stuId = bean.getStuId();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = formatter.format(bean.getSchedualDate());
-        String yearMonth = formattedDate.substring(0, 7);
-
-        List<Kn02F004AdvcLsnFeePayPerLsnBean> advcPaidList = kn02F004Dao.getAdvcFeePaidPerLsnInfoByCondition(stuId,
-                null, yearMonth);
-        return (advcPaidList.size() > 0);
     }
 
     // 学生银行下拉列表框初期化

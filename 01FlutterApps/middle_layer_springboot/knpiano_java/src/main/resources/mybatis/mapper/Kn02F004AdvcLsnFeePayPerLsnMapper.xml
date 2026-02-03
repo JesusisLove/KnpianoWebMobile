@@ -55,7 +55,9 @@
             doc.subject_sub_id,
             doc.subject_name,
             doc.subject_sub_name,
-            COALESCE(doc.lesson_fee_adjusted, doc.lesson_fee) as subject_price,
+            CASE WHEN doc.lesson_fee_adjusted > 0 THEN doc.lesson_fee_adjusted
+                 ELSE doc.lesson_fee
+            END as subject_price,
             doc.minutes_per_lsn,
             0 as lesson_type
         FROM StuDoc doc
@@ -68,11 +70,14 @@
         ORDER BY doc.subject_name;
     </select>
 
-    <!-- 获得该生按课时交费的科目信息和推算的排课日期 -->
+    <!-- 获得该生按课时交费的科目信息和推算的排课日期（含处理模式A/B/C判定） -->
     <select id="getAdvcFeePayPerLsnInfo" statementType="CALLABLE" resultType="com.liu.springboot04web.bean.Kn02F004AdvcLsnFeePayPerLsnBean">
         {call sp_get_advc_pay_per_lsn_subjects_and_schedual_info (
-            #{stuId,        mode=IN, jdbcType=VARCHAR},
-            #{yearMonth,    mode=IN, jdbcType=VARCHAR}
+            #{stuId,         mode=IN, jdbcType=VARCHAR},
+            #{yearMonth,     mode=IN, jdbcType=VARCHAR},
+            #{lessonCount,   mode=IN, jdbcType=INTEGER},
+            #{subjectId,     mode=IN, jdbcType=VARCHAR},
+            #{subjectSubId,  mode=IN, jdbcType=VARCHAR}
         )}
     </select>
 

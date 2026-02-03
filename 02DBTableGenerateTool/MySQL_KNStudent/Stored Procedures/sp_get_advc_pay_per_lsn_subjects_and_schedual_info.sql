@@ -2,263 +2,278 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_get_advc_pay_per_lsn_subjects_and_schedual_info //
 
-CREATE DEFINER=`root`@`%` PROCEDURE `sp_get_advc_pay_per_lsn_subjects_and_schedual_info`(IN p_stuId VARCHAR(32), IN p_yearMonth VARCHAR(7))
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_get_advc_pay_per_lsn_subjects_and_schedual_info`(
+    IN p_stuId VARCHAR(32),
+    IN p_yearMonth VARCHAR(7),
+    IN p_lessonCount INT,
+    IN p_subjectId VARCHAR(32),
+    IN p_subjectSubId VARCHAR(32)
+)
 BEGIN
+    -- ============================================================
+    -- 按课时预支付：推算排课日期（Preview）
+    --
+    -- 根据固定排课信息，从对象月第一个排课日开始逐周遍历候选日期，
+    -- 检查每个日期的既存课程状态，返回N条有效记录。
+    --
+    -- 处理模式：
+    --   A = 无既存课程 → 全新创建
+    --   B = 未签到既存课程 → 复用lesson
+    --   C = 已签到未支付既存课程 → 复用lesson+fee
+    --   D = 已签到已支付 或 已有预支付记录 → 跳过（不计入N）
+    -- ============================================================
 
     DECLARE v_first_day DATE;
-    -- 临时禁用安全更新模式，以允许不使用主键的更新操作
-    SET SQL_SAFE_UPDATES = 0;
+    DECLARE v_candidate_date DATETIME;
+    DECLARE v_fixed_week VARCHAR(3);
+    DECLARE v_fixed_hour INT;
+    DECLARE v_fixed_minute INT;
+    DECLARE v_target_weekday INT;
+    DECLARE v_processed_count INT DEFAULT 0;
+    DECLARE v_iteration INT DEFAULT 0;
+    DECLARE v_max_iteration INT DEFAULT 100;
 
-    -- 确保临时表不存在，防止重复创建错误
-    DROP TEMPORARY TABLE IF EXISTS temp_result;
+    -- 每次迭代用到的变量
+    DECLARE v_existing_lesson_id VARCHAR(50);
+    DECLARE v_existing_fee_id VARCHAR(50);
+    DECLARE v_scanqr_date DATETIME;
+    DECLARE v_lesson_count INT;
+    DECLARE v_fee_count INT;
+    DECLARE v_pay_count INT;
+    DECLARE v_advc_count INT;
+    DECLARE v_mode VARCHAR(1);
 
-    -- 创建临时表来存储计算后的结果
-    CREATE TEMPORARY TABLE temp_result AS
-	-- 第一部分：获取学生档案中存在但在课程信息表中不存在的科目数据
-	WITH MaxSubIds AS (
-	 -- 取得学生们各科目中截止到目前学过的或正在学的最大子科目（即，子科目id值最大的那个科目）
-		SELECT
-			t.*
-		FROM v_latest_subject_info_from_student_document t
-		INNER JOIN (
-			SELECT
-				stu_id,
-				subject_id,
-				MAX(CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) AS UNSIGNED)) as max_num
-			FROM v_latest_subject_info_from_student_document
-			WHERE 1 = 1
-            AND pay_style = 0 -- 仅限于按课时交费的科目
-			-- 价格调整日期小于系统当前日期，目的是防止未来准备要上，目前还没有开始上的科目不出现在当前的预支付中
-			AND adjusted_date <= CURDATE()
-			GROUP BY stu_id, subject_id
-		) m ON t.stu_id = m.stu_id
-			AND t.subject_id = m.subject_id
-			-- 学科子科目（例如：钢琴1级，2级等）的最大值
-			AND CAST(SUBSTRING_INDEX(t.subject_sub_id, '-', -1) AS UNSIGNED) = m.max_num
-			-- 只限于当前在课的学生
-			AND t.stu_id in (select stu_id from t_mst_student where del_flg = 0)
-	)
-	(SELECT
-		doc.stu_id,
-		doc.stu_name,
-		doc.subject_id,
-		doc.subject_name,
-		doc.subject_sub_id,
-		doc.subject_sub_name,
-		CASE
-			WHEN doc.pay_style = 0 THEN 0
-		END as lesson_type,
-		NULL AS schedual_date
-	FROM (
-		SELECT
-			stu_id,
-			stu_name,
-			subject_id,
-			subject_name,
-			subject_sub_id,
-			subject_sub_name,
-			lesson_type,
-			MAX(schedual_date) AS schedual_date
-		FROM v_info_lesson
-		WHERE scanQR_date IS NOT NULL and lesson_type = 0
-		GROUP BY
-			stu_id,
-			stu_name,
-			subject_id,
-			subject_name,
-			subject_sub_id,
-			lesson_type,
-			subject_sub_name
-	) lsn
-	RIGHT JOIN MaxSubIds doc
-	ON lsn.stu_id = doc.stu_id
-	AND lsn.subject_id = doc.subject_id
-	AND lsn.subject_sub_id = doc.subject_sub_id
-	WHERE lsn.stu_id IS NULL
-	  AND doc.stu_id = p_stuId
-      -- 价格调整日期小于系统当前日期，目的是防止未来准备要上，目前还没有开始上的科目不出现在当前的预支付中
-	  AND doc.adjusted_date <= CURDATE()
-	  AND LEFT(lsn.schedual_date,4) = LEFT(CURDATE(),4))
-	UNION ALL
-	-- 第二部分：获取学生在课程信息表中的现有课程数据
-	SELECT
-		t1.stu_id,
-		t1.stu_name,
-		t1.subject_id,
-		t1.subject_name,
-		t1.subject_sub_id,
-		t1.subject_sub_name,
-		t1.lesson_type,
-		t1.schedual_date
-	FROM (
-		SELECT
-			v.*,
-			MAX(schedual_date) OVER (PARTITION BY stu_id, subject_id) as max_date
-		FROM v_info_lesson v
-		WHERE v.stu_id = p_stuId
-		  AND v.scanQR_date IS NOT NULL
-		  AND v.lesson_type = 0
-          -- 排课日期只参考去年到现在的排课日期
-          AND LEFT(v.schedual_date,4) >= LEFT(CURDATE(),4) - 1
-	) t1
-	INNER JOIN (
-		SELECT
-			stu_id,
-			subject_id,
-			MAX(CAST(SUBSTRING_INDEX(subject_sub_id, '-', -1) AS UNSIGNED)) as max_num
-		FROM v_info_lesson
-		WHERE stu_id = p_stuId
-		  AND scanQR_date IS NOT NULL
-		  AND lesson_type = 0
-		GROUP BY stu_id, subject_id
-	) t2 ON t1.stu_id = t2.stu_id
-		AND t1.subject_id = t2.subject_id
-		AND CAST(SUBSTRING_INDEX(t1.subject_sub_id, '-', -1) AS UNSIGNED) = t2.max_num
-	WHERE t1.schedual_date = t1.max_date;
+    -- 学生档案信息
+    DECLARE v_stu_name VARCHAR(100);
+    DECLARE v_subject_name VARCHAR(100);
+    DECLARE v_subject_sub_name VARCHAR(100);
+    DECLARE v_subject_price DECIMAL(10,2);
+    DECLARE v_minutes_per_lsn INT;
 
-	-- 创建临时表来存储统计p_yearMonth月里里签到的课程数量
-    DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_scaned_count AS
-	SELECT subject_id, COUNT(subject_sub_id) as subject_sub_id_count
-	FROM t_info_lesson
-	WHERE stu_id = p_stuId
-		AND LEFT(schedual_date,7) = p_yearMonth
-		AND scanqr_date IS NOT NULL
-	GROUP BY subject_id;
+    -- ============================
+    -- 1. 获取固定排课信息
+    -- ============================
+    SELECT fixed_week, fixed_hour, fixed_minute
+    INTO v_fixed_week, v_fixed_hour, v_fixed_minute
+    FROM v_earliest_fixed_week_info
+    WHERE stu_id = p_stuId AND subject_id = p_subjectId
+    LIMIT 1;
 
-	-- 根据签到的统计结果进行判断：如果subject_sub_id_count大于0，预支付的对象月是下一个月，没有签到记录，就是当前月
-	IF EXISTS (SELECT 1 FROM temp_scaned_count WHERE subject_sub_id_count > 0) THEN
-		-- 如果有签到记录，取下个月的第一天
-		SET v_first_day = DATE(DATE_FORMAT(DATE_ADD(CONCAT(p_yearMonth, '-01'), INTERVAL 1 MONTH), '%Y-%m-01'));
-	ELSE
-		-- 如果没有签到记录，取当前传入月份的第一天
-		SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
-	END IF;
+    -- 如果没有固定排课信息，返回空结果集
+    IF v_fixed_week IS NULL THEN
+        SELECT NULL AS stu_id, NULL AS stu_name,
+               NULL AS subject_id, NULL AS subject_name,
+               NULL AS subject_sub_id, NULL AS subject_sub_name,
+               NULL AS lesson_type, NULL AS schedual_date,
+               NULL AS subject_price, NULL AS minutes_per_lsn,
+               NULL AS processing_mode, NULL AS existing_lesson_id,
+               NULL AS existing_fee_id, NULL AS sequence_no
+        WHERE 1 = 0;
+        -- 直接退出，不做后续处理
+    ELSE
+        -- ============================
+        -- 2. 获取学生档案的科目信息
+        -- ============================
+        SELECT
+            stu_name,
+            subject_name,
+            subject_sub_name,
+            CASE WHEN lesson_fee_adjusted > 0 THEN lesson_fee_adjusted
+                 ELSE lesson_fee
+            END,
+            minutes_per_lsn
+        INTO v_stu_name, v_subject_name, v_subject_sub_name, v_subject_price, v_minutes_per_lsn
+        FROM v_latest_subject_info_from_student_document
+        WHERE stu_id = p_stuId
+          AND subject_id = p_subjectId
+          AND subject_sub_id = p_subjectSubId
+        LIMIT 1;
 
+        -- ============================
+        -- 3. 计算对象月第一个固定排课日
+        -- ============================
+        SET v_first_day = DATE(CONCAT(p_yearMonth, '-01'));
 
-    -- 更新临时表中的排课计划日期(因为临时表存放的是过去最新的排课参考用的信息，现在要把它的排课日期更新成要预支付的排课日期)
-    UPDATE temp_result tr
-    LEFT JOIN v_earliest_fixed_week_info AS vefw
-    ON tr.stu_id = vefw.stu_id AND tr.subject_id = vefw.subject_id
-    SET tr.schedual_date =
-        CASE
-            WHEN vefw.stu_id IS NOT NULL THEN
-                -- 复杂的日期计算逻辑，用于确定给定月份中每个课程的第一个上课日期
-                DATE_FORMAT(
-                    DATE_ADD(
-                        v_first_day,
-                        INTERVAL (
-                            CASE
-                                WHEN DAYOFWEEK(v_first_day) > CASE vefw.fixed_week
-                                                                WHEN 'Mon' THEN 2
-                                                                WHEN 'Tue' THEN 3
-                                                                WHEN 'Wed' THEN 4
-                                                                WHEN 'Thu' THEN 5
-                                                                WHEN 'Fri' THEN 6
-                                                                WHEN 'Sat' THEN 7
-                                                                WHEN 'Sun' THEN 1
-                                                              END
-                                THEN 7 + CASE vefw.fixed_week
-                                            WHEN 'Mon' THEN 0
-                                            WHEN 'Tue' THEN 1
-                                            WHEN 'Wed' THEN 2
-                                            WHEN 'Thu' THEN 3
-                                            WHEN 'Fri' THEN 4
-                                            WHEN 'Sat' THEN 5
-                                            WHEN 'Sun' THEN 6
-                                          END - DAYOFWEEK(v_first_day) + 2
-                                ELSE CASE vefw.fixed_week
-                                        WHEN 'Mon' THEN 0
-                                        WHEN 'Tue' THEN 1
-                                        WHEN 'Wed' THEN 2
-                                        WHEN 'Thu' THEN 3
-                                        WHEN 'Fri' THEN 4
-                                        WHEN 'Sat' THEN 5
-                                        WHEN 'Sun' THEN 6
-                                     END - DAYOFWEEK(v_first_day) + 2
-                            END
-                        ) DAY
-                    ),
-                    CONCAT('%Y-%m-%d ', LPAD(vefw.fixed_hour, 2, '0'), ':', LPAD(vefw.fixed_minute, 2, '0'))
-                )
-            ELSE tr.schedual_date
-        END
-    WHERE tr.stu_id = p_stuId;
+        -- 将固定星期转换为MySQL的DAYOFWEEK值（1=Sun, 2=Mon, ..., 7=Sat）
+        SET v_target_weekday = CASE v_fixed_week
+            WHEN 'Sun' THEN 1
+            WHEN 'Mon' THEN 2
+            WHEN 'Tue' THEN 3
+            WHEN 'Wed' THEN 4
+            WHEN 'Thu' THEN 5
+            WHEN 'Fri' THEN 6
+            WHEN 'Sat' THEN 7
+        END;
 
-    -- 返回计算后结果
-    -- 把temp_result更新后的结果集再做JOIN关联，将新的结果存放到temp_result_updated临时表里
-	DROP TEMPORARY TABLE IF EXISTS temp_result_updated;
-	CREATE TEMPORARY TABLE temp_result_updated AS
-	SELECT
-		adv.stu_id,
-		adv.stu_name,
-		adv.subject_id,
-		adv.subject_name,
-		adv.subject_sub_id,
-		adv.subject_sub_name,
-		adv.lesson_type,
-		adv.schedual_date,
-		case when vldoc.lesson_fee_adjusted > 0 then vldoc.lesson_fee_adjusted
-             else vldoc.lesson_fee
-        end as subject_price,
-		vldoc.minutes_per_lsn
-	FROM temp_result adv
-	INNER JOIN v_latest_subject_info_from_student_document vldoc
-	ON adv.stu_id = vldoc.stu_id
-	AND adv.subject_id = vldoc.subject_id
-	AND adv.subject_sub_id = vldoc.subject_sub_id;
+        -- 计算对象月的第一个固定排课日期
+        -- 例如：2026-02-01是周日(1)，目标是周一(2)，则第一个周一是02-02
+        IF DAYOFWEEK(v_first_day) <= v_target_weekday THEN
+            SET v_candidate_date = DATE_ADD(v_first_day, INTERVAL (v_target_weekday - DAYOFWEEK(v_first_day)) DAY);
+        ELSE
+            SET v_candidate_date = DATE_ADD(v_first_day, INTERVAL (7 - DAYOFWEEK(v_first_day) + v_target_weekday) DAY);
+        END IF;
 
-    -- 创建临时的学生档案表
-    DROP TEMPORARY TABLE IF EXISTS temp_stu_doc;
-    CREATE TEMPORARY TABLE temp_stu_doc AS
-		SELECT
-		stu_id,
-		stu_name,
-		subject_id,
-		subject_name,
-		subject_sub_id,
-		subject_sub_name,
-		0 as lesson_type,
-		null as schedual_date,
-		case when lesson_fee_adjusted > 0 then lesson_fee_adjusted
-             else lesson_fee
-        end as subject_price,
-		minutes_per_lsn
-	FROM v_latest_subject_info_from_student_document
-	WHERE stu_id = p_stuId AND pay_style = 0;
+        -- 加上时间部分（时:分）
+        SET v_candidate_date = CAST(CONCAT(DATE(v_candidate_date), ' ',
+            LPAD(v_fixed_hour, 2, '0'), ':', LPAD(v_fixed_minute, 2, '0'), ':00') AS DATETIME);
 
-    SET @count = (SELECT COUNT(*) FROM temp_result_updated);
-	IF @count = 0 THEN
-		SELECT * FROM temp_stu_doc;
-	ELSE
-		-- 存储第一个查询的结果到一个中间表（课程表里已有的科目）
-		DROP TEMPORARY TABLE IF EXISTS temp_base_result;
-		CREATE TEMPORARY TABLE temp_base_result AS
-		SELECT * FROM temp_result_updated;
+        -- ============================
+        -- 4. 创建结果临时表
+        -- ============================
+        DROP TEMPORARY TABLE IF EXISTS temp_preview_result;
+        CREATE TEMPORARY TABLE temp_preview_result (
+            stu_id VARCHAR(32),
+            stu_name VARCHAR(100),
+            subject_id VARCHAR(32),
+            subject_name VARCHAR(100),
+            subject_sub_id VARCHAR(32),
+            subject_sub_name VARCHAR(100),
+            lesson_type INT,
+            schedual_date DATETIME,
+            subject_price DECIMAL(10,2),
+            minutes_per_lsn INT,
+            processing_mode VARCHAR(1),
+            existing_lesson_id VARCHAR(50),
+            existing_fee_id VARCHAR(50),
+            sequence_no INT
+        );
 
-		-- 在同一个临时表中插入第二部分数据 （课程表里没有的科目）
-		INSERT INTO temp_base_result
-		SELECT * FROM temp_stu_doc
-		WHERE subject_id NOT IN (SELECT subject_id FROM temp_result_updated);
+        -- ============================
+        -- 5. 日期遍历循环
+        -- ============================
+        WHILE v_processed_count < p_lessonCount AND v_iteration < v_max_iteration DO
 
-		-- 返回结果
-		SELECT * FROM temp_base_result;
+            -- 初始化每次迭代的变量
+            SET v_existing_lesson_id = NULL;
+            SET v_existing_fee_id = NULL;
+            SET v_scanqr_date = NULL;
+            SET v_lesson_count = 0;
+            SET v_fee_count = 0;
+            SET v_pay_count = 0;
+            SET v_advc_count = 0;
+            SET v_mode = NULL;
 
-		-- 清理临时表
-		DROP TEMPORARY TABLE IF EXISTS temp_base_result;
-	END IF;
+            -- 5.1 检查该候选日期是否有既存课程
+            SELECT COUNT(*) INTO v_lesson_count
+            FROM t_info_lesson
+            WHERE stu_id = p_stuId
+              AND subject_id = p_subjectId
+              AND subject_sub_id = p_subjectSubId
+              AND schedual_date = v_candidate_date
+              AND del_flg = 0;
 
-    -- 清理：删除临时表
-	DROP TEMPORARY TABLE IF EXISTS temp_result_updated;
-    DROP TEMPORARY TABLE IF EXISTS temp_stu_doc;
-	DROP TEMPORARY TABLE IF EXISTS temp_scaned_count;
-	DROP TEMPORARY TABLE IF EXISTS temp_result;
+            IF v_lesson_count = 0 THEN
+                -- ===== 模式A：无既存课程 → 全新创建 =====
+                SET v_mode = 'A';
 
-    -- 重新启用安全更新模式
-    SET SQL_SAFE_UPDATES = 1;
+            ELSE
+                -- 既存课程存在，获取其详细信息
+                SELECT lesson_id, scanqr_date
+                INTO v_existing_lesson_id, v_scanqr_date
+                FROM t_info_lesson
+                WHERE stu_id = p_stuId
+                  AND subject_id = p_subjectId
+                  AND subject_sub_id = p_subjectSubId
+                  AND schedual_date = v_candidate_date
+                  AND del_flg = 0
+                LIMIT 1;
+
+                -- 5.2 检查是否已有预支付记录（如有则跳过）
+                SELECT COUNT(*) INTO v_advc_count
+                FROM t_info_lsn_fee_advc_pay
+                WHERE lesson_id = v_existing_lesson_id
+                  AND del_flg = 0;
+
+                IF v_advc_count > 0 THEN
+                    -- 已有预支付记录 → 跳过（等同模式D）
+                    SET v_mode = 'D';
+                ELSE
+                    -- 5.3 检查课费记录
+                    SELECT COUNT(*) INTO v_fee_count
+                    FROM t_info_lesson_fee
+                    WHERE lesson_id = v_existing_lesson_id
+                      AND pay_style = 0
+                      AND del_flg = 0;
+
+                    IF v_fee_count = 0 THEN
+                        -- 无课费记录
+                        IF v_scanqr_date IS NULL THEN
+                            -- ===== 模式B：未签到，无fee → 复用lesson =====
+                            SET v_mode = 'B';
+                        ELSE
+                            -- 已签到但无fee记录（异常情况，按B处理）
+                            SET v_mode = 'B';
+                        END IF;
+                    ELSE
+                        -- 有课费记录，获取fee_id
+                        SELECT lsn_fee_id INTO v_existing_fee_id
+                        FROM t_info_lesson_fee
+                        WHERE lesson_id = v_existing_lesson_id
+                          AND pay_style = 0
+                          AND del_flg = 0
+                        LIMIT 1;
+
+                        -- 5.4 检查支付记录
+                        SELECT COUNT(*) INTO v_pay_count
+                        FROM t_info_lesson_pay
+                        WHERE lsn_fee_id = v_existing_fee_id
+                          AND del_flg = 0;
+
+                        IF v_pay_count = 0 THEN
+                            -- ===== 模式C：已签到，有fee，无pay → 复用lesson+fee =====
+                            SET v_mode = 'C';
+                        ELSE
+                            -- ===== 模式D：已签到已支付 → 跳过 =====
+                            SET v_mode = 'D';
+                        END IF;
+                    END IF;
+                END IF;
+            END IF;
+
+            -- 5.5 根据模式处理
+            IF v_mode IN ('A', 'B', 'C') THEN
+                SET v_processed_count = v_processed_count + 1;
+
+                INSERT INTO temp_preview_result VALUES (
+                    p_stuId,
+                    v_stu_name,
+                    p_subjectId,
+                    v_subject_name,
+                    p_subjectSubId,
+                    v_subject_sub_name,
+                    0,  -- lesson_type = 0 (按课时)
+                    v_candidate_date,
+                    v_subject_price,
+                    v_minutes_per_lsn,
+                    v_mode,
+                    v_existing_lesson_id,  -- NULL if mode A
+                    v_existing_fee_id,     -- NULL if mode A or B
+                    v_processed_count      -- sequence_no
+                );
+            END IF;
+            -- 模式D不插入结果表，不增加processed_count
+
+            -- 5.6 移动到下一个候选日期（+7天）
+            SET v_candidate_date = DATE_ADD(v_candidate_date, INTERVAL 7 DAY);
+            SET v_iteration = v_iteration + 1;
+
+        END WHILE;
+
+        -- ============================
+        -- 6. 返回结果
+        -- ============================
+        SELECT * FROM temp_preview_result ORDER BY sequence_no;
+
+        -- ============================
+        -- 7. 清理临时表
+        -- ============================
+        DROP TEMPORARY TABLE IF EXISTS temp_preview_result;
+
+    END IF;
+
 END //
 
 DELIMITER ;
 
 -- 调用存储过程的示例
--- CALL sp_get_advc_pay_per_lsn_subjects_and_schedual_info('kn-stu-3', '2026-02');
+-- CALL sp_get_advc_pay_per_lsn_subjects_and_schedual_info('kn-stu-82', '2026-02', 7, 'kn-sub-6', 'kn-sub-6-1');
