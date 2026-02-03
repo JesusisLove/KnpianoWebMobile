@@ -15,7 +15,10 @@ public interface Kn02F004AdvcLsnFeePayPerLsnMapper {
     public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePayPerLsnSubjectsByStuId(@Param("stuId") String stuId);
 
     public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePayPerLsnInfo(@Param("stuId") String stuId,
-                                                                          @Param("yearMonth") String yearMonth);
+                                                                          @Param("yearMonth") String yearMonth,
+                                                                          @Param("lessonCount") Integer lessonCount,
+                                                                          @Param("subjectId") String subjectId,
+                                                                          @Param("subjectSubId") String subjectSubId);
 
     public List<Kn02F004AdvcLsnFeePayPerLsnBean> getAdvcFeePaidPerLsnInfoByCondition(@Param("stuId") String stuId,
                                                                                       @Param("year") String year,

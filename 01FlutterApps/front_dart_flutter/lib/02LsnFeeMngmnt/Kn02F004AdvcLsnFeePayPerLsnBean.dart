@@ -23,6 +23,11 @@ class Kn02F004AdvcLsnFeePayPerLsnBean {
   final int advcFlg;
   late bool isChecked;
   late int lessonCount; // 按课时预支付的课时数
+  // Preview SP返回的处理模式（A=新建, B=复用lesson, C=复用lesson+fee）
+  final String? processingMode;
+  final String? existingLessonId;
+  final String? existingFeeId;
+  final int? sequenceNo;
 
   Kn02F004AdvcLsnFeePayPerLsnBean(
       {required this.lessonId,
@@ -46,7 +51,11 @@ class Kn02F004AdvcLsnFeePayPerLsnBean {
       required this.bankName,
       required this.advcFlg,
       required this.isChecked,
-      required this.lessonCount});
+      required this.lessonCount,
+      this.processingMode,
+      this.existingLessonId,
+      this.existingFeeId,
+      this.sequenceNo});
 
   factory Kn02F004AdvcLsnFeePayPerLsnBean.fromJson(Map<String, dynamic> json) {
     String formattedSchedualDate = '';
@@ -83,6 +92,10 @@ class Kn02F004AdvcLsnFeePayPerLsnBean {
       advcFlg: json['advcFlg'] ?? 0,
       isChecked: false,
       lessonCount: json['lessonCount'] ?? 4, // 默认4节课
+      processingMode: json['processingMode'] as String?,
+      existingLessonId: json['existingLessonId'] as String?,
+      existingFeeId: json['existingFeeId'] as String?,
+      sequenceNo: json['sequenceNo'] as int?,
     );
   }
 
@@ -107,5 +120,9 @@ class Kn02F004AdvcLsnFeePayPerLsnBean {
         'bankName': bankName,
         'advcFlg': advcFlg,
         'lessonCount': lessonCount,
+        'processingMode': processingMode,
+        'existingLessonId': existingLessonId,
+        'existingFeeId': existingFeeId,
+        'sequenceNo': sequenceNo,
       };
 }

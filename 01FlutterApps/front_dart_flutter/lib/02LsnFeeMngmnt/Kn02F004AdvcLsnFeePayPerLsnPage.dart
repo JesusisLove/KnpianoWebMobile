@@ -45,8 +45,8 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
   List<Kn02F004AdvcLsnFeePayPerLsnBean> subjectList = [];
   // 选中的科目
   Kn02F004AdvcLsnFeePayPerLsnBean? selectedSubject;
-  // SP返回的全科目排课信息（用于从中找到选中科目的第一节排课日期）
-  List<Kn02F004AdvcLsnFeePayPerLsnBean> allSubjectsSchedule = [];
+  // SP返回的排课预览Bean列表（服务器端遍历候选日期后返回的N条记录）
+  List<Kn02F004AdvcLsnFeePayPerLsnBean> serverScheduleBeans = [];
   // 排课日期预览列表
   List<Map<String, dynamic>> schedulePreviewList = [];
   // 银行列表
@@ -144,68 +144,57 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
     }
   }
 
-  // 获取按课时交费科目的排课日期推算信息
+  // 获取按课时交费科目的排课日期推算信息（服务器端遍历候选日期，返回N条记录）
   Future<void> fetchScheduleInfo() async {
+    if (selectedSubject == null) return;
+
     final String yearMonth =
         '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';
     final String apiUrl =
-        '${KnConfig.apiBaseUrl}${Constants.apiAdvcLsnFeePayPerLsnInfo}/${widget.stuId}/$yearMonth';
+        '${KnConfig.apiBaseUrl}${Constants.apiAdvcLsnFeePayPerLsnInfo}/${widget.stuId}/$yearMonth'
+        '?lessonCount=$lessonCount'
+        '&subjectId=${selectedSubject!.subjectId}'
+        '&subjectSubId=${selectedSubject!.subjectSubId}';
     final responseFeeDetails = await http.get(Uri.parse(apiUrl));
     if (responseFeeDetails.statusCode == 200) {
       final decodedBody = utf8.decode(responseFeeDetails.bodyBytes);
-      List<dynamic> stuDocJson = json.decode(decodedBody);
+      List<dynamic> jsonList = json.decode(decodedBody);
       setState(() {
-        allSubjectsSchedule = stuDocJson
+        serverScheduleBeans = jsonList
             .map((json) => Kn02F004AdvcLsnFeePayPerLsnBean.fromJson(json))
             .toList();
+        // 直接使用服务器返回的N条记录构建预览列表
+        if (serverScheduleBeans.isNotEmpty) {
+          _hasSchedule = true;
+          schedulePreviewList = [];
+          for (var bean in serverScheduleBeans) {
+            try {
+              DateTime date =
+                  DateFormat('yyyy-MM-dd HH:mm').parse(bean.schedualDate);
+              schedulePreviewList.add({
+                'no': bean.sequenceNo ?? (schedulePreviewList.length + 1),
+                'subjectName': bean.subjectName,
+                'subjectSubName': bean.subjectSubName,
+                'subjectPrice': bean.subjectPrice,
+                'schedualDate': bean.schedualDate,
+                'isPast': date.isBefore(DateTime.now()),
+                'processingMode': bean.processingMode ?? 'A',
+              });
+            } catch (e) {
+              print('日期解析错误: ${bean.schedualDate}');
+            }
+          }
+          if (schedulePreviewList.isEmpty) {
+            _hasSchedule = false;
+          }
+        } else {
+          _hasSchedule = false;
+          schedulePreviewList = [];
+        }
       });
-      _generateSchedulePreview();
     } else {
       throw Exception('Failed to load schedule info');
     }
-  }
-
-  // 根据选中的科目和课时数，生成排课日期预览
-  void _generateSchedulePreview() {
-    if (selectedSubject == null) return;
-
-    // 从SP结果中找到选中科目的排课日期
-    Kn02F004AdvcLsnFeePayPerLsnBean? matched;
-    for (var bean in allSubjectsSchedule) {
-      if (bean.subjectId == selectedSubject!.subjectId) {
-        matched = bean;
-        break;
-      }
-    }
-
-    setState(() {
-      if (matched != null && matched.schedualDate.isNotEmpty) {
-        _hasSchedule = true;
-        schedulePreviewList = [];
-        try {
-          DateTime firstDate =
-              DateFormat('yyyy-MM-dd HH:mm').parse(matched.schedualDate);
-          for (int i = 0; i < lessonCount; i++) {
-            DateTime dateForLesson = firstDate.add(Duration(days: i * 7));
-            schedulePreviewList.add({
-              'no': i + 1,
-              'subjectName': selectedSubject!.subjectName,
-              'subjectSubName': selectedSubject!.subjectSubName,
-              'subjectPrice': selectedSubject!.subjectPrice,
-              'schedualDate':
-                  DateFormat('yyyy-MM-dd HH:mm').format(dateForLesson),
-              'isPast': dateForLesson.isBefore(DateTime.now()),
-            });
-          }
-        } catch (e) {
-          print('日期解析错误: ${matched.schedualDate}');
-          _hasSchedule = false;
-        }
-      } else {
-        _hasSchedule = false;
-        schedulePreviewList = [];
-      }
-    });
   }
 
   // 科目选择变更
@@ -977,6 +966,27 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
                           itemBuilder: (context, index) {
                             var item = schedulePreviewList[index];
                             bool isPast = item['isPast'] as bool;
+                            String mode = item['processingMode'] ?? 'A';
+                            // 处理模式标签：A=新建, B=既存未签, C=既存已签未付
+                            String modeLabel;
+                            Color modeColor;
+                            switch (mode) {
+                              case 'A':
+                                modeLabel = '新建';
+                                modeColor = Colors.green;
+                                break;
+                              case 'B':
+                                modeLabel = '既存未签';
+                                modeColor = Colors.orange;
+                                break;
+                              case 'C':
+                                modeLabel = '已签未付';
+                                modeColor = Colors.purple;
+                                break;
+                              default:
+                                modeLabel = '新建';
+                                modeColor = Colors.green;
+                            }
                             return ListTile(
                               dense: true,
                               leading: CircleAvatar(
@@ -986,9 +996,31 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
                                     style: const TextStyle(
                                         color: Colors.white, fontSize: 12)),
                               ),
-                              title: Text(
-                                '${item['subjectName']} ${item['subjectSubName']}',
-                                style: const TextStyle(fontSize: 14),
+                              title: Row(
+                                children: [
+                                  Text(
+                                    '${item['subjectName']} ${item['subjectSubName']}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: modeColor.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(color: modeColor, width: 1),
+                                    ),
+                                    child: Text(
+                                      modeLabel,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: modeColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               subtitle: Text(
                                 '¥${(item['subjectPrice'] as double).toStringAsFixed(0)}  ${CommonMethod.getWeekday(item['schedualDate'])} ${item['schedualDate']}',
@@ -1024,7 +1056,7 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
 
                 // 无固定排课提示
                 if (selectedSubject != null &&
-                    allSubjectsSchedule.isNotEmpty &&
+                    serverScheduleBeans.isEmpty &&
                     !_hasSchedule &&
                     schedulePreviewList.isEmpty)
                   Container(
