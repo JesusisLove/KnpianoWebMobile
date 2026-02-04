@@ -160,6 +160,31 @@
             color: #1a56a8;
         }
 
+        /* 处理模式badge样式 - 与Flutter端一致 */
+        .mode-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid;
+        }
+        .mode-badge-a {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        .mode-badge-b {
+            background-color: rgba(255, 152, 0, 0.15);
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+        .mode-badge-c {
+            background-color: rgba(156, 39, 176, 0.15);
+            border-color: #9C27B0;
+            color: #9C27B0;
+        }
+
         /* 预支付历史记录明细部装修样式 */
         .prepay-history-section {
             background: linear-gradient(135deg, #e8f5e8 0%, #d4edd4 100%);
@@ -392,9 +417,10 @@
                                     <dd>②输入预支付金额或课时数，两者自动联动计算。金额必须是课时单价的整数倍。</dd>
                                     <dd>③有固定排课：根据开始年月+固定排课信息自动推算排课日期。</dd>
                                     <dd>④每节课的费用 = 课时单价（不像按月交费那样乘以4）。</dd>
-                                    <dd>⑤注意：如果发现排课日期字体显示红色，就表示推算的该日期与系统当前日期相比已经过期了，请选择下一个月份。</dd>
-                                    <dd>⑥同年月的预支付课费重复输入：重复执行预支付时，程序不会再做重复的预支付处理。</dd>
-                                    <dd>⑦历史记录中「使用中」表示待消化，「使用完」表示已签到确认。</dd>
+                                    <dd>⑤注意：如果发现排课日期字体显示红色，就表示推算的该日期与系统当前日期相比已经过期了，但对预支付操作没有影响。</dd>
+                                    <dd>⑥重复执行预支付时，已经做过预支付或已支付的课程会被自动跳过，不会重复处理。</dd>
+                                    <dd>⑦处理模式分为A、B、C、D四种：A是新建预支付（绿色），B是既存未签到（橙色），C是已签未支付（紫色），D是已支付或已预支付（自动跳过，不显示在预览列表中）。</dd>
+                                    <dd>⑧历史记录中「使用中」表示待消化，「使用完」表示已签到确认。</dd>
                                 </dl>
                             </div>
                         </div>
@@ -418,6 +444,7 @@
                                         <th>子科目</th>
                                         <th>课时单价</th>
                                         <th>推算排课日期</th>
+                                        <th>处理模式</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -431,11 +458,16 @@
                                                 th:text="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
                                                 th:class="${info.schedualDate < #dates.createNow() ? 'past-date' : ''}"></span>
                                         </td>
+                                        <td th:switch="${info.processingMode}">
+                                            <span th:case="'A'" class="mode-badge mode-badge-a">新建</span>
+                                            <span th:case="'B'" class="mode-badge mode-badge-b">既存未签</span>
+                                            <span th:case="'C'" class="mode-badge mode-badge-c">已签未付</span>
+                                        </td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="3" style="text-align:right;">合计:</td>
+                                        <td colspan="4" style="text-align:right;">合计:</td>
                                         <td th:if="${infoList != null && !#lists.isEmpty(infoList)}"
                                             th:text="${'¥' + (infoList[0].subjectPrice * #lists.size(infoList))}"></td>
                                         <td th:if="${infoList != null}"

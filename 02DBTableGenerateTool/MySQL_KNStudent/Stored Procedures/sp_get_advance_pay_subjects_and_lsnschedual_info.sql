@@ -1,4 +1,4 @@
-use prod_KNStudent;
+-- use prod_KNStudent;
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_get_advance_pay_subjects_and_lsnschedual_info //
