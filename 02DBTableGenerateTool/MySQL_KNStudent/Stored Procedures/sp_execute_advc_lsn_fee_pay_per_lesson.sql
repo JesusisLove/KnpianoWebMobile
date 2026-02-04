@@ -26,9 +26,9 @@ BEGIN
     -- 遍历直到处理了 p_lesson_count 条有效记录（跳过模式D）。
     --
     -- 处理模式：
-    --   A = 无既存课程 → INSERT lesson + fee + pay + advc_pay
-    --   B = 未签到既存课程（无fee） → 复用lesson，INSERT fee + pay + advc_pay
-    --   C = 已签到未支付既存课程（有fee，无pay） → 复用lesson+fee，INSERT pay + advc_pay
+    --   A = 无既存课程 → INSERT lesson + fee + pay + advc_pay（唯一记录到预支付关联表的模式）
+    --   B = 未签到既存课程（无fee） → 复用lesson，INSERT fee + pay（不记录advc_pay）
+    --   C = 已签到未支付既存课程（有fee，无pay） → 复用lesson+fee，INSERT pay（不记录advc_pay）
     --   D = 已签到已支付 或 已有预支付记录 → 跳过
     -- ============================================================
 
@@ -239,7 +239,7 @@ BEGIN
             VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
         ELSEIF v_mode = 'B' THEN
-            -- ===== 模式B：复用lesson，新建 fee + pay + advc_pay =====
+            -- ===== 模式B：复用lesson，新建 fee + pay（不记录advc_pay） =====
             SET v_processed_count = v_processed_count + 1;
             SET v_lesson_id = v_existing_lesson_id;
 
@@ -267,19 +267,10 @@ BEGIN
             INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
             VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
-            -- B-3: 新建advc_pay
-            SET v_current_step = CONCAT('第', v_processed_count, '节(B) - 新建advc_pay');
-            INSERT INTO t_info_lsn_fee_advc_pay (
-                lesson_id, lsn_fee_id, lsn_pay_id, advance_pay_date
-            ) VALUES (
-                v_lesson_id, v_lsn_fee_id, v_lsn_pay_id, CURDATE()
-            );
-            SET v_step_result = IF(ROW_COUNT() > 0, '成功', '失败');
-            INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
-            VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
+            -- B-3: 不记录advc_pay（模式B不是真正的预支付，仅A模式记录到预支付关联表）
 
         ELSEIF v_mode = 'C' THEN
-            -- ===== 模式C：复用lesson+fee，新建 pay + advc_pay =====
+            -- ===== 模式C：复用lesson+fee，新建 pay（不记录advc_pay，实质是补缴） =====
             SET v_processed_count = v_processed_count + 1;
             SET v_lesson_id = v_existing_lesson_id;
             SET v_lsn_fee_id = v_existing_fee_id;
@@ -296,16 +287,7 @@ BEGIN
             INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
             VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
 
-            -- C-2: 新建advc_pay
-            SET v_current_step = CONCAT('第', v_processed_count, '节(C) - 新建advc_pay');
-            INSERT INTO t_info_lsn_fee_advc_pay (
-                lesson_id, lsn_fee_id, lsn_pay_id, advance_pay_date
-            ) VALUES (
-                v_lesson_id, v_lsn_fee_id, v_lsn_pay_id, CURDATE()
-            );
-            SET v_step_result = IF(ROW_COUNT() > 0, '成功', '失败');
-            INSERT INTO t_sp_execution_log (procedure_name, procedure_alias_name, step_name, result)
-            VALUES (PROCEDURE_NAME, PROCEDURE_ALIAS_NAME, v_current_step, v_step_result);
+            -- C-2: 不记录advc_pay（模式C是补缴，不是预支付，仅A模式记录到预支付关联表）
 
         END IF;
 
