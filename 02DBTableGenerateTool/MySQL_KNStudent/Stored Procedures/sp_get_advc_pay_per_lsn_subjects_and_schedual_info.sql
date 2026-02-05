@@ -13,8 +13,10 @@ BEGIN
     -- ============================================================
     -- 按课时预支付：推算排课日期（Preview）
     --
-    -- 根据固定排课信息，从对象月第一个排课日开始逐周遍历候选日期，
-    -- 检查每个日期的既存课程状态，返回N条有效记录。
+    -- 双指针合并遍历：
+    --   数据源1: 固定排课候选日期（每周+7天推算）
+    --   数据源2: 既存非固定课程（CURSOR按日期升序）
+    -- 按日期顺序合并处理，返回N条有效记录。
     --
     -- 处理模式：
     --   A = 无既存课程 → 全新创建
@@ -24,7 +26,7 @@ BEGIN
     -- ============================================================
 
     DECLARE v_first_day DATE;
-    DECLARE v_candidate_date DATETIME;
+    DECLARE v_next_fixed_date DATETIME;
     DECLARE v_fixed_week VARCHAR(3);
     DECLARE v_fixed_hour INT;
     DECLARE v_fixed_minute INT;
@@ -34,10 +36,10 @@ BEGIN
     DECLARE v_max_iteration INT DEFAULT 100;
 
     -- 每次迭代用到的变量
-    DECLARE v_existing_lesson_id VARCHAR(50);
-    DECLARE v_existing_fee_id VARCHAR(50);
-    DECLARE v_scanqr_date DATETIME;
-    DECLARE v_lesson_count INT;
+    DECLARE v_current_date DATETIME;
+    DECLARE v_current_lesson_id VARCHAR(50);
+    DECLARE v_current_fee_id VARCHAR(50);
+    DECLARE v_exist_count INT;
     DECLARE v_fee_count INT;
     DECLARE v_pay_count INT;
     DECLARE v_advc_count INT;
@@ -106,15 +108,14 @@ BEGIN
         END;
 
         -- 计算对象月的第一个固定排课日期
-        -- 例如：2026-02-01是周日(1)，目标是周一(2)，则第一个周一是02-02
         IF DAYOFWEEK(v_first_day) <= v_target_weekday THEN
-            SET v_candidate_date = DATE_ADD(v_first_day, INTERVAL (v_target_weekday - DAYOFWEEK(v_first_day)) DAY);
+            SET v_next_fixed_date = DATE_ADD(v_first_day, INTERVAL (v_target_weekday - DAYOFWEEK(v_first_day)) DAY);
         ELSE
-            SET v_candidate_date = DATE_ADD(v_first_day, INTERVAL (7 - DAYOFWEEK(v_first_day) + v_target_weekday) DAY);
+            SET v_next_fixed_date = DATE_ADD(v_first_day, INTERVAL (7 - DAYOFWEEK(v_first_day) + v_target_weekday) DAY);
         END IF;
 
         -- 加上时间部分（时:分）
-        SET v_candidate_date = CAST(CONCAT(DATE(v_candidate_date), ' ',
+        SET v_next_fixed_date = CAST(CONCAT(DATE(v_next_fixed_date), ' ',
             LPAD(v_fixed_hour, 2, '0'), ':', LPAD(v_fixed_minute, 2, '0'), ':00') AS DATETIME);
 
         -- ============================
@@ -139,125 +140,174 @@ BEGIN
         );
 
         -- ============================
-        -- 5. 日期遍历循环
+        -- 5. 双指针合并遍历循环
+        --    使用嵌套BEGIN...END块隔离CURSOR和CONTINUE HANDLER的作用域，
+        --    防止影响外层的SELECT INTO语句。
         -- ============================
-        WHILE v_processed_count < p_lessonCount AND v_iteration < v_max_iteration DO
+        BEGIN
+            DECLARE v_nfix_done INT DEFAULT 0;
+            DECLARE v_nfix_lesson_id VARCHAR(50);
+            DECLARE v_nfix_date DATETIME;
 
-            -- 初始化每次迭代的变量
-            SET v_existing_lesson_id = NULL;
-            SET v_existing_fee_id = NULL;
-            SET v_scanqr_date = NULL;
-            SET v_lesson_count = 0;
-            SET v_fee_count = 0;
-            SET v_pay_count = 0;
-            SET v_advc_count = 0;
-            SET v_mode = NULL;
-
-            -- 5.1 检查该候选日期是否有既存课程
-            SELECT COUNT(*) INTO v_lesson_count
-            FROM t_info_lesson
-            WHERE stu_id = p_stuId
-              AND subject_id = p_subjectId
-              AND subject_sub_id = p_subjectSubId
-              AND schedual_date = v_candidate_date
-              AND del_flg = 0;
-
-            IF v_lesson_count = 0 THEN
-                -- ===== 模式A：无既存课程 → 全新创建 =====
-                SET v_mode = 'A';
-
-            ELSE
-                -- 既存课程存在，获取其详细信息
-                SELECT lesson_id, scanqr_date
-                INTO v_existing_lesson_id, v_scanqr_date
+            -- 非固定课程游标：查询该学生该科目在第一个固定排课日之后的
+            -- 非固定时间点的既存课程，按日期升序
+            DECLARE cur_nfix CURSOR FOR
+                SELECT lesson_id, schedual_date
                 FROM t_info_lesson
                 WHERE stu_id = p_stuId
                   AND subject_id = p_subjectId
                   AND subject_sub_id = p_subjectSubId
-                  AND schedual_date = v_candidate_date
+                  AND schedual_date >= v_next_fixed_date
                   AND del_flg = 0
-                LIMIT 1;
+                  AND NOT (
+                      DAYOFWEEK(schedual_date) = v_target_weekday
+                      AND HOUR(schedual_date) = v_fixed_hour
+                      AND MINUTE(schedual_date) = v_fixed_minute
+                  )
+                ORDER BY schedual_date;
 
-                -- 5.2 检查是否已有预支付记录（如有则跳过）
-                SELECT COUNT(*) INTO v_advc_count
-                FROM t_info_lsn_fee_advc_pay
-                WHERE lesson_id = v_existing_lesson_id
-                  AND del_flg = 0;
+            DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_nfix_done = 1;
 
-                IF v_advc_count > 0 THEN
-                    -- 已有预支付记录 → 跳过（等同模式D）
-                    SET v_mode = 'D';
+            -- 打开游标，取出第一条非固定课程
+            OPEN cur_nfix;
+            FETCH cur_nfix INTO v_nfix_lesson_id, v_nfix_date;
+
+            -- 主循环：双指针合并遍历
+            WHILE v_processed_count < p_lessonCount AND v_iteration < v_max_iteration DO
+
+                -- 初始化每次迭代的变量
+                SET v_current_lesson_id = NULL;
+                SET v_current_fee_id = NULL;
+                SET v_current_date = NULL;
+                SET v_mode = NULL;
+
+                -- ============================================
+                -- 5.1 双指针选择下一个要处理的日期
+                -- ============================================
+                IF v_nfix_done = 0 AND v_nfix_date < v_next_fixed_date THEN
+                    -- ─── 非固定课程日期更早 → 先处理非固定课程 ───
+                    SET v_current_date = v_nfix_date;
+                    SET v_current_lesson_id = v_nfix_lesson_id;
+
+                    -- 预取下一条非固定课程（为下次循环做准备）
+                    FETCH cur_nfix INTO v_nfix_lesson_id, v_nfix_date;
+
                 ELSE
-                    -- 5.3 检查课费记录
-                    SELECT COUNT(*) INTO v_fee_count
-                    FROM t_info_lesson_fee
-                    WHERE lesson_id = v_existing_lesson_id
-                      AND pay_style = 0
+                    -- ─── 固定候选日期更早（或非固定已耗尽）→ 处理固定日期 ───
+                    SET v_current_date = v_next_fixed_date;
+
+                    -- 检查该固定日期是否有既存课程
+                    SELECT COUNT(*) INTO v_exist_count
+                    FROM t_info_lesson
+                    WHERE stu_id = p_stuId
+                      AND subject_id = p_subjectId
+                      AND subject_sub_id = p_subjectSubId
+                      AND schedual_date = v_next_fixed_date
                       AND del_flg = 0;
 
-                    IF v_fee_count = 0 THEN
-                        -- 无课费记录
-                        IF v_scanqr_date IS NULL THEN
-                            -- ===== 模式B：未签到，无fee → 复用lesson =====
-                            SET v_mode = 'B';
-                        ELSE
-                            -- 已签到但无fee记录（异常情况，按B处理）
-                            SET v_mode = 'B';
-                        END IF;
-                    ELSE
-                        -- 有课费记录，获取fee_id
-                        SELECT lsn_fee_id INTO v_existing_fee_id
-                        FROM t_info_lesson_fee
-                        WHERE lesson_id = v_existing_lesson_id
-                          AND pay_style = 0
+                    IF v_exist_count > 0 THEN
+                        -- 固定日期有既存课程 → 获取lesson_id
+                        SELECT lesson_id INTO v_current_lesson_id
+                        FROM t_info_lesson
+                        WHERE stu_id = p_stuId
+                          AND subject_id = p_subjectId
+                          AND subject_sub_id = p_subjectSubId
+                          AND schedual_date = v_next_fixed_date
                           AND del_flg = 0
                         LIMIT 1;
+                    END IF;
+                    -- 如果v_exist_count = 0，则v_current_lesson_id仍为NULL → 模式A
 
-                        -- 5.4 检查支付记录
-                        SELECT COUNT(*) INTO v_pay_count
-                        FROM t_info_lesson_pay
-                        WHERE lsn_fee_id = v_existing_fee_id
+                    -- 固定日期指针前进+7天
+                    SET v_next_fixed_date = DATE_ADD(v_next_fixed_date, INTERVAL 7 DAY);
+                END IF;
+
+                -- ============================================
+                -- 5.2 判定处理模式（A/B/C/D）
+                -- ============================================
+                IF v_current_lesson_id IS NULL THEN
+                    -- 无既存课程（仅固定候选日期会出现此情况）
+                    SET v_mode = 'A';
+                ELSE
+                    -- 有既存课程 → 进一步判定
+
+                    -- 5.2.1 检查是否已有预支付记录
+                    SELECT COUNT(*) INTO v_advc_count
+                    FROM t_info_lsn_fee_advc_pay
+                    WHERE lesson_id = v_current_lesson_id
+                      AND del_flg = 0;
+
+                    IF v_advc_count > 0 THEN
+                        -- 已有预支付记录 → 跳过（模式D）
+                        SET v_mode = 'D';
+                    ELSE
+                        -- 5.2.2 检查课费记录
+                        SELECT COUNT(*) INTO v_fee_count
+                        FROM t_info_lesson_fee
+                        WHERE lesson_id = v_current_lesson_id
+                          AND pay_style = 0
                           AND del_flg = 0;
 
-                        IF v_pay_count = 0 THEN
-                            -- ===== 模式C：已签到，有fee，无pay → 复用lesson+fee =====
-                            SET v_mode = 'C';
+                        IF v_fee_count = 0 THEN
+                            -- 无课费记录 → 模式B（未签到或已签到但无fee的异常情况）
+                            SET v_mode = 'B';
                         ELSE
-                            -- ===== 模式D：已签到已支付 → 跳过 =====
-                            SET v_mode = 'D';
+                            -- 有课费记录，获取fee_id
+                            SELECT lsn_fee_id INTO v_current_fee_id
+                            FROM t_info_lesson_fee
+                            WHERE lesson_id = v_current_lesson_id
+                              AND pay_style = 0
+                              AND del_flg = 0
+                            LIMIT 1;
+
+                            -- 5.2.3 检查支付记录
+                            SELECT COUNT(*) INTO v_pay_count
+                            FROM t_info_lesson_pay
+                            WHERE lsn_fee_id = v_current_fee_id
+                              AND del_flg = 0;
+
+                            IF v_pay_count = 0 THEN
+                                -- 有fee无pay → 模式C（已签到未支付）
+                                SET v_mode = 'C';
+                            ELSE
+                                -- 有fee有pay → 模式D（已签到已支付 → 跳过）
+                                SET v_mode = 'D';
+                            END IF;
                         END IF;
                     END IF;
                 END IF;
-            END IF;
 
-            -- 5.5 根据模式处理
-            IF v_mode IN ('A', 'B', 'C') THEN
-                SET v_processed_count = v_processed_count + 1;
+                -- ============================================
+                -- 5.3 根据模式写入结果
+                -- ============================================
+                IF v_mode IN ('A', 'B', 'C') THEN
+                    SET v_processed_count = v_processed_count + 1;
 
-                INSERT INTO temp_preview_result VALUES (
-                    p_stuId,
-                    v_stu_name,
-                    p_subjectId,
-                    v_subject_name,
-                    p_subjectSubId,
-                    v_subject_sub_name,
-                    0,  -- lesson_type = 0 (按课时)
-                    v_candidate_date,
-                    v_subject_price,
-                    v_minutes_per_lsn,
-                    v_mode,
-                    v_existing_lesson_id,  -- NULL if mode A
-                    v_existing_fee_id,     -- NULL if mode A or B
-                    v_processed_count      -- sequence_no
-                );
-            END IF;
-            -- 模式D不插入结果表，不增加processed_count
+                    INSERT INTO temp_preview_result VALUES (
+                        p_stuId,
+                        v_stu_name,
+                        p_subjectId,
+                        v_subject_name,
+                        p_subjectSubId,
+                        v_subject_sub_name,
+                        0,  -- lesson_type = 0 (按课时)
+                        v_current_date,
+                        v_subject_price,
+                        v_minutes_per_lsn,
+                        v_mode,
+                        v_current_lesson_id,  -- NULL if mode A
+                        v_current_fee_id,     -- NULL if mode A or B
+                        v_processed_count     -- sequence_no
+                    );
+                END IF;
+                -- 模式D不插入结果表，不增加processed_count
 
-            -- 5.6 移动到下一个候选日期（+7天）
-            SET v_candidate_date = DATE_ADD(v_candidate_date, INTERVAL 7 DAY);
-            SET v_iteration = v_iteration + 1;
+                SET v_iteration = v_iteration + 1;
 
-        END WHILE;
+            END WHILE;
+
+            CLOSE cur_nfix;
+        END;
 
         -- ============================
         -- 6. 返回结果
