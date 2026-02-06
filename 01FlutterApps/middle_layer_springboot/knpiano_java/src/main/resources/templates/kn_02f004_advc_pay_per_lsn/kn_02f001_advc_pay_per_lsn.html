@@ -723,21 +723,38 @@
                 return;
             }
 
-            // 从scheduleTable读取第一行日期作为firstSchedualDate
+            // 从scheduleTable读取第一个A模式的日期作为firstSchedualDate
+            // 因为 Execution SP 会从该日期推算固定排课规律（星期几、几点几分）
+            // A 模式的日期一定是固定排课候选日，B/C 模式可能是非固定课程
             var scheduleTable = document.getElementById('scheduleTable');
             if (!scheduleTable) {
                 alert('请先点击「推算排课日期」按钮。');
                 return;
             }
 
-            var firstRow = scheduleTable.querySelector('tbody tr');
-            if (!firstRow) {
+            var rows = scheduleTable.querySelectorAll('tbody tr');
+            if (!rows || rows.length === 0) {
                 alert('没有排课日期数据。');
                 return;
             }
 
-            var firstDateSpan = firstRow.cells[4].querySelector('span');
-            var firstDate = firstDateSpan ? firstDateSpan.textContent.trim() : '';
+            // 找第一个 A 模式的行（mode-badge-a 类）
+            var firstDate = '';
+            for (var i = 0; i < rows.length; i++) {
+                var modeCell = rows[i].cells[5];
+                if (modeCell && modeCell.querySelector('.mode-badge-a')) {
+                    var dateSpan = rows[i].cells[4].querySelector('span');
+                    if (dateSpan) {
+                        firstDate = dateSpan.textContent.trim();
+                        break;
+                    }
+                }
+            }
+            // 边界情况：全是 B/C 模式（无 A 模式），回退到第一条记录
+            if (!firstDate) {
+                var firstDateSpan = rows[0].cells[4].querySelector('span');
+                firstDate = firstDateSpan ? firstDateSpan.textContent.trim() : '';
+            }
             if (!firstDate) {
                 alert('排课日期无效。');
                 return;

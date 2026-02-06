@@ -181,6 +181,12 @@ The `sp_execute_weekly_batch_lsn_schedule` stored procedure is the heart of the 
 - Logs execution in `t_sp_execution_log`
 - Is triggered by the Spring Boot batch job configured in `t_batch_job_config`
 
+### Fixed Lesson Scheduling Business Rules
+
+- All students' fixed schedules are on a **weekly** basis (one week as the scheduling unit)
+- Both batch auto-scheduling and teacher's manual scheduling create lessons **one week at a time**
+- Fixed schedule info is stored in `t_info_fixedlesson` table, referenced via `v_earliest_fixed_week_info` view
+
 ## Relationship to Other Projects
 
 This database schema is used by:
