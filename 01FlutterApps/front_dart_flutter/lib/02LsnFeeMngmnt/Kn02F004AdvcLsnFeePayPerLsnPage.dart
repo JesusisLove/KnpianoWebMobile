@@ -463,8 +463,18 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
       return;
     }
 
-    // 构建请求数据：只发送一个bean（第一节排课日期 + lessonCount）
-    String firstDate = schedulePreviewList[0]['schedualDate'];
+    // 构建请求数据：找出第一个 A 模式的日期（固定排课日期）传给 Execution SP
+    // 因为 Execution SP 会从该日期推算固定排课规律（星期几、几点几分）
+    // A 模式的日期一定是固定排课候选日，B/C 模式可能是非固定课程
+    String firstDate;
+    var firstAMode = serverScheduleBeans.cast<Kn02F004AdvcLsnFeePayPerLsnBean?>()
+        .firstWhere((b) => b?.processingMode == 'A', orElse: () => null);
+    if (firstAMode != null) {
+      firstDate = firstAMode.schedualDate;
+    } else {
+      // 边界情况：全是 B/C 模式（无 A 模式），回退到第一条记录
+      firstDate = schedulePreviewList[0]['schedualDate'];
+    }
     var dataToSend = [
       {
         'stuId': widget.stuId,
