@@ -27,6 +27,9 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 public class Kn02F004AdvcLsnFeePayPerLsnController {
@@ -124,8 +127,7 @@ public class Kn02F004AdvcLsnFeePayPerLsnController {
     }
 
     // 点击Web页面上的【课费预支付】按钮
-    // 业务逻辑：前端发送第一条排课日期+课时数，SP在执行时会重新遍历候选日期并检查课程状态，
-    // 根据A/B/C/D模式执行不同操作（D模式自动跳过）。这样设计是为了防止Preview到Execution期间数据状态变化。
+    // 业务逻辑：前端发送 Preview 结果的完整列表，SP 直接按列表执行，不再重新计算。
     @PostMapping("/kn_advc_pay_per_lsn_execute")
     public String executeAdvanceLsnFeePayPerLesson(@RequestParam Map<String, Object> queryParams,
             @RequestBody List<Kn02F004AdvcLsnFeePayPerLsnBean> beans,
@@ -139,11 +141,33 @@ public class Kn02F004AdvcLsnFeePayPerLsnController {
 
         String stuName = beans.get(0).getStuName();
 
-        // 调用SP执行按课时预支付（SP内部会重新检查课程状态并判定A/B/C/D模式）
-        Kn02F004AdvcLsnFeePayPerLsnBean bean = beans.get(0);
-        kn02F004Dao.executeAdvcLsnFeePayPerLesson(bean);
+        try {
+            // 将 Preview 结果转换为 JSON 字符串
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            List<Map<String, Object>> previewList = new ArrayList<>();
+            for (Kn02F004AdvcLsnFeePayPerLsnBean b : beans) {
+                Map<String, Object> item = new HashMap<>();
+                // Date 需要格式化为字符串，否则 ObjectMapper 会序列化为时间戳
+                item.put("schedualDate", b.getSchedualDate() != null ? sdf.format(b.getSchedualDate()) : null);
+                item.put("processingMode", b.getProcessingMode());
+                item.put("existingLessonId", b.getExistingLessonId());
+                item.put("existingFeeId", b.getExistingFeeId());
+                previewList.add(item);
+            }
 
-        redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费按课时预支付成功。");
+            ObjectMapper objectMapper = new ObjectMapper();
+            String previewJson = objectMapper.writeValueAsString(previewList);
+
+            // 调用 SP 执行按课时预支付（直接按 Preview 结果执行）
+            Kn02F004AdvcLsnFeePayPerLsnBean bean = beans.get(0);
+            kn02F004Dao.executeAdvcLsnFeePayPerLesson(bean, previewJson);
+
+            redirectAttributes.addFlashAttribute("successMessage", stuName + "的课费按课时预支付成功。");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "预支付处理失败：" + e.getMessage());
+        }
+
         return "redirect:/kn_advc_pay_per_lsn";
     }
 

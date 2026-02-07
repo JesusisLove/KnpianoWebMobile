@@ -448,7 +448,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="info, stat:${infoList}">
+                                    <tr th:each="info, stat:${infoList}"
+                                        th:data-schedual-date="${#dates.format(info.schedualDate, 'yyyy-MM-dd HH:mm')}"
+                                        th:data-processing-mode="${info.processingMode}"
+                                        th:data-existing-lesson-id="${info.existingLessonId}"
+                                        th:data-existing-fee-id="${info.existingFeeId}">
                                         <td th:text="${stat.index + 1}"></td>
                                         <td>[[${info.subjectName}]]</td>
                                         <td>[[${info.subjectSubName}]]</td>
@@ -723,9 +727,7 @@
                 return;
             }
 
-            // 从scheduleTable读取第一个A模式的日期作为firstSchedualDate
-            // 因为 Execution SP 会从该日期推算固定排课规律（星期几、几点几分）
-            // A 模式的日期一定是固定排课候选日，B/C 模式可能是非固定课程
+            // 从scheduleTable读取所有行的 Preview 数据
             var scheduleTable = document.getElementById('scheduleTable');
             if (!scheduleTable) {
                 alert('请先点击「推算排课日期」按钮。');
@@ -738,29 +740,7 @@
                 return;
             }
 
-            // 找第一个 A 模式的行（mode-badge-a 类）
-            var firstDate = '';
-            for (var i = 0; i < rows.length; i++) {
-                var modeCell = rows[i].cells[5];
-                if (modeCell && modeCell.querySelector('.mode-badge-a')) {
-                    var dateSpan = rows[i].cells[4].querySelector('span');
-                    if (dateSpan) {
-                        firstDate = dateSpan.textContent.trim();
-                        break;
-                    }
-                }
-            }
-            // 边界情况：全是 B/C 模式（无 A 模式），回退到第一条记录
-            if (!firstDate) {
-                var firstDateSpan = rows[0].cells[4].querySelector('span');
-                firstDate = firstDateSpan ? firstDateSpan.textContent.trim() : '';
-            }
-            if (!firstDate) {
-                alert('排课日期无效。');
-                return;
-            }
-
-            // 从表单和隐藏域获取数据
+            // 从表单和隐藏域获取基本信息
             var stuId = document.getElementById('studentSelect').value;
             var stuName = document.getElementById('studentSelect').options[document.getElementById('studentSelect').selectedIndex].text;
             var subjectId = document.getElementById('subjectSelect').value;
@@ -771,21 +751,35 @@
             var minutesPerLsn = parseInt(document.getElementById('minutesPerLsnHidden').value);
             var lessonCount = parseInt(document.getElementById('lessonCountInput').value);
 
-            var dataToSend = [{
-                stuId: stuId,
-                stuName: stuName,
-                subjectId: subjectId,
-                subjectSubId: subjectSubId,
-                subjectName: subjectName,
-                subjectSubName: subjectSubName,
-                classDuration: minutesPerLsn,
-                lessonType: 0,
-                schedualDate: firstDate,
-                subjectPrice: subjectPrice,
-                minutesPerLsn: minutesPerLsn,
-                bankId: bankId,
-                lessonCount: lessonCount
-            }];
+            // 构建完整的 Preview 结果列表
+            var dataToSend = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var record = {
+                    schedualDate: row.dataset.schedualDate,
+                    processingMode: row.dataset.processingMode,
+                    existingLessonId: row.dataset.existingLessonId || null,
+                    existingFeeId: row.dataset.existingFeeId || null
+                };
+
+                // 第一条记录添加基本信息
+                if (i === 0) {
+                    record.stuId = stuId;
+                    record.stuName = stuName;
+                    record.subjectId = subjectId;
+                    record.subjectSubId = subjectSubId;
+                    record.subjectName = subjectName;
+                    record.subjectSubName = subjectSubName;
+                    record.classDuration = minutesPerLsn;
+                    record.lessonType = 0;
+                    record.subjectPrice = subjectPrice;
+                    record.minutesPerLsn = minutesPerLsn;
+                    record.bankId = bankId;
+                    record.lessonCount = lessonCount;
+                }
+
+                dataToSend.push(record);
+            }
 
             fetch('/liu/kn_advc_pay_per_lsn_execute', {
                 method: 'POST',

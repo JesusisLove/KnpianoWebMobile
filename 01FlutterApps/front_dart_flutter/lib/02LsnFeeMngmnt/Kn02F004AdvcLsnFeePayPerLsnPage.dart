@@ -179,6 +179,8 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
                 'schedualDate': bean.schedualDate,
                 'isPast': date.isBefore(DateTime.now()),
                 'processingMode': bean.processingMode ?? 'A',
+                'existingLessonId': bean.existingLessonId,  // B/C模式需要
+                'existingFeeId': bean.existingFeeId,        // C模式需要
               });
             } catch (e) {
               print('日期解析错误: ${bean.schedualDate}');
@@ -463,35 +465,39 @@ class _Kn02F004AdvcLsnFeePayPerLsnPageState
       return;
     }
 
-    // 构建请求数据：找出第一个 A 模式的日期（固定排课日期）传给 Execution SP
-    // 因为 Execution SP 会从该日期推算固定排课规律（星期几、几点几分）
-    // A 模式的日期一定是固定排课候选日，B/C 模式可能是非固定课程
-    String firstDate;
-    var firstAMode = serverScheduleBeans.cast<Kn02F004AdvcLsnFeePayPerLsnBean?>()
-        .firstWhere((b) => b?.processingMode == 'A', orElse: () => null);
-    if (firstAMode != null) {
-      firstDate = firstAMode.schedualDate;
-    } else {
-      // 边界情况：全是 B/C 模式（无 A 模式），回退到第一条记录
-      firstDate = schedulePreviewList[0]['schedualDate'];
-    }
-    var dataToSend = [
-      {
-        'stuId': widget.stuId,
-        'stuName': widget.stuName,
-        'subjectId': selectedSubject!.subjectId,
-        'subjectSubId': selectedSubject!.subjectSubId,
-        'subjectName': selectedSubject!.subjectName,
-        'subjectSubName': selectedSubject!.subjectSubName,
-        'classDuration': selectedSubject!.minutesPerLsn,
-        'lessonType': 0,
-        'schedualDate': firstDate,
-        'subjectPrice': selectedSubject!.subjectPrice,
-        'minutesPerLsn': selectedSubject!.minutesPerLsn,
-        'bankId': selectedBank!,
-        'lessonCount': lessonCount,
+    // 构建请求数据：发送完整的 Preview 结果列表给 Execution SP
+    // SP 直接按列表执行，不再重新计算
+    var dataToSend = <Map<String, dynamic>>[];
+
+    // 第一条记录包含基本信息（学生、科目、银行等）
+    // 后续记录只包含排课信息（日期、模式、既存ID）
+    for (int i = 0; i < schedulePreviewList.length; i++) {
+      var item = schedulePreviewList[i];
+      var record = <String, dynamic>{
+        'schedualDate': item['schedualDate'],
+        'processingMode': item['processingMode'],
+        'existingLessonId': item['existingLessonId'],
+        'existingFeeId': item['existingFeeId'],
+      };
+
+      // 第一条记录添加基本信息
+      if (i == 0) {
+        record['stuId'] = widget.stuId;
+        record['stuName'] = widget.stuName;
+        record['subjectId'] = selectedSubject!.subjectId;
+        record['subjectSubId'] = selectedSubject!.subjectSubId;
+        record['subjectName'] = selectedSubject!.subjectName;
+        record['subjectSubName'] = selectedSubject!.subjectSubName;
+        record['classDuration'] = selectedSubject!.minutesPerLsn;
+        record['lessonType'] = 0;
+        record['subjectPrice'] = selectedSubject!.subjectPrice;
+        record['minutesPerLsn'] = selectedSubject!.minutesPerLsn;
+        record['bankId'] = selectedBank!;
+        record['lessonCount'] = lessonCount;
       }
-    ];
+
+      dataToSend.add(record);
+    }
 
     final String yearMonth =
         '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}';

@@ -149,7 +149,7 @@
          LIMIT 1
     </update>
 
-    <!-- 执行按课时预支付处理（循环N节课） -->
+    <!-- 执行按课时预支付处理（直接按Preview结果执行） -->
     <select id="executeAdvcLsnFeePayPerLesson" statementType="CALLABLE">
         {call sp_execute_advc_lsn_fee_pay_per_lesson(
             #{stuId,                    mode=IN, jdbcType=VARCHAR},
@@ -158,12 +158,11 @@
             #{lessonType,               mode=IN, jdbcType=INTEGER},
             #{minutesPerLsn,            mode=IN, jdbcType=INTEGER},
             #{subjectPrice,             mode=IN, jdbcType=DECIMAL},
-            #{firstSchedualDate,        mode=IN, jdbcType=TIMESTAMP},
-            #{lessonCount,              mode=IN, jdbcType=INTEGER},
             #{bankId,                   mode=IN, jdbcType=VARCHAR},
             #{lsnSeqCode,               mode=IN, jdbcType=VARCHAR},
             #{feeSeqCode,               mode=IN, jdbcType=VARCHAR},
             #{paySeqCode,               mode=IN, jdbcType=VARCHAR},
+            #{previewJson,              mode=IN, jdbcType=VARCHAR},
             #{paramMap.result,          mode=OUT, jdbcType=INTEGER}
         )}
     </select>
