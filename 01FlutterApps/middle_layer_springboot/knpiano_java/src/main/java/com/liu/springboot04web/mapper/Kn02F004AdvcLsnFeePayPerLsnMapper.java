@@ -4,7 +4,6 @@ import org.apache.ibatis.annotations.Param;
 
 import com.liu.springboot04web.bean.Kn02F004AdvcLsnFeePayPerLsnBean;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +36,11 @@ public interface Kn02F004AdvcLsnFeePayPerLsnMapper {
         @Param("lessonType") Integer lessonType,
         @Param("minutesPerLsn") Integer minutesPerLsn,
         @Param("subjectPrice") float subjectPrice,
-        @Param("firstSchedualDate") Date firstSchedualDate,
-        @Param("lessonCount") Integer lessonCount,
         @Param("bankId") String bankId,
         @Param("lsnSeqCode") String lsnSeqCode,
         @Param("feeSeqCode") String feeSeqCode,
         @Param("paySeqCode") String paySeqCode,
+        @Param("previewJson") String previewJson,
         @Param("paramMap") Map<String, Object> paramMap
     );
 }

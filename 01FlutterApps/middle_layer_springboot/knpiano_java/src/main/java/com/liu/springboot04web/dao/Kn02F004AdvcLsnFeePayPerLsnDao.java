@@ -55,14 +55,20 @@ public class Kn02F004AdvcLsnFeePayPerLsnDao {
         kn02F004Mapper.updateInfo(bean);
     }
 
-    public Integer executeAdvcLsnFeePayPerLesson(Kn02F004AdvcLsnFeePayPerLsnBean bean) {
+    /**
+     * 执行按课时预支付处理
+     * @param bean 包含学生、科目、银行等基本信息
+     * @param previewJson Preview SP 返回的结果 JSON 字符串
+     * @return 执行结果 (1=成功, 0=失败)
+     */
+    public Integer executeAdvcLsnFeePayPerLesson(Kn02F004AdvcLsnFeePayPerLsnBean bean, String previewJson) {
         SqlSession session = sqlSessionFactory.openSession();
         try {
             // 创建 Map 对象来接收输出参数
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("result", null);  // 初始化输出参数为 null
 
-            // 调用按课时预支付的存储过程
+            // 调用按课时预支付的存储过程（传入 Preview 结果 JSON）
             kn02F004Mapper.executeAdvcLsnFeePayPerLesson(
                 bean.getStuId(),
                 bean.getSubjectId(),
@@ -70,12 +76,11 @@ public class Kn02F004AdvcLsnFeePayPerLsnDao {
                 bean.getLessonType(),
                 bean.getMinutesPerLsn(),
                 bean.getSubjectPrice(),
-                bean.getSchedualDate(),
-                bean.getLessonCount(),
                 bean.getBankId(),
                 KNConstant.CONSTANT_KN_LSN_SEQ,
                 KNConstant.CONSTANT_KN_LSN_FEE_SEQ,
                 KNConstant.CONSTANT_KN_LSN_PAY_SEQ,
+                previewJson,
                 paramMap
             );
 
