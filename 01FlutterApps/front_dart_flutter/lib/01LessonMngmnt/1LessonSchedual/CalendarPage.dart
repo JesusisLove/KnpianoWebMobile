@@ -201,12 +201,23 @@ class CalendarPage extends StatefulWidget {
   _CalendarPageState createState() => _CalendarPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class _CalendarPageState extends State<CalendarPage>
+    with SingleTickerProviderStateMixin {
+  // [课题二] 2026-02-08 时间槽固定高度常量
+  static const double _slotHeight = 40.0;
+
   String? highlightedStuId; // 新增
   final ScrollController _scrollController = ScrollController(); // 新增
   Timer? _highlightTimer; // 新增
 
   bool _isLoading = false; // 添加加载状态变量
+
+  // [课题二] 2026-02-08 动画相关变量（从TimeTile移植）
+  String? _pressedLessonId;
+  Timer? _blinkTimer;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  bool _isSaving = false;
 
   CalendarFormat _calendarFormat = CalendarFormat.week;
   late DateTime _focusedDay;
@@ -244,6 +255,14 @@ class _CalendarPageState extends State<CalendarPage> {
     // 获取指定日期的课程数据
     _fetchStudentLsn(widget.focusedDay.split(' ')[0].trim());
 
+    // [课题二] 2026-02-08 动画初期化（从TimeTile移植）
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+
     // 等待布局完成后滚动到目标位置
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToTargetTime();
@@ -280,6 +299,9 @@ class _CalendarPageState extends State<CalendarPage> {
   void dispose() {
     _highlightTimer?.cancel();
     _scrollController.dispose();
+    // [课题二] 2026-02-08 动画资源清理（从TimeTile移植）
+    _blinkTimer?.cancel();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -305,6 +327,19 @@ class _CalendarPageState extends State<CalendarPage> {
                 .toList();
             _isLoading = false; // 加载完成，设置加载状态为false
           });
+          // [课题二] 2026-02-08 检查是否有需要高亮显示的课程，启动闪烁动画
+          if (currentHighlightedTime != null && highlightedStuId != null) {
+            for (var event in studentLsns) {
+              // 获取课程显示时间
+              String displayTime = event.schedualDate.length >= 16
+                  ? event.schedualDate.substring(11, 16)
+                  : '';
+              if (_isHighlighted(event, displayTime)) {
+                _startBlinking();
+                break;
+              }
+            }
+          }
         }
       } else {
         throw Exception('Failed to load archived lessons of the day');
@@ -376,6 +411,582 @@ class _CalendarPageState extends State<CalendarPage> {
       return (eventScheduleDateStr == selectedDateStr && eventTime1 == time) ||
           (eventAdjustedDateStr == selectedDateStr && eventTime2 == time);
     }).toList();
+  }
+
+  // [课题二] 2026-02-08 动画辅助方法（从TimeTile移植）
+  // 判断课程是否需要高亮显示
+  bool _isHighlighted(Kn01L002LsnBean event, String displayTime) {
+    final bool timeMatches = displayTime == currentHighlightedTime;
+    final bool stuIdMatches = event.stuId == highlightedStuId;
+    return timeMatches && stuIdMatches;
+  }
+
+  // 启动闪烁动画
+  void _startBlinking() {
+    _blinkTimer?.cancel();
+    _fadeController.value = 1.0;
+
+    int blinkCount = 0;
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted && blinkCount < 20) {
+        setState(() {
+          _fadeController.value = _fadeController.value == 0 ? 1.0 : 0.0;
+        });
+        blinkCount++;
+      } else {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _fadeController.value = 0.0;
+          });
+        }
+      }
+    });
+  }
+
+  // 判断是否为灰色背景的课程（不允许长按调时间）
+  bool _isGrayBackground(Kn01L002LsnBean event) {
+    String selectedDayStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+
+    String eventScheduleDateStr = '';
+    if (event.schedualDate.length >= 10) {
+      eventScheduleDateStr = event.schedualDate.substring(0, 10);
+    }
+
+    String eventAdjustedDateStr = '';
+    if (event.lsnAdjustedDate.length >= 10) {
+      eventAdjustedDateStr = event.lsnAdjustedDate.substring(0, 10);
+    }
+
+    bool hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    bool hasBeenSigned = event.scanQrDate.isNotEmpty;
+
+    return ((selectedDayStr == eventScheduleDateStr) && hasBeenRescheduled) ||
+        ((selectedDayStr == eventScheduleDateStr) && hasBeenSigned) ||
+        ((selectedDayStr == eventAdjustedDateStr) && hasBeenSigned);
+  }
+
+  // 长按开始处理 - 弹出调时间对话框
+  void _handleLongPressStart(Kn01L002LsnBean event, String displayTime) async {
+    if (!_isGrayBackground(event)) {
+      await HapticFeedback.heavyImpact();
+      setState(() {
+        _pressedLessonId = event.lessonId;
+        _isSaving = false;
+      });
+      _fadeController.reset();
+
+      final String currentTime = displayTime;
+      final isRescheduledLesson = (event.lsnAdjustedDate.isNotEmpty == true);
+
+      final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return RescheduleLessonTimeDialog(
+            initialDate: _selectedDay,
+            initialTime: currentTime,
+            onSave: (String newTime) async {
+              try {
+                setState(() {
+                  _isSaving = true;
+                });
+                await _updateLessonTime(event.lessonId, newTime, isRescheduledLesson);
+                return true;
+              } catch (e) {
+                setState(() {
+                  _isSaving = false;
+                });
+                rethrow;
+              }
+            },
+          );
+        },
+      );
+
+      if (result == true && mounted) {
+        Future.delayed(const Duration(seconds: 10), () {
+          if (mounted && _isSaving) {
+            _fadeController.forward().then((_) {
+              if (mounted) {
+                setState(() {
+                  _pressedLessonId = null;
+                  _isSaving = false;
+                });
+              }
+            });
+          }
+        });
+      } else {
+        if (mounted) {
+          setState(() {
+            _pressedLessonId = null;
+            _isSaving = false;
+          });
+        }
+      }
+    }
+  }
+
+  void _handleLongPressEnd() {
+    // 长按结束时不立即清除边框
+  }
+
+  // [课题二] 2026-02-08 构建绝对定位的课程卡片
+  // 保留原有TimeTile._buildEventTile的所有业务逻辑，只改变定位方式
+  Widget _buildPositionedCard(Kn01L002LsnBean event) {
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+
+    // === 原有业务逻辑：日期状态判断（完整保留自 TimeTile._buildEventTile）===
+    final eventScheduleDateStr = event.schedualDate.length >= 10
+        ? event.schedualDate.substring(0, 10)
+        : '';
+    final eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+        ? event.lsnAdjustedDate.substring(0, 10)
+        : '';
+    final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    final hasBeenSigned = event.scanQrDate.isNotEmpty;
+
+    // 各种状态判断（完整保留）
+    final isScheduledUnsignedLsn = selectedDateStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        !hasBeenSigned;
+
+    final isScheduledSignedLsn = selectedDateStr == eventScheduleDateStr &&
+        !hasBeenRescheduled &&
+        hasBeenSigned;
+
+    final isAdjustedUnSignedLsnFrom = selectedDateStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDateStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
+
+    final isAdjustedSignedLsnFrom = selectedDateStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDateStr != eventAdjustedDateStr &&
+        hasBeenSigned;
+
+    final isAdjustedUnSignedLsnTo = selectedDateStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDateStr == eventAdjustedDateStr &&
+        !hasBeenSigned;
+
+    final isAdjustedSignedLsnTo = selectedDateStr != eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDateStr == eventAdjustedDateStr &&
+        hasBeenSigned;
+
+    // === 原有业务逻辑：背景颜色和附加信息（完整保留）===
+    Color backgroundColor;
+    Color textColor = Colors.black;
+    String additionalInfo = '';
+
+    if (isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom) {
+      backgroundColor = Colors.grey.shade300;
+      additionalInfo = '调课To：${event.lsnAdjustedDate}';
+    } else if (isAdjustedUnSignedLsnTo) {
+      backgroundColor = Colors.orange.shade100; // 调课目标日期：浅橙色
+      additionalInfo = '调课From：${event.schedualDate}';
+    } else if (isAdjustedSignedLsnTo) {
+      backgroundColor = Colors.grey.shade500;
+      additionalInfo = '调课From：${event.schedualDate}';
+    } else if (isScheduledUnsignedLsn) {
+      // 根据课程类型设置不同背景颜色
+      final lessonCardColors = context.lessonCardColors;
+      switch (event.lessonType) {
+        case 0: // 课时课
+          backgroundColor = lessonCardColors.hourly;
+          break;
+        case 2: // 加课
+          backgroundColor = lessonCardColors.extra;
+          break;
+        case 1: // 计划课
+        default:
+          backgroundColor = lessonCardColors.planned;
+          break;
+      }
+    } else if (isScheduledSignedLsn) {
+      backgroundColor = Colors.grey.shade500;
+    } else {
+      backgroundColor = Colors.black12;
+    }
+
+    // 文字装饰（已签到显示删除线）
+    TextDecoration textDecoration = TextDecoration.none;
+    if (isScheduledSignedLsn ||
+        isAdjustedSignedLsnFrom ||
+        isAdjustedSignedLsnTo) {
+      textDecoration = TextDecoration.lineThrough;
+    }
+
+    // === 时间线颜色（与主题JSON保持一致）===
+    Color timelineColor;
+    switch (event.lessonType) {
+      case 0: // 课时课 - 绿色
+        timelineColor = const Color(0xFF4CAF50);
+        break;
+      case 2: // 加课 - 粉色
+        timelineColor = const Color(0xFFE91E63);
+        break;
+      case 1: // 计划课 - 蓝色
+      default:
+        timelineColor = const Color(0xFF2196F3);
+        break;
+    }
+
+    // 判断是否显示时间线（只有调课From的课程不显示时间线）
+    final bool showTimeline = !(isAdjustedUnSignedLsnFrom ||
+        isAdjustedSignedLsnFrom);
+
+    // === 位置计算（课题二核心）===
+    // 获取课程显示时间（优先调课时间）
+    String displayTime;
+    String displayDateStr;
+    if (event.lsnAdjustedDate.isNotEmpty &&
+        selectedDateStr == eventAdjustedDateStr) {
+      // 调课To的情况：显示在调课目标日期
+      displayDateStr = eventAdjustedDateStr;
+      displayTime = event.lsnAdjustedDate.length >= 16
+          ? event.lsnAdjustedDate.substring(11, 16)
+          : '';
+    } else {
+      // 正常排课或调课From的情况
+      displayDateStr = eventScheduleDateStr;
+      displayTime = event.schedualDate.length >= 16
+          ? event.schedualDate.substring(11, 16)
+          : '';
+    }
+
+    // 只显示当天的课程
+    if (displayDateStr != selectedDateStr) return const SizedBox.shrink();
+
+    // 计算开始时间的Y坐标
+    final timeParts = displayTime.split(':');
+    if (timeParts.length != 2) return const SizedBox.shrink();
+    final hour = int.tryParse(timeParts[0]) ?? 8;
+    final minute = int.tryParse(timeParts[1]) ?? 0;
+    final slotIndex = (hour - 8) * 4 + (minute ~/ 15);
+    // 圆点紧贴开始时间分隔线下方
+    // 分隔线在槽位的垂直中间（+_slotHeight/2），圆点从分隔线下方开始
+    final topPosition = slotIndex * _slotHeight + _slotHeight / 2;
+
+    // 计算课程时长对应的高度（结束时间槽位）
+    final durationSlots = (event.classDuration / 15).ceil();
+    // 时间线高度 = 从开始分隔线到结束分隔线的距离
+    final timelineHeight = durationSlots * _slotHeight;
+
+    return Positioned(
+      left: 54, // 时间轴右侧（与时间文字间距对称）
+      right: 8,
+      top: topPosition, // 紧贴开始时间分隔线下方
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 时间线（只有非灰色卡片显示）
+          if (showTimeline)
+            SizedBox(
+              width: 14,
+              height: timelineHeight,
+              child: Column(
+                children: [
+                  // 起点圆点 ● - 紧贴开始时间分隔线下方
+                  Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: timelineColor)),
+                  // 垂直线 │
+                  Expanded(
+                      child: Center(
+                          child: Container(width: 3, color: timelineColor))),
+                  // 末端三角形 ▼ - 紧贴结束时间分隔线上方
+                  CustomPaint(
+                      size: const Size(10, 8),
+                      painter: _TrianglePainter(color: timelineColor)),
+                ],
+              ),
+            ),
+          if (!showTimeline) const SizedBox(width: 14),
+          // === 课程卡片（保留原有完整内容 + 动画效果）===
+          Expanded(
+            child: GestureDetector(
+              onLongPressStart: (_) => _handleLongPressStart(event, displayTime),
+              onLongPressEnd: (_) => _handleLongPressEnd(),
+              child: Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(left: 4),
+                // [课题二] 2026-02-08 高亮时显示红色背景
+                color: _isHighlighted(event, displayTime) ? Colors.red[100] : backgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  // [课题二] 2026-02-08 动画边框效果
+                  side: _isHighlighted(event, displayTime)
+                      ? BorderSide(
+                          color: Colors.red.withOpacity(_fadeAnimation.value),
+                          width: 2.0,
+                        )
+                      : (_pressedLessonId == event.lessonId && _isSaving
+                          ? BorderSide(
+                              color: Colors.red.withOpacity(_fadeAnimation.value),
+                              width: 2.0,
+                            )
+                          : BorderSide.none),
+                ),
+                child: AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: child!,
+                    );
+                  },
+                  child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 左侧内容区域
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 学生姓名
+                          Text(
+                            event.stuName,
+                            style: KnElementTextStyle.cardTitle(
+                              context,
+                              fontSize: 18,
+                              color: textColor,
+                            ).copyWith(decoration: textDecoration),
+                          ),
+                          const SizedBox(height: 4),
+                          // 科目信息 + 调课信息
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  '${event.subjectName} - ${event.subjectSubName}',
+                                  style: KnElementTextStyle.cardBody(
+                                    context,
+                                    fontSize: 12,
+                                    color: textColor,
+                                    decoration: textDecoration,
+                                  ),
+                                ),
+                              ),
+                              if (additionalInfo.isNotEmpty)
+                                Expanded(
+                                  flex: 4,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      additionalInfo,
+                                      style: KnElementTextStyle.cardBody(
+                                        context,
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          // 课程时长 + 类型 + 备注
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
+                                  style: KnElementTextStyle.cardBody(
+                                    context,
+                                    fontSize: 12,
+                                    color: textColor,
+                                    decoration: textDecoration,
+                                  ),
+                                ),
+                              ),
+                              if (event.memo != null &&
+                                  event.memo!.isNotEmpty &&
+                                  (!isAdjustedUnSignedLsnTo &&
+                                      !isAdjustedSignedLsnTo))
+                                Expanded(
+                                  flex: 4,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      '备注: ${event.memo}',
+                                      style: KnElementTextStyle.cardBody(
+                                        context,
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 右侧三个点菜单按钮（原有逻辑完整保留）
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.black),
+                      onSelected: (String result) {
+                        switch (result) {
+                          case '签到':
+                            _handleSignCourse(event);
+                            break;
+                          case '撤销':
+                            _handleRestoreCourse(event);
+                            break;
+                          case '调课':
+                            _handleReschLsnCourse(event);
+                            break;
+                          case '取消':
+                            _handleCancelRescheCourse(event);
+                            break;
+                          case '删除':
+                            _handleDeleteCourse(event);
+                            break;
+                          case '备注':
+                            _handleNoteCourse(event);
+                            break;
+                        }
+                      },
+                      itemBuilder: (BuildContext ctx) =>
+                          _buildPositionedCardMenuItems(event),
+                      constraints: const BoxConstraints(
+                        minWidth: 50,
+                        maxWidth: 60,
+                      ),
+                      position: PopupMenuPosition.under,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),  // closes GestureDetector
+        ),  // closes Expanded
+        ],
+      ),
+    );
+  }
+
+  // [课题二] 2026-02-08 构建卡片右侧菜单项（保留原有 TimeTile._buildPopupMenuItems 逻辑）
+  List<PopupMenuEntry<String>> _buildPositionedCardMenuItems(
+      Kn01L002LsnBean event) {
+    final menuStyle = KnElementTextStyle.popupMenuItem(context);
+
+    // 已签到的课程
+    if ((event.scanQrDate != null) && (event.scanQrDate.isNotEmpty)) {
+      if (DateFormat('yyyy-MM-dd').format(DateTime.now().toLocal()) ==
+          event.scanQrDate) {
+        return [
+          PopupMenuItem<String>(
+            value: '撤销',
+            height: 36,
+            child: Text('撤销', style: menuStyle),
+          ),
+          PopupMenuItem<String>(
+            value: '备注',
+            height: 36,
+            child: Text('备注', style: menuStyle),
+          ),
+        ];
+      } else {
+        return [
+          PopupMenuItem<String>(
+            value: '备注',
+            height: 36,
+            child: Text('备注', style: menuStyle),
+          ),
+        ];
+      }
+    }
+
+    // 检查是否为已调课但未签到的课程
+    final selectedDayStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+    final eventScheduleDateStr = event.schedualDate.length >= 10
+        ? event.schedualDate.substring(0, 10)
+        : '';
+    final eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+        ? event.lsnAdjustedDate.substring(0, 10)
+        : '';
+
+    final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+    final hasBeenSigned = event.scanQrDate.isNotEmpty;
+
+    final isAdjustedUnSignedLsnFrom = selectedDayStr == eventScheduleDateStr &&
+        hasBeenRescheduled &&
+        selectedDayStr != eventAdjustedDateStr &&
+        !hasBeenSigned;
+
+    if (isAdjustedUnSignedLsnFrom) {
+      return <PopupMenuEntry<String>>[
+        const PopupMenuDivider(height: 1),
+        PopupMenuItem<String>(
+          value: '调课',
+          height: 36,
+          child: Text('调课', style: menuStyle),
+        ),
+        PopupMenuItem<String>(
+          value: '取消',
+          height: 36,
+          child: Text('取消', style: menuStyle),
+        ),
+        const PopupMenuDivider(height: 1),
+        PopupMenuItem<String>(
+          value: '删除',
+          height: 36,
+          child: Text('删除', style: menuStyle),
+        ),
+        const PopupMenuDivider(height: 1),
+        PopupMenuItem<String>(
+          value: '备注',
+          height: 36,
+          child: Text('备注', style: menuStyle),
+        ),
+      ];
+    } else {
+      return <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          value: '签到',
+          enabled: !_selectedDay.isAfter(DateTime.now()),
+          height: 36,
+          child: Text(
+            '签到',
+            style: menuStyle.copyWith(
+                color: _selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
+          ),
+        ),
+        const PopupMenuDivider(height: 1),
+        PopupMenuItem<String>(
+          value: '调课',
+          height: 36,
+          child: Text('调课', style: menuStyle),
+        ),
+        PopupMenuItem<String>(
+          value: '删除',
+          height: 36,
+          child: Text('删除', style: menuStyle),
+        ),
+        const PopupMenuDivider(height: 1),
+        PopupMenuItem<String>(
+          value: '备注',
+          height: 36,
+          child: Text('备注', style: menuStyle),
+        ),
+      ];
+    }
   }
 
   void _handleTimeSelection(BuildContext context, String time) {
@@ -875,115 +1486,86 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
 
-          // 课程时间轴部分，包含加载状态
+          // [课题二] 2026-02-08 课程时间轴部分，使用Stack+固定高度实现精确时间对齐
           Expanded(
             child: Stack(
               children: [
-                // 时间轴内容
-                ListView.builder(
+                // 底层：可滚动的时间轴 + 卡片叠加层
+                SingleChildScrollView(
                   controller: _scrollController,
-                  itemCount: ((22 - 8) * 4), // 从8点到22点，每小时4个时间段
-                  itemBuilder: (context, index) {
-                    int hour = 8 + (index ~/ 4);
-                    int minute = (index % 4) * 15;
-                    String time =
-                        '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-
-                    // 始终显示时间轴，但只在不加载时显示事件
-                    if (!_isLoading) {
-                      return TimeTile(
-                        key: ValueKey(time),
-                        time: time,
-                        events: getSchedualLessonForTime(time),
-                        onTap: () => _handleTimeSelection(context, time),
-                        onSign: _handleSignCourse,
-                        onRestore: _handleRestoreCourse,
-                        // onEdit: _handleEditCourse,
-                        highlightedStuId: highlightedStuId,
-                        onDelete: _handleDeleteCourse,
-                        onReschLsn: _handleReschLsnCourse,
-                        onCancel: _handleCancelRescheCourse,
-                        onAddmemo: _handleNoteCourse,
-                        selectedDay: _selectedDay,
-                        onTimeChanged: _updateLessonTime,
-                        highlightedTime: currentHighlightedTime,
-                        onHighlightChanged: (time) {
-                          setState(() {
-                            currentHighlightedTime = time;
-                          });
-                        },
-                      );
-                    } else {
-                      // 加载时只显示时间轴，不显示事件
-                      // [Flutter页面主题改造] 2026-01-20 修复时间轴初始化闪烁问题，添加与TimeTile相同的padding
-                      return GestureDetector(
-                        onTap: () {}, // 加载时禁用点击
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 50,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 0, right: 0),
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: time.endsWith(':00')
-                                        ? Text(
-                                            time,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w300,
-                                              color: Colors.black,
-                                            ),
-                                          )
-                                        : RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: time.substring(0, 3),
-                                                  style: const TextStyle(
-                                                    fontSize: 10,
+                  child: SizedBox(
+                    // 总高度 = 56个时间槽 × _slotHeight
+                    height: ((22 - 8) * 4) * _slotHeight,
+                    child: Stack(
+                      children: [
+                        // 时间轴层（固定高度槽位）
+                        Column(
+                          children: List.generate((22 - 8) * 4, (index) {
+                            int hour = 8 + (index ~/ 4);
+                            int minute = (index % 4) * 15;
+                            String time =
+                                '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+                            return GestureDetector(
+                              onTap: () => _handleTimeSelection(context, time),
+                              child: SizedBox(
+                                height: _slotHeight, // 固定槽高度
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 50,
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: time.endsWith(':00')
+                                            ? Text(time,
+                                                style: const TextStyle(
+                                                    fontSize: 11,
                                                     fontWeight: FontWeight.w300,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: time.substring(3),
-                                                  style: const TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w300,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                  ),
+                                                    color: Colors.black))
+                                            : RichText(
+                                                text: TextSpan(children: [
+                                                  TextSpan(
+                                                      text:
+                                                          time.substring(0, 3),
+                                                      style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          color: Colors.white)),
+                                                  TextSpan(
+                                                      text: time.substring(3),
+                                                      style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.w300,
+                                                          color: Colors.black)),
+                                                ]),
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                        child: Container(
+                                            height: 0.5,
+                                            color: Colors.grey.shade300)),
+                                  ],
                                 ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  height: 0.5,
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+                          }),
                         ),
-                      );
-                    }
-                  },
+                        // 卡片层（绝对定位）
+                        if (!_isLoading)
+                          ...studentLsns
+                              .map((event) => _buildPositionedCard(event)),
+                      ],
+                    ),
+                  ),
                 ),
-
-                // 加载指示器覆盖在时间轴上
+                // 加载指示器
                 if (_isLoading)
                   const Center(
-                    // child: CircularProgressIndicator(),
-                    child: KnLoadingIndicator(
-                        color: Constants.lessonThemeColor), // 使用自定的加载器进度条
-                  ),
+                      child: KnLoadingIndicator(
+                          color: Constants.lessonThemeColor)),
               ],
             ),
           ),
@@ -1675,4 +2257,29 @@ class _TimeTileState extends State<TimeTile>
       ];
     }
   }
+}
+
+// [课题二] 2026-02-08 时间线末端三角形绘制器
+class _TrianglePainter extends CustomPainter {
+  final Color color;
+
+  _TrianglePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(size.width / 2, size.height) // 底部中心（三角形尖端）
+      ..lineTo(0, 0) // 左上角
+      ..lineTo(size.width, 0) // 右上角
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
