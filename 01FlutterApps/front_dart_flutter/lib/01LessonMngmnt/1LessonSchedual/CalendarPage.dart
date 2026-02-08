@@ -226,6 +226,9 @@ class _CalendarPageState extends State<CalendarPage>
 
   List<Kn01L002LsnBean> studentLsns = [];
 
+  // [BUG修复] 2026-02-08 跟踪当前前置显示的卡片（用于同一时间多卡片的点击切换）
+  String? _frontCardLessonId;
+
   @override
   @override
   void initState() {
@@ -532,6 +535,48 @@ class _CalendarPageState extends State<CalendarPage>
     // 长按结束时不立即清除边框
   }
 
+  // [BUG修复] 2026-02-08 获取排序后的课程卡片列表
+  // 渲染顺序：调课From卡片先渲染（居后），被点击的卡片最后渲染（居前）
+  List<Widget> _getSortedLessonCards() {
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(_selectedDay);
+
+    // 辅助函数：判断课程是否是调课From卡片
+    bool isRescheduleFromCard(Kn01L002LsnBean event) {
+      final eventScheduleDateStr = event.schedualDate.length >= 10
+          ? event.schedualDate.substring(0, 10)
+          : '';
+      final eventAdjustedDateStr = event.lsnAdjustedDate.length >= 10
+          ? event.lsnAdjustedDate.substring(0, 10)
+          : '';
+      final hasBeenRescheduled = event.lsnAdjustedDate.isNotEmpty;
+
+      return selectedDateStr == eventScheduleDateStr &&
+          hasBeenRescheduled &&
+          selectedDateStr != eventAdjustedDateStr;
+    }
+
+    // 复制列表并排序
+    final sorted = List<Kn01L002LsnBean>.from(studentLsns);
+    sorted.sort((a, b) {
+      final aIsRescheduleFrom = isRescheduleFromCard(a);
+      final bIsRescheduleFrom = isRescheduleFromCard(b);
+      final aIsFront = a.lessonId == _frontCardLessonId;
+      final bIsFront = b.lessonId == _frontCardLessonId;
+
+      // 被点击的卡片最后渲染（居前）
+      if (aIsFront) return 1;
+      if (bIsFront) return -1;
+
+      // 调课From卡片先渲染（居后），其他卡片后渲染（居前）
+      if (aIsRescheduleFrom && !bIsRescheduleFrom) return -1;
+      if (!aIsRescheduleFrom && bIsRescheduleFrom) return 1;
+
+      return 0;
+    });
+
+    return sorted.map((event) => _buildPositionedCard(event)).toList();
+  }
+
   // [课题二] 2026-02-08 构建绝对定位的课程卡片
   // 保留原有TimeTile._buildEventTile的所有业务逻辑，只改变定位方式
   Widget _buildPositionedCard(Kn01L002LsnBean event) {
@@ -675,13 +720,71 @@ class _CalendarPageState extends State<CalendarPage>
     // 时间线高度 = 从开始分隔线到结束分隔线的距离
     final timelineHeight = durationSlots * _slotHeight;
 
+    // [BUG修复] 2026-02-08 调课From卡片位置调整
+    final bool isRescheduleFromCard = isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom;
+
+    // 检测同一时间是否有其他卡片（用于点击切换和位置调整）
+    bool hasSameTimeOtherLesson = false;
+    for (var otherEvent in studentLsns) {
+      if (otherEvent.lessonId == event.lessonId) continue;
+
+      // 获取其他课程的显示时间
+      final otherEventScheduleDateStr = otherEvent.schedualDate.length >= 10
+          ? otherEvent.schedualDate.substring(0, 10)
+          : '';
+      final otherEventAdjustedDateStr = otherEvent.lsnAdjustedDate.length >= 10
+          ? otherEvent.lsnAdjustedDate.substring(0, 10)
+          : '';
+      final otherHasBeenRescheduled = otherEvent.lsnAdjustedDate.isNotEmpty;
+
+      // 判断其他课程是否是调课From
+      final otherIsRescheduleFrom = selectedDateStr == otherEventScheduleDateStr &&
+          otherHasBeenRescheduled &&
+          selectedDateStr != otherEventAdjustedDateStr;
+
+      // 获取其他课程的显示时间
+      String otherDisplayTime;
+      if (otherEvent.lsnAdjustedDate.isNotEmpty &&
+          selectedDateStr == otherEventAdjustedDateStr) {
+        otherDisplayTime = otherEvent.lsnAdjustedDate.length >= 16
+            ? otherEvent.lsnAdjustedDate.substring(11, 16)
+            : '';
+      } else {
+        otherDisplayTime = otherEvent.schedualDate.length >= 16
+            ? otherEvent.schedualDate.substring(11, 16)
+            : '';
+      }
+
+      // 检测是否有同时间的其他卡片
+      if (otherDisplayTime == displayTime) {
+        // 对于调课From卡片：检测同时间是否有非调课From的课程（用于位置调整）
+        // 对于普通卡片：检测同时间是否有调课From的课程（用于点击切换）
+        if (isRescheduleFromCard && !otherIsRescheduleFrom) {
+          hasSameTimeOtherLesson = true;
+          break;
+        } else if (!isRescheduleFromCard && otherIsRescheduleFrom) {
+          hasSameTimeOtherLesson = true;
+          break;
+        }
+      }
+    }
+
+    // 计算最终的top位置
+    // 如果是调课From卡片且同一时间有其他课程 → 下方对齐（底边对齐结束时间）
+    // 否则 → 上方对齐（顶边对齐开始时间）
+    final bool needBottomAlign = isRescheduleFromCard && hasSameTimeOtherLesson;
+
     return Positioned(
       left: 54, // 时间轴右侧（与时间文字间距对称）
       right: 8,
       top: topPosition, // 紧贴开始时间分隔线下方
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SizedBox(
+        // 调课From卡片且同一时间有其他课程时，设置固定高度使底边对齐
+        height: needBottomAlign ? timelineHeight : null,
+        child: Row(
+          // 调课From卡片且同一时间有其他课程时，卡片下方对齐
+          crossAxisAlignment: needBottomAlign ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
           // 时间线（只有非灰色卡片显示）
           if (showTimeline)
             SizedBox(
@@ -712,6 +815,15 @@ class _CalendarPageState extends State<CalendarPage>
             child: GestureDetector(
               onLongPressStart: (_) => _handleLongPressStart(event, displayTime),
               onLongPressEnd: (_) => _handleLongPressEnd(),
+              // [BUG修复] 2026-02-08 点击卡片时将其置于前端显示
+              onTap: () {
+                // 同时间有其他卡片时，点击可切换前后顺序
+                if (hasSameTimeOtherLesson) {
+                  setState(() {
+                    _frontCardLessonId = event.lessonId;
+                  });
+                }
+              },
               child: Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(left: 4),
@@ -876,8 +988,9 @@ class _CalendarPageState extends State<CalendarPage>
             ),
           ),  // closes GestureDetector
         ),  // closes Expanded
-        ],
-      ),
+          ],
+        ),
+      ),  // closes SizedBox [BUG修复] 2026-02-08
     );
   }
 
@@ -1554,9 +1667,9 @@ class _CalendarPageState extends State<CalendarPage>
                           }),
                         ),
                         // 卡片层（绝对定位）
+                        // [BUG修复] 2026-02-08 调整渲染顺序：调课From卡片默认居后，被点击的卡片居前
                         if (!_isLoading)
-                          ...studentLsns
-                              .map((event) => _buildPositionedCard(event)),
+                          ..._getSortedLessonCards(),
                       ],
                     ),
                   ),
