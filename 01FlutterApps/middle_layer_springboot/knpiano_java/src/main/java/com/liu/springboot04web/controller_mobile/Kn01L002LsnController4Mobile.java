@@ -1,6 +1,8 @@
 package com.liu.springboot04web.controller_mobile;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,23 +87,141 @@ public class Kn01L002LsnController4Mobile {
 
     // 【学生排课新規、调课】画面にて、【保存】ボタンを押下
     @PostMapping("/mb_kn_lsn_001_save")
-    public ResponseEntity<String>  excuteInfoAdd(@RequestBody Kn01L002LsnBean knStuLsn001Bean) {
+    public ResponseEntity<Map<String, Object>> excuteInfoAdd(@RequestBody Map<String, Object> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 从请求体中提取课程信息
+        Kn01L002LsnBean knStuLsn001Bean = extractLessonBean(requestBody);
+        // 提取是否强制保存标志（前端使用forceOverlap）
+        Boolean forceOverlap = (Boolean) requestBody.get("forceOverlap");
+        if (forceOverlap == null) {
+            forceOverlap = false;
+        }
 
         // 如果是新规排课，要执行有效排课校验
         if (knStuLsn001Bean.getLessonId() == null) {
             String errMsg = validateHasError(knStuLsn001Bean);
 
             if (!"".equals(errMsg)) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errMsg);
+                response.put("success", false);
+                response.put("hasConflict", false);
+                response.put("message", errMsg);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         } else {
             // lessonId不为空，表示已经是合理的排课了，只是执行调课操作，所以不用再判断该课是否是合理的排课校验了。
         }
 
+        // [课程排他状态功能] 冲突检测
+        if (!forceOverlap) {
+            // 获取排课时间（调课情况下使用调课时间，否则使用原排课时间）
+            Date effectiveDate = knStuLsn001Bean.getLsnAdjustedDate() != null
+                    ? knStuLsn001Bean.getLsnAdjustedDate()
+                    : knStuLsn001Bean.getSchedualDate();
+
+            // 查询冲突课程
+            List<Kn01L002LsnBean> conflictLessons = kn01L002LsnDao.findConflictLessons(
+                    effectiveDate,
+                    knStuLsn001Bean.getClassDuration(),
+                    knStuLsn001Bean.getLessonId());
+
+            if (conflictLessons != null && !conflictLessons.isEmpty()) {
+                // 检查是否有同一学生的冲突（禁止保存）
+                boolean hasSameStudentConflict = false;
+                List<Map<String, Object>> conflictInfoList = new ArrayList<>();
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+
+                for (Kn01L002LsnBean conflict : conflictLessons) {
+                    // 判断是否是同一学生
+                    if (conflict.getStuId().equals(knStuLsn001Bean.getStuId())) {
+                        hasSameStudentConflict = true;
+                    }
+
+                    // 构建冲突信息（匹配前端ConflictInfo类的字段）
+                    Map<String, Object> conflictInfo = new HashMap<>();
+                    conflictInfo.put("stuId", conflict.getStuId());
+                    conflictInfo.put("stuName", conflict.getStuName());
+                    Date conflictTime = conflict.getLsnAdjustedDate() != null
+                            ? conflict.getLsnAdjustedDate()
+                            : conflict.getSchedualDate();
+                    conflictInfo.put("startTime", sdf.format(conflictTime));
+                    // 计算结束时间
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.setTime(conflictTime);
+                    cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
+                    conflictInfo.put("endTime", sdf.format(cal.getTime()));
+                    conflictInfoList.add(conflictInfo);
+                }
+
+                if (hasSameStudentConflict) {
+                    // 同一学生冲突，禁止保存
+                    response.put("success", false);
+                    response.put("hasConflict", true);
+                    response.put("isSameStudentConflict", true);
+                    response.put("message", "该学生在此时间段已有其他课程，无法重复排课！");
+                    response.put("conflicts", conflictInfoList);
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                } else {
+                    // 不同学生冲突，返回警告，允许强制保存
+                    response.put("success", false);
+                    response.put("hasConflict", true);
+                    response.put("isSameStudentConflict", false);
+                    response.put("message", "该时间段与其他学生的课程有冲突，是否强制排课？");
+                    response.put("conflicts", conflictInfoList);
+                    return ResponseEntity.ok(response);
+                }
+            }
+        }
+
         // 执行排课
         kn01L002LsnDao.save(knStuLsn001Bean);
-        return ResponseEntity.ok("success");
+        response.put("success", true);
+        response.put("hasConflict", false);
+        response.put("message", "排课成功");
+        return ResponseEntity.ok(response);
+    }
 
+    // 从请求体Map中提取LessonBean
+    private Kn01L002LsnBean extractLessonBean(Map<String, Object> requestBody) {
+        Kn01L002LsnBean bean = new Kn01L002LsnBean();
+
+        bean.setLessonId((String) requestBody.get("lessonId"));
+        bean.setStuId((String) requestBody.get("stuId"));
+        bean.setSubjectId((String) requestBody.get("subjectId"));
+        bean.setSubjectSubId((String) requestBody.get("subjectSubId"));
+        bean.setMemo((String) requestBody.get("memo"));
+
+        // 处理整数类型
+        if (requestBody.get("classDuration") != null) {
+            bean.setClassDuration(((Number) requestBody.get("classDuration")).intValue());
+        }
+        if (requestBody.get("lessonType") != null) {
+            bean.setLessonType(((Number) requestBody.get("lessonType")).intValue());
+        }
+        if (requestBody.get("schedualType") != null) {
+            bean.setSchedualType(((Number) requestBody.get("schedualType")).intValue());
+        }
+
+        // 处理日期类型
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        try {
+            if (requestBody.get("schedualDate") != null) {
+                bean.setSchedualDate(sdf.parse((String) requestBody.get("schedualDate")));
+            }
+            if (requestBody.get("lsnAdjustedDate") != null) {
+                bean.setLsnAdjustedDate(sdf.parse((String) requestBody.get("lsnAdjustedDate")));
+            }
+            if (requestBody.get("scanQrDate") != null) {
+                bean.setScanQrDate(sdf.parse((String) requestBody.get("scanQrDate")));
+            }
+            if (requestBody.get("extraToDurDate") != null) {
+                bean.setExtraToDurDate(sdf.parse((String) requestBody.get("extraToDurDate")));
+            }
+        } catch (Exception e) {
+            // 日期解析失败时忽略
+        }
+
+        return bean;
     }
 
     // 【课程表一覧】取消调课的请求处理

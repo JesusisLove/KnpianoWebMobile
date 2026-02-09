@@ -494,7 +494,8 @@ class _CalendarPageState extends State<CalendarPage>
                 setState(() {
                   _isSaving = true;
                 });
-                await _updateLessonTime(event.lessonId, newTime, isRescheduledLesson);
+                await _updateLessonTime(
+                    event.lessonId, newTime, isRescheduledLesson);
                 return true;
               } catch (e) {
                 setState(() {
@@ -680,8 +681,8 @@ class _CalendarPageState extends State<CalendarPage>
     }
 
     // 判断是否显示时间线（只有调课From的课程不显示时间线）
-    final bool showTimeline = !(isAdjustedUnSignedLsnFrom ||
-        isAdjustedSignedLsnFrom);
+    final bool showTimeline =
+        !(isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom);
 
     // === 位置计算（课题二核心）===
     // 获取课程显示时间（优先调课时间）
@@ -721,7 +722,8 @@ class _CalendarPageState extends State<CalendarPage>
     final timelineHeight = durationSlots * _slotHeight;
 
     // [BUG修复] 2026-02-08 调课From卡片位置调整
-    final bool isRescheduleFromCard = isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom;
+    final bool isRescheduleFromCard =
+        isAdjustedUnSignedLsnFrom || isAdjustedSignedLsnFrom;
 
     // 检测同一时间是否有其他卡片（用于点击切换和位置调整）
     bool hasSameTimeOtherLesson = false;
@@ -738,9 +740,10 @@ class _CalendarPageState extends State<CalendarPage>
       final otherHasBeenRescheduled = otherEvent.lsnAdjustedDate.isNotEmpty;
 
       // 判断其他课程是否是调课From
-      final otherIsRescheduleFrom = selectedDateStr == otherEventScheduleDateStr &&
-          otherHasBeenRescheduled &&
-          selectedDateStr != otherEventAdjustedDateStr;
+      final otherIsRescheduleFrom =
+          selectedDateStr == otherEventScheduleDateStr &&
+              otherHasBeenRescheduled &&
+              selectedDateStr != otherEventAdjustedDateStr;
 
       // 获取其他课程的显示时间
       String otherDisplayTime;
@@ -783,214 +786,221 @@ class _CalendarPageState extends State<CalendarPage>
         height: needBottomAlign ? timelineHeight : null,
         child: Row(
           // 调课From卡片且同一时间有其他课程时，卡片下方对齐
-          crossAxisAlignment: needBottomAlign ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: needBottomAlign
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
-          // 时间线（只有非灰色卡片显示）
-          if (showTimeline)
-            SizedBox(
-              width: 14,
-              height: timelineHeight,
-              child: Column(
-                children: [
-                  // 起点圆点 ● - 紧贴开始时间分隔线下方
-                  Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: timelineColor)),
-                  // 垂直线 │
-                  Expanded(
-                      child: Center(
-                          child: Container(width: 3, color: timelineColor))),
-                  // 末端三角形 ▼ - 紧贴结束时间分隔线上方
-                  CustomPaint(
-                      size: const Size(10, 8),
-                      painter: _TrianglePainter(color: timelineColor)),
-                ],
-              ),
-            ),
-          if (!showTimeline) const SizedBox(width: 14),
-          // === 课程卡片（保留原有完整内容 + 动画效果）===
-          Expanded(
-            child: GestureDetector(
-              onLongPressStart: (_) => _handleLongPressStart(event, displayTime),
-              onLongPressEnd: (_) => _handleLongPressEnd(),
-              // [BUG修复] 2026-02-08 点击卡片时将其置于前端显示
-              onTap: () {
-                // 同时间有其他卡片时，点击可切换前后顺序
-                if (hasSameTimeOtherLesson) {
-                  setState(() {
-                    _frontCardLessonId = event.lessonId;
-                  });
-                }
-              },
-              child: Card(
-                elevation: 2,
-                margin: const EdgeInsets.only(left: 4),
-                // [课题二] 2026-02-08 高亮时显示红色背景
-                color: _isHighlighted(event, displayTime) ? Colors.red[100] : backgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  // [课题二] 2026-02-08 动画边框效果
-                  side: _isHighlighted(event, displayTime)
-                      ? BorderSide(
-                          color: Colors.red.withOpacity(_fadeAnimation.value),
-                          width: 2.0,
-                        )
-                      : (_pressedLessonId == event.lessonId && _isSaving
-                          ? BorderSide(
-                              color: Colors.red.withOpacity(_fadeAnimation.value),
-                              width: 2.0,
-                            )
-                          : BorderSide.none),
-                ),
-                child: AnimatedBuilder(
-                  animation: _fadeAnimation,
-                  builder: (context, child) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: child!,
-                    );
-                  },
-                  child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            // 时间线（只有非灰色卡片显示）
+            if (showTimeline)
+              SizedBox(
+                width: 14,
+                height: timelineHeight,
+                child: Column(
                   children: [
-                    // 左侧内容区域
+                    // 起点圆点 ● - 紧贴开始时间分隔线下方
+                    Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: timelineColor)),
+                    // 垂直线 │
                     Expanded(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 学生姓名
-                          Text(
-                            event.stuName,
-                            style: KnElementTextStyle.cardTitle(
-                              context,
-                              fontSize: 18,
-                              color: textColor,
-                            ).copyWith(decoration: textDecoration),
-                          ),
-                          const SizedBox(height: 4),
-                          // 科目信息 + 调课信息
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '${event.subjectName} - ${event.subjectSubName}',
-                                  style: KnElementTextStyle.cardBody(
-                                    context,
-                                    fontSize: 12,
-                                    color: textColor,
-                                    decoration: textDecoration,
-                                  ),
-                                ),
-                              ),
-                              if (additionalInfo.isNotEmpty)
-                                Expanded(
-                                  flex: 4,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 0),
-                                    child: Text(
-                                      additionalInfo,
-                                      style: KnElementTextStyle.cardBody(
-                                        context,
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          // 课程时长 + 类型 + 备注
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
-                                  style: KnElementTextStyle.cardBody(
-                                    context,
-                                    fontSize: 12,
-                                    color: textColor,
-                                    decoration: textDecoration,
-                                  ),
-                                ),
-                              ),
-                              if (event.memo != null &&
-                                  event.memo!.isNotEmpty &&
-                                  (!isAdjustedUnSignedLsnTo &&
-                                      !isAdjustedSignedLsnTo))
-                                Expanded(
-                                  flex: 4,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 0),
-                                    child: Text(
-                                      '备注: ${event.memo}',
-                                      style: KnElementTextStyle.cardBody(
-                                        context,
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // 右侧三个点菜单按钮（原有逻辑完整保留）
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.black),
-                      onSelected: (String result) {
-                        switch (result) {
-                          case '签到':
-                            _handleSignCourse(event);
-                            break;
-                          case '撤销':
-                            _handleRestoreCourse(event);
-                            break;
-                          case '调课':
-                            _handleReschLsnCourse(event);
-                            break;
-                          case '取消':
-                            _handleCancelRescheCourse(event);
-                            break;
-                          case '删除':
-                            _handleDeleteCourse(event);
-                            break;
-                          case '备注':
-                            _handleNoteCourse(event);
-                            break;
-                        }
-                      },
-                      itemBuilder: (BuildContext ctx) =>
-                          _buildPositionedCardMenuItems(event),
-                      constraints: const BoxConstraints(
-                        minWidth: 50,
-                        maxWidth: 60,
-                      ),
-                      position: PopupMenuPosition.under,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: EdgeInsets.zero,
-                    ),
+                        child: Center(
+                            child: Container(width: 3, color: timelineColor))),
+                    // 末端三角形 ▼ - 紧贴结束时间分隔线上方
+                    CustomPaint(
+                        size: const Size(10, 8),
+                        painter: _TrianglePainter(color: timelineColor)),
                   ],
                 ),
               ),
-            ),
-          ),  // closes GestureDetector
-        ),  // closes Expanded
+            if (!showTimeline) const SizedBox(width: 14),
+            // === 课程卡片（保留原有完整内容 + 动画效果）===
+            Expanded(
+              child: GestureDetector(
+                onLongPressStart: (_) =>
+                    _handleLongPressStart(event, displayTime),
+                onLongPressEnd: (_) => _handleLongPressEnd(),
+                // [BUG修复] 2026-02-08 点击卡片时将其置于前端显示
+                onTap: () {
+                  // 同时间有其他卡片时，点击可切换前后顺序
+                  if (hasSameTimeOtherLesson) {
+                    setState(() {
+                      _frontCardLessonId = event.lessonId;
+                    });
+                  }
+                },
+                child: Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.only(left: 4),
+                  // [课题二] 2026-02-08 高亮时显示红色背景
+                  color: _isHighlighted(event, displayTime)
+                      ? Colors.red[100]
+                      : backgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    // [课题二] 2026-02-08 动画边框效果
+                    side: _isHighlighted(event, displayTime)
+                        ? BorderSide(
+                            color: Colors.red.withOpacity(_fadeAnimation.value),
+                            width: 2.0,
+                          )
+                        : (_pressedLessonId == event.lessonId && _isSaving
+                            ? BorderSide(
+                                color: Colors.red
+                                    .withOpacity(_fadeAnimation.value),
+                                width: 2.0,
+                              )
+                            : BorderSide.none),
+                  ),
+                  child: AnimatedBuilder(
+                    animation: _fadeAnimation,
+                    builder: (context, child) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: child!,
+                      );
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 左侧内容区域
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 学生姓名
+                              Text(
+                                event.stuName,
+                                style: KnElementTextStyle.cardTitle(
+                                  context,
+                                  fontSize: 18,
+                                  color: textColor,
+                                ).copyWith(decoration: textDecoration),
+                              ),
+                              const SizedBox(height: 4),
+                              // 科目信息 + 调课信息
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      '${event.subjectName} - ${event.subjectSubName}',
+                                      style: KnElementTextStyle.cardBody(
+                                        context,
+                                        fontSize: 12,
+                                        color: textColor,
+                                        decoration: textDecoration,
+                                      ),
+                                    ),
+                                  ),
+                                  if (additionalInfo.isNotEmpty)
+                                    Expanded(
+                                      flex: 4,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 0),
+                                        child: Text(
+                                          additionalInfo,
+                                          style: KnElementTextStyle.cardBody(
+                                            context,
+                                            fontSize: 14,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              // 课程时长 + 类型 + 备注
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      '${event.classDuration}分钟 | ${event.lessonType == 0 ? '课结算' : event.lessonType == 1 ? '月计划' : '月加课'}',
+                                      style: KnElementTextStyle.cardBody(
+                                        context,
+                                        fontSize: 12,
+                                        color: textColor,
+                                        decoration: textDecoration,
+                                      ),
+                                    ),
+                                  ),
+                                  if (event.memo != null &&
+                                      event.memo!.isNotEmpty &&
+                                      (!isAdjustedUnSignedLsnTo &&
+                                          !isAdjustedSignedLsnTo))
+                                    Expanded(
+                                      flex: 4,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 0),
+                                        child: Text(
+                                          '备注: ${event.memo}',
+                                          style: KnElementTextStyle.cardBody(
+                                            context,
+                                            fontSize: 16,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // 右侧三个点菜单按钮（原有逻辑完整保留）
+                        PopupMenuButton<String>(
+                          icon:
+                              const Icon(Icons.more_vert, color: Colors.black),
+                          onSelected: (String result) {
+                            switch (result) {
+                              case '签到':
+                                _handleSignCourse(event);
+                                break;
+                              case '撤销':
+                                _handleRestoreCourse(event);
+                                break;
+                              case '调课':
+                                _handleReschLsnCourse(event);
+                                break;
+                              case '取消':
+                                _handleCancelRescheCourse(event);
+                                break;
+                              case '删除':
+                                _handleDeleteCourse(event);
+                                break;
+                              case '备注':
+                                _handleNoteCourse(event);
+                                break;
+                            }
+                          },
+                          itemBuilder: (BuildContext ctx) =>
+                              _buildPositionedCardMenuItems(event),
+                          constraints: const BoxConstraints(
+                            minWidth: 50,
+                            maxWidth: 60,
+                          ),
+                          position: PopupMenuPosition.under,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ), // closes GestureDetector
+            ), // closes Expanded
           ],
         ),
-      ),  // closes SizedBox [BUG修复] 2026-02-08
+      ), // closes SizedBox [BUG修复] 2026-02-08
     );
   }
 
@@ -1078,7 +1088,8 @@ class _CalendarPageState extends State<CalendarPage>
           child: Text(
             '签到',
             style: menuStyle.copyWith(
-                color: _selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
+                color:
+                    _selectedDay.isAfter(DateTime.now()) ? Colors.grey : null),
           ),
         ),
         const PopupMenuDivider(height: 1),
@@ -1431,7 +1442,8 @@ class _CalendarPageState extends State<CalendarPage>
                     borderSide: BorderSide(color: Constants.lessonThemeColor),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Constants.lessonThemeColor, width: 2),
+                    borderSide:
+                        BorderSide(color: Constants.lessonThemeColor, width: 2),
                   ),
                   hintText: '请输入备注内容',
                   // 添加内边距使文本不会太靠边
@@ -1445,8 +1457,7 @@ class _CalendarPageState extends State<CalendarPage>
                   });
                 },
                 // 添加文本样式
-                style: KnElementTextStyle.dialogContent(context,
-                    fontSize: 14),
+                style: KnElementTextStyle.dialogContent(context, fontSize: 14),
               ),
               actions: <Widget>[
                 // [Flutter页面主题改造] 2026-01-21 增加按钮高度确保文字完整显示
@@ -1668,8 +1679,7 @@ class _CalendarPageState extends State<CalendarPage>
                         ),
                         // 卡片层（绝对定位）
                         // [BUG修复] 2026-02-08 调整渲染顺序：调课From卡片默认居后，被点击的卡片居前
-                        if (!_isLoading)
-                          ..._getSortedLessonCards(),
+                        if (!_isLoading) ..._getSortedLessonCards(),
                       ],
                     ),
                   ),

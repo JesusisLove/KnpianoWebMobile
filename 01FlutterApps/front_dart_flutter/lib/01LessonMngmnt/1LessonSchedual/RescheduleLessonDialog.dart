@@ -5,6 +5,8 @@ import '../../ApiConfig/KnApiConfig.dart';
 import '../../Constants.dart';
 import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-01-21
 import 'dart:convert';
+import 'ConflictInfo.dart'; // [课程排他状态功能] 2026-02-08
+import 'ConflictWarningDialog.dart'; // [课程排他状态功能] 2026-02-08
 
 class RescheduleLessonDialog extends StatefulWidget {
   final String lessonId;
@@ -163,8 +165,13 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
     _saveLesson(adjustedStuLsn);
   }
 
-  Future<void> _saveLesson(Map<String, dynamic> lessonData) async {
+  // [课程排他状态功能] 2026-02-08 集成冲突检测的两阶段提交
+  Future<void> _saveLesson(Map<String, dynamic> lessonData,
+      {bool forceOverlap = false}) async {
     try {
+      // 添加强制保存标记
+      lessonData['forceOverlap'] = forceOverlap;
+
       final String apiLsnSaveUrl =
           '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
       final response = await http.post(
@@ -174,8 +181,48 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
       );
 
       if (response.statusCode == 200) {
-        // Close the current screen and return to the previous one
-        Navigator.of(context).pop(true);
+        // [课程排他状态功能] 解析响应，检查是否有冲突
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final responseData = json.decode(decodedBody);
+
+        if (responseData is Map<String, dynamic>) {
+          final result = ConflictCheckResult.fromJson(responseData);
+
+          if (result.success) {
+            // 保存成功
+            // ignore: use_build_context_synchronously
+            Navigator.of(context).pop(true);
+          } else if (result.hasConflict) {
+            // 检测到冲突
+            if (result.isSameStudentConflict) {
+              // 同一学生自我冲突，严格禁止
+              // ignore: use_build_context_synchronously
+              await ConflictWarningDialog.showSameStudentConflict(
+                context,
+                result.conflicts,
+              );
+            } else {
+              // 不同学生冲突，显示警告让用户确认
+              // ignore: use_build_context_synchronously
+              final confirmed = await ConflictWarningDialog.show(
+                context,
+                result.conflicts,
+              );
+
+              if (confirmed) {
+                // 用户确认继续，强制保存
+                await _saveLesson(lessonData, forceOverlap: true);
+              }
+            }
+          } else {
+            // 其他错误
+            _showErrorDialog(result.message);
+          }
+        } else {
+          // 兼容旧版本响应（直接返回成功）
+          // ignore: use_build_context_synchronously
+          Navigator.of(context).pop(true);
+        }
       } else {
         throw Exception('Failed to save lesson');
       }
