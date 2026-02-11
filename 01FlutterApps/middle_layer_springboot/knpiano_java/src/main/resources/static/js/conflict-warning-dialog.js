@@ -6,11 +6,42 @@
 const ConflictWarningDialog = {
 
   /**
-   * 显示冲突警告对话框
+   * 显示冲突警告对话框（手动排课）
    * @param {Array} conflicts 冲突列表
    * @returns {Promise<boolean>} 用户是否确认
    */
   show(conflicts) {
+    return this.showWithOptions(conflicts, {
+      title: '时间冲突提醒',
+      message: '您的排课时间与以下课程重叠：',
+      hint: '集体课可以继续排课，一对一教学建议取消',
+      question: '是否继续排课？',
+      confirmText: '确认排课'
+    });
+  },
+
+  /**
+   * 显示调课冲突警告对话框（塞课场景）
+   * @param {Array} conflicts 冲突列表
+   * @returns {Promise<boolean>} 用户是否确认
+   */
+  showRescheduleConflict(conflicts) {
+    return this.showWithOptions(conflicts, {
+      title: '调课时间冲突',
+      message: '您的调课目标时间与以下课程重叠：',
+      hint: '集体课可以继续调课，一对一教学建议选择其他时间',
+      question: '是否继续调课？',
+      confirmText: '确认调课'
+    });
+  },
+
+  /**
+   * 显示冲突警告对话框（通用方法）
+   * @param {Array} conflicts 冲突列表
+   * @param {Object} options 配置选项
+   * @returns {Promise<boolean>} 用户是否确认
+   */
+  showWithOptions(conflicts, options) {
     return new Promise((resolve) => {
       // 创建对话框HTML
       const dialogHtml = `
@@ -18,10 +49,10 @@ const ConflictWarningDialog = {
           <div class="conflict-dialog">
             <div class="conflict-dialog-header">
               <span class="conflict-icon">&#9888;</span>
-              <span class="conflict-title">时间冲突提醒</span>
+              <span class="conflict-title">${options.title}</span>
             </div>
             <div class="conflict-dialog-body">
-              <p>您的排课时间与以下课程重叠：</p>
+              <p>${options.message}</p>
               <ul class="conflict-list">
                 ${conflicts.map((c, i) => `
                   <li>
@@ -32,13 +63,13 @@ const ConflictWarningDialog = {
               </ul>
               <div class="conflict-hint">
                 <span class="hint-icon">&#9432;</span>
-                <span>集体课可以继续排课，一对一教学建议取消</span>
+                <span>${options.hint}</span>
               </div>
-              <p class="conflict-question"><strong>是否继续排课？</strong></p>
+              <p class="conflict-question"><strong>${options.question}</strong></p>
             </div>
             <div class="conflict-dialog-footer">
               <button class="btn-cancel" id="conflictCancelBtn">取消</button>
-              <button class="btn-confirm" id="conflictConfirmBtn">确认排课</button>
+              <button class="btn-confirm" id="conflictConfirmBtn">${options.confirmText}</button>
             </div>
           </div>
         </div>
@@ -174,9 +205,17 @@ const LessonConflictService = {
         body: JSON.stringify(lessonData)
       });
 
-      if (response.ok) {
+      // [Bug Fix 2026-02-11] 无论HTTP状态码如何，只要响应是JSON就解析它
+      // 后端在冲突时返回HTTP 409，但响应体仍然是有效的JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
         const result = await response.json();
         return result;
+      }
+
+      // 非JSON响应，根据状态码处理
+      if (response.ok) {
+        return { success: true };
       } else {
         const errorText = await response.text();
         return { success: false, message: errorText };
@@ -225,6 +264,60 @@ const LessonConflictService = {
     } else {
       // 其他错误
       onError(result.message || '保存失败');
+    }
+  },
+
+  /**
+   * [课程排他状态功能] 2026-02-10 调课并处理冲突（塞课场景）
+   * [Bug Fix 2026-02-11] 添加apiUrl参数，支持自定义API地址
+   * @param {string} lessonId 课程ID
+   * @param {string} lsnAdjustedDate 调课目标时间（格式：yyyy-MM-dd HH:mm）
+   * @param {Function} onSuccess 成功回调
+   * @param {Function} onError 错误回调
+   * @param {string} apiUrl 可选的API地址（默认：/liu/mb_kn_lsn_updatetime）
+   */
+  async rescheduleLessonWithConflictCheck(lessonId, lsnAdjustedDate, onSuccess, onError, apiUrl) {
+    // 如果未提供apiUrl，使用默认值
+    const url = apiUrl || '/liu/mb_kn_lsn_updatetime';
+
+    const rescheduleData = {
+      lessonId: lessonId,
+      lsnAdjustedDate: lsnAdjustedDate,
+      forceOverlap: false
+    };
+
+    // 第一次调用：检测冲突
+    const result = await this.saveLesson(url, rescheduleData, false);
+
+    if (result.success) {
+      // 调课成功
+      onSuccess(result);
+      return;
+    }
+
+    if (result.hasConflict) {
+      // 检测到冲突
+      if (result.isSameStudentConflict) {
+        // 同一学生自我冲突，严格禁止
+        await ConflictWarningDialog.showSameStudentConflict(result.conflicts);
+      } else {
+        // 不同学生冲突，显示警告让用户确认
+        const confirmed = await ConflictWarningDialog.showRescheduleConflict(result.conflicts);
+
+        if (confirmed) {
+          // 用户确认继续，强制调课
+          rescheduleData.forceOverlap = true;
+          const forceResult = await this.saveLesson(url, rescheduleData, true);
+          if (forceResult.success) {
+            onSuccess(forceResult);
+          } else {
+            onError(forceResult.message || '调课失败');
+          }
+        }
+      }
+    } else {
+      // 其他错误
+      onError(result.message || '调课失败');
     }
   }
 };

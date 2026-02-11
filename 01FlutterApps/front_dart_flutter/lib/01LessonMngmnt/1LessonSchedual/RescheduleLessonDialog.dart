@@ -165,31 +165,33 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
     _saveLesson(adjustedStuLsn);
   }
 
-  // [课程排他状态功能] 2026-02-08 集成冲突检测的两阶段提交
+  // [课程排他状态功能] 2026-02-10 调课冲突检测（塞课场景）
   Future<void> _saveLesson(Map<String, dynamic> lessonData,
       {bool forceOverlap = false}) async {
     try {
       // 添加强制保存标记
       lessonData['forceOverlap'] = forceOverlap;
 
-      final String apiLsnSaveUrl =
-          '${KnConfig.apiBaseUrl}${Constants.apiLsnSave}';
+      // 使用调课专用API
+      final String apiUpdateTimeUrl =
+          '${KnConfig.apiBaseUrl}${Constants.apiUpdateLessonTime}';
       final response = await http.post(
-        Uri.parse(apiLsnSaveUrl),
+        Uri.parse(apiUpdateTimeUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(lessonData),
       );
 
-      if (response.statusCode == 200) {
-        // [课程排他状态功能] 解析响应，检查是否有冲突
-        final decodedBody = utf8.decode(response.bodyBytes);
+      // [课程排他状态功能] 解析响应（200成功/警告, 409冲突禁止）
+      final decodedBody = utf8.decode(response.bodyBytes);
+
+      if (response.statusCode == 200 || response.statusCode == 409) {
         final responseData = json.decode(decodedBody);
 
         if (responseData is Map<String, dynamic>) {
           final result = ConflictCheckResult.fromJson(responseData);
 
           if (result.success) {
-            // 保存成功
+            // 调课成功
             // ignore: use_build_context_synchronously
             Navigator.of(context).pop(true);
           } else if (result.hasConflict) {
@@ -210,7 +212,7 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
               );
 
               if (confirmed) {
-                // 用户确认继续，强制保存
+                // 用户确认继续，强制调课
                 await _saveLesson(lessonData, forceOverlap: true);
               }
             }
@@ -219,15 +221,15 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
             _showErrorDialog(result.message);
           }
         } else {
-          // 兼容旧版本响应（直接返回成功）
+          // 兼容旧版本响应（直接返回成功字符串）
           // ignore: use_build_context_synchronously
           Navigator.of(context).pop(true);
         }
       } else {
-        throw Exception('Failed to save lesson');
+        throw Exception('调课失败: ${response.statusCode}');
       }
     } catch (e) {
-      _showErrorDialog('保存失败: ${e.toString()}');
+      _showErrorDialog('调课失败: ${e.toString()}');
     }
   }
 

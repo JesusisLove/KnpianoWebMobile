@@ -366,12 +366,11 @@ class _CalendarPageState extends State<CalendarPage>
     // 选中的课程表日期
     final String selectedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     // 设置当天的调换时间
+    // 方案B: 始终将新时间设置给lsnAdjustedDate，保留原始schedualDate记录
+    // 这样即使是同一天的时间调整，也会生成调课From/To卡片
     final Map<String, dynamic> courseData = {
       'lessonId': lessonId,
-      // 如果是调课From的课程，则将schedualDate，设置schedualDate为空
-      'schedualDate': isRescheduledLesson ? '' : '$selectedDate $newTime',
-      // 如果是调课From的课程，把调课时间设置给lsnAdjustedDate
-      'lsnAdjustedDate': isRescheduledLesson ? '$selectedDate $newTime' : '',
+      'lsnAdjustedDate': '$selectedDate $newTime',
     };
 
     try {

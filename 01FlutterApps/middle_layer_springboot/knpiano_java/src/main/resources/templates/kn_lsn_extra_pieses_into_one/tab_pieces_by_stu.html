@@ -227,9 +227,12 @@
 
         <!-- 列控制相关的 JavaScript -->
         <script th:inline="javascript">
+            // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+            var piecesIntoOneApiUrl = /*[[@{/kn_piceses_into_onelsn_sche}]]*/ '/kn_piceses_into_onelsn_sche';
+
             // 存储列显示状态
             var columnStates = JSON.parse(localStorage.getItem('columnStates') || '{}');
-            
+
             // ===== 新增：从后端获取标准课时数据 =====
             var extra2ScheStuList = /*[[${extra2ScheStuList}]]*/ [];
 
@@ -472,7 +475,7 @@
                 // 创建隐藏表单
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/liu/kn_piceses_into_onelsn_sche';
+                form.action = piecesIntoOneApiUrl; // [Bug Fix 2026-02-11] 使用Thymeleaf变量获取正确的上下文路径
                 form.style.display = 'none';
                 
                 // 添加表单字段 - 直接传递当前行数据

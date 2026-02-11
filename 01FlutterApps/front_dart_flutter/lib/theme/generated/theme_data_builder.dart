@@ -55,7 +55,7 @@ class ThemeDataBuilder {
       ),
 
       // 卡片
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: colors.cardBackground,
         elevation: 2,
         shadowColor: Colors.black12,
@@ -116,7 +116,8 @@ class ThemeDataBuilder {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(shapes.inputRadius),
-          borderSide: BorderSide(color: colors.modules.lesson.primary, width: 2),
+          borderSide:
+              BorderSide(color: colors.modules.lesson.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(shapes.inputRadius),
@@ -146,7 +147,7 @@ class ThemeDataBuilder {
       ),
 
       // 对话框
-      dialogTheme: DialogThemeData(
+      dialogTheme: DialogTheme(
         backgroundColor: colors.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(shapes.dialogRadius),
@@ -206,7 +207,7 @@ class ThemeDataBuilder {
       ),
 
       // TabBar
-      tabBarTheme: TabBarThemeData(
+      tabBarTheme: TabBarTheme(
         labelColor: colors.modules.lesson.primary,
         unselectedLabelColor: colors.hintText,
         labelStyle: TextStyle(

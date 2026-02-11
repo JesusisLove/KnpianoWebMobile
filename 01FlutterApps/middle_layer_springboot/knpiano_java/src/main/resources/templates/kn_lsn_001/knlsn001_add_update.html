@@ -764,12 +764,20 @@
     <!-- [课程排他状态功能] 2026-02-08 冲突检测对话框 -->
     <script th:src="@{/js/conflict-warning-dialog.js}"></script>
     <script th:inline="javascript">
-        // [课程排他状态功能] 2026-02-08 表单提交拦截，集成冲突检测
+        // [课程排他状态功能] 2026-02-08/02-10 表单提交拦截，集成冲突检测
         $(document).ready(function() {
-            // 只在新规登录模式下启用冲突检测（编辑模式使用原有逻辑）
+            // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+            var listPageUrl = /*[[@{/kn_lsn_001}]]*/ '/kn_lsn_001';
+            var saveApiUrl = /*[[@{/mb_kn_lsn_001_save}]]*/ '/mb_kn_lsn_001_save';
+            var rescheduleApiUrl = /*[[@{/mb_kn_lsn_updatetime}]]*/ '/mb_kn_lsn_updatetime';
+
+            // 判断是新规登录模式还是编辑模式
             var isNewMode = /*[[${selectedinfo == null || #strings.isEmpty(selectedinfo.lessonId)}]]*/ true;
+            var lessonId = /*[[${selectedinfo != null ? selectedinfo.lessonId : ''}]]*/ '';
+            var originalAdjustedDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm') : ''}]]*/ '';
 
             if (isNewMode) {
+                // ========== 新规登录模式：手动排课冲突检测 ==========
                 $('#lessonForm').on('submit', function(e) {
                     e.preventDefault();
 
@@ -803,18 +811,45 @@
 
                     // 调用冲突检测服务
                     LessonConflictService.saveLessonWithConflictCheck(
-                        '/liu/mb_kn_lsn_001_save',
+                        saveApiUrl,
                         formData,
                         function(result) {
                             // 成功回调 - 跳转到列表页
                             alert('保存成功');
-                            window.location.href = '/kn_lsn_001';
+                            window.location.href = listPageUrl;
                         },
                         function(errorMsg) {
                             // 错误回调
                             alert('保存失败：' + errorMsg);
                         }
                     );
+                });
+            } else {
+                // ========== [课程排他状态功能] 2026-02-10 编辑模式：调课冲突检测（塞课场景） ==========
+                $('#lessonForm').on('submit', function(e) {
+                    var newAdjustedDate = $('#adjustedDateInput').val();
+
+                    // 检查调课日期是否发生变化
+                    if (newAdjustedDate && newAdjustedDate !== originalAdjustedDate) {
+                        e.preventDefault();
+
+                        // 调课日期有变更，使用冲突检测API
+                        LessonConflictService.rescheduleLessonWithConflictCheck(
+                            lessonId,
+                            newAdjustedDate,
+                            function(result) {
+                                // 调课成功 - 跳转到列表页
+                                alert('调课成功');
+                                window.location.href = listPageUrl;
+                            },
+                            function(errorMsg) {
+                                // 错误回调
+                                alert('调课失败：' + errorMsg);
+                            },
+                            rescheduleApiUrl
+                        );
+                    }
+                    // 如果调课日期未变更，使用原有的表单提交逻辑
                 });
             }
         });

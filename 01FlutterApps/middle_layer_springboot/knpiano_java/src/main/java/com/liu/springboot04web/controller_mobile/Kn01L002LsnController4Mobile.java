@@ -191,15 +191,15 @@ public class Kn01L002LsnController4Mobile {
         bean.setSubjectSubId((String) requestBody.get("subjectSubId"));
         bean.setMemo((String) requestBody.get("memo"));
 
-        // 处理整数类型
+        // [Bug Fix 2026-02-11] 处理整数类型（兼容String和Number输入）
         if (requestBody.get("classDuration") != null) {
-            bean.setClassDuration(((Number) requestBody.get("classDuration")).intValue());
+            bean.setClassDuration(parseInteger(requestBody.get("classDuration")));
         }
         if (requestBody.get("lessonType") != null) {
-            bean.setLessonType(((Number) requestBody.get("lessonType")).intValue());
+            bean.setLessonType(parseInteger(requestBody.get("lessonType")));
         }
         if (requestBody.get("schedualType") != null) {
-            bean.setSchedualType(((Number) requestBody.get("schedualType")).intValue());
+            bean.setSchedualType(parseInteger(requestBody.get("schedualType")));
         }
 
         // 处理日期类型
@@ -224,11 +224,66 @@ public class Kn01L002LsnController4Mobile {
         return bean;
     }
 
-    // 【课程表一覧】取消调课的请求处理
+    // [课程排他状态功能] 取消调课API - 含冲突检测（恢复原时间时检测是否有冲突）
     @PostMapping("/mb_kn_lsn_resche_cancel/{lessonId}")
-    public ResponseEntity<String> executeInfoRescheCancel(@PathVariable("lessonId") String lessonId) {
-        kn01L002LsnDao.reScheduleLsnCancel(lessonId);
-        return ResponseEntity.ok("success");
+    public ResponseEntity<Map<String, Object>> executeInfoRescheCancel(@PathVariable("lessonId") String lessonId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 1. 获取课程信息
+            Kn01L002LsnBean lesson = kn01L002LsnDao.getInfoById(lessonId);
+            if (lesson == null) {
+                response.put("success", false);
+                response.put("message", "课程不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            // 2. 检测原时间是否有冲突（排除自身）
+            Date originalDate = lesson.getSchedualDate();
+            List<Kn01L002LsnBean> conflictLessons = kn01L002LsnDao.findConflictLessons(
+                    originalDate,
+                    lesson.getClassDuration(),
+                    lessonId);
+
+            if (conflictLessons != null && !conflictLessons.isEmpty()) {
+                // 原时间已被其他课程占用
+                List<Map<String, Object>> conflictInfoList = new ArrayList<>();
+                SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm");
+
+                for (Kn01L002LsnBean conflict : conflictLessons) {
+                    Map<String, Object> conflictInfo = new HashMap<>();
+                    conflictInfo.put("stuId", conflict.getStuId());
+                    conflictInfo.put("stuName", conflict.getStuName());
+                    Date conflictTime = conflict.getLsnAdjustedDate() != null
+                            ? conflict.getLsnAdjustedDate()
+                            : conflict.getSchedualDate();
+                    conflictInfo.put("startTime", timeFmt.format(conflictTime));
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.setTime(conflictTime);
+                    cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
+                    conflictInfo.put("endTime", timeFmt.format(cal.getTime()));
+                    conflictInfoList.add(conflictInfo);
+                }
+
+                response.put("success", false);
+                response.put("hasConflict", true);
+                response.put("message", "原时间段已安排其他学生的课程，无法恢复");
+                response.put("conflicts", conflictInfoList);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            // 3. 执行取消调课
+            kn01L002LsnDao.reScheduleLsnCancel(lessonId);
+            response.put("success", true);
+            response.put("hasConflict", false);
+            response.put("message", "取消调课成功");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "系统错误：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     // 【课程表一覧】削除ボタンを押下
@@ -294,20 +349,103 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(duration);
     }
 
+    // [课程排他状态功能] 调课API - 含冲突检测（塞课场景）
     @PostMapping("/mb_kn_lsn_updatetime")
-    public ResponseEntity<String> updateLessonTime(@RequestBody Kn01L002LsnBean requestBody) {
+    public ResponseEntity<Map<String, Object>> updateLessonTime(@RequestBody Map<String, Object> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+
         try {
-            int isUpdated = kn01L002LsnDao.updateLessonTime(requestBody);
+            // 1. 提取参数
+            String lessonId = (String) requestBody.get("lessonId");
+            String lsnAdjustedDateStr = (String) requestBody.get("lsnAdjustedDate");
+            Boolean forceOverlap = (Boolean) requestBody.get("forceOverlap");
+            if (forceOverlap == null) {
+                forceOverlap = false;
+            }
+
+            // 2. 获取原课程信息
+            Kn01L002LsnBean lesson = kn01L002LsnDao.getInfoById(lessonId);
+            if (lesson == null) {
+                response.put("success", false);
+                response.put("message", "课程不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            // 3. 解析调课目标时间
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            Date newDate = sdf.parse(lsnAdjustedDateStr);
+
+            // 4. 冲突检测（如果不是强制保存）
+            if (!forceOverlap) {
+                // 查询冲突课程（排除自身）
+                List<Kn01L002LsnBean> conflictLessons = kn01L002LsnDao.findConflictLessons(
+                        newDate,
+                        lesson.getClassDuration(),
+                        lessonId);
+
+                if (conflictLessons != null && !conflictLessons.isEmpty()) {
+                    // 检查是否有同一学生的冲突
+                    boolean hasSameStudentConflict = false;
+                    List<Map<String, Object>> conflictInfoList = new ArrayList<>();
+                    SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm");
+
+                    for (Kn01L002LsnBean conflict : conflictLessons) {
+                        if (conflict.getStuId().equals(lesson.getStuId())) {
+                            hasSameStudentConflict = true;
+                        }
+
+                        Map<String, Object> conflictInfo = new HashMap<>();
+                        conflictInfo.put("stuId", conflict.getStuId());
+                        conflictInfo.put("stuName", conflict.getStuName());
+                        Date conflictTime = conflict.getLsnAdjustedDate() != null
+                                ? conflict.getLsnAdjustedDate()
+                                : conflict.getSchedualDate();
+                        conflictInfo.put("startTime", timeFmt.format(conflictTime));
+                        java.util.Calendar cal = java.util.Calendar.getInstance();
+                        cal.setTime(conflictTime);
+                        cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
+                        conflictInfo.put("endTime", timeFmt.format(cal.getTime()));
+                        conflictInfoList.add(conflictInfo);
+                    }
+
+                    if (hasSameStudentConflict) {
+                        response.put("success", false);
+                        response.put("hasConflict", true);
+                        response.put("isSameStudentConflict", true);
+                        response.put("message", "该学生在目标时间段已有其他课程，无法调课！");
+                        response.put("conflicts", conflictInfoList);
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                    } else {
+                        response.put("success", false);
+                        response.put("hasConflict", true);
+                        response.put("isSameStudentConflict", false);
+                        response.put("message", "目标时间段与其他学生的课程有冲突，是否强制调课？");
+                        response.put("conflicts", conflictInfoList);
+                        return ResponseEntity.ok(response);
+                    }
+                }
+            }
+
+            // 5. 执行调课
+            Kn01L002LsnBean updateBean = new Kn01L002LsnBean();
+            updateBean.setLessonId(lessonId);
+            updateBean.setLsnAdjustedDate(newDate);
+            int isUpdated = kn01L002LsnDao.updateLessonTime(updateBean);
+
             if (isUpdated > 0) {
-                return ResponseEntity.ok("Lesson time updated successfully");
+                response.put("success", true);
+                response.put("hasConflict", false);
+                response.put("message", "调课成功");
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Failed to update lesson time");
+                response.put("success", false);
+                response.put("message", "调课失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         } catch (Exception e) {
-            // 捕获异常并返回错误响应
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "系统错误：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -349,5 +487,27 @@ public class Kn01L002LsnController4Mobile {
         return errMsg;
     }
 
+    /**
+     * [Bug Fix 2026-02-11] 解析整数值（兼容String和Number输入）
+     * 前端通过jQuery val()获取的值是String，但后端需要Integer
+     * @param value 可能是String或Number
+     * @return 解析后的整数值，如果解析失败返回null
+     */
+    private Integer parseInteger(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
 
 }

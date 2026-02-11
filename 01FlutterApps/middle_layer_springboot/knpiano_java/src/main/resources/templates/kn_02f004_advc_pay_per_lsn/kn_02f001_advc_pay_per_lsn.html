@@ -574,6 +574,9 @@
         var currentUnitPrice = 0;
         // 缓存AJAX加载的科目数据
         var subjectsCache = [];
+        // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+        var subjectsApiUrl = /*[[@{/kn_advc_pay_per_lsn/subjects}]]*/ '/kn_advc_pay_per_lsn/subjects';
+        var executeApiUrl = /*[[@{/kn_advc_pay_per_lsn_execute}]]*/ '/kn_advc_pay_per_lsn_execute';
 
         document.addEventListener('DOMContentLoaded', function () {
             if (successMessage && successMessage !== 'null') {
@@ -625,7 +628,7 @@
 
             if (stuId) {
                 // AJAX获取该生的科目列表
-                fetch('/liu/kn_advc_pay_per_lsn/subjects?stuId=' + encodeURIComponent(stuId))
+                fetch(subjectsApiUrl + '?stuId=' + encodeURIComponent(stuId))
                     .then(function(response) { return response.json(); })
                     .then(function(data) {
                         subjectsCache = data;
@@ -781,7 +784,7 @@
                 dataToSend.push(record);
             }
 
-            fetch('/liu/kn_advc_pay_per_lsn_execute', {
+            fetch(executeApiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

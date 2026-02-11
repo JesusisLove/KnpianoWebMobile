@@ -430,6 +430,11 @@
 
         // '' 是当后台变量为null或不存在时使用的默认值（空字符串）
         var currentMonth = /*[[${currentmonth}]]*/ '';
+
+        // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+        var oneWeekInfoBaseUrl = /*[[@{/kn_stu_one_week_info/}]]*/ '/kn_stu_one_week_info/';
+        var lsnSignListUrl = /*[[@{/kn_stu_lsn_sign}]]*/ '/kn_stu_lsn_sign';
+        var batchSigninApiUrl = /*[[@{/kn_batch_lesson_signin}]]*/ '/kn_batch_lesson_signin';
         
         $(document).ready(function() {
             // 确保是数字类型
@@ -523,7 +528,7 @@
         function goToPrevWeek() {
             if (currentWeekNumber > 1) {
                 var targetWeek = currentWeekNumber - 1;
-                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                var url = oneWeekInfoBaseUrl + targetWeek;
                 console.log('前一周跳转URL:', url);
                 window.location.href = url;
             }
@@ -533,7 +538,7 @@
         function goToNextWeek() {
             if (currentWeekNumber <= 52) {
                 var targetWeek = currentWeekNumber + 1;
-                var url = '/liu/kn_stu_one_week_info/' + targetWeek;
+                var url = oneWeekInfoBaseUrl + targetWeek;
                 console.log('下一周跳转URL:', url);
                 window.location.href = url;
             }
@@ -543,7 +548,7 @@
         function goBack() {
                 // window.history.back();
                 // 返回到批量执行上课签到页面
-                window.location.href = '/liu/kn_stu_lsn_sign';
+                window.location.href = lsnSignListUrl;
         }
 
         // 批量签到功能
@@ -621,7 +626,7 @@
             // 创建隐藏表单
             var form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/liu/kn_batch_lesson_signin';  // 你需要在后端创建这个接口
+            form.action = batchSigninApiUrl;  // [Bug Fix 2026-02-11] 使用Thymeleaf变量获取正确的上下文路径
             form.style.display = 'none';
             
             // 添加数据字段 - 将JSON数据转为字符串

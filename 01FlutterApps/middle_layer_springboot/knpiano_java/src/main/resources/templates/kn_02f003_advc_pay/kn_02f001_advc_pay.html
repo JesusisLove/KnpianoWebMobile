@@ -482,6 +482,8 @@
         // 使用Thymeleaf内联方式获取消息
         var successMessage = /*[[${successMessage}]]*/ null;
         var errorMessage = /*[[${errorMessage}]]*/ null;
+        // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+        var executeApiUrl = /*[[@{/kn_advc_pay_lsn_execute}]]*/ '/kn_advc_pay_lsn_execute';
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log("DOMContentLoaded event fired");
@@ -570,7 +572,7 @@
                 bankId: bankId
             }));
 
-            fetch('/liu/kn_advc_pay_lsn_execute', {
+            fetch(executeApiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

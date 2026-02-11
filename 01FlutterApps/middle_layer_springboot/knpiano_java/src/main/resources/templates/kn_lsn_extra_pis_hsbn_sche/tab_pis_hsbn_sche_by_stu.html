@@ -235,6 +235,9 @@
 
         <!-- JavaScript代码 -->
         <script th:inline="javascript">
+            // [Bug Fix 2026-02-11] 使用Thymeleaf获取正确的上下文路径URL
+            var revokeApiUrl = /*[[@{/kn_revoke_assembled_lesson}]]*/ '/kn_revoke_assembled_lesson';
+
             // 存储列显示状态
             var columnStates = JSON.parse(localStorage.getItem('columnStates') || '{}');
 
@@ -309,7 +312,7 @@
                 // 创建表单提交撤销请求
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/liu/kn_revoke_assembled_lesson'; // 撤销请求的URL
+                form.action = revokeApiUrl; // [Bug Fix 2026-02-11] 使用Thymeleaf变量获取正确的上下文路径
                 form.style.display = 'none';
 
                 // 添加年度参数
