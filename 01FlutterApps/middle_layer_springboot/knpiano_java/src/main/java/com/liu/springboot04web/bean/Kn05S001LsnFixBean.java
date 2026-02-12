@@ -13,6 +13,7 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
 
     private String stuName;
     private String subjectName;
+    private Integer classDuration;  // [新潮界面] 2026-02-12 课程时长（分钟），从学生档案视图获取
 
  // Getter 和 Setter 方法
     public String getStuId() {
@@ -77,5 +78,14 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
 
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName;
+    }
+
+    // [新潮界面] 2026-02-12 课程时长getter/setter
+    public Integer getClassDuration() {
+        return classDuration;
+    }
+
+    public void setClassDuration(Integer classDuration) {
+        this.classDuration = classDuration;
     }
 }

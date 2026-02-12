@@ -44,7 +44,8 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.3.3
   # [Flutter页面主题改造] 2026-01-18 添加Google字体支持（童话风格使用手写体）
-  google_fonts: ^6.2.1
+  # [环境修复] 2026-02-12 升级以兼容Flutter 3.41.0 / Dart 3.11.0
+  google_fonts: ^8.0.1
 
 dev_dependencies:
   flutter_test:

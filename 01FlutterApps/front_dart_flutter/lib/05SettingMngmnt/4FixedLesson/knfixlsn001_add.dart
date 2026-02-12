@@ -15,6 +15,8 @@ class ScheduleForm extends StatefulWidget {
   final Color knFontColor;
   late String pagePath;
   final String? preSelectedDay; // 新增：接收预选中的星期
+  final String? preSelectedHour; // [新潮界面] 2026-02-12 接收预选中的小时
+  final String? preSelectedMinute; // [新潮界面] 2026-02-12 接收预选中的分钟
 
   ScheduleForm({
     super.key,
@@ -22,6 +24,8 @@ class ScheduleForm extends StatefulWidget {
     required this.knFontColor,
     required this.pagePath,
     this.preSelectedDay, // 新增：可选参数
+    this.preSelectedHour, // [新潮界面] 可选参数
+    this.preSelectedMinute, // [新潮界面] 可选参数
   });
 
   @override
@@ -62,6 +66,14 @@ class ScheduleFormState extends State<ScheduleForm> {
     // 设置预选中的星期
     if (widget.preSelectedDay != null && days.contains(widget.preSelectedDay)) {
       selectedDay = widget.preSelectedDay;
+    }
+    // [新潮界面] 2026-02-12 设置预选中的小时
+    if (widget.preSelectedHour != null && hours.contains(widget.preSelectedHour)) {
+      selectedHour = widget.preSelectedHour;
+    }
+    // [新潮界面] 2026-02-12 设置预选中的分钟
+    if (widget.preSelectedMinute != null && minutes.contains(widget.preSelectedMinute)) {
+      selectedMinute = widget.preSelectedMinute;
     }
     fetchLessons(); // 在初始化时调用fetchLessons，并将结果存储在futureFixLsnList中
   }

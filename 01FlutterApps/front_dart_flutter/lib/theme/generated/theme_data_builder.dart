@@ -55,7 +55,7 @@ class ThemeDataBuilder {
       ),
 
       // 卡片
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: colors.cardBackground,
         elevation: 2,
         shadowColor: Colors.black12,
@@ -147,7 +147,7 @@ class ThemeDataBuilder {
       ),
 
       // 对话框
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: colors.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(shapes.dialogRadius),
@@ -207,7 +207,7 @@ class ThemeDataBuilder {
       ),
 
       // TabBar
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: colors.modules.lesson.primary,
         unselectedLabelColor: colors.hintText,
         labelStyle: TextStyle(

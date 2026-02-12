@@ -147,6 +147,21 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     return true;
   }
 
+  /// [2026-02-12] 计算结束时间（开始时间 + 课程时长）
+  String _calculateEndTime(String startTime, int durationMinutes) {
+    final parts = startTime.split(':');
+    if (parts.length != 2) return startTime;
+
+    final startHour = int.tryParse(parts[0]) ?? 0;
+    final startMinute = int.tryParse(parts[1]) ?? 0;
+
+    final totalMinutes = startHour * 60 + startMinute + durationMinutes;
+    final endHour = (totalMinutes ~/ 60) % 24;
+    final endMinute = totalMinutes % 60;
+
+    return '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
+  }
+
   void _showErrorDialog(String message) {
     // 判断错误类型，设置合适的标题
     String title;
@@ -283,11 +298,19 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
             Navigator.of(context).pop(true);
           } else if (result.hasConflict) {
             // 检测到冲突
+            // [2026-02-12] 构建新排课时间信息，用于时间轴可视化
+            final newSchedule = NewScheduleInfo(
+              startTime: widget.scheduleTime,
+              endTime: _calculateEndTime(widget.scheduleTime, selectedDuration ?? 45),
+              stuName: selectedStudent,
+            );
+
             if (result.isSameStudentConflict) {
               // 同一学生自我冲突，严格禁止
               await ConflictWarningDialog.showSameStudentConflict(
                 context,
                 result.conflicts,
+                newSchedule: newSchedule,
               );
               // 用户确认后，关闭排课对话框，返回课程表页面
               Navigator.of(context).pop(false);
@@ -296,6 +319,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
               final confirmed = await ConflictWarningDialog.show(
                 context,
                 result.conflicts,
+                newSchedule: newSchedule,
               );
 
               if (confirmed) {

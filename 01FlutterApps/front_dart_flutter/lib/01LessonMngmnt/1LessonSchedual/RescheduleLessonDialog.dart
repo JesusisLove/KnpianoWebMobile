@@ -196,12 +196,22 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
             Navigator.of(context).pop(true);
           } else if (result.hasConflict) {
             // 检测到冲突
+            // [2026-02-12] 构建新排课时间信息，用于时间轴可视化
+            final formattedTime =
+                '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+            // 使用默认时长45分钟计算结束时间（调课时原课程时长未变）
+            final newSchedule = NewScheduleInfo(
+              startTime: formattedTime,
+              endTime: _calculateEndTime(formattedTime, 45),
+            );
+
             if (result.isSameStudentConflict) {
               // 同一学生自我冲突，严格禁止
               // ignore: use_build_context_synchronously
               await ConflictWarningDialog.showSameStudentConflict(
                 context,
                 result.conflicts,
+                newSchedule: newSchedule,
               );
             } else {
               // 不同学生冲突，显示警告让用户确认
@@ -209,6 +219,7 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
               final confirmed = await ConflictWarningDialog.show(
                 context,
                 result.conflicts,
+                newSchedule: newSchedule,
               );
 
               if (confirmed) {
@@ -231,6 +242,21 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
     } catch (e) {
       _showErrorDialog('调课失败: ${e.toString()}');
     }
+  }
+
+  /// [2026-02-12] 计算结束时间（开始时间 + 课程时长）
+  String _calculateEndTime(String startTime, int durationMinutes) {
+    final parts = startTime.split(':');
+    if (parts.length != 2) return startTime;
+
+    final startHour = int.tryParse(parts[0]) ?? 0;
+    final startMinute = int.tryParse(parts[1]) ?? 0;
+
+    final totalMinutes = startHour * 60 + startMinute + durationMinutes;
+    final endHour = (totalMinutes ~/ 60) % 24;
+    final endMinute = totalMinutes % 60;
+
+    return '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
   }
 
   void _showErrorDialog(String message) {

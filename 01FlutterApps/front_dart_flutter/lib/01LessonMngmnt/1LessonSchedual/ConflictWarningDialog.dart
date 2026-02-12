@@ -6,12 +6,14 @@ import 'ConflictInfo.dart';
 
 class ConflictWarningDialog extends StatelessWidget {
   final List<ConflictInfo> conflicts;
+  final NewScheduleInfo? newSchedule; // [2026-02-12] 新排课时间，用于绘制时间轴
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
 
   const ConflictWarningDialog({
     super.key,
     required this.conflicts,
+    this.newSchedule,
     required this.onConfirm,
     required this.onCancel,
   });
@@ -33,7 +35,14 @@ class ConflictWarningDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('您的排课时间与以下课程重叠：'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            // [2026-02-12] 时间轴可视化示意图
+            if (newSchedule != null)
+              _TimelineConflictWidget(
+                conflicts: conflicts,
+                newSchedule: newSchedule!,
+              ),
+            const SizedBox(height: 12),
             ...conflicts.asMap().entries.map((entry) {
               final index = entry.key + 1;
               final conflict = entry.value;
@@ -130,15 +139,18 @@ class ConflictWarningDialog extends StatelessWidget {
 
   /// 显示冲突警告对话框
   /// 返回 true 表示用户确认继续，false 表示取消
+  /// [newSchedule] 新排课时间信息，用于绘制时间轴示意图
   static Future<bool> show(
     BuildContext context,
-    List<ConflictInfo> conflicts,
-  ) async {
+    List<ConflictInfo> conflicts, {
+    NewScheduleInfo? newSchedule,
+  }) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => ConflictWarningDialog(
         conflicts: conflicts,
+        newSchedule: newSchedule,
         onConfirm: () => Navigator.of(context).pop(true),
         onCancel: () => Navigator.of(context).pop(false),
       ),
@@ -147,10 +159,12 @@ class ConflictWarningDialog extends StatelessWidget {
   }
 
   /// 显示同一学生冲突禁止对话框（不可继续）
+  /// [newSchedule] 新排课时间信息，用于绘制时间轴示意图
   static Future<void> showSameStudentConflict(
     BuildContext context,
-    List<ConflictInfo> conflicts,
-  ) async {
+    List<ConflictInfo> conflicts, {
+    NewScheduleInfo? newSchedule,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -163,46 +177,55 @@ class ConflictWarningDialog extends StatelessWidget {
             const Text('排课禁止'),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('同一学生在该时间段已有课程安排：'),
-            const SizedBox(height: 16),
-            ...conflicts.map((conflict) => Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Text(
-                    '${conflict.stuName}：${conflict.startTime} - ${conflict.endTime}',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                )),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.red, size: 20),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '同一学生不能同时上两节课，请选择其他时间',
-                      style: TextStyle(fontSize: 13),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('同一学生在该时间段已有课程安排：'),
+              const SizedBox(height: 12),
+              // [2026-02-12] 时间轴可视化示意图
+              if (newSchedule != null)
+                _TimelineConflictWidget(
+                  conflicts: conflicts,
+                  newSchedule: newSchedule,
+                ),
+              const SizedBox(height: 12),
+              ...conflicts.map((conflict) => Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
                     ),
-                  ),
-                ],
+                    child: Text(
+                      '${conflict.stuName}：${conflict.startTime} - ${conflict.endTime}',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  )),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '同一学生不能同时上两节课，请选择其他时间',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           ElevatedButton(
@@ -271,4 +294,312 @@ class ConflictWarningDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+/// [课程排他状态功能] 2026-02-12 时间轴可视化组件
+/// 显示新排课与已有课程的时间重叠情况
+class _TimelineConflictWidget extends StatelessWidget {
+  final List<ConflictInfo> conflicts;
+  final NewScheduleInfo newSchedule;
+
+  const _TimelineConflictWidget({
+    required this.conflicts,
+    required this.newSchedule,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // 解析所有时间，计算时间轴范围
+    final allTimes = <int>[];
+    allTimes.add(_parseTimeToMinutes(newSchedule.startTime));
+    allTimes.add(_parseTimeToMinutes(newSchedule.endTime));
+    for (final conflict in conflicts) {
+      allTimes.add(_parseTimeToMinutes(conflict.startTime));
+      allTimes.add(_parseTimeToMinutes(conflict.endTime));
+    }
+
+    final minTime = allTimes.reduce((a, b) => a < b ? a : b);
+    final maxTime = allTimes.reduce((a, b) => a > b ? a : b);
+    final totalRange = maxTime - minTime;
+
+    if (totalRange <= 0) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 时间刻度
+          _buildTimeAxis(minTime, maxTime),
+          const SizedBox(height: 8),
+          // 已有课程（橙色）
+          ...conflicts.map((conflict) => Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: _buildTimeBlock(
+              label: '${conflict.stuName}',
+              startMinutes: _parseTimeToMinutes(conflict.startTime),
+              endMinutes: _parseTimeToMinutes(conflict.endTime),
+              minTime: minTime,
+              totalRange: totalRange,
+              color: Colors.orange.shade400,
+              timeText: '${conflict.startTime}-${conflict.endTime}',
+            ),
+          )),
+          // 新排课（蓝色斜线）
+          _buildTimeBlock(
+            label: newSchedule.stuName ?? '新排课',
+            startMinutes: _parseTimeToMinutes(newSchedule.startTime),
+            endMinutes: _parseTimeToMinutes(newSchedule.endTime),
+            minTime: minTime,
+            totalRange: totalRange,
+            color: Colors.blue.shade400,
+            isNew: true,
+            timeText: '${newSchedule.startTime}-${newSchedule.endTime}',
+          ),
+          const SizedBox(height: 8),
+          // 重叠区域标识
+          _buildOverlapIndicator(minTime, totalRange),
+        ],
+      ),
+    );
+  }
+
+  /// 解析时间字符串为分钟数（从0:00开始）
+  int _parseTimeToMinutes(String time) {
+    final parts = time.split(':');
+    if (parts.length != 2) return 0;
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    return hours * 60 + minutes;
+  }
+
+  /// 格式化分钟数为时间字符串
+  String _formatMinutesToTime(int minutes) {
+    final h = (minutes ~/ 60).toString().padLeft(2, '0');
+    final m = (minutes % 60).toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  /// 构建时间刻度轴
+  Widget _buildTimeAxis(int minTime, int maxTime) {
+    final totalRange = maxTime - minTime;
+    // 生成时间刻度（每15或30分钟一个刻度）
+    final interval = totalRange <= 60 ? 15 : 30;
+    final ticks = <int>[];
+    var tick = (minTime ~/ interval) * interval;
+    while (tick <= maxTime) {
+      if (tick >= minTime) ticks.add(tick);
+      tick += interval;
+    }
+    if (ticks.isEmpty || ticks.last < maxTime) ticks.add(maxTime);
+    if (ticks.first > minTime) ticks.insert(0, minTime);
+
+    return SizedBox(
+      height: 20,
+      child: Stack(
+        children: [
+          // 底部横线
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(height: 1, color: Colors.grey.shade400),
+          ),
+          // 时间刻度
+          ...ticks.map((t) {
+            final pos = (t - minTime) / totalRange;
+            return Positioned(
+              left: pos * 100 - 20, // 居中偏移
+              right: null,
+              child: SizedBox(
+                width: 40,
+                child: Text(
+                  _formatMinutesToTime(t),
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  /// 构建时间块
+  Widget _buildTimeBlock({
+    required String label,
+    required int startMinutes,
+    required int endMinutes,
+    required int minTime,
+    required int totalRange,
+    required Color color,
+    bool isNew = false,
+    String? timeText,
+  }) {
+    final leftPercent = (startMinutes - minTime) / totalRange;
+    final widthPercent = (endMinutes - startMinutes) / totalRange;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        final left = leftPercent * totalWidth;
+        final width = widthPercent * totalWidth;
+
+        return SizedBox(
+          height: 28,
+          child: Stack(
+            children: [
+              Positioned(
+                left: left,
+                width: width.clamp(20, totalWidth - left),
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isNew ? null : color,
+                    gradient: isNew
+                        ? LinearGradient(
+                            colors: [color.withOpacity(0.7), color],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    borderRadius: BorderRadius.circular(4),
+                    border: isNew
+                        ? Border.all(color: color, width: 2)
+                        : null,
+                  ),
+                  // 斜线效果（新排课）
+                  child: isNew
+                      ? CustomPaint(
+                          painter: _DiagonalStripePainter(color: color),
+                          child: Center(
+                            child: Text(
+                              '$label $timeText',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(color: Colors.black54, blurRadius: 2),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            '$label $timeText',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// 构建重叠区域指示器
+  Widget _buildOverlapIndicator(int minTime, int totalRange) {
+    // 计算新排课与所有冲突课程的重叠区域
+    final newStart = _parseTimeToMinutes(newSchedule.startTime);
+    final newEnd = _parseTimeToMinutes(newSchedule.endTime);
+
+    final overlaps = <Map<String, int>>[];
+    for (final conflict in conflicts) {
+      final conflictStart = _parseTimeToMinutes(conflict.startTime);
+      final conflictEnd = _parseTimeToMinutes(conflict.endTime);
+
+      // 计算重叠区域
+      final overlapStart = newStart > conflictStart ? newStart : conflictStart;
+      final overlapEnd = newEnd < conflictEnd ? newEnd : conflictEnd;
+
+      if (overlapStart < overlapEnd) {
+        overlaps.add({'start': overlapStart, 'end': overlapEnd});
+      }
+    }
+
+    if (overlaps.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        return SizedBox(
+          height: 20,
+          child: Stack(
+            children: overlaps.map((overlap) {
+              final left = ((overlap['start']! - minTime) / totalRange) * totalWidth;
+              final width = ((overlap['end']! - overlap['start']!) / totalRange) * totalWidth;
+              final overlapMinutes = overlap['end']! - overlap['start']!;
+
+              return Positioned(
+                left: left,
+                width: width.clamp(30, totalWidth - left),
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '重叠${overlapMinutes}分钟',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 斜线填充绘制器（用于新排课色块）
+class _DiagonalStripePainter extends CustomPainter {
+  final Color color;
+
+  _DiagonalStripePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withOpacity(0.3)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    const spacing = 6.0;
+    for (double i = -size.height; i < size.width + size.height; i += spacing) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

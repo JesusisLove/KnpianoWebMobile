@@ -8,41 +8,164 @@ const ConflictWarningDialog = {
   /**
    * 显示冲突警告对话框（手动排课）
    * @param {Array} conflicts 冲突列表
+   * @param {Object} newScheduleInfo 新排课时间信息 {startTime, endTime, stuName}
    * @returns {Promise<boolean>} 用户是否确认
    */
-  show(conflicts) {
+  show(conflicts, newScheduleInfo) {
     return this.showWithOptions(conflicts, {
       title: '时间冲突提醒',
       message: '您的排课时间与以下课程重叠：',
       hint: '集体课可以继续排课，一对一教学建议取消',
       question: '是否继续排课？',
       confirmText: '确认排课'
-    });
+    }, newScheduleInfo);
   },
 
   /**
    * 显示调课冲突警告对话框（塞课场景）
    * @param {Array} conflicts 冲突列表
+   * @param {Object} newScheduleInfo 新排课时间信息 {startTime, endTime, stuName}
    * @returns {Promise<boolean>} 用户是否确认
    */
-  showRescheduleConflict(conflicts) {
+  showRescheduleConflict(conflicts, newScheduleInfo) {
     return this.showWithOptions(conflicts, {
       title: '调课时间冲突',
       message: '您的调课目标时间与以下课程重叠：',
       hint: '集体课可以继续调课，一对一教学建议选择其他时间',
       question: '是否继续调课？',
       confirmText: '确认调课'
+    }, newScheduleInfo);
+  },
+
+  /**
+   * [课程排他状态功能] 2026-02-12 生成时间轴HTML
+   * @param {Array} conflicts 冲突课程列表
+   * @param {Object} newScheduleInfo 新排课时间信息
+   * @returns {string} 时间轴HTML
+   */
+  generateTimelineHtml(conflicts, newScheduleInfo) {
+    if (!newScheduleInfo || !conflicts || conflicts.length === 0) {
+      return '';
+    }
+
+    // 解析时间为分钟数
+    const parseTime = (timeStr) => {
+      const parts = timeStr.split(':');
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    };
+
+    // 格式化时间
+    const formatTime = (minutes) => {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    };
+
+    // 收集所有时间点
+    const newStart = parseTime(newScheduleInfo.startTime);
+    const newEnd = parseTime(newScheduleInfo.endTime);
+    let minTime = newStart;
+    let maxTime = newEnd;
+
+    conflicts.forEach(c => {
+      const cStart = parseTime(c.startTime);
+      const cEnd = parseTime(c.endTime);
+      minTime = Math.min(minTime, cStart);
+      maxTime = Math.max(maxTime, cEnd);
     });
+
+    // 扩展时间范围，添加边距
+    minTime = Math.floor(minTime / 30) * 30 - 30;
+    maxTime = Math.ceil(maxTime / 30) * 30 + 30;
+    if (minTime < 0) minTime = 0;
+    if (maxTime > 24 * 60) maxTime = 24 * 60;
+
+    const totalMinutes = maxTime - minTime;
+
+    // 生成时间刻度
+    const ticks = [];
+    for (let t = minTime; t <= maxTime; t += 30) {
+      const leftPercent = ((t - minTime) / totalMinutes) * 100;
+      ticks.push(`<span class="timeline-tick" style="position:absolute;left:${leftPercent}%">${formatTime(t)}</span>`);
+    }
+
+    // 计算位置百分比
+    const calcLeft = (time) => ((parseTime(time) - minTime) / totalMinutes) * 100;
+    const calcWidth = (start, end) => ((parseTime(end) - parseTime(start)) / totalMinutes) * 100;
+
+    // 生成已有课程行
+    const existingRows = conflicts.map(c => {
+      const left = calcLeft(c.startTime);
+      const width = calcWidth(c.startTime, c.endTime);
+      return `
+        <div class="timeline-row">
+          <div class="timeline-block existing" style="left:${left}%;width:${width}%">
+            ${c.stuName} ${c.startTime}-${c.endTime}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 生成新排课行
+    const newLeft = calcLeft(newScheduleInfo.startTime);
+    const newWidth = calcWidth(newScheduleInfo.startTime, newScheduleInfo.endTime);
+    const newLabel = newScheduleInfo.stuName
+      ? `${newScheduleInfo.stuName} ${newScheduleInfo.startTime}-${newScheduleInfo.endTime}`
+      : `新排课 ${newScheduleInfo.startTime}-${newScheduleInfo.endTime}`;
+    const newRow = `
+      <div class="timeline-row">
+        <div class="timeline-block new" style="left:${newLeft}%;width:${newWidth}%">
+          ${newLabel}
+        </div>
+      </div>
+    `;
+
+    // 计算重叠区域
+    let overlapHtml = '';
+    conflicts.forEach(c => {
+      const cStart = parseTime(c.startTime);
+      const cEnd = parseTime(c.endTime);
+      const overlapStart = Math.max(cStart, newStart);
+      const overlapEnd = Math.min(cEnd, newEnd);
+      if (overlapStart < overlapEnd) {
+        const overlapLeft = ((overlapStart - minTime) / totalMinutes) * 100;
+        const overlapWidth = ((overlapEnd - overlapStart) / totalMinutes) * 100;
+        overlapHtml += `<div class="overlap-indicator" style="left:${overlapLeft}%;width:${overlapWidth}%"></div>`;
+      }
+    });
+
+    return `
+      <div class="conflict-timeline">
+        <div class="timeline-title">时间轴示意图</div>
+        <div class="timeline-header" style="position:relative;height:24px;">
+          ${ticks.join('')}
+        </div>
+        <div class="timeline-track">
+          ${existingRows}
+          ${newRow}
+          ${overlapHtml}
+        </div>
+        <div class="timeline-legend">
+          <div class="legend-item"><span class="legend-color existing"></span>已有课程</div>
+          <div class="legend-item"><span class="legend-color new"></span>新排课</div>
+          <div class="legend-item"><span class="legend-color overlap"></span>重叠区域</div>
+        </div>
+      </div>
+    `;
   },
 
   /**
    * 显示冲突警告对话框（通用方法）
    * @param {Array} conflicts 冲突列表
    * @param {Object} options 配置选项
+   * @param {Object} newScheduleInfo 新排课时间信息
    * @returns {Promise<boolean>} 用户是否确认
    */
-  showWithOptions(conflicts, options) {
+  showWithOptions(conflicts, options, newScheduleInfo) {
     return new Promise((resolve) => {
+      // [课程排他状态功能] 2026-02-12 生成时间轴
+      const timelineHtml = this.generateTimelineHtml(conflicts, newScheduleInfo);
+
       // 创建对话框HTML
       const dialogHtml = `
         <div class="conflict-dialog-overlay" id="conflictDialogOverlay">
@@ -53,6 +176,7 @@ const ConflictWarningDialog = {
             </div>
             <div class="conflict-dialog-body">
               <p>${options.message}</p>
+              ${timelineHtml}
               <ul class="conflict-list">
                 ${conflicts.map((c, i) => `
                   <li>
@@ -94,10 +218,14 @@ const ConflictWarningDialog = {
   /**
    * 显示同一学生冲突禁止对话框（不可继续）
    * @param {Array} conflicts 冲突列表
+   * @param {Object} newScheduleInfo 新排课时间信息
    * @returns {Promise<void>}
    */
-  showSameStudentConflict(conflicts) {
+  showSameStudentConflict(conflicts, newScheduleInfo) {
     return new Promise((resolve) => {
+      // [课程排他状态功能] 2026-02-12 生成时间轴
+      const timelineHtml = this.generateTimelineHtml(conflicts, newScheduleInfo);
+
       const dialogHtml = `
         <div class="conflict-dialog-overlay" id="conflictDialogOverlay">
           <div class="conflict-dialog conflict-dialog-error">
@@ -107,6 +235,7 @@ const ConflictWarningDialog = {
             </div>
             <div class="conflict-dialog-body">
               <p>同一学生在该时间段已有课程安排：</p>
+              ${timelineHtml}
               <ul class="conflict-list conflict-list-error">
                 ${conflicts.map((c) => `
                   <li>
@@ -229,10 +358,11 @@ const LessonConflictService = {
    * 保存课程并处理冲突
    * @param {string} url API地址
    * @param {Object} lessonData 课程数据
+   * @param {Object} newScheduleInfo 新排课时间信息 {startTime, endTime, stuName}
    * @param {Function} onSuccess 成功回调
    * @param {Function} onError 错误回调
    */
-  async saveLessonWithConflictCheck(url, lessonData, onSuccess, onError) {
+  async saveLessonWithConflictCheck(url, lessonData, newScheduleInfo, onSuccess, onError) {
     // 第一次调用：检测冲突
     const result = await this.saveLesson(url, lessonData, false);
 
@@ -246,10 +376,10 @@ const LessonConflictService = {
       // 检测到冲突
       if (result.isSameStudentConflict) {
         // 同一学生自我冲突，严格禁止
-        await ConflictWarningDialog.showSameStudentConflict(result.conflicts);
+        await ConflictWarningDialog.showSameStudentConflict(result.conflicts, newScheduleInfo);
       } else {
         // 不同学生冲突，显示警告让用户确认
-        const confirmed = await ConflictWarningDialog.show(result.conflicts);
+        const confirmed = await ConflictWarningDialog.show(result.conflicts, newScheduleInfo);
 
         if (confirmed) {
           // 用户确认继续，强制保存
@@ -270,13 +400,15 @@ const LessonConflictService = {
   /**
    * [课程排他状态功能] 2026-02-10 调课并处理冲突（塞课场景）
    * [Bug Fix 2026-02-11] 添加apiUrl参数，支持自定义API地址
+   * [课程排他状态功能] 2026-02-12 添加newScheduleInfo参数，支持时间轴可视化
    * @param {string} lessonId 课程ID
    * @param {string} lsnAdjustedDate 调课目标时间（格式：yyyy-MM-dd HH:mm）
+   * @param {Object} newScheduleInfo 新排课时间信息 {startTime, endTime, stuName}
    * @param {Function} onSuccess 成功回调
    * @param {Function} onError 错误回调
    * @param {string} apiUrl 可选的API地址（默认：/liu/mb_kn_lsn_updatetime）
    */
-  async rescheduleLessonWithConflictCheck(lessonId, lsnAdjustedDate, onSuccess, onError, apiUrl) {
+  async rescheduleLessonWithConflictCheck(lessonId, lsnAdjustedDate, newScheduleInfo, onSuccess, onError, apiUrl) {
     // 如果未提供apiUrl，使用默认值
     const url = apiUrl || '/liu/mb_kn_lsn_updatetime';
 
@@ -299,10 +431,10 @@ const LessonConflictService = {
       // 检测到冲突
       if (result.isSameStudentConflict) {
         // 同一学生自我冲突，严格禁止
-        await ConflictWarningDialog.showSameStudentConflict(result.conflicts);
+        await ConflictWarningDialog.showSameStudentConflict(result.conflicts, newScheduleInfo);
       } else {
         // 不同学生冲突，显示警告让用户确认
-        const confirmed = await ConflictWarningDialog.showRescheduleConflict(result.conflicts);
+        const confirmed = await ConflictWarningDialog.showRescheduleConflict(result.conflicts, newScheduleInfo);
 
         if (confirmed) {
           // 用户确认继续，强制调课

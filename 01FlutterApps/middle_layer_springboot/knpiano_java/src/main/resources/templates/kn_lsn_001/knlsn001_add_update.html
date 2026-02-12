@@ -775,6 +775,31 @@
             var isNewMode = /*[[${selectedinfo == null || #strings.isEmpty(selectedinfo.lessonId)}]]*/ true;
             var lessonId = /*[[${selectedinfo != null ? selectedinfo.lessonId : ''}]]*/ '';
             var originalAdjustedDate = /*[[${selectedinfo != null ? #dates.format(selectedinfo.lsnAdjustedDate, 'yyyy-MM-dd HH:mm') : ''}]]*/ '';
+            var originalDuration = /*[[${selectedinfo != null ? selectedinfo.classDuration : 45}]]*/ 45;
+
+            // [课程排他状态功能] 2026-02-12 计算结束时间（开始时间 + 课程时长）
+            function calculateEndTime(startTime, durationMinutes) {
+                // startTime格式: "HH:mm"
+                var parts = startTime.split(':');
+                if (parts.length !== 2) return startTime;
+
+                var startHour = parseInt(parts[0]) || 0;
+                var startMinute = parseInt(parts[1]) || 0;
+
+                var totalMinutes = startHour * 60 + startMinute + durationMinutes;
+                var endHour = Math.floor(totalMinutes / 60) % 24;
+                var endMinute = totalMinutes % 60;
+
+                return endHour.toString().padStart(2, '0') + ':' + endMinute.toString().padStart(2, '0');
+            }
+
+            // [课程排他状态功能] 2026-02-12 从日期时间字符串提取时间部分
+            function extractTime(dateTimeStr) {
+                // dateTimeStr格式: "yyyy-MM-dd HH:mm"
+                if (!dateTimeStr) return '00:00';
+                var parts = dateTimeStr.split(' ');
+                return parts.length > 1 ? parts[1] : '00:00';
+            }
 
             if (isNewMode) {
                 // ========== 新规登录模式：手动排课冲突检测 ==========
@@ -809,10 +834,21 @@
                         return;
                     }
 
+                    // [课程排他状态功能] 2026-02-12 构建新排课时间信息，用于时间轴可视化
+                    var startTime = extractTime(formData.schedualDate);
+                    var duration = parseInt(formData.classDuration) || 45;
+                    var stuName = $('#studentSelect option:selected').text();
+                    var newScheduleInfo = {
+                        startTime: startTime,
+                        endTime: calculateEndTime(startTime, duration),
+                        stuName: stuName
+                    };
+
                     // 调用冲突检测服务
                     LessonConflictService.saveLessonWithConflictCheck(
                         saveApiUrl,
                         formData,
+                        newScheduleInfo,
                         function(result) {
                             // 成功回调 - 跳转到列表页
                             alert('保存成功');
@@ -833,10 +869,20 @@
                     if (newAdjustedDate && newAdjustedDate !== originalAdjustedDate) {
                         e.preventDefault();
 
+                        // [课程排他状态功能] 2026-02-12 构建调课时间信息，用于时间轴可视化
+                        var startTime = extractTime(newAdjustedDate);
+                        var duration = parseInt($('#lsnduration').val()) || originalDuration || 45;
+                        var newScheduleInfo = {
+                            startTime: startTime,
+                            endTime: calculateEndTime(startTime, duration),
+                            stuName: null  // 调课时学生信息已在冲突中显示
+                        };
+
                         // 调课日期有变更，使用冲突检测API
                         LessonConflictService.rescheduleLessonWithConflictCheck(
                             lessonId,
                             newAdjustedDate,
+                            newScheduleInfo,
                             function(result) {
                                 // 调课成功 - 跳转到列表页
                                 alert('调课成功');

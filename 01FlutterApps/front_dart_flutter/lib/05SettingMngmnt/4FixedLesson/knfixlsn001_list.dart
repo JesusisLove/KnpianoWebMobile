@@ -10,6 +10,9 @@ import '../../theme/theme_extensions.dart'; // [Flutter页面主题改造] 2026-
 import 'knfixlsn001_add.dart';
 import 'knfixlsn001_edit.dart';
 import 'KnFixLsn001Bean.dart';
+// [固定排课新潮界面] 2026-02-12 导入新组件
+import 'schedule_grid_view.dart';
+import 'view_mode_toggle.dart';
 
 // ignore: must_be_immutable
 class ClassSchedulePage extends StatefulWidget {
@@ -43,6 +46,10 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
   List<KnFixLsn001Bean> _cachedLessons = [];
   List<String> _cachedAvailableDays = [];
 
+  // [固定排课新潮界面] 2026-02-12 视图模式
+  ViewMode _viewMode = ViewMode.grid;
+  bool _isViewModeLoading = true;
+
   final List<String> weekDays = [
     'Mon',
     'Tue',
@@ -60,7 +67,22 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
     int currentDayIndex = _getCurrentDayIndex();
     _tabController =
         TabController(length: 7, vsync: this, initialIndex: currentDayIndex);
+
+    // [固定排课新潮界面] 2026-02-12 加载用户视图偏好
+    _loadViewModePreference();
+
     _fetchLessonData();
+  }
+
+  // [固定排课新潮界面] 2026-02-12 加载视图模式偏好
+  Future<void> _loadViewModePreference() async {
+    final mode = await ViewModePreference.getViewMode();
+    if (mounted) {
+      setState(() {
+        _viewMode = mode;
+        _isViewModeLoading = false;
+      });
+    }
   }
 
   // 新增方法：获取当前日期对应的星期几索引
@@ -197,8 +219,20 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
         subtitleFontSize: 12.0,
         addInvisibleRightButton: true,
         leftBalanceCount:
-            2, // [Flutter页面主题改造] 2026-01-19 添加左侧平衡使标题居中（2个actions按钮）
+            3, // [固定排课新潮界面] 2026-02-12 调整为3（新增了视图切换按钮）
         actions: [
+          // [固定排课新潮界面] 2026-02-12 视图切换按钮
+          if (!_isLoading && !_isViewModeLoading)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ViewModeToggle(
+                currentMode: _viewMode,
+                onModeChanged: (mode) {
+                  setState(() => _viewMode = mode);
+                },
+                activeColor: widget.knBgColor,
+              ),
+            ),
           IconButton(
             icon: Icon(
               Icons.filter_list,
@@ -244,8 +278,8 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
       ),
       body: Column(
         children: [
-          // 使用缓存的数据来构建TabBar
-          if (_cachedAvailableDays.isNotEmpty)
+          // [固定排课新潮界面] 2026-02-12 仅在传统模式下显示 TabBar
+          if (_viewMode == ViewMode.list && _cachedAvailableDays.isNotEmpty)
             TabBar(
               controller: _tabController,
               unselectedLabelColor: Colors.black,
@@ -255,17 +289,14 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
           Expanded(
             child: Stack(
               children: [
-                // 使用缓存的数据来构建TabBarView
-                if (_cachedAvailableDays.isNotEmpty && !_isLoading)
-                  TabBarView(
-                    controller: _tabController,
-                    children: _cachedAvailableDays
-                        .map((day) => buildLessonList(_cachedLessons, day))
-                        .toList(),
-                  ),
+                // [固定排课新潮界面] 2026-02-12 根据视图模式显示不同界面
+                if (!_isLoading && !_isViewModeLoading)
+                  _viewMode == ViewMode.grid
+                      ? _buildGridView()
+                      : _buildListView(),
 
                 // 加载指示器层
-                if (_isLoading)
+                if (_isLoading || _isViewModeLoading)
                   Center(
                     child: KnLoadingIndicator(
                         color: widget.knBgColor), // 使用自定义的加载器进度条
@@ -275,6 +306,87 @@ class ClassSchedulePageState extends State<ClassSchedulePage>
           ),
         ],
       ),
+    );
+  }
+
+  // [固定排课新潮界面] 2026-02-12 构建网格视图（新潮界面）
+  Widget _buildGridView() {
+    return ScheduleGridView(
+      lessons: _cachedLessons,
+      themeColor: widget.knBgColor,
+      // [新潮界面] 2026-02-12 传入导航到新增页面所需参数
+      knBgColor: Constants.settngThemeColor,
+      knFontColor: Colors.white,
+      pagePath: subtitle,
+      onEdit: (lesson) {
+        Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ScheduleFormEdit(
+              lesson: lesson,
+              knBgColor: Constants.settngThemeColor,
+              knFontColor: Colors.white,
+              pagePath: subtitle,
+            ),
+          ),
+        ).then((value) {
+          if (value == true) {
+            _fetchLessonData();
+          }
+        });
+      },
+      onDelete: (lesson) {
+        _showDeleteConfirmDialog(lesson);
+      },
+      onDataChanged: () {
+        _fetchLessonData();
+      },
+    );
+  }
+
+  // [固定排课新潮界面] 2026-02-12 构建列表视图（传统界面）
+  Widget _buildListView() {
+    if (_cachedAvailableDays.isEmpty) {
+      return const Center(child: Text('暂无数据'));
+    }
+    return TabBarView(
+      controller: _tabController,
+      children: _cachedAvailableDays
+          .map((day) => buildLessonList(_cachedLessons, day))
+          .toList(),
+    );
+  }
+
+  // [固定排课新潮界面] 2026-02-12 显示删除确认对话框
+  void _showDeleteConfirmDialog(KnFixLsn001Bean lesson) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('删除确认',
+              style: KnElementTextStyle.dialogTitle(context,
+                  color: Constants.settngThemeColor)),
+          content: Text('确定要删除${lesson.studentName}的固定排课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style:
+                      KnElementTextStyle.buttonText(context, color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Constants.settngThemeColor)),
+              onPressed: () {
+                deleteLesson(lesson);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

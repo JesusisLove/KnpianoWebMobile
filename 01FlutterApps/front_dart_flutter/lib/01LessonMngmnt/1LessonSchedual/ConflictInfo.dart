@@ -63,3 +63,17 @@ class ConflictCheckResult {
     );
   }
 }
+
+/// [课程排他状态功能] 2026-02-12 新排课/调课时间信息
+/// 用于在冲突对话框中绘制时间轴示意图
+class NewScheduleInfo {
+  final String startTime;   // 开始时间，格式 "HH:mm"
+  final String endTime;     // 结束时间，格式 "HH:mm"
+  final String? stuName;    // 学生姓名（可选）
+
+  NewScheduleInfo({
+    required this.startTime,
+    required this.endTime,
+    this.stuName,
+  });
+}
