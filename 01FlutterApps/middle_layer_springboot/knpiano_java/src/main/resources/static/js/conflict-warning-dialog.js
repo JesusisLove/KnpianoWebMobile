@@ -82,11 +82,12 @@ const ConflictWarningDialog = {
 
     const totalMinutes = maxTime - minTime;
 
-    // 生成时间刻度
+    // 生成时间刻度（每30分钟一个刻度）
     const ticks = [];
     for (let t = minTime; t <= maxTime; t += 30) {
       const leftPercent = ((t - minTime) / totalMinutes) * 100;
-      ticks.push(`<span class="timeline-tick" style="position:absolute;left:${leftPercent}%">${formatTime(t)}</span>`);
+      // position由CSS定义，这里只设置left；CSS中的transform:translateX(-50%)会居中对齐
+      ticks.push(`<span class="timeline-tick" style="left:${leftPercent}%">${formatTime(t)}</span>`);
     }
 
     // 计算位置百分比

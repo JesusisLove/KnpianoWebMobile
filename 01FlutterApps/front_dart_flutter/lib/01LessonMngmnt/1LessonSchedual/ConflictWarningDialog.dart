@@ -385,53 +385,37 @@ class _TimelineConflictWidget extends StatelessWidget {
     return '$h:$m';
   }
 
-  /// 构建时间刻度轴
+  /// 构建时间刻度轴（使用Row避免Stack+Positioned在AlertDialog中的问题）
   Widget _buildTimeAxis(int minTime, int maxTime) {
-    final totalRange = maxTime - minTime;
-    // 生成时间刻度（每15或30分钟一个刻度）
-    final interval = totalRange <= 60 ? 15 : 30;
-    final ticks = <int>[];
-    var tick = (minTime ~/ interval) * interval;
-    while (tick <= maxTime) {
-      if (tick >= minTime) ticks.add(tick);
-      tick += interval;
-    }
-    if (ticks.isEmpty || ticks.last < maxTime) ticks.add(maxTime);
-    if (ticks.first > minTime) ticks.insert(0, minTime);
+    // 生成时间刻度（简化为起止时间）
+    final startTimeStr = _formatMinutesToTime(minTime);
+    final endTimeStr = _formatMinutesToTime(maxTime);
 
-    return SizedBox(
-      height: 20,
-      child: Stack(
-        children: [
-          // 底部横线
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(height: 1, color: Colors.grey.shade400),
-          ),
-          // 时间刻度
-          ...ticks.map((t) {
-            final pos = (t - minTime) / totalRange;
-            return Positioned(
-              left: pos * 100 - 20, // 居中偏移
-              right: null,
-              child: SizedBox(
-                width: 40,
-                child: Text(
-                  _formatMinutesToTime(t),
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 时间刻度行
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              startTimeStr,
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+            ),
+            Text(
+              endTimeStr,
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        // 底部横线
+        Container(height: 1, color: Colors.grey.shade400),
+      ],
     );
   }
 
-  /// 构建时间块
+  /// 构建时间块（使用Row+Flexible避免LayoutBuilder在AlertDialog中的问题）
   Widget _buildTimeBlock({
     required String label,
     required int startMinutes,
@@ -442,79 +426,73 @@ class _TimelineConflictWidget extends StatelessWidget {
     bool isNew = false,
     String? timeText,
   }) {
-    final leftPercent = (startMinutes - minTime) / totalRange;
-    final widthPercent = (endMinutes - startMinutes) / totalRange;
+    // 计算左侧空白和色块的flex比例（放大100倍取整避免浮点误差）
+    final leftFlex = ((startMinutes - minTime) * 100 / totalRange).round();
+    final blockFlex = ((endMinutes - startMinutes) * 100 / totalRange).round();
+    final rightFlex = 100 - leftFlex - blockFlex;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final totalWidth = constraints.maxWidth;
-        final left = leftPercent * totalWidth;
-        final width = widthPercent * totalWidth;
-
-        return SizedBox(
-          height: 28,
-          child: Stack(
-            children: [
-              Positioned(
-                left: left,
-                width: width.clamp(20, totalWidth - left),
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isNew ? null : color,
-                    gradient: isNew
-                        ? LinearGradient(
-                            colors: [color.withOpacity(0.7), color],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                        : null,
-                    borderRadius: BorderRadius.circular(4),
-                    border: isNew
-                        ? Border.all(color: color, width: 2)
-                        : null,
-                  ),
-                  // 斜线效果（新排课）
-                  child: isNew
-                      ? CustomPaint(
-                          painter: _DiagonalStripePainter(color: color),
-                          child: Center(
-                            child: Text(
-                              '$label $timeText',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                shadows: [
-                                  Shadow(color: Colors.black54, blurRadius: 2),
-                                ],
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            '$label $timeText',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                ),
+    return SizedBox(
+      height: 28,
+      child: Row(
+        children: [
+          // 左侧空白
+          if (leftFlex > 0) Spacer(flex: leftFlex),
+          // 色块
+          Flexible(
+            flex: blockFlex > 0 ? blockFlex : 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isNew ? null : color,
+                gradient: isNew
+                    ? LinearGradient(
+                        colors: [color.withOpacity(0.7), color],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(4),
+                border: isNew ? Border.all(color: color, width: 2) : null,
               ),
-            ],
+              // 斜线效果（新排课）
+              child: isNew
+                  ? CustomPaint(
+                      painter: _DiagonalStripePainter(color: color),
+                      child: Center(
+                        child: Text(
+                          '$label $timeText',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(color: Colors.black54, blurRadius: 2),
+                            ],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        '$label $timeText',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+            ),
           ),
-        );
-      },
+          // 右侧空白
+          if (rightFlex > 0) Spacer(flex: rightFlex),
+        ],
+      ),
     );
   }
 
-  /// 构建重叠区域指示器
+  /// 构建重叠区域指示器（使用Row+Flexible避免LayoutBuilder在AlertDialog中的问题）
   Widget _buildOverlapIndicator(int minTime, int totalRange) {
     // 计算新排课与所有冲突课程的重叠区域
     final newStart = _parseTimeToMinutes(newSchedule.startTime);
@@ -536,43 +514,45 @@ class _TimelineConflictWidget extends StatelessWidget {
 
     if (overlaps.isEmpty) return const SizedBox.shrink();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final totalWidth = constraints.maxWidth;
-        return SizedBox(
-          height: 20,
-          child: Stack(
-            children: overlaps.map((overlap) {
-              final left = ((overlap['start']! - minTime) / totalRange) * totalWidth;
-              final width = ((overlap['end']! - overlap['start']!) / totalRange) * totalWidth;
-              final overlapMinutes = overlap['end']! - overlap['start']!;
+    // 取第一个重叠区域显示（多个重叠通常是连续的）
+    final overlap = overlaps.first;
+    final overlapMinutes = overlap['end']! - overlap['start']!;
 
-              return Positioned(
-                left: left,
-                width: width.clamp(30, totalWidth - left),
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '重叠${overlapMinutes}分钟',
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+    // 计算flex比例
+    final leftFlex = ((overlap['start']! - minTime) * 100 / totalRange).round();
+    final blockFlex = ((overlap['end']! - overlap['start']!) * 100 / totalRange).round();
+    final rightFlex = 100 - leftFlex - blockFlex;
+
+    return SizedBox(
+      height: 20,
+      child: Row(
+        children: [
+          // 左侧空白
+          if (leftFlex > 0) Spacer(flex: leftFlex),
+          // 重叠区域色块
+          Flexible(
+            flex: blockFlex > 0 ? blockFlex : 1,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.red, width: 2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Center(
+                child: Text(
+                  '重叠${overlapMinutes}分钟',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+            ),
           ),
-        );
-      },
+          // 右侧空白
+          if (rightFlex > 0) Spacer(flex: rightFlex),
+        ],
+      ),
     );
   }
 }
