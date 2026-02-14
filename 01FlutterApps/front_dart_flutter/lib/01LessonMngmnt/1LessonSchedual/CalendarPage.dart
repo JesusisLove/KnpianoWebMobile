@@ -17,6 +17,8 @@ import 'AddCourseDialog.dart';
 import 'Kn01L002LsnBean.dart';
 import 'RescheduleLessonDialog.dart';
 import 'package:flutter/rendering.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // [课程表新潮版] 2026-02-13 记忆功能
+import 'TrendyView/schedule_trendy_view.dart'; // [课程表新潮版] 2026-02-13
 
 // 调课对话框组件
 class RescheduleLessonTimeDialog extends StatefulWidget {
@@ -229,7 +231,34 @@ class _CalendarPageState extends State<CalendarPage>
   // [BUG修复] 2026-02-08 跟踪当前前置显示的卡片（用于同一时间多卡片的点击切换）
   String? _frontCardLessonId;
 
-  @override
+  // [课程表新潮版] 2026-02-13 新潮版视图切换状态
+  bool _isTrendyView = false;
+  List<Kn01L002LsnBean> _weekLessons = []; // 一周的课程数据
+  DateTime? _currentWeekStart; // 当前周的起始日期
+  static const String _viewPreferenceKey = 'calendar_trendy_view'; // 记忆功能Key
+
+  // [课程表新潮版] 2026-02-14 加载视图偏好设置
+  Future<void> _loadViewPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isTrendy = prefs.getBool(_viewPreferenceKey) ?? false;
+    if (mounted && isTrendy != _isTrendyView) {
+      setState(() {
+        _isTrendyView = isTrendy;
+      });
+      if (isTrendy) {
+        // 如果记忆的是新潮版，加载周数据
+        final weekStart = _getWeekStart(_selectedDay);
+        _fetchWeekLessons(weekStart);
+      }
+    }
+  }
+
+  // [课程表新潮版] 2026-02-14 保存视图偏好设置
+  Future<void> _saveViewPreference(bool isTrendy) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_viewPreferenceKey, isTrendy);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -270,6 +299,9 @@ class _CalendarPageState extends State<CalendarPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToTargetTime();
     });
+
+    // [课程表新潮版] 2026-02-14 加载记忆的视图偏好
+    _loadViewPreference();
   }
 
   // 新增：滚动到目标时间位置
@@ -360,7 +392,63 @@ class _CalendarPageState extends State<CalendarPage>
     }
   }
 
-  // 长按课程卡片弹出的对话框画面，点击“保存”，执行时间更新
+  // [课程表新潮版] 2026-02-13 加载一周的课程数据
+  Future<void> _fetchWeekLessons(DateTime weekStart) async {
+    setState(() {
+      _isLoading = true;
+      _currentWeekStart = weekStart;
+    });
+
+    try {
+      final List<Kn01L002LsnBean> allLessons = [];
+
+      // 并发加载7天的数据
+      final futures = <Future<http.Response>>[];
+      for (int i = 0; i < 7; i++) {
+        final date = weekStart.add(Duration(days: i));
+        final dateStr = DateFormat('yyyy-MM-dd').format(date);
+        final url = '${KnConfig.apiBaseUrl}${Constants.lsnInfoByDay}/$dateStr';
+        futures.add(http.get(Uri.parse(url)));
+      }
+
+      final responses = await Future.wait(futures);
+
+      for (final response in responses) {
+        if (response.statusCode == 200) {
+          final decodedBody = utf8.decode(response.bodyBytes);
+          List<dynamic> responseLsnsJson = json.decode(decodedBody);
+          allLessons.addAll(
+            responseLsnsJson.map((json) => Kn01L002LsnBean.fromJson(json)).toList()
+          );
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _weekLessons = allLessons;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching week lessons: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('加载周数据出错: $e')),
+        );
+      }
+    }
+  }
+
+  // [课程表新潮版] 2026-02-13 获取指定日期所在周的周一
+  DateTime _getWeekStart(DateTime date) {
+    final weekday = date.weekday; // 1=周一, 7=周日
+    return DateTime(date.year, date.month, date.day - (weekday - 1));
+  }
+
+  // 长按课程卡片弹出的对话框画面，点击"保存"，执行时间更新
   Future<void> _updateLessonTime(
       String lessonId, String newTime, bool isRescheduledLesson) async {
     // 选中的课程表日期
@@ -1112,8 +1200,10 @@ class _CalendarPageState extends State<CalendarPage>
     }
   }
 
-  void _handleTimeSelection(BuildContext context, String time) {
-    String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
+  // [课程表新潮版] 2026-02-13 添加可选的overrideDate参数
+  void _handleTimeSelection(BuildContext context, String time, {DateTime? overrideDate}) {
+    final targetDate = overrideDate ?? _selectedDay;
+    String formattedDate = DateFormat('yyyy-MM-dd').format(targetDate);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1121,9 +1211,15 @@ class _CalendarPageState extends State<CalendarPage>
       },
     ).then((result) {
       if (result == true) {
-        setState(() {
-          _fetchStudentLsn(formattedDate);
-        });
+        if (_isTrendyView) {
+          // 新潮版：刷新整周数据
+          _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+        } else {
+          // 传统版：刷新当天数据
+          setState(() {
+            _fetchStudentLsn(formattedDate);
+          });
+        }
       }
     });
   }
@@ -1396,6 +1492,373 @@ class _CalendarPageState extends State<CalendarPage>
     );
   }
 
+  // [课程表新潮版] 2026-02-13 调课（新潮版专用，刷新周数据）
+  void _handleReschLsnCourseForTrendy(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: 300,
+            height: 400,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: RescheduleLessonDialog(
+                lessonId: event.lessonId,
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((result) {
+      if (result == true) {
+        _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+      }
+    });
+  }
+
+  // [课程表新潮版] 2026-02-13 取消调课（新潮版专用，刷新周数据）
+  void _handleCancelRescheCourseForTrendy(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('取消调课确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('要取消【${event.subjectName}】这节课的调课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
+              onPressed: () async {
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnRescheCancel}/${event.lessonId}';
+                try {
+                  final response = await http.post(
+                    Uri.parse(deleteUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    Navigator.of(context).pop(true);
+                    _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+                  } else {
+                    throw Exception('Failed to cancel reschedule');
+                  }
+                } catch (e) {
+                  print('Error canceling reschedule: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 删除课程（新潮版专用，刷新周数据）
+  void _handleDeleteCourseForTrendy(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('删除确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('确定要删除【${event.subjectName}】这节课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
+              onPressed: () async {
+                final String deleteUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiLsnDelete}/${event.lessonId}';
+                try {
+                  final response = await http.delete(
+                    Uri.parse(deleteUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    Navigator.of(context).pop(true);
+                    _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+                  } else {
+                    throw Exception('Failed to delete lesson');
+                  }
+                } catch (e) {
+                  print('Error deleting lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 签到（新潮版专用，刷新周数据）
+  void _handleSignCourseForTrendy(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('执行签到确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text(
+              '签到【${event.subjectName}】这节课，\n当日之内可以撤销，过了今日撤销不可！\n您确定要签到吗？',
+              style: KnElementTextStyle.dialogContent(context)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
+              onPressed: () async {
+                final String signUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnSign}/${event.lessonId}';
+                try {
+                  final response = await http.get(
+                    Uri.parse(signUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    Navigator.of(context).pop(true);
+                    _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+                  } else {
+                    throw Exception('Failed to sign lesson');
+                  }
+                } catch (e) {
+                  print('Error signing lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 撤销签到（新潮版专用，刷新周数据）
+  void _handleRestoreCourseForTrendy(Kn01L002LsnBean event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('撤销确认',
+              style: KnElementTextStyle.dialogTitle(context, fontSize: 18)),
+          content: Text('确实要撤销【${event.subjectName}】这节课吗？',
+              style: KnElementTextStyle.dialogContent(context)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('确定',
+                  style: KnElementTextStyle.buttonText(context,
+                      color: Colors.blue)),
+              onPressed: () async {
+                final String restoreUrl =
+                    '${KnConfig.apiBaseUrl}${Constants.apiStuLsnRestore}/${event.lessonId}';
+                try {
+                  final response = await http.get(
+                    Uri.parse(restoreUrl),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  );
+                  if (response.statusCode == 200) {
+                    Navigator.of(context).pop(true);
+                    _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+                  } else {
+                    throw Exception('Failed to restore lesson');
+                  }
+                } catch (e) {
+                  print('Error restoring lesson: $e');
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 备注（TrendyView用）
+  void _handleNoteCourseForTrendy(Kn01L002LsnBean event) {
+    String noteContent = event.memo ?? '';
+    bool hasContent = noteContent.isNotEmpty;
+
+    final TextEditingController controller =
+        TextEditingController(text: noteContent)
+          ..selection = TextSelection.fromPosition(
+            TextPosition(offset: noteContent.length),
+          );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Text('备注',
+                      style: KnElementTextStyle.dialogTitle(context,
+                          fontSize: 18, color: Constants.lessonThemeColor)),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                  ),
+                ],
+              ),
+              content: TextField(
+                controller: controller,
+                maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                enableInteractiveSelection: true,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Constants.lessonThemeColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Constants.lessonThemeColor, width: 2),
+                  ),
+                  hintText: '请输入备注内容',
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+                onChanged: (value) {
+                  noteContent = value;
+                  setDialogState(() {
+                    hasContent = value.trim().isNotEmpty;
+                  });
+                },
+                style: KnElementTextStyle.dialogContent(context, fontSize: 14),
+              ),
+              actions: <Widget>[
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          hasContent ? Colors.pink[100] : Colors.grey[300],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: hasContent
+                        ? () async {
+                            try {
+                              final String memoUrl =
+                                  '${KnConfig.apiBaseUrl}${Constants.apiStuLsnMemo}/${event.lessonId}';
+                              final response = await http.post(
+                                Uri.parse(memoUrl),
+                                headers: {
+                                  'Content-Type':
+                                      'application/json; charset=utf-8',
+                                },
+                                body: json.encode({
+                                  'memo': noteContent,
+                                  'lessonId': event.lessonId,
+                                }),
+                              );
+                              final responseData =
+                                  json.decode(utf8.decode(response.bodyBytes));
+                              if (response.statusCode == 200 &&
+                                  responseData['status'] == 'success') {
+                                Navigator.of(dialogContext).pop();
+                                // [课程表新潮版] 刷新周数据
+                                _fetchWeekLessons(_currentWeekStart ?? _getWeekStart(_selectedDay));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('备注更新成功'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(dialogContext)
+                                    .showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '备注更新失败: ${responseData['message'] ?? '未知错误'}'),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text('发生错误: $e'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
+                        : null,
+                    child: Text('确认',
+                        style: KnElementTextStyle.buttonText(context,
+                            fontSize: 16, color: Colors.black87)),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   // [Flutter页面主题改造] 2026-01-21 使用主题字体样式
   void _handleNoteCourse(Kn01L002LsnBean event) {
     String noteContent = event.memo ?? '';
@@ -1547,152 +2010,282 @@ class _CalendarPageState extends State<CalendarPage>
         titleFontSize: 20.0,
         subtitleFontSize: 12.0,
         addInvisibleRightButton: false,
+        // [课程表新潮版] 2026-02-13 添加视图切换按钮
+        actions: [
+          _buildViewToggleButton(),
+        ],
       ),
-      body: Column(
+      body: _isTrendyView ? _buildTrendyView() : _buildTraditionalView(),
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 视图切换按钮
+  Widget _buildViewToggleButton() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // 日历部分始终显示
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: TableCalendar(
-              firstDay: DateTime.utc(2010, 10, 16),
-              lastDay: DateTime.utc(2030, 3, 14),
-              focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              startingDayOfWeek: StartingDayOfWeek.monday, // 星期排列从Mon开始
-              selectedDayPredicate: (day) {
-                return isSameDay(_selectedDay, day);
-              },
-              onDaySelected: (selectedDay, focusedDay) {
+          GestureDetector(
+            onTap: () {
+              if (_isTrendyView) {
                 setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
+                  _isTrendyView = false;
                 });
-                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
-              },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                }
-              },
-              calendarStyle: CalendarStyle(
-                selectedDecoration: const BoxDecoration(
-                  color: Constants.lessonThemeColor,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: Constants.lessonThemeColor.withOpacity(0.5),
-                  shape: BoxShape.circle,
+                _saveViewPreference(false); // [课程表新潮版] 2026-02-14 记忆选择
+                // 切换回传统版时，加载当前选中日期的数据
+                _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: !_isTrendyView ? Colors.white : Colors.transparent,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: Text(
+                '传统',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: !_isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                  fontWeight: !_isTrendyView ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
           ),
-
-          // 日期标题部分始终显示
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Text(
-              DateFormat('yyyy年MM月dd日').format(_selectedDay),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-
-          // [课题二] 2026-02-08 课程时间轴部分，使用Stack+固定高度实现精确时间对齐
-          Expanded(
-            child: Stack(
-              children: [
-                // 底层：可滚动的时间轴 + 卡片叠加层
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  child: SizedBox(
-                    // 总高度 = 56个时间槽 × _slotHeight
-                    height: ((22 - 8) * 4) * _slotHeight,
-                    child: Stack(
-                      children: [
-                        // 时间轴层（固定高度槽位）
-                        Column(
-                          children: List.generate((22 - 8) * 4, (index) {
-                            int hour = 8 + (index ~/ 4);
-                            int minute = (index % 4) * 15;
-                            String time =
-                                '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-                            return GestureDetector(
-                              onTap: () => _handleTimeSelection(context, time),
-                              child: SizedBox(
-                                height: _slotHeight, // 固定槽高度
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 50,
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: time.endsWith(':00')
-                                            ? Text(time,
-                                                style: const TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w300,
-                                                    color: Colors.black))
-                                            : RichText(
-                                                text: TextSpan(children: [
-                                                  TextSpan(
-                                                      text:
-                                                          time.substring(0, 3),
-                                                      style: const TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          color: Colors.white)),
-                                                  TextSpan(
-                                                      text: time.substring(3),
-                                                      style: const TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                          color: Colors.black)),
-                                                ]),
-                                              ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                        child: Container(
-                                            height: 0.5,
-                                            color: Colors.grey.shade300)),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                        // 卡片层（绝对定位）
-                        // [BUG修复] 2026-02-08 调整渲染顺序：调课From卡片默认居后，被点击的卡片居前
-                        if (!_isLoading) ..._getSortedLessonCards(),
-                      ],
-                    ),
-                  ),
+          GestureDetector(
+            onTap: () {
+              if (!_isTrendyView) {
+                setState(() {
+                  _isTrendyView = true;
+                });
+                _saveViewPreference(true); // [课程表新潮版] 2026-02-14 记忆选择
+                // 切换到新潮版时，加载当前周的数据
+                final weekStart = _getWeekStart(_selectedDay);
+                _fetchWeekLessons(weekStart);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _isTrendyView ? Colors.white : Colors.transparent,
+                borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: Text(
+                '新潮',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                  fontWeight: _isTrendyView ? FontWeight.bold : FontWeight.normal,
                 ),
-                // 加载指示器
-                if (_isLoading)
-                  const Center(
-                      child: KnLoadingIndicator(
-                          color: Constants.lessonThemeColor)),
-              ],
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 新潮版视图
+  Widget _buildTrendyView() {
+    return Stack(
+      children: [
+        ScheduleTrendyView(
+          lessons: _weekLessons,
+          themeColor: Constants.lessonThemeColor,
+          onAddLesson: (date, hour, minute) {
+            // 复用现有的AddCourseDialog
+            final time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+            _handleTimeSelection(context, time, overrideDate: date);
+          },
+          onEditLesson: (lesson) {
+            // 复用现有的调课对话框（编辑功能已废弃，使用调课代替）
+            _handleReschLsnCourseForTrendy(lesson);
+          },
+          onRescheduleLesson: (lesson) {
+            // 复用现有的调课对话框
+            _handleReschLsnCourseForTrendy(lesson);
+          },
+          onCancelReschedule: (lesson) {
+            // 复用现有的取消调课逻辑
+            _handleCancelRescheCourseForTrendy(lesson);
+          },
+          onDeleteLesson: (lesson) {
+            // 复用现有的删除逻辑
+            _handleDeleteCourseForTrendy(lesson);
+          },
+          // [课程表新潮版] 2026-02-13 签到/撤销签到/备注
+          onSignLesson: (lesson) {
+            _handleSignCourseForTrendy(lesson);
+          },
+          onRestoreLesson: (lesson) {
+            _handleRestoreCourseForTrendy(lesson);
+          },
+          onNoteLesson: (lesson) {
+            _handleNoteCourseForTrendy(lesson);
+          },
+          onWeekChanged: (weekStart) {
+            // 周切换时加载新一周的数据
+            _fetchWeekLessons(weekStart);
+          },
+        ),
+        // 加载指示器
+        if (_isLoading)
+          const Center(
+            child: KnLoadingIndicator(color: Constants.lessonThemeColor),
+          ),
+      ],
+    );
+  }
+
+  // [课程表新潮版] 2026-02-13 传统版视图
+  Widget _buildTraditionalView() {
+    return Column(
+      children: [
+        // 日历部分始终显示
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: TableCalendar(
+            firstDay: DateTime.utc(2010, 10, 16),
+            lastDay: DateTime.utc(2030, 3, 14),
+            focusedDay: _focusedDay,
+            calendarFormat: _calendarFormat,
+            startingDayOfWeek: StartingDayOfWeek.monday, // 星期排列从Mon开始
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+              _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
+            },
+            onFormatChanged: (format) {
+              if (_calendarFormat != format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              }
+            },
+            calendarStyle: CalendarStyle(
+              selectedDecoration: const BoxDecoration(
+                color: Constants.lessonThemeColor,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Constants.lessonThemeColor.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+
+        // 日期标题部分始终显示
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Text(
+            DateFormat('yyyy年MM月dd日').format(_selectedDay),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+
+        // [课题二] 2026-02-08 课程时间轴部分，使用Stack+固定高度实现精确时间对齐
+        Expanded(
+          child: Stack(
+            children: [
+              // 底层：可滚动的时间轴 + 卡片叠加层
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: SizedBox(
+                  // 总高度 = 56个时间槽 × _slotHeight
+                  height: ((22 - 8) * 4) * _slotHeight,
+                  child: Stack(
+                    children: [
+                      // 时间轴层（固定高度槽位）
+                      Column(
+                        children: List.generate((22 - 8) * 4, (index) {
+                          int hour = 8 + (index ~/ 4);
+                          int minute = (index % 4) * 15;
+                          String time =
+                              '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+                          return GestureDetector(
+                            onTap: () => _handleTimeSelection(context, time),
+                            child: SizedBox(
+                              height: _slotHeight, // 固定槽高度
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 50,
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: time.endsWith(':00')
+                                          ? Text(time,
+                                              style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w300,
+                                                  color: Colors.black))
+                                          : RichText(
+                                              text: TextSpan(children: [
+                                                TextSpan(
+                                                    text:
+                                                        time.substring(0, 3),
+                                                    style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                        color: Colors.white)),
+                                                TextSpan(
+                                                    text: time.substring(3),
+                                                    style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                        color: Colors.black)),
+                                              ]),
+                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                      child: Container(
+                                          height: 0.5,
+                                          color: Colors.grey.shade300)),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                      // 卡片层（绝对定位）
+                      // [BUG修复] 2026-02-08 调整渲染顺序：调课From卡片默认居后，被点击的卡片居前
+                      if (!_isLoading) ..._getSortedLessonCards(),
+                    ],
+                  ),
+                ),
+              ),
+              // 加载指示器
+              if (_isLoading)
+                const Center(
+                    child: KnLoadingIndicator(
+                        color: Constants.lessonThemeColor)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

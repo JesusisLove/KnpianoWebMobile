@@ -1,7 +1,6 @@
 package com.liu.springboot04web.controller_mobile;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +24,7 @@ import com.liu.springboot04web.dao.Kn01L002LsnDao;
 import com.liu.springboot04web.dao.Kn03D004StuDocDao;
 import com.liu.springboot04web.othercommon.DateUtils;
 import com.liu.springboot04web.service.ComboListInfoService;
+import com.liu.springboot04web.service.conflict.ConflictCheckService;
 
 @RestController
 @Service
@@ -36,6 +36,10 @@ public class Kn01L002LsnController4Mobile {
 
     @Autowired
     private Kn03D004StuDocDao kn03D004StuDocDao;
+
+    // [课程排他公共模块] 2026-02-13 注入公共冲突检测服务
+    @Autowired
+    private ConflictCheckService conflictCheckService;
 
     // 通过构造器注入方式接收ComboListInfoService的一个实例，获得application.properties里配置的上课时长数组
     public Kn01L002LsnController4Mobile(ComboListInfoService combListInfo) {
@@ -86,10 +90,9 @@ public class Kn01L002LsnController4Mobile {
     }
 
     // 【学生排课新規、调课】画面にて、【保存】ボタンを押下
+    // [课程排他公共模块] 2026-02-13 使用公共冲突检测服务重构
     @PostMapping("/mb_kn_lsn_001_save")
     public ResponseEntity<Map<String, Object>> excuteInfoAdd(@RequestBody Map<String, Object> requestBody) {
-        Map<String, Object> response = new HashMap<>();
-
         // 从请求体中提取课程信息
         Kn01L002LsnBean knStuLsn001Bean = extractLessonBean(requestBody);
         // 提取是否强制保存标志（前端使用forceOverlap）
@@ -101,18 +104,13 @@ public class Kn01L002LsnController4Mobile {
         // 如果是新规排课，要执行有效排课校验
         if (knStuLsn001Bean.getLessonId() == null) {
             String errMsg = validateHasError(knStuLsn001Bean);
-
             if (!"".equals(errMsg)) {
-                response.put("success", false);
-                response.put("hasConflict", false);
-                response.put("message", errMsg);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(conflictCheckService.buildErrorResponse(errMsg));
             }
-        } else {
-            // lessonId不为空，表示已经是合理的排课了，只是执行调课操作，所以不用再判断该课是否是合理的排课校验了。
         }
 
-        // [课程排他状态功能] 冲突检测
+        // 冲突检测（使用公共服务）
         if (!forceOverlap) {
             // 获取排课时间（调课情况下使用调课时间，否则使用原排课时间）
             Date effectiveDate = knStuLsn001Bean.getLsnAdjustedDate() != null
@@ -125,60 +123,17 @@ public class Kn01L002LsnController4Mobile {
                     knStuLsn001Bean.getClassDuration(),
                     knStuLsn001Bean.getLessonId());
 
+            // 使用公共服务构建冲突响应
             if (conflictLessons != null && !conflictLessons.isEmpty()) {
-                // 检查是否有同一学生的冲突（禁止保存）
-                boolean hasSameStudentConflict = false;
-                List<Map<String, Object>> conflictInfoList = new ArrayList<>();
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-
-                for (Kn01L002LsnBean conflict : conflictLessons) {
-                    // 判断是否是同一学生
-                    if (conflict.getStuId().equals(knStuLsn001Bean.getStuId())) {
-                        hasSameStudentConflict = true;
-                    }
-
-                    // 构建冲突信息（匹配前端ConflictInfo类的字段）
-                    Map<String, Object> conflictInfo = new HashMap<>();
-                    conflictInfo.put("stuId", conflict.getStuId());
-                    conflictInfo.put("stuName", conflict.getStuName());
-                    Date conflictTime = conflict.getLsnAdjustedDate() != null
-                            ? conflict.getLsnAdjustedDate()
-                            : conflict.getSchedualDate();
-                    conflictInfo.put("startTime", sdf.format(conflictTime));
-                    // 计算结束时间
-                    java.util.Calendar cal = java.util.Calendar.getInstance();
-                    cal.setTime(conflictTime);
-                    cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
-                    conflictInfo.put("endTime", sdf.format(cal.getTime()));
-                    conflictInfoList.add(conflictInfo);
-                }
-
-                if (hasSameStudentConflict) {
-                    // 同一学生冲突，禁止保存
-                    response.put("success", false);
-                    response.put("hasConflict", true);
-                    response.put("isSameStudentConflict", true);
-                    response.put("message", "该学生在此时间段已有其他课程，无法重复排课！");
-                    response.put("conflicts", conflictInfoList);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-                } else {
-                    // 不同学生冲突，返回警告，允许强制保存
-                    response.put("success", false);
-                    response.put("hasConflict", true);
-                    response.put("isSameStudentConflict", false);
-                    response.put("message", "该时间段与其他学生的课程有冲突，是否强制排课？");
-                    response.put("conflicts", conflictInfoList);
-                    return ResponseEntity.ok(response);
-                }
+                Map<String, Object> conflictResponse = conflictCheckService.buildConflictResponse(
+                        conflictLessons, knStuLsn001Bean.getStuId());
+                return conflictCheckService.toResponseEntity(conflictResponse);
             }
         }
 
         // 执行排课
         kn01L002LsnDao.save(knStuLsn001Bean);
-        response.put("success", true);
-        response.put("hasConflict", false);
-        response.put("message", "排课成功");
-        return ResponseEntity.ok(response);
+        return conflictCheckService.toResponseEntity(conflictCheckService.buildSuccessResponse());
     }
 
     // 从请求体Map中提取LessonBean
@@ -224,18 +179,15 @@ public class Kn01L002LsnController4Mobile {
         return bean;
     }
 
-    // [课程排他状态功能] 取消调课API - 含冲突检测（恢复原时间时检测是否有冲突）
+    // [课程排他公共模块] 2026-02-13 取消调课API - 使用公共冲突检测服务
     @PostMapping("/mb_kn_lsn_resche_cancel/{lessonId}")
     public ResponseEntity<Map<String, Object>> executeInfoRescheCancel(@PathVariable("lessonId") String lessonId) {
-        Map<String, Object> response = new HashMap<>();
-
         try {
             // 1. 获取课程信息
             Kn01L002LsnBean lesson = kn01L002LsnDao.getInfoById(lessonId);
             if (lesson == null) {
-                response.put("success", false);
-                response.put("message", "课程不存在");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(conflictCheckService.buildErrorResponse("课程不存在"));
             }
 
             // 2. 检测原时间是否有冲突（排除自身）
@@ -245,44 +197,23 @@ public class Kn01L002LsnController4Mobile {
                     lesson.getClassDuration(),
                     lessonId);
 
+            // 使用公共服务构建冲突响应
             if (conflictLessons != null && !conflictLessons.isEmpty()) {
-                // 原时间已被其他课程占用
-                List<Map<String, Object>> conflictInfoList = new ArrayList<>();
-                SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm");
-
-                for (Kn01L002LsnBean conflict : conflictLessons) {
-                    Map<String, Object> conflictInfo = new HashMap<>();
-                    conflictInfo.put("stuId", conflict.getStuId());
-                    conflictInfo.put("stuName", conflict.getStuName());
-                    Date conflictTime = conflict.getLsnAdjustedDate() != null
-                            ? conflict.getLsnAdjustedDate()
-                            : conflict.getSchedualDate();
-                    conflictInfo.put("startTime", timeFmt.format(conflictTime));
-                    java.util.Calendar cal = java.util.Calendar.getInstance();
-                    cal.setTime(conflictTime);
-                    cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
-                    conflictInfo.put("endTime", timeFmt.format(cal.getTime()));
-                    conflictInfoList.add(conflictInfo);
-                }
-
-                response.put("success", false);
-                response.put("hasConflict", true);
-                response.put("message", "原时间段已安排其他学生的课程，无法恢复");
-                response.put("conflicts", conflictInfoList);
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                Map<String, Object> conflictResponse = conflictCheckService.buildConflictResponse(
+                        conflictLessons, lesson.getStuId());
+                conflictResponse.put("message", "原时间段已安排其他学生的课程，无法恢复");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictResponse);
             }
 
             // 3. 执行取消调课
             kn01L002LsnDao.reScheduleLsnCancel(lessonId);
-            response.put("success", true);
-            response.put("hasConflict", false);
-            response.put("message", "取消调课成功");
-            return ResponseEntity.ok(response);
+            Map<String, Object> successResponse = conflictCheckService.buildSuccessResponse();
+            successResponse.put("message", "取消调课成功");
+            return ResponseEntity.ok(successResponse);
 
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "系统错误：" + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(conflictCheckService.buildErrorResponse("系统错误：" + e.getMessage()));
         }
     }
 
@@ -349,11 +280,9 @@ public class Kn01L002LsnController4Mobile {
         return ResponseEntity.ok(duration);
     }
 
-    // [课程排他状态功能] 调课API - 含冲突检测（塞课场景）
+    // [课程排他公共模块] 2026-02-13 调课API - 使用公共冲突检测服务
     @PostMapping("/mb_kn_lsn_updatetime")
     public ResponseEntity<Map<String, Object>> updateLessonTime(@RequestBody Map<String, Object> requestBody) {
-        Map<String, Object> response = new HashMap<>();
-
         try {
             // 1. 提取参数
             String lessonId = (String) requestBody.get("lessonId");
@@ -366,63 +295,25 @@ public class Kn01L002LsnController4Mobile {
             // 2. 获取原课程信息
             Kn01L002LsnBean lesson = kn01L002LsnDao.getInfoById(lessonId);
             if (lesson == null) {
-                response.put("success", false);
-                response.put("message", "课程不存在");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(conflictCheckService.buildErrorResponse("课程不存在"));
             }
 
             // 3. 解析调课目标时间
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Date newDate = sdf.parse(lsnAdjustedDateStr);
 
-            // 4. 冲突检测（如果不是强制保存）
+            // 4. 冲突检测（使用公共服务）
             if (!forceOverlap) {
-                // 查询冲突课程（排除自身）
                 List<Kn01L002LsnBean> conflictLessons = kn01L002LsnDao.findConflictLessons(
                         newDate,
                         lesson.getClassDuration(),
                         lessonId);
 
                 if (conflictLessons != null && !conflictLessons.isEmpty()) {
-                    // 检查是否有同一学生的冲突
-                    boolean hasSameStudentConflict = false;
-                    List<Map<String, Object>> conflictInfoList = new ArrayList<>();
-                    SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm");
-
-                    for (Kn01L002LsnBean conflict : conflictLessons) {
-                        if (conflict.getStuId().equals(lesson.getStuId())) {
-                            hasSameStudentConflict = true;
-                        }
-
-                        Map<String, Object> conflictInfo = new HashMap<>();
-                        conflictInfo.put("stuId", conflict.getStuId());
-                        conflictInfo.put("stuName", conflict.getStuName());
-                        Date conflictTime = conflict.getLsnAdjustedDate() != null
-                                ? conflict.getLsnAdjustedDate()
-                                : conflict.getSchedualDate();
-                        conflictInfo.put("startTime", timeFmt.format(conflictTime));
-                        java.util.Calendar cal = java.util.Calendar.getInstance();
-                        cal.setTime(conflictTime);
-                        cal.add(java.util.Calendar.MINUTE, conflict.getClassDuration());
-                        conflictInfo.put("endTime", timeFmt.format(cal.getTime()));
-                        conflictInfoList.add(conflictInfo);
-                    }
-
-                    if (hasSameStudentConflict) {
-                        response.put("success", false);
-                        response.put("hasConflict", true);
-                        response.put("isSameStudentConflict", true);
-                        response.put("message", "该学生在目标时间段已有其他课程，无法调课！");
-                        response.put("conflicts", conflictInfoList);
-                        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-                    } else {
-                        response.put("success", false);
-                        response.put("hasConflict", true);
-                        response.put("isSameStudentConflict", false);
-                        response.put("message", "目标时间段与其他学生的课程有冲突，是否强制调课？");
-                        response.put("conflicts", conflictInfoList);
-                        return ResponseEntity.ok(response);
-                    }
+                    Map<String, Object> conflictResponse = conflictCheckService.buildConflictResponse(
+                            conflictLessons, lesson.getStuId());
+                    return conflictCheckService.toResponseEntity(conflictResponse);
                 }
             }
 
@@ -433,19 +324,16 @@ public class Kn01L002LsnController4Mobile {
             int isUpdated = kn01L002LsnDao.updateLessonTime(updateBean);
 
             if (isUpdated > 0) {
-                response.put("success", true);
-                response.put("hasConflict", false);
-                response.put("message", "调课成功");
-                return ResponseEntity.ok(response);
+                Map<String, Object> successResponse = conflictCheckService.buildSuccessResponse();
+                successResponse.put("message", "调课成功");
+                return ResponseEntity.ok(successResponse);
             } else {
-                response.put("success", false);
-                response.put("message", "调课失败");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(conflictCheckService.buildErrorResponse("调课失败"));
             }
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "系统错误：" + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(conflictCheckService.buildErrorResponse("系统错误：" + e.getMessage()));
         }
     }
 

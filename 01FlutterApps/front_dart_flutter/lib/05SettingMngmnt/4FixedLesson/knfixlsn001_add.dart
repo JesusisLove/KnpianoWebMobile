@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 import '../../ApiConfig/KnApiConfig.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
 import '../../Constants.dart';
+// [固定排课排他功能] 2026-02-13 导入冲突检测相关组件
+import '../../01LessonMngmnt/1LessonSchedual/ConflictInfo.dart';
+import '../../01LessonMngmnt/1LessonSchedual/ConflictWarningDialog.dart';
 
 // ignore: must_be_immutable
 class ScheduleForm extends StatefulWidget {
@@ -265,92 +268,185 @@ class ScheduleFormState extends State<ScheduleForm> {
     );
   }
 
+  // [固定排课排他功能] 2026-02-13 修改为支持冲突检测的两阶段提交
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // 显示进度对话框
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: const AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('正在添加固定排课处理...'),
-                ],
-              ),
-            ),
-          );
-        },
-      );
       _formKey.currentState!.save();
-      // 学生固定排课新规登录画面，点击"保存"按钮的url请求
-      final String apiUrl =
-          '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoAdd}';
+      await _saveFixedLesson(forceOverlap: false);
+    }
+  }
 
-      try {
-        var response = await http.post(
-          Uri.parse(apiUrl),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(<String, dynamic>{
-            'stuId': selectedStuId,
-            'subjectId': selectedSubId,
-            'fixedWeek': selectedDay,
-            'fixedHour': selectedHour,
-            'fixedMinute': selectedMinute,
-          }),
-        );
-
-        // 关闭进度对话框
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-
-        if (response.statusCode == 200) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('提交成功'),
-              content: const Text('固定排课时间已提交'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('确定'),
-                ),
+  /// [固定排课排他功能] 2026-02-13 集成冲突检测的保存方法
+  Future<void> _saveFixedLesson({bool forceOverlap = false}) async {
+    // 显示进度对话框
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('正在添加固定排课处理...'),
               ],
             ),
-          );
-        } else {
-          throw Exception('Failed to submit data');
-        }
-      } catch (e) {
-        // 如果发生错误，确保关闭进度对话框
-        if (mounted) {
-          Navigator.of(context).pop(); // 关闭进度对话框
-        }
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('提交失败'),
-            content: Text('发生错误: $e'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('确定'),
-              ),
-            ],
           ),
         );
+      },
+    );
+
+    // 学生固定排课新规登录画面，点击"保存"按钮的url请求
+    final String apiUrl =
+        '${KnConfig.apiBaseUrl}${Constants.fixedLsnInfoAdd}';
+
+    try {
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'stuId': selectedStuId,
+          'subjectId': selectedSubId,
+          'fixedWeek': selectedDay,
+          'fixedHour': selectedHour,
+          'fixedMinute': selectedMinute,
+          'forceOverlap': forceOverlap, // [固定排课排他功能] 强制保存标记
+        }),
+      );
+
+      // 关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop();
       }
+
+      // [固定排课排他功能] 解析响应，处理冲突检测结果
+      final responseBody = utf8.decode(response.bodyBytes);
+
+      // 尝试解析为JSON
+      dynamic responseData;
+      try {
+        responseData = json.decode(responseBody);
+      } catch (_) {
+        // 非JSON响应，按原有逻辑处理
+        if (response.statusCode == 200) {
+          _showSuccessDialog();
+          return;
+        } else {
+          _showErrorDialog('保存失败: $responseBody');
+          return;
+        }
+      }
+
+      // 处理JSON响应
+      if (responseData is Map<String, dynamic>) {
+        final result = ConflictCheckResult.fromJson(responseData);
+
+        if (result.success) {
+          // 保存成功
+          _showSuccessDialog();
+        } else if (result.hasConflict) {
+          // 检测到冲突，构建新排课时间信息用于时间轴可视化
+          final startTime = '$selectedHour:$selectedMinute';
+          final endTime = _calculateEndTime(startTime, 45); // 默认45分钟课时
+          final newSchedule = NewScheduleInfo(
+            startTime: startTime,
+            endTime: endTime,
+            stuName: selectedStudent,
+          );
+
+          if (result.isSameStudentConflict) {
+            // 同一学生自我冲突，严格禁止
+            await ConflictWarningDialog.showSameStudentConflict(
+              context,
+              result.conflicts,
+              newSchedule: newSchedule,
+            );
+          } else {
+            // 不同学生冲突，显示警告让用户确认
+            final confirmed = await ConflictWarningDialog.show(
+              context,
+              result.conflicts,
+              newSchedule: newSchedule,
+            );
+
+            if (confirmed) {
+              // 用户确认继续，强制保存
+              await _saveFixedLesson(forceOverlap: true);
+            }
+          }
+        } else {
+          // 其他错误
+          _showErrorDialog(result.message);
+        }
+      } else {
+        // 响应不是预期的Map格式，按成功处理（兼容旧版后端）
+        if (response.statusCode == 200) {
+          _showSuccessDialog();
+        } else {
+          _showErrorDialog('保存失败');
+        }
+      }
+    } catch (e) {
+      // 如果发生错误，确保关闭进度对话框
+      if (mounted) {
+        Navigator.of(context).pop(); // 关闭进度对话框
+      }
+      _showErrorDialog('发生错误: $e');
     }
+  }
+
+  /// 显示成功对话框
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('提交成功'),
+        content: const Text('固定排课时间已提交'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 显示错误对话框
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('提交失败'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// [固定排课排他功能] 2026-02-13 计算课程结束时间
+  String _calculateEndTime(String startTime, int durationMinutes) {
+    final parts = startTime.split(':');
+    final startHour = int.parse(parts[0]);
+    final startMinute = int.parse(parts[1]);
+
+    final totalMinutes = startHour * 60 + startMinute + durationMinutes;
+    final endHour = (totalMinutes ~/ 60) % 24;
+    final endMinute = totalMinutes % 60;
+
+    return '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}';
   }
 }

@@ -93,10 +93,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.lessons.isEmpty) {
-      return _buildEmptyState(context);
-    }
-
+    // [Bug Fix] 2026-02-14 无论是否有课程，都显示时间网格，用户才能点击空白格子排课
     final groupedLessons = _groupLessons();
     final slots = timeSlots;
 
@@ -123,23 +120,6 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
         // 图例
         _buildLegend(context),
       ],
-    );
-  }
-
-  /// 构建空状态
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.calendar_today, size: 48, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text('暂无固定排课', style: TextStyle(color: Colors.grey.shade600)),
-          const SizedBox(height: 8),
-          Text('点击右上角 + 添加排课',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
-        ],
-      ),
     );
   }
 

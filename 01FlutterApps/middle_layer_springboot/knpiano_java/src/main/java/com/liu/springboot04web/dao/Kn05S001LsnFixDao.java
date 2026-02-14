@@ -79,4 +79,12 @@ public class Kn05S001LsnFixDao implements InterfaceKnPianoDao {
     private void update(Kn05S001LsnFixBean knFixLsn001Bean) {
         knFixLsn001Mapper.updateInfo(knFixLsn001Bean);
     }
+
+    // [固定排课排他功能] 2026-02-13 查询冲突的固定排课
+    public List<Kn05S001LsnFixBean> findConflictLessons(
+            String fixedWeek, Integer fixedHour, Integer fixedMinute,
+            Integer classDuration, String excludeStuId, String excludeSubjectId) {
+        return knFixLsn001Mapper.findConflictLessons(
+                fixedWeek, fixedHour, fixedMinute, classDuration, excludeStuId, excludeSubjectId);
+    }
 }

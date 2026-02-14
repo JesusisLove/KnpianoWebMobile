@@ -1,9 +1,12 @@
 package com.liu.springboot04web.bean;
 
+import com.liu.springboot04web.service.conflict.ConflictableLesson;
+
 /**
  * 固定授業計画管理（Fixed Lesson Plan Management）的数据模型，实现 BzlFudousanBean 接口。
+ * [课程排他公共模块] 2026-02-13 实现ConflictableLesson接口以支持统一的冲突检测
  */
-public class Kn05S001LsnFixBean implements KnPianoBean {
+public class Kn05S001LsnFixBean implements KnPianoBean, ConflictableLesson {
     private String stuId;          // 学生ID
     private String subjectId;      // 科目ID
     private String fixedWeek;      // 固定的星期
@@ -14,6 +17,7 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
     private String stuName;
     private String subjectName;
     private Integer classDuration;  // [新潮界面] 2026-02-12 课程时长（分钟），从学生档案视图获取
+    private Boolean forceOverlap;   // [固定排课排他功能] 2026-02-13 强制保存标记（忽略冲突警告）
 
  // Getter 和 Setter 方法
     public String getStuId() {
@@ -87,5 +91,30 @@ public class Kn05S001LsnFixBean implements KnPianoBean {
 
     public void setClassDuration(Integer classDuration) {
         this.classDuration = classDuration;
+    }
+
+    // [固定排课排他功能] 2026-02-13 强制保存标记getter/setter
+    public Boolean getForceOverlap() {
+        return forceOverlap;
+    }
+
+    public void setForceOverlap(Boolean forceOverlap) {
+        this.forceOverlap = forceOverlap;
+    }
+
+    // [课程排他公共模块] 2026-02-13 实现ConflictableLesson接口方法
+    @Override
+    public String getStartTimeFormatted() {
+        return String.format("%02d:%02d",
+                fixedHour != null ? fixedHour : 0,
+                fixedMinute != null ? fixedMinute : 0);
+    }
+
+    @Override
+    public String getEndTimeFormatted() {
+        int duration = classDuration != null && classDuration > 0 ? classDuration : 45;
+        int startMinutes = (fixedHour != null ? fixedHour : 0) * 60 + (fixedMinute != null ? fixedMinute : 0);
+        int endMinutes = startMinutes + duration;
+        return String.format("%02d:%02d", endMinutes / 60, endMinutes % 60);
     }
 }
