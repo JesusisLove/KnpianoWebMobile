@@ -168,17 +168,23 @@ class _ScheduleTrendyViewState extends State<ScheduleTrendyView> {
   }
 
   /// 显示课程详情
-  void _showLessonDetail(Kn01L002LsnBean lesson) {
+  /// [集体排课] 2026-02-14 改为接收课程列表
+  void _showLessonDetail(List<Kn01L002LsnBean> lessons) {
+    if (lessons.isEmpty) return;
+
+    // 判断是否有调课课程（用于显示取消调课选项）
+    final hasAdjustedLesson = lessons.any((l) => l.lsnAdjustedDate.isNotEmpty);
+
     LessonDetailSheet.show(
       context: context,
-      lesson: lesson,
+      lessons: lessons, // [集体排课] 传递课程列表
       onEdit: (l) {
         widget.onEditLesson?.call(l);
       },
       onReschedule: (l) {
         widget.onRescheduleLesson?.call(l);
       },
-      onCancelReschedule: lesson.lsnAdjustedDate.isNotEmpty
+      onCancelReschedule: hasAdjustedLesson
           ? (l) {
               widget.onCancelReschedule?.call(l);
             }
@@ -202,6 +208,8 @@ class _ScheduleTrendyViewState extends State<ScheduleTrendyView> {
               widget.onNoteLesson?.call(l);
             }
           : null,
+      // [集体排课] 2026-02-14 追加学生排课，复用onAddLesson回调
+      onAddGroupMember: widget.onAddLesson,
     );
   }
 }

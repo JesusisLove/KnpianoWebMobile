@@ -41,6 +41,14 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   int? _selectedDayIndex;
   int? _selectedSlotIndex;
 
+  // [Excel风格] 2026-02-14 按下时暂存待执行的动作
+  // 待执行的课程详情动作
+  List<KnFixLsn001Bean>? _pendingLessonListTap;
+  // 待执行的空单元格新增动作
+  String? _pendingEmptyWeekDay;
+  int? _pendingEmptyHour;
+  int? _pendingEmptyMinute;
+
   // 时间配置
   static const int startHour = 8;
   static const int endHour = 21;
@@ -81,11 +89,13 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
     return slots;
   }
 
-  /// 按(星期, 开始时间)分组课程
+  /// 按(星期, 开始时间, 时长, 科目)分组课程
+  /// [集体上课] 2026-02-14 修改分组逻辑：只有同时间+同时长+同科目的课程才会并排显示
   Map<String, List<KnFixLsn001Bean>> _groupLessons() {
     final grouped = <String, List<KnFixLsn001Bean>>{};
     for (final lesson in widget.lessons) {
-      final key = '${lesson.fixedWeek}_${lesson.classTime}';
+      // [集体上课] 按时间+时长+科目分组
+      final key = '${lesson.fixedWeek}_${lesson.classTime}_${lesson.classDuration}_${lesson.subjectId}';
       grouped.putIfAbsent(key, () => []).add(lesson);
     }
     return grouped;
@@ -323,6 +333,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   }
 
   /// 构建课程色块
+  /// [集体排课] 2026-02-14 支持多学生并排显示
   List<Widget> _buildLessonBlocks(
     BuildContext context,
     Map<String, List<KnFixLsn001Bean>> groupedLessons,
@@ -331,52 +342,60 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
     final blocks = <Widget>[];
 
     groupedLessons.forEach((key, lessonList) {
-      final lesson = lessonList.first;
-      final dayIndex = weekDays.indexOf(lesson.fixedWeek);
+      final firstLesson = lessonList.first;
+      final dayIndex = weekDays.indexOf(firstLesson.fixedWeek);
       if (dayIndex < 0) return;
 
-      final slotIndex = lesson.timeSlotIndex;
-      final cellSpan = lesson.cellSpan;
+      final slotIndex = firstLesson.timeSlotIndex;
+      final cellSpan = firstLesson.cellSpan;
 
       // 防止越界
       if (slotIndex < 0) return;
 
-      final left = dayIndex * columnWidth + 1;
       final top = slotIndex * cellHeight;
-      final width = columnWidth - 2;
       final height = cellSpan * cellHeight - 1;
+      final studentCount = lessonList.length;
+      final totalWidth = columnWidth - 2;
+      final cardWidth = totalWidth / studentCount;  // [集体排课] 平分宽度
 
-      blocks.add(
-        Positioned(
-          left: left,
-          top: top,
-          width: width,
-          height: height,
-          child: _buildCellContent(context, lessonList, dayIndex, slotIndex),
-        ),
-      );
+      // [集体排课] 2026-02-14 遍历所有学生，并排显示
+      for (int i = 0; i < lessonList.length; i++) {
+        final lesson = lessonList[i];
+        final left = dayIndex * columnWidth + 1 + i * cardWidth;
+
+        blocks.add(
+          Positioned(
+            left: left,
+            top: top,
+            width: cardWidth,
+            height: height,
+            // [Excel风格] 2026-02-14 按下显示光标，松开打开详情
+            child: GestureDetector(
+              onTapDown: (_) {
+                _selectCell(dayIndex, slotIndex);
+                _pendingLessonListTap = lessonList;
+              },
+              onTapUp: (_) {
+                if (_pendingLessonListTap != null) {
+                  _showLessonDetail(context, _pendingLessonListTap!);
+                  _pendingLessonListTap = null;
+                }
+              },
+              onTapCancel: () {
+                _pendingLessonListTap = null;
+              },
+              child: SingleLessonCell(
+                lesson: lesson,
+                isCompact: studentCount > 1,  // [集体排课] 多人时启用紧凑模式
+                onTap: () {}, // 保留接口但不使用，由外层GestureDetector处理
+              ),
+            ),
+          ),
+        );
+      }
     });
 
     return blocks;
-  }
-
-  /// 根据人数构建格子内容
-  /// [视觉优化] 2026-02-12 添加dayIndex和slotIndex参数以支持选中效果
-  Widget _buildCellContent(
-      BuildContext context, List<KnFixLsn001Bean> lessonList, int dayIndex, int slotIndex) {
-    final onTap = () {
-      // [视觉优化] 2026-02-12 先选中单元格，再显示详情
-      _selectCell(dayIndex, slotIndex);
-      _showLessonDetail(context, lessonList);
-    };
-
-    if (lessonList.length == 1) {
-      return SingleLessonCell(lesson: lessonList.first, onTap: onTap);
-    } else if (lessonList.length <= 3) {
-      return MultiLessonCellSmall(lessons: lessonList, onTap: onTap);
-    } else {
-      return MultiLessonCellLarge(lessons: lessonList, onTap: onTap);
-    }
   }
 
   /// [修复] 2026-02-12 构建空闲格子的点击区域（返回List以便展开到父Stack）
@@ -418,6 +437,11 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
         final currentDayIndex = dayIndex;
         final currentSlotIndex = slotIndex;
 
+        // [Excel风格] 2026-02-14 按下显示光标，松开打开新规画面
+        final tapWeekDay = weekDays[currentDayIndex];
+        final tapHour = hour;
+        final tapMinute = minute;
+
         tapAreas.add(
           Positioned(
             left: dayIndex * columnWidth,
@@ -425,10 +449,29 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
             width: columnWidth,
             height: cellHeight,
             child: GestureDetector(
-              onTap: () {
-                // [视觉优化] 2026-02-12 先选中单元格，再执行操作
+              onTapDown: (_) {
                 _selectCell(currentDayIndex, currentSlotIndex);
-                _navigateToAddForm(context, weekDays[currentDayIndex], hour, minute);
+                _pendingEmptyWeekDay = tapWeekDay;
+                _pendingEmptyHour = tapHour;
+                _pendingEmptyMinute = tapMinute;
+              },
+              onTapUp: (_) {
+                if (_pendingEmptyWeekDay != null) {
+                  _navigateToAddForm(
+                    context,
+                    _pendingEmptyWeekDay!,
+                    _pendingEmptyHour!,
+                    _pendingEmptyMinute!,
+                  );
+                  _pendingEmptyWeekDay = null;
+                  _pendingEmptyHour = null;
+                  _pendingEmptyMinute = null;
+                }
+              },
+              onTapCancel: () {
+                _pendingEmptyWeekDay = null;
+                _pendingEmptyHour = null;
+                _pendingEmptyMinute = null;
               },
               behavior: HitTestBehavior.opaque,
               child: Container(), // 透明点击区域
@@ -441,6 +484,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   }
 
   /// 显示课程详情
+  /// [集体排课] 2026-02-14 添加 onAddGroupMember 回调
   void _showLessonDetail(
       BuildContext context, List<KnFixLsn001Bean> lessonList) {
     final lesson = lessonList.first;
@@ -451,6 +495,14 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
       lessons: lessonList,
       onEdit: widget.onEdit,
       onDelete: widget.onDelete,
+      // [集体排课] 2026-02-14 追加学生排课
+      onAddGroupMember: (weekDay, timeSlot) {
+        // 解析时间 "HH:mm" 格式
+        final parts = timeSlot.split(':');
+        final hour = int.tryParse(parts[0]) ?? 9;
+        final minute = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+        _navigateToAddForm(context, weekDay, hour, minute);
+      },
     );
   }
 

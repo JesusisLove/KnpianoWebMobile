@@ -15,6 +15,7 @@ class ScheduleLessonCard extends StatelessWidget {
   final String? memo; // [课程表新潮版] 2026-02-13 备注
   final int cellSpan; // 占用的格子数（时长/15）
   final VoidCallback? onTap;
+  final bool isCompact; // [集体排课] 2026-02-14 紧凑模式（多学生并排时使用）
 
   // 单元格高度配置（与固定排课一致）
   static const double cellHeight = 24.0;
@@ -29,6 +30,7 @@ class ScheduleLessonCard extends StatelessWidget {
     this.memo,
     this.cellSpan = 3, // 默认45分钟 = 3格
     this.onTap,
+    this.isCompact = false, // [集体排课] 2026-02-14 默认非紧凑模式
   });
 
   @override
@@ -40,6 +42,43 @@ class ScheduleLessonCard extends StatelessWidget {
     // 计算卡片高度
     final cardHeight = cellSpan * cellHeight - 1;
 
+    // [集体排课] 2026-02-14 紧凑模式：只显示姓名，减小内边距
+    if (isCompact) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: cardHeight,
+          margin: const EdgeInsets.symmetric(horizontal: 0.5),
+          padding: const EdgeInsets.all(1),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 1,
+                offset: const Offset(0, 0.5),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              stuName,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 正常模式
     return GestureDetector(
       onTap: onTap,
       child: Container(

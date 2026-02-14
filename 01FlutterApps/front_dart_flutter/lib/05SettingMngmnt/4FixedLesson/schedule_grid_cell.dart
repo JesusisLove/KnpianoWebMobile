@@ -1,4 +1,5 @@
 // [固定排课新潮界面] 2026-02-12 网格单元格组件
+// [集体排课] 2026-02-14 添加紧凑模式卡片用于并排显示
 
 import 'package:flutter/material.dart';
 import 'KnFixLsn001Bean.dart';
@@ -8,11 +9,13 @@ import 'subject_colors.dart';
 class SingleLessonCell extends StatelessWidget {
   final KnFixLsn001Bean lesson;
   final VoidCallback onTap;
+  final bool isCompact; // [集体排课] 2026-02-14 紧凑模式
 
   const SingleLessonCell({
     super.key,
     required this.lesson,
     required this.onTap,
+    this.isCompact = false,
   });
 
   @override
@@ -20,6 +23,41 @@ class SingleLessonCell extends StatelessWidget {
     final bgColor = SubjectColors.getColor(lesson.subjectName);
     final textColor = SubjectColors.getTextColor(lesson.subjectName);
 
+    // [集体排课] 2026-02-14 紧凑模式：只显示姓名，居中
+    if (isCompact) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: [
+              BoxShadow(
+                color: bgColor.withOpacity(0.2),
+                blurRadius: 1,
+                offset: const Offset(0, 0.5),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(1),
+          child: Center(
+            child: Text(
+              lesson.studentName,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 正常模式
     return GestureDetector(
       onTap: onTap,
       child: Container(

@@ -11,7 +11,7 @@ class ScheduleTimeGrid extends StatefulWidget {
   final List<Kn01L002LsnBean> lessons;
   final double timeColumnWidth;
   final Function(DateTime date, int hour, int minute)? onEmptyCellTap;
-  final Function(Kn01L002LsnBean lesson)? onLessonTap;
+  final Function(List<Kn01L002LsnBean> lessons)? onLessonTap; // [集体排课] 2026-02-14 改为传递课程列表
 
   const ScheduleTimeGrid({
     super.key,
@@ -38,7 +38,8 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   int? _selectedSlotIndex;
 
   // [课程表新潮版] 2026-02-14 Excel风格：按下时暂存待执行的动作
-  Kn01L002LsnBean? _pendingLessonTap;
+  // [集体排课] 2026-02-14 改为课程列表
+  List<Kn01L002LsnBean>? _pendingLessonListTap;
   // 待执行的空单元格点击信息
   DateTime? _pendingEmptyDate;
   int? _pendingEmptyHour;
@@ -55,7 +56,8 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
     return slots;
   }
 
-  /// 按(日期, 开始时间)分组课程
+  /// 按(日期, 开始时间, 时长, 科目)分组课程
+  /// [集体上课] 2026-02-14 修改分组逻辑：只有同时间+同时长+同科目的课程才会并排显示
   Map<String, List<Kn01L002LsnBean>> _groupLessons() {
     final grouped = <String, List<Kn01L002LsnBean>>{};
 
@@ -78,7 +80,9 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
       // 获取时间槽
       final timeStr = '${effectiveDate.hour.toString().padLeft(2, '0')}:${effectiveDate.minute.toString().padLeft(2, '0')}';
 
-      final key = '${dayIndex}_$timeStr';
+      // [集体上课] 按时间+时长+科目分组
+      final duration = lesson.classDuration > 0 ? lesson.classDuration : 45;
+      final key = '${dayIndex}_${timeStr}_${duration}_${lesson.subjectId}';
       grouped.putIfAbsent(key, () => []).add(lesson);
     }
 
@@ -250,6 +254,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   }
 
   /// 构建课程色块
+  /// [集体排课] 2026-02-14 支持多学生并排显示
   List<Widget> _buildLessonBlocks(
     Map<String, List<Kn01L002LsnBean>> groupedLessons,
     double columnWidth,
@@ -257,8 +262,6 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
     final blocks = <Widget>[];
 
     groupedLessons.forEach((key, lessonList) {
-      final lesson = lessonList.first;
-
       // 解析key获取dayIndex和时间
       final parts = key.split('_');
       final dayIndex = int.parse(parts[0]);
@@ -267,51 +270,61 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
       final minute = int.parse(timeParts[1]);
 
       final slotIndex = _getSlotIndex(hour, minute);
-      final cellSpan = _getCellSpan(lesson.classDuration > 0 ? lesson.classDuration : 45);
+      // 使用第一个课程的时长计算cellSpan（同时段课程时长应相同）
+      final firstLesson = lessonList.first;
+      final cellSpan = _getCellSpan(firstLesson.classDuration > 0 ? firstLesson.classDuration : 45);
 
       if (slotIndex < 0) return;
 
-      final left = dayIndex * columnWidth + 1;
       final top = slotIndex * ScheduleTimeGrid.cellHeight;
-      final width = columnWidth - 2;
+      final studentCount = lessonList.length;
+      final totalWidth = columnWidth - 2;
+      final cardWidth = totalWidth / studentCount;  // 平分宽度
 
-      // 判断是否是调课
-      final isAdjusted = lesson.lsnAdjustedDate.isNotEmpty;
-      // [课程表新潮版] 2026-02-13 判断是否已签到
-      final isSigned = lesson.scanQrDate.isNotEmpty;
+      // [集体排课] 2026-02-14 遍历所有学生，并排显示
+      for (int i = 0; i < lessonList.length; i++) {
+        final lesson = lessonList[i];
+        final left = dayIndex * columnWidth + 1 + i * cardWidth;
 
-      blocks.add(
-        Positioned(
-          left: left,
-          top: top,
-          width: width,
-          child: GestureDetector(
-            // [课程表新潮版] 2026-02-14 Excel风格：按下显示光标，松开才执行动作
-            onTapDown: (_) {
-              _selectCell(dayIndex, slotIndex);
-              _pendingLessonTap = lesson;
-            },
-            onTapUp: (_) {
-              if (_pendingLessonTap != null) {
-                widget.onLessonTap?.call(_pendingLessonTap!);
-                _pendingLessonTap = null;
-              }
-            },
-            onTapCancel: () {
-              _pendingLessonTap = null;
-            },
-            child: ScheduleLessonCard(
-              stuName: lesson.stuName,
-              subjectName: lesson.subjectName,
-              lessonType: lesson.lessonType,
-              isAdjusted: isAdjusted,
-              isSigned: isSigned,
-              memo: lesson.memo,  // [课程表新潮版] 2026-02-13 备注
-              cellSpan: cellSpan,
+        // 判断是否是调课
+        final isAdjusted = lesson.lsnAdjustedDate.isNotEmpty;
+        // [课程表新潮版] 2026-02-13 判断是否已签到
+        final isSigned = lesson.scanQrDate.isNotEmpty;
+
+        blocks.add(
+          Positioned(
+            left: left,
+            top: top,
+            width: cardWidth,
+            child: GestureDetector(
+              // [课程表新潮版] 2026-02-14 Excel风格：按下显示光标，松开才执行动作
+              onTapDown: (_) {
+                _selectCell(dayIndex, slotIndex);
+                _pendingLessonListTap = lessonList;  // [集体排课] 传递整个列表
+              },
+              onTapUp: (_) {
+                if (_pendingLessonListTap != null) {
+                  widget.onLessonTap?.call(_pendingLessonListTap!);
+                  _pendingLessonListTap = null;
+                }
+              },
+              onTapCancel: () {
+                _pendingLessonListTap = null;
+              },
+              child: ScheduleLessonCard(
+                stuName: lesson.stuName,
+                subjectName: lesson.subjectName,
+                lessonType: lesson.lessonType,
+                isAdjusted: isAdjusted,
+                isSigned: isSigned,
+                memo: lesson.memo,
+                cellSpan: cellSpan,
+                isCompact: studentCount > 1,  // [集体排课] 多人时启用紧凑模式
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
     });
 
     return blocks;
