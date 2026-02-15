@@ -2044,13 +2044,24 @@ class _CalendarPageState extends State<CalendarPage>
                 borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
                 border: Border.all(color: Colors.white, width: 1),
               ),
-              child: Text(
-                '传统',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: !_isTrendyView ? Constants.lessonThemeColor : Colors.white,
-                  fontWeight: !_isTrendyView ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.list,
+                    size: 16,
+                    color: !_isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    '列表',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: !_isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                      fontWeight: !_isTrendyView ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -2073,13 +2084,24 @@ class _CalendarPageState extends State<CalendarPage>
                 borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
                 border: Border.all(color: Colors.white, width: 1),
               ),
-              child: Text(
-                '新潮',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: _isTrendyView ? Constants.lessonThemeColor : Colors.white,
-                  fontWeight: _isTrendyView ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.grid_view,
+                    size: 16,
+                    color: _isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    '网格',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _isTrendyView ? Constants.lessonThemeColor : Colors.white,
+                      fontWeight: _isTrendyView ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

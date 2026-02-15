@@ -1,14 +1,18 @@
 // [课程表新潮版] 2026-02-13 课程类型颜色定义
 // 根据lessonType字段值返回对应的背景颜色
+// [Bug Fix] 2026-02-15 修正lessonType与数据库的映射关系
+// 数据库中：pay_style=0(按课时支付)→lesson_type=0, pay_style=1(按月支付)→lesson_type=1
 
 import 'package:flutter/material.dart';
 
 /// 课程类型颜色配置
 class LessonTypeColors {
   // lessonType常量定义
-  static const int typeScheduled = 1;     // 计划课
-  static const int typeExtra = 2;         // 加时课
-  static const int typePayPerLesson = 3;  // 按课时缴费
+  // 注意：数据库中按课时缴费的lesson_type=0（来自pay_style=0的映射）
+  static const int typePayPerLessonDB = 0;  // 按课时缴费（数据库值）
+  static const int typeScheduled = 1;       // 计划课（按月付费）
+  static const int typeExtra = 2;           // 加时课
+  static const int typePayPerLesson = 3;    // 按课时缴费（兼容旧值）
 
   // 颜色定义
   static const Color scheduledColor = Color(0xFF81D4FA);     // 天蓝色 Colors.lightBlue.shade200
@@ -31,11 +35,13 @@ class LessonTypeColors {
     }
 
     switch (lessonType) {
+      case typePayPerLessonDB: // 按课时缴费（数据库值=0）
+        return payPerLessonColor;
       case typeScheduled:
         return scheduledColor;
       case typeExtra:
         return extraColor;
-      case typePayPerLesson:
+      case typePayPerLesson: // 按课时缴费（兼容旧值=3）
         return payPerLessonColor;
       default:
         return defaultColor;
@@ -45,11 +51,13 @@ class LessonTypeColors {
   /// 根据lessonType获取课程类型名称
   static String getTypeName(int? lessonType) {
     switch (lessonType) {
+      case typePayPerLessonDB: // 按课时缴费（数据库值=0）
+        return '按课时缴费';
       case typeScheduled:
         return '计划课';
       case typeExtra:
         return '加时课';
-      case typePayPerLesson:
+      case typePayPerLesson: // 按课时缴费（兼容旧值=3）
         return '按课时缴费';
       default:
         return '未知类型';

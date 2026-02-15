@@ -58,8 +58,11 @@ https://mybatis.org/mybatis-3/getting-started.html
     </select>
 
     <!-- 手机前端页面课程表页面，获取指定年月日这一天的学生的排课课程 -->
+    <!-- [Bug Fix] 2026-02-15 修复调课记录显示两次的问题 -->
+    <!-- 原问题：前端循环7天查询时，调课记录会在原日期和调课日期各被查出一次 -->
+    <!-- 解决方案：有调课日期时只用调课日期匹配，无调课日期时才用原排课日期匹配 -->
     <select id= "getInfoListByDay" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">
-        select 
+        select
             lesson_id
             ,stu_id
             ,subject_id
@@ -74,9 +77,9 @@ https://mybatis.org/mybatis-3/getting-started.html
             ,lsn_adjusted_date
             ,extra_to_dur_date
             ,memo
-        from v_info_lesson 
-        where substring(schedual_date,1,10) = #{schedualDate}
-           or substring(lsn_adjusted_date,1,10) = #{schedualDate}
+        from v_info_lesson
+        where (lsn_adjusted_date is not null and substring(lsn_adjusted_date,1,10) = #{schedualDate})
+           or (lsn_adjusted_date is null and substring(schedual_date,1,10) = #{schedualDate})
     </select>
 
     <select id= "getInfoById" resultType="com.liu.springboot04web.bean.Kn01L002LsnBean">

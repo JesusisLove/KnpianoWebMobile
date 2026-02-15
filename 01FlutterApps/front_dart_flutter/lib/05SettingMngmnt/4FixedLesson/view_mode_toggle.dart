@@ -52,13 +52,13 @@ class ViewModeToggle extends StatelessWidget {
         children: [
           _buildToggleButton(
             icon: Icons.grid_view,
-            label: '新潮',
+            label: '网格',
             isSelected: currentMode == ViewMode.grid,
             onTap: () => _changeMode(ViewMode.grid),
           ),
           _buildToggleButton(
             icon: Icons.list,
-            label: '传统',
+            label: '列表',
             isSelected: currentMode == ViewMode.list,
             onTap: () => _changeMode(ViewMode.list),
           ),
