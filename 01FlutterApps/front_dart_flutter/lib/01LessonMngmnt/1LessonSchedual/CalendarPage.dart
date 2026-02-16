@@ -1372,6 +1372,7 @@ class _CalendarPageState extends State<CalendarPage>
               borderRadius: BorderRadius.circular(16),
               child: RescheduleLessonDialog(
                 lessonId: event.lessonId,
+                classDuration: event.classDuration, // [Bug修复] 2026-02-16 传递实际课时时长
               ),
             ),
           ),
@@ -1518,6 +1519,7 @@ class _CalendarPageState extends State<CalendarPage>
               borderRadius: BorderRadius.circular(16),
               child: RescheduleLessonDialog(
                 lessonId: event.lessonId,
+                classDuration: event.classDuration, // [Bug修复] 2026-02-16 传递实际课时时长
               ),
             ),
           ),

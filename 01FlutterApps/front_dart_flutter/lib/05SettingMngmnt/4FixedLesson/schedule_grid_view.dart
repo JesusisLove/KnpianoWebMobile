@@ -41,6 +41,9 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   int? _selectedDayIndex;
   int? _selectedSlotIndex;
 
+  // [时间轴高亮] 2026-02-15 按下时高亮时间轴线（红色加粗），松开恢复
+  bool _isPressing = false;
+
   // [Excel风格] 2026-02-14 按下时暂存待执行的动作
   // 待执行的课程详情动作
   List<KnFixLsn001Bean>? _pendingLessonListTap;
@@ -172,17 +175,23 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   /// 构建时间列
   /// [视觉优化] 2026-02-12 显示所有时间刻度：整点显示完整时间，非整点只显示分钟
   /// 12:00和18:00字体加大加粗以区分中午和傍晚
+  /// [时间轴高亮] 2026-02-15 按下时选中行的时间刻度变红加粗，松开恢复
   Widget _buildTimeColumn(List<String> slots) {
     return SizedBox(
       width: timeColumnWidth,
       child: Column(
-        children: slots.map((slot) {
+        children: slots.asMap().entries.map((entry) {
+          final index = entry.key;
+          final slot = entry.value;
           final parts = slot.split(':');
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
 
           // 判断是否是重要时间点（12:00中午、18:00傍晚）
           final isImportantTime = (hour == 12 || hour == 18) && minute == 0;
+
+          // [时间轴高亮] 2026-02-15 按下时当前行的时间刻度高亮红色
+          final isHighlighted = _isPressing && _selectedSlotIndex == index;
 
           // 确定显示的文本：整点显示完整时间，非整点只显示分钟
           String displayText;
@@ -192,12 +201,18 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
             displayText = minute.toString().padLeft(2, '0'); // 非整点：只显示 "15"、"30"、"45"
           }
 
-          // 文字样式：重要时间点加大加粗
-          final textStyle = TextStyle(
-            fontSize: isImportantTime ? 12 : 10,
-            fontWeight: isImportantTime ? FontWeight.bold : FontWeight.normal,
-            color: isImportantTime ? Colors.grey.shade800 : Colors.grey.shade600,
-          );
+          // [时间轴高亮] 按下时高亮为红色加粗，否则保持原样式
+          final textStyle = isHighlighted
+              ? const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                )
+              : TextStyle(
+                  fontSize: isImportantTime ? 12 : 10,
+                  fontWeight: isImportantTime ? FontWeight.bold : FontWeight.normal,
+                  color: isImportantTime ? Colors.grey.shade800 : Colors.grey.shade600,
+                );
 
           return Container(
             height: cellHeight,
@@ -206,9 +221,10 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
             padding: const EdgeInsets.only(right: 4),
             child: Transform.translate(
               // 向上偏移约半个文字高度，让网格线（在单元格顶部）对准文字中间
-              offset: Offset(0, isImportantTime ? -8 : -7),
+              offset: Offset(0, isImportantTime || isHighlighted ? -8 : -7),
               child: Text(
-                displayText,
+                // [时间轴高亮] 高亮时显示完整时间（如 "13:30"），方便用户确认
+                isHighlighted ? slot : displayText,
                 style: textStyle,
               ),
             ),
@@ -252,6 +268,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
 
   /// 构建网格线
   /// [视觉优化] 2026-02-12 整点的网格线调粗，12:00和18:00更粗
+  /// [时间轴高亮] 2026-02-15 按下时选中行的时间轴线变红加粗，松开恢复
   Widget _buildGridLines(List<String> slots, double columnWidth) {
     return Column(
       children: slots.asMap().entries.map((entry) {
@@ -261,12 +278,18 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
         final hour = int.parse(parts[0]);
         final minute = int.parse(parts[1]);
 
+        // [时间轴高亮] 2026-02-15 按下时当前行的时间轴线高亮红色
+        final isHighlighted = _isPressing && _selectedSlotIndex == index;
+
         // 判断线条粗细：12:00和18:00最粗(2.0)，其他整点次粗(1.0)，非整点细线(0.5)
         final isImportantHourLine = minute == 0 && (hour == 12 || hour == 18);
         final isHourLine = minute == 0;
         double lineWidth;
         Color lineColor;
-        if (isImportantHourLine) {
+        if (isHighlighted) {
+          lineWidth = 2.5;  // 按下时高亮加粗
+          lineColor = Colors.red;
+        } else if (isImportantHourLine) {
           lineWidth = 2.0;  // 12:00和18:00加粗2倍
           lineColor = Colors.grey.shade500;
         } else if (isHourLine) {
@@ -305,31 +328,72 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
   }
 
   /// [视觉优化] 2026-02-12 构建选中单元格的绿色边框（Excel风格）
+  /// [时间显示] 2026-02-15 在选中单元格内显示对应时间（如 "13:30"）
   Widget _buildSelectionBorder(double columnWidth) {
+    final slots = timeSlots;
+    final timeText = (_selectedSlotIndex! >= 0 && _selectedSlotIndex! < slots.length)
+        ? slots[_selectedSlotIndex!]
+        : '';
+
     return Positioned(
       left: _selectedDayIndex! * columnWidth,
       top: _selectedSlotIndex! * cellHeight,
       width: columnWidth,
       height: cellHeight,
       child: IgnorePointer(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.green,
-              width: 2.0, // 原来边框是0.5，现在是4倍
+        child: Stack(
+          children: [
+            // 绿色边框
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.green,
+                  width: 2.0,
+                ),
+              ),
             ),
-          ),
+            // 时间文字
+            if (timeText.isNotEmpty)
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    timeText,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 
   /// [视觉优化] 2026-02-12 选中单元格
+  /// [时间轴高亮] 2026-02-15 同时标记按下状态
   void _selectCell(int dayIndex, int slotIndex) {
     setState(() {
       _selectedDayIndex = dayIndex;
       _selectedSlotIndex = slotIndex;
+      _isPressing = true;
     });
+  }
+
+  /// [时间轴高亮] 2026-02-15 松开时恢复时间轴线
+  void _releasePress() {
+    if (_isPressing) {
+      setState(() {
+        _isPressing = false;
+      });
+    }
   }
 
   /// 构建课程色块
@@ -376,18 +440,19 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
                 _pendingLessonListTap = lessonList;
               },
               onTapUp: (_) {
+                _releasePress();
                 if (_pendingLessonListTap != null) {
                   _showLessonDetail(context, _pendingLessonListTap!);
                   _pendingLessonListTap = null;
                 }
               },
               onTapCancel: () {
+                _releasePress();
                 _pendingLessonListTap = null;
               },
               child: SingleLessonCell(
                 lesson: lesson,
                 isCompact: studentCount > 1,  // [集体排课] 多人时启用紧凑模式
-                onTap: () {}, // 保留接口但不使用，由外层GestureDetector处理
               ),
             ),
           ),
@@ -456,6 +521,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
                 _pendingEmptyMinute = tapMinute;
               },
               onTapUp: (_) {
+                _releasePress();
                 if (_pendingEmptyWeekDay != null) {
                   _navigateToAddForm(
                     context,
@@ -469,6 +535,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
                 }
               },
               onTapCancel: () {
+                _releasePress();
                 _pendingEmptyWeekDay = null;
                 _pendingEmptyHour = null;
                 _pendingEmptyMinute = null;

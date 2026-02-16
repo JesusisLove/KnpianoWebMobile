@@ -61,6 +61,9 @@ class ScheduleFormState extends State<ScheduleForm> {
   // 存储处理后的学生列表和科目列表
   Map<String, String> stuNameList = {};
   Map<String, List<Map<String, String>>> subjectsByStudent = {};
+  // [Bug修复] 2026-02-15 存储学生-科目的课时时长（分钟），用于冲突检测时正确计算结束时间
+  // key: "${stuId}_${subjectId}", value: minutesPerLsn
+  Map<String, int> classDurationByStudentSubject = {};
 
   // 画面初期化
   @override
@@ -102,6 +105,9 @@ class ScheduleFormState extends State<ScheduleForm> {
           }
           tempSubjects[stuId]
               ?.add({'subjectId': subjectId, 'subjectName': subjectName});
+          // [Bug修复] 2026-02-15 读取课时时长（minutesPerLsn），默认45分钟
+          final minutesPerLsn = data['minutesPerLsn'] as int? ?? 45;
+          classDurationByStudentSubject['${stuId}_$subjectId'] = minutesPerLsn;
         }
         setState(() {
           subjectsByStudent = tempSubjects;
@@ -352,7 +358,9 @@ class ScheduleFormState extends State<ScheduleForm> {
         } else if (result.hasConflict) {
           // 检测到冲突，构建新排课时间信息用于时间轴可视化
           final startTime = '$selectedHour:$selectedMinute';
-          final endTime = _calculateEndTime(startTime, 45); // 默认45分钟课时
+          // [Bug修复] 2026-02-15 使用学生实际的课时时长，而非硬编码45分钟
+          final duration = classDurationByStudentSubject['${selectedStuId}_$selectedSubId'] ?? 45;
+          final endTime = _calculateEndTime(startTime, duration);
           final newSchedule = NewScheduleInfo(
             startTime: startTime,
             endTime: endTime,

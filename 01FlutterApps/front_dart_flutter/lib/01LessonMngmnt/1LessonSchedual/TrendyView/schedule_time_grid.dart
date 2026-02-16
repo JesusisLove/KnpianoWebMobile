@@ -37,6 +37,9 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   int? _selectedDayIndex;
   int? _selectedSlotIndex;
 
+  // [时间轴高亮] 2026-02-15 按下时高亮时间轴线（红色加粗），松开恢复
+  bool _isPressing = false;
+
   // [课程表新潮版] 2026-02-14 Excel风格：按下时暂存待执行的动作
   // [集体排课] 2026-02-14 改为课程列表
   List<Kn01L002LsnBean>? _pendingLessonListTap;
@@ -163,17 +166,23 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   }
 
   /// 构建时间列
+  /// [时间轴高亮] 2026-02-15 按下时选中行的时间刻度变红加粗，松开恢复
   Widget _buildTimeColumn(List<String> slots) {
     return SizedBox(
       width: widget.timeColumnWidth,
       child: Column(
-        children: slots.map((slot) {
+        children: slots.asMap().entries.map((entry) {
+          final index = entry.key;
+          final slot = entry.value;
           final parts = slot.split(':');
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
 
           // 重要时间点（12:00中午、18:00傍晚）
           final isImportantTime = (hour == 12 || hour == 18) && minute == 0;
+
+          // [时间轴高亮] 2026-02-15 按下时当前行的时间刻度高亮红色
+          final isHighlighted = _isPressing && _selectedSlotIndex == index;
 
           // 整点显示完整时间，非整点只显示分钟
           String displayText;
@@ -183,19 +192,30 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
             displayText = minute.toString().padLeft(2, '0');
           }
 
-          final textStyle = TextStyle(
-            fontSize: isImportantTime ? 12 : 10,
-            fontWeight: isImportantTime ? FontWeight.bold : FontWeight.normal,
-            color: isImportantTime ? Colors.grey.shade800 : Colors.grey.shade600,
-          );
+          // [时间轴高亮] 按下时高亮为红色加粗，否则保持原样式
+          final textStyle = isHighlighted
+              ? const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                )
+              : TextStyle(
+                  fontSize: isImportantTime ? 12 : 10,
+                  fontWeight: isImportantTime ? FontWeight.bold : FontWeight.normal,
+                  color: isImportantTime ? Colors.grey.shade800 : Colors.grey.shade600,
+                );
 
           return Container(
             height: ScheduleTimeGrid.cellHeight,
             alignment: Alignment.topRight,
             padding: const EdgeInsets.only(right: 4),
             child: Transform.translate(
-              offset: Offset(0, isImportantTime ? -8 : -7),
-              child: Text(displayText, style: textStyle),
+              offset: Offset(0, isImportantTime || isHighlighted ? -8 : -7),
+              child: Text(
+                // [时间轴高亮] 高亮时显示完整时间（如 "13:30"），方便用户确认
+                isHighlighted ? slot : displayText,
+                style: textStyle,
+              ),
             ),
           );
         }).toList(),
@@ -204,6 +224,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   }
 
   /// 构建网格线
+  /// [时间轴高亮] 2026-02-15 按下时选中行的时间轴线变红加粗，松开恢复
   Widget _buildGridLines(List<String> slots, double columnWidth) {
     return Column(
       children: slots.asMap().entries.map((entry) {
@@ -213,12 +234,18 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
         final hour = int.parse(parts[0]);
         final minute = int.parse(parts[1]);
 
+        // [时间轴高亮] 2026-02-15 按下时当前行的时间轴线高亮红色
+        final isHighlighted = _isPressing && _selectedSlotIndex == index;
+
         // 线条粗细
         final isImportantHourLine = minute == 0 && (hour == 12 || hour == 18);
         final isHourLine = minute == 0;
         double lineWidth;
         Color lineColor;
-        if (isImportantHourLine) {
+        if (isHighlighted) {
+          lineWidth = 2.5;  // 按下时高亮加粗
+          lineColor = Colors.red;
+        } else if (isImportantHourLine) {
           lineWidth = 2.0;
           lineColor = Colors.grey.shade500;
         } else if (isHourLine) {
@@ -303,12 +330,14 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
                 _pendingLessonListTap = lessonList;  // [集体排课] 传递整个列表
               },
               onTapUp: (_) {
+                _releasePress();
                 if (_pendingLessonListTap != null) {
                   widget.onLessonTap?.call(_pendingLessonListTap!);
                   _pendingLessonListTap = null;
                 }
               },
               onTapCancel: () {
+                _releasePress();
                 _pendingLessonListTap = null;
               },
               child: ScheduleLessonCard(
@@ -389,6 +418,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
                 _pendingEmptyMinute = tapMinute;
               },
               onTapUp: (_) {
+                _releasePress();
                 if (_pendingEmptyDate != null) {
                   widget.onEmptyCellTap?.call(
                     _pendingEmptyDate!,
@@ -401,6 +431,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
                 }
               },
               onTapCancel: () {
+                _releasePress();
                 _pendingEmptyDate = null;
                 _pendingEmptyHour = null;
                 _pendingEmptyMinute = null;
@@ -416,25 +447,66 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   }
 
   /// 选中单元格
+  /// [时间轴高亮] 2026-02-15 同时标记按下状态
   void _selectCell(int dayIndex, int slotIndex) {
     setState(() {
       _selectedDayIndex = dayIndex;
       _selectedSlotIndex = slotIndex;
+      _isPressing = true;
     });
   }
 
+  /// [时间轴高亮] 2026-02-15 松开时恢复时间轴线
+  void _releasePress() {
+    if (_isPressing) {
+      setState(() {
+        _isPressing = false;
+      });
+    }
+  }
+
   /// 构建选中边框
+  /// [时间显示] 2026-02-15 在选中单元格内显示对应时间（如 "13:30"）
   Widget _buildSelectionBorder(double columnWidth) {
+    final slots = timeSlots;
+    final timeText = (_selectedSlotIndex! >= 0 && _selectedSlotIndex! < slots.length)
+        ? slots[_selectedSlotIndex!]
+        : '';
+
     return Positioned(
       left: _selectedDayIndex! * columnWidth,
       top: _selectedSlotIndex! * ScheduleTimeGrid.cellHeight,
       width: columnWidth,
       height: ScheduleTimeGrid.cellHeight,
       child: IgnorePointer(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.green, width: 2.0),
-          ),
+        child: Stack(
+          children: [
+            // 绿色边框
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.green, width: 2.0),
+              ),
+            ),
+            // 时间文字
+            if (timeText.isNotEmpty)
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    timeText,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

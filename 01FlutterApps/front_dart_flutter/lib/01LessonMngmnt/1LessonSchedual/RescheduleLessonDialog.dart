@@ -10,10 +10,13 @@ import 'ConflictWarningDialog.dart'; // [课程排他状态功能] 2026-02-08
 
 class RescheduleLessonDialog extends StatefulWidget {
   final String lessonId;
+  // [Bug修复] 2026-02-16 接收课时时长参数，避免硬编码45分钟
+  final int classDuration;
 
   const RescheduleLessonDialog({
     super.key,
     required this.lessonId,
+    this.classDuration = 45, // 默认45分钟，兼容旧调用
   });
 
   @override
@@ -199,10 +202,10 @@ class _RescheduleLessonDialogState extends State<RescheduleLessonDialog> {
             // [2026-02-12] 构建新排课时间信息，用于时间轴可视化
             final formattedTime =
                 '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
-            // 使用默认时长45分钟计算结束时间（调课时原课程时长未变）
+            // [Bug修复] 2026-02-16 使用实际课时时长，而非硬编码45分钟
             final newSchedule = NewScheduleInfo(
               startTime: formattedTime,
-              endTime: _calculateEndTime(formattedTime, 45),
+              endTime: _calculateEndTime(formattedTime, widget.classDuration),
             );
 
             if (result.isSameStudentConflict) {
