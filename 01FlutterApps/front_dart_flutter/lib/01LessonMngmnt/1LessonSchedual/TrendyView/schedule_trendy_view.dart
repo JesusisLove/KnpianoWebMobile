@@ -22,6 +22,7 @@ class ScheduleTrendyView extends StatefulWidget {
   final Function(Kn01L002LsnBean lesson)? onRestoreLesson;  // [课程表新潮版] 2026-02-13 撤销签到
   final Function(Kn01L002LsnBean lesson)? onNoteLesson;     // [课程表新潮版] 2026-02-13 备注
   final Function(DateTime weekStart)? onWeekChanged;
+  final DateTime? initialWeekStart; // [周同步] 2026-02-16 支持从外部传入初始周
 
   const ScheduleTrendyView({
     super.key,
@@ -36,6 +37,7 @@ class ScheduleTrendyView extends StatefulWidget {
     this.onRestoreLesson,
     this.onNoteLesson,
     this.onWeekChanged,
+    this.initialWeekStart,
   });
 
   @override
@@ -51,7 +53,20 @@ class _ScheduleTrendyViewState extends State<ScheduleTrendyView> {
   @override
   void initState() {
     super.initState();
-    _currentWeekStart = _getWeekStart(DateTime.now());
+    // [周同步] 2026-02-16 优先使用外部传入的初始周，否则使用当前日期
+    _currentWeekStart = widget.initialWeekStart ?? _getWeekStart(DateTime.now());
+  }
+
+  // [周同步] 2026-02-16 当外部传入的initialWeekStart变化时，同步更新
+  @override
+  void didUpdateWidget(covariant ScheduleTrendyView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialWeekStart != null &&
+        oldWidget.initialWeekStart != widget.initialWeekStart) {
+      setState(() {
+        _currentWeekStart = widget.initialWeekStart!;
+      });
+    }
   }
 
   /// 获取指定日期所在周的周一

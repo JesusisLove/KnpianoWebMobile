@@ -2035,7 +2035,11 @@ class _CalendarPageState extends State<CalendarPage>
                   _isTrendyView = false;
                 });
                 _saveViewPreference(false); // [课程表新潮版] 2026-02-14 记忆选择
-                // 切换回传统版时，加载当前选中日期的数据
+                // [周同步] 2026-02-16 切换回传统版时，同步focusedDay并加载对应日期数据
+                if (_currentWeekStart != null) {
+                  _focusedDay = _currentWeekStart!;
+                  _selectedDay = _currentWeekStart!;
+                }
                 _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(_selectedDay));
               }
             },
@@ -2074,8 +2078,8 @@ class _CalendarPageState extends State<CalendarPage>
                   _isTrendyView = true;
                 });
                 _saveViewPreference(true); // [课程表新潮版] 2026-02-14 记忆选择
-                // 切换到新潮版时，加载当前周的数据
-                final weekStart = _getWeekStart(_selectedDay);
+                // [周同步] 2026-02-16 切换到新潮版时，使用focusedDay确定周（用户可能翻页但未选日）
+                final weekStart = _getWeekStart(_focusedDay);
                 _fetchWeekLessons(weekStart);
               }
             },
@@ -2119,6 +2123,7 @@ class _CalendarPageState extends State<CalendarPage>
         ScheduleTrendyView(
           lessons: _weekLessons,
           themeColor: Constants.lessonThemeColor,
+          initialWeekStart: _currentWeekStart, // [周同步] 2026-02-16 传入当前周起始日期
           onAddLesson: (date, hour, minute) {
             // 复用现有的AddCourseDialog
             final time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
@@ -2151,6 +2156,11 @@ class _CalendarPageState extends State<CalendarPage>
             _handleNoteCourseForTrendy(lesson);
           },
           onWeekChanged: (weekStart) {
+            // [周同步] 2026-02-16 周切换时同步更新传统版的选中日期
+            setState(() {
+              _selectedDay = weekStart;
+              _focusedDay = weekStart;
+            });
             // 周切换时加载新一周的数据
             _fetchWeekLessons(weekStart);
           },
@@ -2196,6 +2206,12 @@ class _CalendarPageState extends State<CalendarPage>
                 _focusedDay = focusedDay;
               });
               _fetchStudentLsn(DateFormat('yyyy-MM-dd').format(selectedDay));
+            },
+            // [周同步] 2026-02-16 翻页时同步focusedDay，确保切换到新潮版时周正确
+            onPageChanged: (focusedDay) {
+              setState(() {
+                _focusedDay = focusedDay;
+              });
             },
             onFormatChanged: (format) {
               if (_calendarFormat != format) {
