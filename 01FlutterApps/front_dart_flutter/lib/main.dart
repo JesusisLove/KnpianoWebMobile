@@ -59,30 +59,33 @@ class MyApp extends StatelessWidget {
           title: '一对一教学管理系统',
           // [Flutter页面主题改造] 2026-01-17 应用动态主题
           theme: themeProvider.themeData,
-          // [应用锁定功能] 2026-02-17 使用GestureDetector检测用户操作以重置超时计时器
-          home: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () =>
-                Provider.of<AppLockProvider>(context, listen: false).onUserActivity(),
-            onPanDown: (_) =>
-                Provider.of<AppLockProvider>(context, listen: false).onUserActivity(),
-            child: Consumer<AppLockProvider>(
-              builder: (context, lockProvider, child) {
-                return Stack(
-                  children: [
-                    // 主画面
-                    HomePage(currentNavIndex: 0),
-                    // PIN设置画面（首次启动，未设置PIN时显示）
-                    if (!lockProvider.isPinSet)
-                      const PinSetupScreen(mode: PinSetupMode.setup),
-                    // PIN输入画面（已锁定时显示）
-                    if (lockProvider.isPinSet && lockProvider.isLocked)
-                      const AppLockScreen(),
-                  ],
+          home: HomePage(currentNavIndex: 0),
+          // [应用锁定功能] 2026-02-17 使用builder将锁屏层叠加在Navigator整体之上
+          // 无论用户当前在第几层子页面，时间到锁屏立即出现在最顶层
+          // 解锁后Navigator状态完全保留，用户看到锁之前的那个页面
+          // 使用Listener代替GestureDetector，确保触摸事件穿透到子页面（不消费事件）
+          builder: (context, child) {
+            return Consumer<AppLockProvider>(
+              builder: (context, lockProvider, _) {
+                return Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (_) => lockProvider.onUserActivity(),
+                  child: Stack(
+                    children: [
+                      // Navigator整体（包含所有层级的子页面）
+                      child!,
+                      // PIN设置画面（首次启动，未设置PIN时显示）
+                      if (!lockProvider.isPinSet)
+                        const PinSetupScreen(mode: PinSetupMode.setup),
+                      // PIN输入画面（已锁定时显示，盖在所有子页面上方）
+                      if (lockProvider.isPinSet && lockProvider.isLocked)
+                        const AppLockScreen(),
+                    ],
+                  ),
                 );
               },
-            ),
-          ),
+            );
+          },
         );
       },
     );
