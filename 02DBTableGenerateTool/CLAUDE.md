@@ -276,3 +276,7 @@ mysqldump -u user -p --no-data --no-create-info --skip-routines --skip-triggers 
 - Update production export files after major releases
 - Document breaking changes in commit messages
 - Tag releases that correspond to production deployments
+
+## 讨论阶段注意事项
+
+问题讨论阶段只是为了理清问题的思路和业务逻辑方案的技术可行性，不要写代码避免浪费AI的Token。

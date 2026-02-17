@@ -46,6 +46,8 @@ dependencies:
   # [Flutter页面主题改造] 2026-01-18 添加Google字体支持（童话风格使用手写体）
   # [环境修复] 2026-02-12 升级以兼容Flutter 3.41.0 / Dart 3.11.0
   google_fonts: ^8.0.1
+  # [应用锁定功能] 2026-02-17 添加SHA-256哈希计算支持（用于PIN加密存储）
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

@@ -100,3 +100,7 @@ flutter run
 - Uses MyBatis for database access
 - RESTful API design for mobile-backend communication
 - Thymeleaf templates for Web UI
+
+## 讨论阶段注意事项
+
+问题讨论阶段只是为了理清问题的思路和业务逻辑方案的技术可行性，不要写代码避免浪费AI的Token。

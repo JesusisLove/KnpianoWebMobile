@@ -16,6 +16,8 @@ import '04IntegratMngmnt/3SuspensionOfLesson/StudentLeaveListPage.dart';
 import '05SettingMngmnt/5BatchArrangeLessonManual/Kn05S002WeekCalculatorSchedual.dart';
 // [Flutter页面主题改造] 2026-01-18 添加主题设置页面导入
 import '05SettingMngmnt/6ThemeSetting/ThemeSettingPage.dart';
+// [应用锁定功能] 2026-02-17 添加PIN设置画面导入
+import 'security/pin_setup_screen.dart';
 import 'ApiConfig/KnApiConfig.dart';
 import 'CommonProcess/StudentNameMenuCommon.dart';
 import 'Constants.dart' as consts;
@@ -771,6 +773,19 @@ class HomePageState extends State<HomePage> {
                             knFontColor: Colors.white,
                             pagePath: "设置管理",
                           )));
+            },
+          },
+          // [应用锁定功能] 2026-02-17 添加修改PIN码菜单项
+          {
+            'icon': Icons.pin,
+            'text': "修改PIN码",
+            'description': "变更应用解锁PIN码",
+            'onPressed': () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const PinSetupScreen(mode: PinSetupMode.change)));
             },
           },
         ];
