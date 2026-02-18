@@ -15,7 +15,8 @@ class AppLockScreen extends StatefulWidget {
   State<AppLockScreen> createState() => _AppLockScreenState();
 }
 
-class _AppLockScreenState extends State<AppLockScreen> {
+class _AppLockScreenState extends State<AppLockScreen>
+    with SingleTickerProviderStateMixin {
   final PinStorageService _storage = PinStorageService();
 
   String _inputPin = '';
@@ -25,14 +26,29 @@ class _AppLockScreenState extends State<AppLockScreen> {
   DateTime? _lockoutUntil;
   Timer? _countdownTimer;
 
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
+
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -28), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -28, end: 28), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 28, end: -20), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -20, end: 20), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 20, end: 0), weight: 1),
+    ]).animate(_shakeController);
     _loadLockState();
   }
 
   @override
   void dispose() {
+    _shakeController.dispose();
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -80,8 +96,10 @@ class _AppLockScreenState extends State<AppLockScreen> {
     if (_lockoutUntil == null) return '00:00';
     final remaining = _lockoutUntil!.difference(DateTime.now());
     if (remaining.isNegative) return '00:00';
-    final minutes = remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final seconds = remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final minutes =
+        remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds =
+        remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
@@ -127,6 +145,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
         _inputPin = '';
         _hasError = true;
       });
+      _shakeController.forward(from: 0);
 
       if (_isLockedOut()) {
         _startCountdown();
@@ -163,7 +182,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
             const Text(
               'KN Piano Studio',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF667eea),
               ),
@@ -172,7 +191,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
             Text(
               _isLockedOut() ? '输入错误次数过多，请等待后重试' : '应用已锁定，请验证身份',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.grey[600],
               ),
             ),
@@ -195,22 +214,29 @@ class _AppLockScreenState extends State<AppLockScreen> {
                 ),
               ),
             ] else ...[
-              // PIN点状显示
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(4, (index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index < _inputPin.length
-                          ? const Color(0xFF667eea)
-                          : Colors.grey[300],
-                    ),
-                  );
-                }),
+              // PIN点状显示（错误时左右摇晃）
+              AnimatedBuilder(
+                animation: _shakeAnimation,
+                builder: (context, child) => Transform.translate(
+                  offset: Offset(_shakeAnimation.value, 0),
+                  child: child,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: index < _inputPin.length
+                            ? const Color(0xFF667eea)
+                            : Colors.grey[300],
+                      ),
+                    );
+                  }),
+                ),
               ),
               const SizedBox(height: 16),
               // 错误提示
@@ -265,7 +291,9 @@ class _AppLockScreenState extends State<AppLockScreen> {
 
   Widget _buildKeyRow(List<String> digits, bool disabled) {
     return Row(
-      children: digits.map((d) => Expanded(child: _buildDigitKey(d, disabled))).toList(),
+      children: digits
+          .map((d) => Expanded(child: _buildDigitKey(d, disabled)))
+          .toList(),
     );
   }
 

@@ -23,12 +23,14 @@ class SecuritySettingPage extends StatelessWidget {
   });
 
   /// 可选的自动锁定时间列表（秒数 → 显示标签）
+  /// 0 = 从不自动锁定（不启动计时器）
   static const List<(int, String)> _timeoutOptions = [
     (60, '1 分钟'),
     (120, '2 分钟（默认）'),
     (300, '5 分钟'),
     (600, '10 分钟'),
     (1800, '30 分钟'),
+    (0, '从不'),
   ];
 
   @override
@@ -88,9 +90,12 @@ class SecuritySettingPage extends StatelessWidget {
                   onTap: () async {
                     await lockProvider.updateTimeout(seconds);
                     if (context.mounted) {
+                      final message = seconds == 0
+                          ? '已设置为从不自动锁定'
+                          : '自动锁定时间已设置为$label';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('自动锁定时间已设置为$label'),
+                          content: Text(message),
                           duration: const Duration(seconds: 2),
                         ),
                       );

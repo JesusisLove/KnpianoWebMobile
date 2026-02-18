@@ -94,6 +94,8 @@ class AppLockProvider extends ChangeNotifier with WidgetsBindingObserver {
 
       // 回到前台：以「最后操作时间」为基准，计算总空闲时长（含后台时间）
       case AppLifecycleState.resumed:
+        // 「从不」锁定时跳过超时检查
+        if (_timeout.inSeconds == 0) break;
         if (_lastActivityTime != null) {
           final elapsed = DateTime.now().difference(_lastActivityTime!);
           if (elapsed >= _timeout) {
@@ -114,6 +116,8 @@ class AppLockProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   void _restartTimer() {
     _timer?.cancel();
+    // timeout == 0 表示「从不自动锁定」，不启动计时器
+    if (_timeout.inSeconds == 0) return;
     _timer = Timer(_timeout, () => lock());
   }
 
