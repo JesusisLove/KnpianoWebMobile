@@ -17,19 +17,34 @@ class AppLockProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// 最后一次用户操作时间（无论前台/后台，统一以此为基准计算空闲时长）
   DateTime? _lastActivityTime;
 
-  static const Duration _timeout = Duration(seconds: 120);
+  /// 当前自动锁定时长（从SharedPreferences加载，可在运行时更新）
+  Duration _timeout = const Duration(seconds: PinStorageService.defaultTimeoutSeconds);
 
   bool get isLocked => _isLocked;
   bool get isPinSet => _isPinSet;
+  int get timeoutSeconds => _timeout.inSeconds;
 
-  /// 应用启动时调用。确认PIN设置状况，未设置则需要进入设置流程，已设置则进入锁定状态
+  /// 应用启动时调用。确认PIN设置状况，加载超时设置，注册生命周期观察者
   Future<void> initialize() async {
     _isPinSet = await _storageService.isPinSet();
     if (_isPinSet) {
       _isLocked = true;
     }
+    // 从SharedPreferences加载用户设置的超时时间
+    final savedSeconds = await _storageService.getTimeoutSeconds();
+    _timeout = Duration(seconds: savedSeconds);
     WidgetsBinding.instance.addObserver(this);
     notifyListeners();
+  }
+
+  /// 更新自动锁定时长，保存到SharedPreferences并立即以新时长重启计时器
+  Future<void> updateTimeout(int seconds) async {
+    await _storageService.saveTimeoutSeconds(seconds);
+    _timeout = Duration(seconds: seconds);
+    notifyListeners();
+    if (!_isLocked && _isPinSet) {
+      _restartTimer();
+    }
   }
 
   /// 每次有用户操作时调用。更新最后操作时间，重置计时器（仅在未锁定状态下有效）

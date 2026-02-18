@@ -11,6 +11,10 @@ class PinStorageService {
   static const String _keyPinSet = 'app_pin_set';
   static const String _keyFailCount = 'app_pin_fail_count';
   static const String _keyLockoutUntil = 'app_pin_lockout_until';
+  static const String _keyTimeoutSeconds = 'app_lock_timeout_seconds';
+
+  /// 默认自动锁定时间（秒）
+  static const int defaultTimeoutSeconds = 120;
 
   /// 将PIN字符串转为SHA-256哈希字符串
   String _hashPin(String pin) {
@@ -88,5 +92,17 @@ class PinStorageService {
     final lockoutUntil = await getLockoutUntil();
     if (lockoutUntil == null) return false;
     return DateTime.now().isBefore(lockoutUntil);
+  }
+
+  /// 获取自动锁定时间（秒）；未设置时返回默认值120秒
+  Future<int> getTimeoutSeconds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_keyTimeoutSeconds) ?? defaultTimeoutSeconds;
+  }
+
+  /// 保存自动锁定时间（秒）
+  Future<void> saveTimeoutSeconds(int seconds) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyTimeoutSeconds, seconds);
   }
 }
