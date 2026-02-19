@@ -2124,6 +2124,8 @@ class _CalendarPageState extends State<CalendarPage>
           lessons: _weekLessons,
           themeColor: Constants.lessonThemeColor,
           initialWeekStart: _currentWeekStart, // [周同步] 2026-02-16 传入当前周起始日期
+          highlightStuId: highlightedStuId,    // [闪烁动画] 2026-02-19 传递高亮学生ID
+          highlightTime: currentHighlightedTime, // [闪烁动画] 2026-02-19 传递高亮时间
           onAddLesson: (date, hour, minute) {
             // 复用现有的AddCourseDialog
             final time = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';

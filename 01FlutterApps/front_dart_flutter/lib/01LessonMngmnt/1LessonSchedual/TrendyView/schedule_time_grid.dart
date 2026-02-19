@@ -1,6 +1,7 @@
 // [课程表新潮版] 2026-02-13 时间网格组件
-// 显示08:00-21:00的15分钟间隔网格，复用固定排课的网格逻辑
+// 显示08:00-22:45的15分钟间隔网格，复用固定排课的网格逻辑
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../Kn01L002LsnBean.dart';
 import 'schedule_lesson_card.dart';
@@ -12,6 +13,8 @@ class ScheduleTimeGrid extends StatefulWidget {
   final double timeColumnWidth;
   final Function(DateTime date, int hour, int minute)? onEmptyCellTap;
   final Function(List<Kn01L002LsnBean> lessons)? onLessonTap; // [集体排课] 2026-02-14 改为传递课程列表
+  final String? highlightStuId;  // [闪烁动画] 2026-02-19 高亮显示的学生ID
+  final String? highlightTime;   // [闪烁动画] 2026-02-19 高亮显示的时间（HH:mm）
 
   const ScheduleTimeGrid({
     super.key,
@@ -20,11 +23,13 @@ class ScheduleTimeGrid extends StatefulWidget {
     this.timeColumnWidth = 50.0,
     this.onEmptyCellTap,
     this.onLessonTap,
+    this.highlightStuId,
+    this.highlightTime,
   });
 
   // 时间配置（与固定排课一致）
   static const int startHour = 8;
-  static const int endHour = 21;
+  static const int endHour = 23; // [Bug修复] 2026-02-19 延伸到22:30（endHour=23生成到22:45）
   static const int intervalMinutes = 15;
   static const double cellHeight = 24.0;
 
@@ -32,13 +37,22 @@ class ScheduleTimeGrid extends StatefulWidget {
   State<ScheduleTimeGrid> createState() => _ScheduleTimeGridState();
 }
 
-class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
+class _ScheduleTimeGridState extends State<ScheduleTimeGrid>
+    with SingleTickerProviderStateMixin {
   // 选中单元格的位置
   int? _selectedDayIndex;
   int? _selectedSlotIndex;
 
   // [时间轴高亮] 2026-02-15 按下时高亮时间轴线（红色加粗），松开恢复
   bool _isPressing = false;
+
+  // [闪烁动画] 2026-02-19 高亮学生卡片闪烁（与传统版CalendarPage一致）
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  Timer? _blinkTimer;
+
+  // [自动滚动] 2026-02-19 滚动到被查找学生卡片的位置
+  final ScrollController _scrollController = ScrollController();
 
   // [课程表新潮版] 2026-02-14 Excel风格：按下时暂存待执行的动作
   // [集体排课] 2026-02-14 改为课程列表
@@ -47,6 +61,99 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
   DateTime? _pendingEmptyDate;
   int? _pendingEmptyHour;
   int? _pendingEmptyMinute;
+
+  @override
+  void initState() {
+    super.initState();
+    // [闪烁动画] 2026-02-19 初始化动画控制器
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_fadeController);
+
+    // 如果有高亮参数，启动闪烁 + 自动滚动
+    if (widget.highlightStuId != null && widget.highlightTime != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startBlinking();
+        _scrollToHighlightedLesson();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _blinkTimer?.cancel();
+    _fadeController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // [自动滚动] 2026-02-19 滚动到被查找学生卡片的位置，使其显示在屏幕中央
+  void _scrollToHighlightedLesson() {
+    if (widget.highlightTime == null) return;
+
+    // 从 highlightTime（如 "14:30"）计算 slotIndex
+    final parts = widget.highlightTime!.split(':');
+    if (parts.length != 2) return;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return;
+
+    final slotIndex = _getSlotIndex(hour, minute);
+    if (slotIndex < 0) return;
+
+    // 目标位置 = slotIndex × cellHeight
+    final targetPosition = slotIndex * ScheduleTimeGrid.cellHeight;
+
+    // 获取可视区域高度，将目标卡片居中显示
+    final viewportHeight = _scrollController.position.viewportDimension;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final offset = (targetPosition - viewportHeight / 2).clamp(0.0, maxScroll);
+
+    _scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  // [闪烁动画] 2026-02-19 启动闪烁动画（与传统版CalendarPage一致：500ms间隔，20次闪烁=10秒）
+  void _startBlinking() {
+    _blinkTimer?.cancel();
+    _fadeController.value = 1.0;
+
+    int blinkCount = 0;
+    _blinkTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (mounted && blinkCount < 20) {
+        setState(() {
+          _fadeController.value = _fadeController.value == 0 ? 1.0 : 0.0;
+        });
+        blinkCount++;
+      } else {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _fadeController.value = 0.0;
+          });
+        }
+      }
+    });
+  }
+
+  // [闪烁动画] 2026-02-19 判断课程是否需要高亮
+  bool _isHighlightedLesson(Kn01L002LsnBean lesson) {
+    if (widget.highlightStuId == null || widget.highlightTime == null) return false;
+    if (lesson.stuId != widget.highlightStuId) return false;
+
+    // 获取有效时间
+    final effectiveDateStr = lesson.lsnAdjustedDate.isNotEmpty
+        ? lesson.lsnAdjustedDate
+        : lesson.schedualDate;
+    if (effectiveDateStr.length < 16) return false;
+    final timeStr = effectiveDateStr.substring(11, 16);
+    return timeStr == widget.highlightTime;
+  }
 
   /// 获取时间槽列表
   List<String> get timeSlots {
@@ -134,6 +241,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
         final gridHeight = slots.length * ScheduleTimeGrid.cellHeight;
 
         return SingleChildScrollView(
+          controller: _scrollController, // [自动滚动] 2026-02-19
           child: SizedBox(
             height: gridHeight,
             child: Row(
@@ -318,6 +426,34 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
         // [课程表新潮版] 2026-02-13 判断是否已签到
         final isSigned = lesson.scanQrDate.isNotEmpty;
 
+        // [闪烁动画] 2026-02-19 判断是否需要高亮
+        final isHighlighted = _isHighlightedLesson(lesson);
+
+        Widget cardWidget = ScheduleLessonCard(
+          stuName: lesson.stuName,
+          subjectName: lesson.subjectName,
+          lessonType: lesson.lessonType,
+          isAdjusted: isAdjusted,
+          isSigned: isSigned,
+          memo: lesson.memo,
+          cellSpan: cellSpan,
+          isCompact: studentCount > 1,  // [集体排课] 多人时启用紧凑模式
+        );
+
+        // [闪烁动画] 2026-02-19 高亮卡片添加闪烁红色边框
+        if (isHighlighted) {
+          cardWidget = Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red.withOpacity(_fadeAnimation.value),
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: cardWidget,
+          );
+        }
+
         blocks.add(
           Positioned(
             left: left,
@@ -340,16 +476,7 @@ class _ScheduleTimeGridState extends State<ScheduleTimeGrid> {
                 _releasePress();
                 _pendingLessonListTap = null;
               },
-              child: ScheduleLessonCard(
-                stuName: lesson.stuName,
-                subjectName: lesson.subjectName,
-                lessonType: lesson.lessonType,
-                isAdjusted: isAdjusted,
-                isSigned: isSigned,
-                memo: lesson.memo,
-                cellSpan: cellSpan,
-                isCompact: studentCount > 1,  // [集体排课] 多人时启用紧凑模式
-              ),
+              child: cardWidget,
             ),
           ),
         );

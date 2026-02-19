@@ -23,6 +23,8 @@ class ScheduleTrendyView extends StatefulWidget {
   final Function(Kn01L002LsnBean lesson)? onNoteLesson;     // [课程表新潮版] 2026-02-13 备注
   final Function(DateTime weekStart)? onWeekChanged;
   final DateTime? initialWeekStart; // [周同步] 2026-02-16 支持从外部传入初始周
+  final String? highlightStuId;  // [闪烁动画] 2026-02-19 高亮显示的学生ID
+  final String? highlightTime;   // [闪烁动画] 2026-02-19 高亮显示的时间（HH:mm）
 
   const ScheduleTrendyView({
     super.key,
@@ -38,6 +40,8 @@ class ScheduleTrendyView extends StatefulWidget {
     this.onNoteLesson,
     this.onWeekChanged,
     this.initialWeekStart,
+    this.highlightStuId,
+    this.highlightTime,
   });
 
   @override
@@ -141,6 +145,8 @@ class _ScheduleTrendyViewState extends State<ScheduleTrendyView> {
             timeColumnWidth: timeColumnWidth,
             onEmptyCellTap: widget.onAddLesson,
             onLessonTap: _showLessonDetail,
+            highlightStuId: widget.highlightStuId,   // [闪烁动画] 2026-02-19
+            highlightTime: widget.highlightTime,     // [闪烁动画] 2026-02-19
           ),
         ),
 

@@ -54,7 +54,7 @@ class _ScheduleGridViewState extends State<ScheduleGridView> {
 
   // 时间配置
   static const int startHour = 8;
-  static const int endHour = 21;
+  static const int endHour = 23; // [Bug修复] 2026-02-19 延伸到22:30（endHour=23生成到22:45）
   static const int intervalMinutes = 15;
   static const double cellHeight = 24.0;
   static const double timeColumnWidth = 50.0;
