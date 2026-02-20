@@ -70,10 +70,17 @@
             <artifactId>jquery</artifactId>
             <version>3.5.1</version>
         </dependency>
+        <!--
+            WARNING: 切勿将 Bootstrap 升级到 5.x！
+            当前所有 HTML 模板（templates/）均基于 Bootstrap 4 编写，
+            升级到 5.x 会导致 CSS 路径失效、class 名称不兼容，Web 页面显示全面异常。
+            如需升级，必须同步改造所有模板文件。
+            BUG记录: 2026/02/16 误升级至 5.3.3 导致全部 Web 页面样式崩溃，已回退。
+        -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>5.3.3</version>
+            <version>4.5.0</version>
         </dependency>
 
         <!-- 开发工具 -->
