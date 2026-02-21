@@ -73,7 +73,13 @@ class MyApp extends StatelessWidget {
                   child: Stack(
                     children: [
                       // Navigator整体（包含所有层级的子页面）
-                      child!,
+                      // [BUG FIX] 当锁屏或PIN设置画面覆盖时，用ExcludeFocus排除主app的焦点遍历，
+                      // 避免Flutter Web在Chrome获得焦点时对未布局的FocusNode调用rect，
+                      // 导致 "RenderBox was not laid out" 断言错误。
+                      ExcludeFocus(
+                        excluding: !lockProvider.isPinSet || lockProvider.isLocked,
+                        child: child!,
+                      ),
                       // PIN设置画面（首次启动，未设置PIN时显示）
                       if (!lockProvider.isPinSet)
                         const PinSetupScreen(mode: PinSetupMode.setup),
