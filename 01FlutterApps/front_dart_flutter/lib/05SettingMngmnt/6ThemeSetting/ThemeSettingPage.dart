@@ -1,5 +1,6 @@
 // [Flutter页面主题改造] 2026-01-18 新增主题切换页面
-// 用户可以在此页面选择不同的UI风格主题
+// [页面布局调整] 2026-02-21 合并多国语言切换功能，页面更名为「选项设置」
+// 用户可以在此页面选择不同的UI风格主题和语言
 
 import 'package:flutter/material.dart';
 import '../../CommonProcess/customUI/KnAppBar.dart';
@@ -24,8 +25,8 @@ class ThemeSettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KnAppBar(
-        title: '主题风格设置',
-        subtitle: '$pagePath >> 主题风格设置',
+        title: '选项设置',
+        subtitle: '$pagePath >> 选项设置',
         context: context,
         appBarBackgroundColor: knBgColor.withOpacity(0.2),
         subtitleBackgroundColor: knBgColor,
@@ -121,6 +122,23 @@ class ThemeSettingPage extends StatelessWidget {
                         }
                       },
                     )),
+
+                // [页面布局调整] 2026-02-21 多国语言切换区域（从设置管理独立卡片合并至此）
+                const SizedBox(height: 20),
+                // 语言切换标题
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    '多国语言切换',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: themeProvider.currentConfig.colors.primaryText,
+                    ),
+                  ),
+                ),
+                // 语言选项列表
+                ..._buildLanguageOptions(context, themeProvider),
               ],
             ),
           );
@@ -295,5 +313,84 @@ class ThemeSettingPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// [页面布局调整] 2026-02-21 多国语言切换选项列表（UI占位，功能未实装）
+  List<Widget> _buildLanguageOptions(
+      BuildContext context, ThemeProvider themeProvider) {
+    final colors = themeProvider.currentConfig.colors;
+    final shapes = themeProvider.currentConfig.shapes;
+
+    final languages = [
+      {'code': 'zh', 'name': '中文', 'icon': '🇸🇬'},
+      {'code': 'ja', 'name': '日本語', 'icon': '🇯🇵'},
+      {'code': 'en', 'name': 'English', 'icon': '🇺🇸'},
+    ];
+
+    // 当前使用中文
+    const currentLang = 'zh';
+
+    return languages
+        .map((lang) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // TODO: 语言切换功能未实装
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('语言切换功能开发中（${lang['name']}）'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(shapes.cardRadius),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: colors.cardBackground,
+                      borderRadius: BorderRadius.circular(shapes.cardRadius),
+                      border: Border.all(
+                        color: lang['code'] == currentLang
+                            ? knBgColor
+                            : colors.border,
+                        width: lang['code'] == currentLang ? 2 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          lang['icon']!,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            lang['name']!,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: colors.primaryText,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          lang['code'] == currentLang
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          color: lang['code'] == currentLang
+                              ? knBgColor
+                              : colors.hintText,
+                          size: 22,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ))
+        .toList();
   }
 }

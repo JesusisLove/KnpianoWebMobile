@@ -738,11 +738,22 @@ class HomePageState extends State<HomePage> {
                           )));
             },
           },
+          // [应用锁定功能] 2026-02-18 安全设置（PIN修改 + 自动锁定时间）
+          // [页面布局调整] 2026-02-21 从第5位移到第2位，替换多国语言切换卡片
           {
-            'icon': Icons.language,
-            'text': "多国语言切换",
-            'description': "系统语言设置",
-            'onPressed': () {},
+            'icon': Icons.security,
+            'text': "安全设置",
+            'description': "PIN码与自动锁定时间",
+            'onPressed': () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SecuritySettingPage(
+                            knBgColor: consts.Constants.settngThemeColor,
+                            knFontColor: Colors.white,
+                            pagePath: "设置管理",
+                          )));
+            },
           },
           {
             'icon': Icons.settings,
@@ -762,29 +773,13 @@ class HomePageState extends State<HomePage> {
           {
             'icon': Icons.palette,
             'text': "选项设置",
-            'description': "主题风格切换",
-            // [Flutter页面主题改造] 2026-01-18 导航到主题设置页面
+            // [页面布局调整] 2026-02-21 多国语言切换功能合并到选项设置
+            'description': "主题风格与语言切换",
             'onPressed': () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => ThemeSettingPage(
-                            knBgColor: consts.Constants.settngThemeColor,
-                            knFontColor: Colors.white,
-                            pagePath: "设置管理",
-                          )));
-            },
-          },
-          // [应用锁定功能] 2026-02-18 安全设置（PIN修改 + 自动锁定时间）
-          {
-            'icon': Icons.security,
-            'text': "安全设置",
-            'description': "PIN码与自动锁定时间",
-            'onPressed': () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SecuritySettingPage(
                             knBgColor: consts.Constants.settngThemeColor,
                             knFontColor: Colors.white,
                             pagePath: "设置管理",
