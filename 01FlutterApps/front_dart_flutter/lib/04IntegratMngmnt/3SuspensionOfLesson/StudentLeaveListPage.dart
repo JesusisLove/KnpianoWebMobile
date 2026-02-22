@@ -42,6 +42,7 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
   bool _isDataLoaded = false; // 数据是否已加载完成
   String _searchQuery = ''; // 搜索关键词
   final TextEditingController _searchController = TextEditingController(); // 搜索输入控制器
+  final Map<String, bool> _expandedYears = {}; // 年度ボックスの開閉状態
 
   @override
   void initState() {
@@ -111,6 +112,28 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
       final name = student.nikName.isNotEmpty ? student.nikName : student.stuName;
       return name.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+  }
+
+  // 按退学年度分组（年度降序，同年度内按退学日升序，不明は末尾）
+  Map<String, List<StudentLeaveBean>> get _groupedByYear {
+    final map = <String, List<StudentLeaveBean>>{};
+    for (final s in filteredStudents) {
+      final year = s.quitDate.length >= 4 ? s.quitDate.substring(0, 4) : '不明';
+      map.putIfAbsent(year, () => []).add(s);
+    }
+    // 同年度内：按退学日升序（早退学的在前）
+    for (final list in map.values) {
+      list.sort((a, b) => a.quitDate.compareTo(b.quitDate));
+    }
+    // 年度降序，不明末尾
+    return Map.fromEntries(
+      map.entries.toList()
+        ..sort((a, b) {
+          if (a.key == '不明') return 1;
+          if (b.key == '不明') return -1;
+          return b.key.compareTo(a.key);
+        }),
+    );
   }
 
   @override
@@ -232,21 +255,6 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
       return dateString.substring(0, 10);
     }
     return dateString;
-  }
-
-  // 构建网格项目（学生卡片或添加按钮）
-  Widget _buildGridItem(int index) {
-    final displayStudents = filteredStudents;
-    if (index < displayStudents.length) {
-      // 学生卡片
-      return _buildStudentCard(displayStudents[index]);
-    } else if (index == displayStudents.length) {
-      // 添加按钮
-      return _buildAddButton();
-    } else {
-      // 空占位
-      return const SizedBox.shrink();
-    }
   }
 
   // 构建添加按钮
@@ -394,6 +402,99 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
     );
   }
 
+  // 构建年度折叠盒子
+  Widget _buildYearBox(String year, List<StudentLeaveBean> yearStudents) {
+    final isExpanded = _searchQuery.isNotEmpty || (_expandedYears[year] ?? false);
+    final yearLabel = year == '不明' ? '不明' : '$year年';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        children: [
+          // 年度ヘッダー（タップで開閉）
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _expandedYears[year] = !(_expandedYears[year] ?? false);
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: widget.knBgColor,
+                borderRadius: isExpanded
+                    ? const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      )
+                    : BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    '$yearLabel  (${yearStudents.length}名)',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // 年度コンテンツ（展開時のみ表示）
+          if (isExpanded)
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  left: BorderSide(color: widget.knBgColor, width: 0.5),
+                  right: BorderSide(color: widget.knBgColor, width: 0.5),
+                  bottom: BorderSide(color: widget.knBgColor, width: 0.5),
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                ),
+              ),
+              child: Column(
+                children: [
+                  for (int rowIndex = 0;
+                      rowIndex < (yearStudents.length / 4).ceil();
+                      rowIndex++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          for (int colIndex = 0; colIndex < 4; colIndex++)
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: () {
+                                  final idx = rowIndex * 4 + colIndex;
+                                  return idx < yearStudents.length
+                                      ? _buildStudentCard(yearStudents[idx])
+                                      : const SizedBox.shrink();
+                                }(),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -448,27 +549,26 @@ class _StudentLeaveListPageState extends State<StudentLeaveListPage> {
                     padding: const EdgeInsets.all(10),
                     child: Column(
                       children: [
-                        // 计算包含添加按钮的总数量
-                        for (int rowIndex = 0;
-                            rowIndex < ((filteredStudents.length + 1) / 4).ceil();
-                            rowIndex++)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                // 每行显示4个（学生+添加按钮）
-                                for (int colIndex = 0; colIndex < 4; colIndex++)
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4),
-                                      child: _buildGridItem(
-                                          rowIndex * 4 + colIndex),
-                                    ),
-                                  ),
-                              ],
-                            ),
+                        // 年度別グループ表示（降順）
+                        for (final entry in _groupedByYear.entries)
+                          _buildYearBox(entry.key, entry.value),
+                        // 「+」追加ボタン（全年度の下に配置）
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: _buildAddButton(),
+                                ),
+                              ),
+                              const Expanded(child: SizedBox()),
+                              const Expanded(child: SizedBox()),
+                              const Expanded(child: SizedBox()),
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),
